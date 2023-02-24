@@ -305,9 +305,10 @@ public enum RPCServer: Hashable, CaseIterable {
         case .main, .goerli, .optimistic, .arbitrum, .optimismGoerli: return Constants.Credentials.etherscanKey
         case .binance_smart_chain: return Constants.Credentials.binanceSmartChainExplorerApiKey //Key not needed for testnet (empirically)
         case .polygon, .mumbai_testnet: return Constants.Credentials.polygonScanExplorerApiKey
+        case .avalanche: return Constants.Credentials.avalancheExplorerApiKey
         case .fantom, .heco, .heco_testnet, .binance_smart_chain_testnet: return nil
         case .klaytnCypress, .klaytnBaobabTestnet: return nil
-        case .poa, .classic, .xDai, .artis_sigma1, .artis_tau1, .callisto, .fantom_testnet, .avalanche, .avalanche_testnet, .cronosTestnet, .palm, .palmTestnet, .custom, .cronosMainnet: return nil
+        case .poa, .classic, .xDai, .artis_sigma1, .artis_tau1, .callisto, .fantom_testnet, .avalanche_testnet, .cronosTestnet, .palm, .palmTestnet, .custom, .cronosMainnet: return nil
         case .ioTeX, .ioTeXTestnet: return nil
         case .optimismGoerli, .arbitrumGoerli: return nil
         }

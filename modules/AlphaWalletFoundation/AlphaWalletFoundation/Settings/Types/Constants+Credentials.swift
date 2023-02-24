@@ -45,6 +45,7 @@ extension Constants {
         static let etherscanKey = env("ETHERSCANKEY") ?? "1PX7RG8H4HTDY8X55YRMCAKPZK476M23ZR"
         static let binanceSmartChainExplorerApiKey: String? = env("BINANCESMARTCHAINEXPLORERAPIKEY")
         static let polygonScanExplorerApiKey: String? = env("POLYGONSCANEXPLORERAPIKEY")
+        static let avalancheExplorerApiKey = env("AVALANCHEEXPLORERAPIKEY")
         static let paperTrail = (host: env("PAPERTRAILHOST") ?? "", port: (env("PAPERTRAILPORT") ?? "").toInt() ?? 0)
         static let openseaKey = env("OPENSEAKEY") ?? nil
         static let rampApiKey = env("RAMPAPIKEY") ?? "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
