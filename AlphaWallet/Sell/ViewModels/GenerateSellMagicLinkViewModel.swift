@@ -7,9 +7,8 @@ struct GenerateSellMagicLinkViewModel {
     let tokenHolder: TokenHolder
     let ethCost: Double
     let linkExpiryDate: Date
-    private let server: RPCServer
+    let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-    let paymentFlow: PaymentFlow
     var contentsBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
@@ -98,10 +97,8 @@ struct GenerateSellMagicLinkViewModel {
          ethCost: Double,
          linkExpiryDate: Date,
          server: RPCServer,
-         assetDefinitionStore: AssetDefinitionStore,
-         paymentFlow: PaymentFlow) {
+         assetDefinitionStore: AssetDefinitionStore) {
 
-        self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate

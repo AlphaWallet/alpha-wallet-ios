@@ -46,11 +46,6 @@ class NFTAssetViewModel {
         return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
     }
 
-    var sellTransactionType: TransactionType {
-        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-        return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
-    }
-
     var previewViewType: NFTPreviewViewType {
         switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
         case .backedByOpenSea:
