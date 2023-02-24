@@ -106,7 +106,7 @@ public struct TokenAdaptor {
         } else {
             for each in subscribablesForAttributeValues {
                 guard let subscribable = each.subscribableValue else { continue }
-                subscribable.subscribe { [weak tokenHolder] _ in
+                subscribable.sinkAsync { [weak tokenHolder] _ in
                     tokenHolder?.objectWillChange.send()
                 }
             }

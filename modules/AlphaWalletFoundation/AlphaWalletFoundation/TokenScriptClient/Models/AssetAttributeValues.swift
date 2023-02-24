@@ -28,10 +28,10 @@ public class AssetAttributeValues {
                 if let subscribedValue = subscribable.value {
                     resolvedAttributeValues[name] = subscribedValue
                 } else {
-                    if !subscribedAttributes.contains(where: { $0 === subscribable }) {
+                    if !subscribedAttributes.contains(where: { $0 == subscribable }) {
                         subscribedAttributes.append(subscribable)
                         //TODO fix objects being retained. Cannot only make [weak self] because TokenScript values wouldn't be resolved
-                        subscribable.subscribe { value in
+                        subscribable.sinkAsync { value in
                             guard let value = value else { return }
                             self.resolvedAttributeValues[name] = value
                             block(self.resolvedAttributeValues.values)

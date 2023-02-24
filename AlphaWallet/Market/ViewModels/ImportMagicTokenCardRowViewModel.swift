@@ -2,6 +2,8 @@
 
 import Foundation
 import AlphaWalletFoundation
+import Combine
+import AlphaWalletCore
 
 struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     private let viewModel: ImportMagicTokenViewModel
@@ -60,69 +62,30 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return viewModel.tokenHolder?.isSpawnableMeetupContract ?? false
     }
 
-    func subscribeBuilding(withBlock block: @escaping (String) -> Void) {
-        if let subscribable = viewModel.tokenHolder?.values.buildingSubscribableValue {
-            subscribable.subscribe { value in
-                value?.stringValue.flatMap { block($0) }
-            }
-        }
+    func buildingPublisher() -> AnyPublisher<String, Never> {
+        return (viewModel.tokenHolder?.values.buildingSubscribableValue?.publisher ?? .empty())
+            .compactMap { $0?.stringValue }
+            .eraseToAnyPublisher()
     }
 
-    func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void) {
-        func updateStreetLocalityStateCountry(street: String?, locality: String?, state: String?, country: String?) {
-            let values = [street, locality, state, country].compactMap { $0 }
-            let string = values.joined(separator: ", ")
-            block(string)
-        }
+    func streetLocalityStateCountryPublisher() -> AnyPublisher<String, Never> {
+        let street = (viewModel.tokenHolder?.values.streetSubscribableValue?.publisher ?? .empty())
+            .map { $0?.stringValue }
+            .replaceEmpty(with: nil)
 
-        if let subscribable = viewModel.tokenHolder?.values.streetSubscribableValue {
-            subscribable.subscribe { value in
-                guard let tokenHolder = self.viewModel.tokenHolder else { return }
-                if let value = value?.stringValue {
-                    updateStreetLocalityStateCountry(
-                            street: value,
-                            locality: tokenHolder.values.localitySubscribableStringValue,
-                            state: tokenHolder.values.stateSubscribableStringValue,
-                            country: tokenHolder.values.countryStringValue
-                    )
-                }
-            }
-        }
-        if let subscribable = viewModel.tokenHolder?.values.stateSubscribableValue {
-            subscribable.subscribe { value in
-                guard let tokenHolder = self.viewModel.tokenHolder else { return }
-                if let value = value?.stringValue {
-                    updateStreetLocalityStateCountry(
-                            street: tokenHolder.values.streetSubscribableStringValue,
-                            locality: tokenHolder.values.localitySubscribableStringValue,
-                            state: value,
-                            country: tokenHolder.values.countryStringValue
-                    )
-                }
-            }
-        }
-        if let subscribable = viewModel.tokenHolder?.values.localitySubscribableValue {
-            subscribable.subscribe { value in
-                guard let tokenHolder = self.viewModel.tokenHolder else { return }
-                if let value = value?.stringValue {
-                    updateStreetLocalityStateCountry(
-                            street: tokenHolder.values.streetSubscribableStringValue,
-                            locality: value,
-                            state: tokenHolder.values.stateSubscribableStringValue,
-                            country: tokenHolder.values.countryStringValue
-                    )
-                }
-            }
-        }
-        if let country = viewModel.tokenHolder?.values.countryStringValue {
-            guard let tokenHolder = self.viewModel.tokenHolder else { return }
-            updateStreetLocalityStateCountry(
-                    street: tokenHolder.values.streetSubscribableStringValue,
-                    locality: tokenHolder.values.localitySubscribableStringValue,
-                    state: tokenHolder.values.stateSubscribableStringValue,
-                    country: country
-            )
-        }
+        let state = (viewModel.tokenHolder?.values.stateSubscribableValue?.publisher ?? .empty())
+            .map { $0?.stringValue }
+            .replaceEmpty(with: nil)
+
+        let locality = (viewModel.tokenHolder?.values.localitySubscribableValue?.publisher ?? .empty())
+            .map { $0?.stringValue }
+            .replaceEmpty(with: nil)
+
+        let country = Just(viewModel.tokenHolder?.values.countryStringValue)
+
+        return Publishers.CombineLatest4(street, locality, state, country)
+            .map { [$0, $1, $2, $3].compactMap { $0 }.joined(separator: ", ") }
+            .eraseToAnyPublisher()
     }
 
     var tokenScriptHtml: String {

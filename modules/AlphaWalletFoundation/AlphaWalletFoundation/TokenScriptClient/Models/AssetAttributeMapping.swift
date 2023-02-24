@@ -22,7 +22,7 @@ public struct AssetAttributeMapping {
 
     private func map(fromSubscribableKey subscribableKey: Subscribable<AssetInternalValue>) -> AssetInternalValue {
         let mappedSubscribable = Subscribable<AssetInternalValue>(nil)
-        subscribableKey.subscribe { value in
+        subscribableKey.sinkAsync { value in
             guard let value = value else { return }
             guard let keyString = self.convertKeyToString(value) else { return }
             mappedSubscribable.send(XMLHandler.getMappingOptionValue(fromMappingElement: self.mapping, xmlContext: self.xmlContext, withKey: keyString).flatMap { .string($0) })

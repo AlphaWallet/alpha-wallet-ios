@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol TokenCardRowViewModelProtocol {
     var tokenCount: String { get }
@@ -20,8 +21,9 @@ protocol TokenCardRowViewModelProtocol {
     var isMeetupContract: Bool { get }
     var tokenScriptHtml: String { get }
     var hasTokenScriptHtml: Bool { get }
-    func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void)
-    func subscribeBuilding(withBlock block: @escaping (String) -> Void)
+    
+    func streetLocalityStateCountryPublisher() -> AnyPublisher<String, Never>
+    func buildingPublisher() -> AnyPublisher<String, Never>
 }
 
 extension TokenCardRowViewModelProtocol {

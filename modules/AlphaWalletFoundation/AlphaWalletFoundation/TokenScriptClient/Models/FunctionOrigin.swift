@@ -165,7 +165,7 @@ public struct FunctionOrigin {
                 output: functionType.output,
                 assetAttributeProvider: assetAttributeProvider) else { return nil }
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
-        subscribable.subscribe { value in
+        subscribable.sinkAsync { value in
             guard let value = value else { return }
             if let bitmask = self.bitmask {
                 resultSubscribable.send(self.castReturnValue(value: value, bitmask: bitmask))
