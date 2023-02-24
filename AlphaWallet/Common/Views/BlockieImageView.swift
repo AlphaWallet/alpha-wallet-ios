@@ -19,10 +19,7 @@ class BlockieImageView: UIView {
         return imageView
     }()
 
-    var image: BlockiesImage? {
-        get { return nil }
-        set { setBlockieImage(image: newValue) }
-    }
+    var hideWhenImageIsNil: Bool = false
 
     override var contentMode: UIView.ContentMode {
         didSet { imageView.contentMode = contentMode }
@@ -77,14 +74,18 @@ class BlockieImageView: UIView {
         layer.cornerRadius = frame.width / 2.0
     }
 
-    func setBlockieImage(image: BlockiesImage?) {
-        switch image {
+    func set(blockieImage: BlockiesImage?) {
+        switch blockieImage {
         case .image(let image, _):
             imageView.setImage(image: image)
         case .url(let url, _):
             imageView.setImage(url: url)
         case .none:
             imageView.setImage(url: nil)
+        }
+        
+        if hideWhenImageIsNil {
+            isHidden = blockieImage == nil
         }
     }
 

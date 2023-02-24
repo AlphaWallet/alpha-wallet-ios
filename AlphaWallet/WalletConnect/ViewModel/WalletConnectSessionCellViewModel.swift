@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct WalletConnectSessionCellViewModel {
     let session: AlphaWallet.WalletConnect.Session
@@ -9,7 +10,7 @@ struct WalletConnectSessionCellViewModel {
 
     let backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
-    var serverIconImages: [Subscribable<Image>] {
+    var serverIconImages: [ImagePublisher] {
         servers.map { $0.walletConnectIconImage }
     }
 

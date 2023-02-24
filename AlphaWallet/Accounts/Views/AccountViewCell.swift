@@ -60,7 +60,7 @@ class AccountViewCell: UITableViewCell {
         selectedIndicator.isHidden = !viewModel.isSelected
 
         addressOrEnsName.attributedText = viewModel.addressOrEnsName
-        blockieImageView.setBlockieImage(image: viewModel.blockieImage)
+        blockieImageView.set(blockieImage: viewModel.blockieImage)
         balanceLabel.attributedText = viewModel.balance
         apprecation24hourLabel.attributedText = viewModel.apprecation24hour
     }

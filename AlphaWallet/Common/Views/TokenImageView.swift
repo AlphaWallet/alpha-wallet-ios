@@ -5,23 +5,41 @@ import AlphaWalletFoundation
 import Combine
 
 class ImageView: UIImageView {
-    private var subscriptionKey: Subscribable<Image>.SubscribableKey?
-    var subscribable: Subscribable<Image>? {
-        didSet {
-            if let previousSubscribable = oldValue, let subscriptionKey = subscriptionKey {
-                previousSubscribable.unsubscribe(subscriptionKey)
-            }
+    private let subject: PassthroughSubject<ImagePublisher, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
 
-            if let subscribable = subscribable {
-                image = nil
-                subscriptionKey = subscribable.subscribe { [weak self] image in
-                    self?.image = image
+    var hideWhenImageIsNil: Bool = false
+
+    init() {
+        super.init(frame: .zero)
+
+        subject.flatMapLatest { $0 }
+            .sink { [weak self] image in
+                self?.image = image
+                if self?.hideWhenImageIsNil ?? false {
+                    self?.isHidden = self?.hideWhenImageIsNil ?? false
                 }
-            } else {
-                subscriptionKey = nil
-                image = nil
-            }
-        }
+            }.store(in: &cancellable)
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        subject.flatMapLatest { $0 }
+            .sink { [weak self] image in
+                self?.image = image
+                if self?.hideWhenImageIsNil ?? false {
+                    self?.isHidden = self?.hideWhenImageIsNil ?? false
+                }
+            }.store(in: &cancellable)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func set(imageSource: ImagePublisher) {
+        subject.send(imageSource)
     }
 }
 

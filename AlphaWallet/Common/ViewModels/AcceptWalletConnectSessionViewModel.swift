@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletFoundation
+import Combine
 
 final class AcceptWalletConnectSessionViewModel: ExpandableSection {
     private let config: Config
@@ -110,7 +111,7 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
                 isOpened: isOpened,
                 section: section,
                 shouldHideChevron: shouldHideChevron)
-            let serverIcon = serversToConnect.first?.walletConnectIconImage ?? .init(nil)
+            let serverIcon = serversToConnect.first?.walletConnectIconImage ?? .just(nil)
 
             return .init(title: .normal(servers), headerName: serversSectionTitle, titleIcon: serverIcon, configuration: configuration)
         case .url:
@@ -184,7 +185,7 @@ extension AcceptWalletConnectSessionViewModel {
 }
 
 extension RPCServer {
-    var walletConnectIconImage: Subscribable<Image> {
+    var walletConnectIconImage: ImagePublisher {
         return RPCServerImageFetcher.instance.image(server: self, iconImage: iconImage ?? R.image.tokenPlaceholderLarge()!)
     }
 }

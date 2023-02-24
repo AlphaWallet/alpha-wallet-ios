@@ -416,7 +416,7 @@ extension AddressTextField: UITextFieldDelegate {
 
             if let addressOrEnsName = resolved {
                 ensAddressLabel.addressOrEnsName = addressOrEnsName
-                ensAddressLabel.blockieImage = response.image
+                ensAddressLabel.set(blockieImage: response.image)
             } else {
                 ensAddressLabel.clear()
             }
