@@ -23,17 +23,9 @@ class GenerateSellMagicLinkViewController: UIViewController {
     private (set) var viewModel: GenerateSellMagicLinkViewModel
 
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
-//    let paymentFlow: PaymentFlow
-//    let tokenHolder: TokenHolder
-//    let ethCost: Double
-//    let linkExpiryDate: Date
 
     init(viewModel: GenerateSellMagicLinkViewModel) {
         self.viewModel = viewModel
-//        self.paymentFlow = paymentFlow
-//        self.tokenHolder = tokenHolder
-//        self.ethCost = ethCost
-//        self.linkExpiryDate = linkExpiryDate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
 
