@@ -502,9 +502,9 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
         let value = (textField.value as NSString).replacingCharacters(in: range, with: string)
 
-        if textField == dataTextField.textField {
+        if textField == dataTextField {
             viewModel.configurationToEdit.dataRawValue = value
-        } else if textField == nonceTextField.textField {
+        } else if textField == nonceTextField {
             viewModel.configurationToEdit.nonceRawValue = Int(value)
         }
 
