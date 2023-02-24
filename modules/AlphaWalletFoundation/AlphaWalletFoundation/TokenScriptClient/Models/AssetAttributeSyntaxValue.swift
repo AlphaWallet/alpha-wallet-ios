@@ -78,17 +78,14 @@ public struct AssetAttributeSyntaxValue: Hashable {
     public var subscribableStringValue: String? {
         return value.subscribableValue?.value?.stringValue
     }
-    public var isSubscribableValue: Bool {
-        return value.subscribableValue != nil
-    }
 }
 
 extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValue {
     //This is useful for implementing 3-phase resolution of attributes: resolve the immediate ones (non-function origins), then use those values to resolve the function-origins. There are no user-entry origins at the token level, so we don't need to check for them
     public var splitAttributesIntoSubscribablesAndNonSubscribables: (subscribables: [Key: Value], nonSubscribables: [Key: Value]) {
         return (
-                subscribables: filter { $0.value.isSubscribableValue },
-                nonSubscribables: filter { !$0.value.isSubscribableValue }
+            subscribables: filter { $0.value.subscribableValue != nil },
+            nonSubscribables: filter { $0.value.subscribableValue == nil }
         )
     }
 }

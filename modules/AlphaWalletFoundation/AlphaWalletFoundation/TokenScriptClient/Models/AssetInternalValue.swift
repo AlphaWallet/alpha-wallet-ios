@@ -90,9 +90,6 @@ public enum AssetInternalValue: Codable {
         guard case .bytes(let value) = self else { return nil }
         return value
     }
-    public var isSubscribableValue: Bool {
-        return subscribableValue != nil
-    }
 
     enum Key: CodingKey {
         case address
