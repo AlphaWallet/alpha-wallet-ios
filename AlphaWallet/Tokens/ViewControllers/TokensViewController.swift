@@ -264,7 +264,7 @@ final class TokensViewController: UIViewController {
                 self?.showOrHideBackupWalletViewHolder()
 
                 walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, config: viewModel.config, alignment: .center))
-                blockieImageView.setBlockieImage(image: state.blockiesImage)
+                blockieImageView.set(blockieImage: state.blockiesImage)
 
                 navigationItem.title = state.title
                 self?.isConsoleButtonHidden = state.isConsoleButtonHidden

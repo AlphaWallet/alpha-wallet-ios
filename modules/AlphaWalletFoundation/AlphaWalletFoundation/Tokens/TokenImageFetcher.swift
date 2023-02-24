@@ -81,7 +81,14 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
         self.networking = networking
     }
 
-    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor) -> TokenImage? {
+    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address,
+                                                     type: TokenType,
+                                                     server: RPCServer,
+                                                     symbol: String,
+                                                     colors: [UIColor],
+                                                     staticOverlayIcon: UIImage?,
+                                                     blockChainNameColor: UIColor) -> TokenImage? {
+
         guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
         let rawImage: UIImage?
@@ -92,10 +99,20 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             rawImage = nil
             overlayServerIcon = staticOverlayIcon
         case .erc20, .erc875:
-            rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server, colors: colors, blockChainNameColor: blockChainNameColor)
+            rawImage = programmaticallyGeneratedIconImage(
+                for: contractAddress,
+                server: server,
+                colors: colors,
+                blockChainNameColor: blockChainNameColor)
+
             overlayServerIcon = staticOverlayIcon
         case .nativeCryptocurrency:
-            rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server, colors: colors, blockChainNameColor: blockChainNameColor)
+            rawImage = programmaticallyGeneratedIconImage(
+                for: contractAddress,
+                server: server,
+                colors: colors,
+                blockChainNameColor: blockChainNameColor)
+
             overlayServerIcon = nil
         }
         let imageSource = rawImage.flatMap { RawImage.generated(image: $0, symbol: symbol) } ?? .none
@@ -103,7 +120,16 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
         return .init(image: .image(imageSource), isFinal: false, overlayServerIcon: overlayServerIcon)
     }
 
-    private func getDefaultOrGenerateIcon(server: RPCServer, contractAddress: AlphaWallet.Address, type: TokenType, name: String, tokenImage: UIImage?, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor, serverIconImage: UIImage?) -> TokenImage? {
+    private func getDefaultOrGenerateIcon(server: RPCServer,
+                                          contractAddress: AlphaWallet.Address,
+                                          type: TokenType,
+                                          name: String,
+                                          tokenImage: UIImage?,
+                                          colors: [UIColor],
+                                          staticOverlayIcon: UIImage?,
+                                          blockChainNameColor: UIColor,
+                                          serverIconImage: UIImage?) -> TokenImage? {
+
         switch type {
         case .nativeCryptocurrency:
             if let img = serverIconImage {
@@ -115,7 +141,14 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             }
         }
 
-        return TokenImageFetcherImpl.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor)
+        return TokenImageFetcherImpl.programmaticallyGenerateIcon(
+            for: contractAddress,
+            type: type,
+            server: server,
+            symbol: name,
+            colors: colors,
+            staticOverlayIcon: staticOverlayIcon,
+            blockChainNameColor: blockChainNameColor)
     }
 
     public func image(contractAddress: AlphaWallet.Address,
@@ -130,31 +163,41 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
                       blockChainNameColor: UIColor,
                       serverIconImage: UIImage?) -> TokenImagePublisher {
         
-        let subscribable: CurrentValueSubject<TokenImage?, Never>
+        let subject: CurrentValueSubject<TokenImage?, Never>
         let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
         if let sub = subscribables[key] {
-            subscribable = sub
+            subject = sub
             if let value = sub.value, value.isFinal {
-                return subscribable.eraseToAnyPublisher()
+                return subject.eraseToAnyPublisher()
             }
         } else {
             let sub = CurrentValueSubject<TokenImage?, Never>(nil)
             subscribables[key] = sub
-            subscribable = sub
+            subject = sub
         }
 
-        let generatedImage = getDefaultOrGenerateIcon(server: server, contractAddress: contractAddress, type: type, name: name, tokenImage: contractDefinedImage, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor, serverIconImage: serverIconImage)
+        let generatedImage = getDefaultOrGenerateIcon(
+            server: server,
+            contractAddress: contractAddress,
+            type: type,
+            name: name,
+            tokenImage: contractDefinedImage,
+            colors: colors,
+            staticOverlayIcon: staticOverlayIcon,
+            blockChainNameColor: blockChainNameColor,
+            serverIconImage: serverIconImage)
+
         if contractAddress == Constants.nativeCryptoAddressInDatabase {
-            subscribable.send(generatedImage)
-            return subscribable.eraseToAnyPublisher()
+            subject.send(generatedImage)
+            return subject.eraseToAnyPublisher()
         }
 
-        if subscribable.value == nil {
-            subscribable.send(generatedImage)
+        if subject.value == nil {
+            subject.send(generatedImage)
         }
 
         if let image = generatedImage, image.isFinal {
-            return subscribable.eraseToAnyPublisher()
+            return subject.eraseToAnyPublisher()
         }
 
         firstly {
@@ -171,16 +214,19 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
                     return .init(image: .image(.loaded(image: image)), isFinal: false, overlayServerIcon: staticOverlayIcon)
                 }
         }.done { value in
-            subscribable.send(value)
+            subject.send(value)
         }.catch { _ in
-            subscribable.send(generatedImage)
+            subject.send(generatedImage)
         }
 
-        return subscribable.eraseToAnyPublisher()
+        return subject.eraseToAnyPublisher()
     }
 
     //TODO: refactor and rename
-    private static func imageUrlFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize) throws -> ImageOrWebImageUrl {
+    private static func imageUrlFromOpenSea(_ type: TokenType,
+                                            balance: NonFungibleFromJson?,
+                                            size: GoogleContentSize) throws -> ImageOrWebImageUrl {
+
         switch type {
         case .erc721, .erc1155:
             guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl(rewriteGoogleContentSizeUrl: size) else {
@@ -193,7 +239,9 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     }
 
     //TODO: refactor
-    private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+    private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source,
+                                          contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+
         struct AnyError: Error { }
         let urlString = githubAssetsSource.url(forContract: contractAddress)
         guard let url = URL(string: urlString) else {
@@ -223,31 +271,38 @@ class GithubAssetsURLResolver {
     }
 }
 
+public typealias ImagePublisher = AnyPublisher<Image?, Never>
+
 public class RPCServerImageFetcher {
     public static var instance = RPCServerImageFetcher()
+    private let subscribables: AtomicDictionary<Int, ImagePublisher> = .init()
 
-    private static var subscribables: AtomicDictionary<Int, Subscribable<Image>> = .init()
-
-    public func image(server: RPCServer, iconImage: UIImage) -> Subscribable<Image> {
-        if let sub = Self.subscribables[server.chainID] {
+    public func image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
+        if let sub = subscribables[server.chainID] {
             return sub
         } else {
-            let sub = Subscribable<Image>(nil)
-            Self.subscribables[server.chainID] = sub
+            let sub = CurrentValueSubject<Image?, Never>(iconImage)
+            subscribables[server.chainID] = sub.eraseToAnyPublisher()
 
-            sub.send(iconImage)
-
-            return sub
+            return sub.eraseToAnyPublisher()
         }
     }
 }
 
-private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer, colors: [UIColor], blockChainNameColor: UIColor) -> UIImage {
+private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address,
+                                                server: RPCServer,
+                                                colors: [UIColor],
+                                                blockChainNameColor: UIColor) -> UIImage {
+
     let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server, colors: colors, blockChainNameColor: blockChainNameColor)
     return UIImage.tokenSymbolBackgroundImage(backgroundColor: backgroundColor)
 }
 
-private func symbolBackgroundColor(for contractAddress: AlphaWallet.Address, server: RPCServer, colors: [UIColor], blockChainNameColor: UIColor) -> UIColor {
+private func symbolBackgroundColor(for contractAddress: AlphaWallet.Address,
+                                   server: RPCServer,
+                                   colors: [UIColor],
+                                   blockChainNameColor: UIColor) -> UIColor {
+
     if contractAddress == Constants.nativeCryptoAddressInDatabase {
         return blockChainNameColor
     } else {

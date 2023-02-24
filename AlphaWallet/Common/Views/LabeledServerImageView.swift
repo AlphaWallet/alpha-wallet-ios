@@ -49,7 +49,7 @@ class LabeledServerImageView: UIView {
         }
 
         label.text = viewModel.server.name
-        serverImageView.subscribable = viewModel.server.walletConnectIconImage
+        serverImageView.set(imageSource: viewModel.server.walletConnectIconImage)
     }
 
     required init?(coder: NSCoder) {

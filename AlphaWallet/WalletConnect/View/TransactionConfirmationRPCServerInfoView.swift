@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 class TransactionConfirmationRPCServerInfoView: UIView {
 
@@ -52,7 +53,7 @@ class TransactionConfirmationRPCServerInfoView: UIView {
 
     private func configure(viewModel: TransactionConfirmationRPCServerInfoViewModel) {
         titleLabel.text = viewModel.title
-        serverIconImageView.subscribable = viewModel.iconImage
+        serverIconImageView.set(imageSource: viewModel.iconImage)
     }
 }
 
@@ -65,7 +66,7 @@ struct TransactionConfirmationRPCServerInfoViewModel {
         self.title = server.name
     }
 
-    var iconImage: Subscribable<Image> {
+    var iconImage: ImagePublisher {
         server.walletConnectIconImage
     }
 }

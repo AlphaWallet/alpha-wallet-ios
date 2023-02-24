@@ -40,6 +40,7 @@ class TransactionConfirmationHeaderView: UIView {
 
     private let titleIconImageView: RoundedImageView = {
         let imageView = RoundedImageView(size: .init(width: 24, height: 24))
+        imageView.hideWhenImageIsNil = true
         return imageView
     }()
 
@@ -164,8 +165,7 @@ class TransactionConfirmationHeaderView: UIView {
         chevronView.isHidden = viewModel.configuration.shouldHideChevron
         chevronImageView.image = viewModel.chevronImage
 
-        titleIconImageView.isHidden = viewModel.isTitleIconHidden
-        titleIconImageView.subscribable = viewModel.titleIcon
+        titleIconImageView.set(imageSource: viewModel.titleIcon)
         titleIconImageView.alpha = viewModel.titleAlpha
 
         titleLabel.alpha = viewModel.titleAlpha

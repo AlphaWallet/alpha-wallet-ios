@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct TransactionConfirmationHeaderViewModel {
     enum Title {
@@ -18,14 +19,10 @@ struct TransactionConfirmationHeaderViewModel {
     let headerName: String?
     let details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
-    let titleIcon: Subscribable<UIImage>
+    let titleIcon: ImagePublisher
     var chevronImage: UIImage? {
         let image = configuration.isOpened ? R.image.expand() : R.image.not_expand()
         return image?.withRenderingMode(.alwaysTemplate)
-    }
-
-    var isTitleIconHidden: Bool {
-        return titleIcon.value == nil
     }
 
     var titleAlpha: CGFloat {
@@ -67,14 +64,19 @@ struct TransactionConfirmationHeaderViewModel {
         return Configuration.Color.Semantic.defaultViewBackground
     }
 
-    init(title: Title, headerName: String?, details: String? = nil, titleIcon: Subscribable<UIImage> = .init(nil), configuration: TransactionConfirmationHeaderView.Configuration) {
+    init(title: Title,
+         headerName: String?,
+         details: String? = nil,
+         titleIcon: ImagePublisher = .just(nil),
+         configuration: TransactionConfirmationHeaderView.Configuration) {
+        
         switch title {
         case .normal(let title):
             self.title = title
             self.titleIcon = titleIcon
         case .warning(let title):
             self.title = title
-            self.titleIcon = .init(R.image.gasWarning())
+            self.titleIcon = .just(R.image.gasWarning())
         }
         self.headerName = headerName
         self.details = details

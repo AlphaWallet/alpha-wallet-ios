@@ -56,7 +56,10 @@ class AddressOrEnsNameLabel: UILabel {
     }()
 
     let blockieImageView: BlockieImageView = {
-        return BlockieImageView(size: .init(width: 20, height: 20))
+        let imageView = BlockieImageView(size: .init(width: 20, height: 20))
+        imageView.hideWhenImageIsNil = true
+
+        return imageView
     }()
 
     var addressString: String? {
@@ -90,13 +93,6 @@ class AddressOrEnsNameLabel: UILabel {
     var addressFormat: AddressFormat = .truncateMiddle
     var shouldShowLoadingIndicator: Bool = false
 
-    var blockieImage: BlockiesImage? {
-        didSet {
-            blockieImageView.image = blockieImage
-            blockieImageView.isHidden = blockieImage == nil
-        }
-    }
-
     init(domainResolutionService: DomainResolutionServiceType) {
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
@@ -120,8 +116,12 @@ class AddressOrEnsNameLabel: UILabel {
         blockieImageView.cornerRadius = 10
     }
 
+    func set(blockieImage: BlockiesImage?) {
+        blockieImageView.set(blockieImage: blockieImage)
+    }
+
     func clear() {
-        blockieImage = nil
+        set(blockieImage: nil)
         addressOrEnsName = nil
         currentlyResolving = nil
     }
