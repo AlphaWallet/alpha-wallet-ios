@@ -11,7 +11,6 @@ struct SetSellTokensCardExpiryDateViewModel {
     let ethCost: Double
     let token: Token
     let tokenHolder: TokenHolder
-    let paymentFlow: PaymentFlow
 
     var headerTitle: String {
         return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()
@@ -70,10 +69,8 @@ struct SetSellTokensCardExpiryDateViewModel {
          tokenHolder: TokenHolder,
          ethCost: Double,
          server: RPCServer,
-         assetDefinitionStore: AssetDefinitionStore,
-         paymentFlow: PaymentFlow) {
+         assetDefinitionStore: AssetDefinitionStore) {
 
-        self.paymentFlow = paymentFlow
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost

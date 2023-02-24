@@ -11,8 +11,8 @@ import AlphaWalletFoundation
 
 protocol NonFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
-    func didPressTransfer(token: Token, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
+    func didPressSell(tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
+    func didPressTransfer(token: Token, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
     func didPressViewRedemptionInfo(in viewController: NFTAssetViewController)
     func didTapURL(url: URL, in viewController: NFTAssetViewController)
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NFTAssetViewController)
@@ -135,12 +135,12 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             case .nftRedeem:
                 delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
             case .nftSell:
-                delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
+                delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, in: self)
             case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
                 //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                 break
             case .nonFungibleTransfer:
-                delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
+                delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, paymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
             case .tokenScript:
                 if let message = viewModel.tokenScriptWarningMessage(for: action) {
                     guard case .warning(let denialMessage) = message else { return }
