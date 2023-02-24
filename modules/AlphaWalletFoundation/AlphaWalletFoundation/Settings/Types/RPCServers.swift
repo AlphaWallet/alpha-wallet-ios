@@ -214,7 +214,9 @@ public enum RPCServer: Hashable, CaseIterable {
             case .cronosMainnet: return "https://cronoscan.com"
             case .cronosTestnet: return "https://cronos-explorer.crypto.org"
             case .custom: return nil
-            case .fantom_testnet, .avalanche, .avalanche_testnet: return nil
+            case .fantom_testnet: return nil
+            case .avalanche: return "https://snowtrace.io"
+            case .avalanche_testnet: return "https://testnet.snowtrace.io"
             case .arbitrum: return "https://arbiscan.io"
             case .palm: return "https://explorer.palm.io"
             case .palmTestnet: return "https://explorer.palm-uat.xyz"
@@ -411,9 +413,9 @@ public enum RPCServer: Hashable, CaseIterable {
     //TODO check if Blockscout can support this
     public func etherscanTokenDetailsWebPageURL(for address: AlphaWallet.Address) -> URL? {
         switch self {
-        case .main, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
+        case .main, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .avalanche, .avalanche_testnet:
             return etherscanWebpageRoot?.appendingPathComponent("token").appendingPathComponent(address.eip55String)
-        case .xDai, .goerli, .poa, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
+        case .xDai, .goerli, .poa, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
             return etherscanContractDetailsWebPageURL(for: address)
         }
     }
