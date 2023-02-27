@@ -9,24 +9,18 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-struct SelectableNFTAssetContainerViewModel {
-    private let token: TokenScript.Token?
-    private let tokenHolder: TokenHolder
-
-    var availableAmount: Int {
-        return token?.value ?? 1
-    }
+struct SelectableAssetContainerViewModel {
+    private let selected: Int
+    private let available: Int
+    private let isSelected: Bool
+    private let name: String
 
     var contentsBackgroundColor: UIColor? {
-        return selectionViewModel.isSelected ? Configuration.Color.Semantic.tableViewSpecialBackground : Configuration.Color.Semantic.tableViewCellBackground
-    }
-
-    var cardAmountSelectionToolbarViewModel: SingleTokenCardAmountSelectionToolbarViewModel {
-        .init(availableAmount: availableAmount, selectedAmount: selectionViewModel.selectedAmount ?? 0)
+        return isSelected ? Configuration.Color.Semantic.tableViewSpecialBackground : Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: token?.name ?? "-", attributes: [
+        return NSAttributedString(string: name, attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.title
         ])
@@ -39,23 +33,23 @@ struct SelectableNFTAssetContainerViewModel {
         ])
     }
 
-    var iconImage: TokenImagePublisher {
-        .just(nil)
-    }
-
     var selectionImage: UIImage? {
-        selectionViewModel.isSelected ? R.image.ticket_bundle_checked() : R.image.ticket_bundle_unchecked()
+        isSelected ? R.image.ticket_bundle_checked() : R.image.ticket_bundle_unchecked()
     }
 
-    var selectionViewModel: SingleNFTAssetSelectionViewModel {
-        .init(tokenHolder: tokenHolder, tokenId: tokenId)
+    var selectionViewModel: AssetSelectionCircleOverlayViewModel {
+        return AssetSelectionCircleOverlayViewModel(selected: selected, available: available, isSelected: isSelected)
     }
-    private let tokenId: TokenId
 
-    init(tokenHolder: TokenHolder, tokenId: TokenId) {
-        self.token = tokenHolder.token(tokenId: tokenId)
-        self.tokenId = tokenId
-        self.tokenHolder = tokenHolder
+    init(selected: Int,
+         available: Int,
+         isSelected: Bool,
+         name: String) {
+
+        self.selected = selected
+        self.available = available
+        self.isSelected = isSelected
+        self.name = name
     }
 
     var accessoryType: UITableViewCell.AccessoryType {

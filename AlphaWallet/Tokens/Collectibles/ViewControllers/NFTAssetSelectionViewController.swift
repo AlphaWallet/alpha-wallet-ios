@@ -15,19 +15,17 @@ protocol NFTAssetSelectionViewControllerDelegate: AnyObject {
 }
 
 class NFTAssetSelectionViewController: UIViewController {
-    private var viewModel: NFTAssetSelectionViewModel
+    private let viewModel: NFTAssetSelectionViewModel
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
-        searchController.delegate = self
-
         return searchController
     }()
+
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView.grouped
-        tableView.register(SelectableNFTAssetTableViewCell.self)
+        tableView.register(SelectableAssetTableViewCell.self)
         tableView.registerHeaderFooterView(NFTAssetSelectionSectionHeaderView.self)
-        tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
         tableView.separatorInset = .zero
@@ -49,6 +47,13 @@ class NFTAssetSelectionViewController: UIViewController {
     private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar)
     private let tokenCardViewFactory: TokenCardViewFactory
     private var cancellable = Set<AnyCancellable>()
+    private let willAppear = PassthroughSubject<Void, Never>()
+    private let assetsSelection = PassthroughSubject<NFTAssetSelectionViewModel.AssetsSelection, Never>()
+    private let selectedAsset = PassthroughSubject<NFTAssetSelectionViewModel.SelectedAsset, Never>()
+    private let toolbarAction = PassthroughSubject<NFTAssetSelectionViewModel.ToolbarAction, Never>()
+    private let assetsFilter = PassthroughSubject<NFTAssetSelectionViewModel.AssetFilter, Never>()
+    private lazy var dataSource = makeDataSource()
+    private weak var selectionView: EnterAssetAmountView?
 
     weak var delegate: NFTAssetSelectionViewControllerDelegate?
 
@@ -59,7 +64,7 @@ class NFTAssetSelectionViewController: UIViewController {
 
         view.addSubview(tableView)
         view.addSubview(footerBar)
-
+        
         NSLayoutConstraint.activate([
             footerBar.anchorsConstraint(to: view),
 
@@ -69,13 +74,16 @@ class NFTAssetSelectionViewController: UIViewController {
             bottomConstraint
         ])
 
-        configure(viewModel: viewModel)
-
         toolbar.viewController = self
+
+        emptyView = EmptyView.nftAssetsEmptyView()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+
         bind(viewModel: viewModel)
     }
 
@@ -84,6 +92,7 @@ class NFTAssetSelectionViewController: UIViewController {
 
         keyboardChecker.viewWillAppear()
         setupFilteringWithKeyword()
+        willAppear.send(())
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -99,12 +108,6 @@ class NFTAssetSelectionViewController: UIViewController {
         return nil
     }
 
-    private func reload() {
-        startLoading(animated: false)
-        tableView.reloadData()
-        endLoading(animated: false)
-    }
-
     private func bind(viewModel: NFTAssetSelectionViewModel) {
         keyboardChecker.publisher
             .map { $0.isVisible }
@@ -115,104 +118,125 @@ class NFTAssetSelectionViewController: UIViewController {
                 tableView.contentInset = $0
                 tableView.scrollIndicatorInsets = $0
             }.store(in: &cancellable)
+
+        let input = NFTAssetSelectionViewModelInput(
+            assetsFilter: assetsFilter.eraseToAnyPublisher(),
+            toolbarAction: toolbarAction.eraseToAnyPublisher(),
+            assetsSelection: assetsSelection.eraseToAnyPublisher(),
+            selectedAsset: selectedAsset.eraseToAnyPublisher(),
+            willAppear: willAppear.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+
+        output.manualAssetsAmountSelection
+            .sink { [weak self] in self?.showAssetSelection(indexPath: $0.indexPath, available: $0.available, selected: $0.selected) }
+            .store(in: &cancellable)
+
+        output.viewState
+            .sink { [weak self] viewState in
+                self?.navigationItem.title = viewState.title
+                self?.buildToolbar(actions: viewState.actions)
+
+                self?.dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
+                self?.endLoading()
+            }.store(in: &cancellable)
+
+        output.sendSelected
+            .sink { [weak self] data in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didTapSend(in: strongSelf, token: data.token, tokenHolders: data.tokenHolders)
+            }.store(in: &cancellable)
+    }
+    
+    private func showAssetSelection(indexPath: IndexPath, available: Int, selected: Int) {
+        self.selectionView?.removeFromSuperview()
+
+        let viewModel = EnterAssetAmountViewModel(available: available, selected: selected)
+        let selectionView = EnterAssetAmountView(viewModel: viewModel)
+        self.selectionView = selectionView
+
+        viewModel.selected
+            .map { NFTAssetSelectionViewModel.SelectedAsset(selected: $0, indexPath: indexPath) }
+            .multicast(subject: self.selectedAsset)
+            .connect()
+            .store(in: &selectionView.cancellable)
+
+        viewModel.close
+            .sink { [weak self] _ in self?.selectionView?.removeFromSuperview() }
+            .store(in: &selectionView.cancellable)
+
+        view.addSubview(selectionView)
+        viewModel.activateSelection()
     }
 
-    private func configure(viewModel: NFTAssetSelectionViewModel) {
-        self.viewModel = viewModel
-        title = viewModel.title
-        view.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundColor = viewModel.backgroundColor
+    private func buildToolbar(actions: [NFTAssetSelectionViewModel.ToolbarActionViewModel]) {
+        toolbar.cancellable.cancellAll()
+        toolbar.configure(configuration: .buttons(type: .system, count: actions.count))
 
-        toolbar.configure(configuration: .buttons(type: .system, count: viewModel.actions.count))
+        for (action, button) in zip(actions, toolbar.buttons) {
+            button.setTitle(action.name, for: .normal)
+            button.isEnabled = action.isEnabled
 
-        for (action, button) in zip(viewModel.actions, toolbar.buttons) {
-            button.setTitle(action.title, for: .normal)
-            button.isEnabled = viewModel.isActionEnabled(action)
-
-            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+            button.publisher(forEvent: .touchUpInside)
+                .map { _ in action.type }
+                .multicast(subject: toolbarAction)
+                .connect()
+                .store(in: &toolbar.cancellable)
         }
     }
+}
 
-    @objc private func actionButtonTapped(sender: UIButton) {
-        for (action, button) in zip(viewModel.actions, toolbar.buttons) where button == sender {
-            switch action {
-            case .selectAll:
-                selectAllTokens()
-            case .clear:
-                clearAllSelections()
-            case .sell, .deal:
-                break
-            case .send:
-                delegate?.didTapSend(in: self, token: viewModel.token, tokenHolders: viewModel.tokenHolders)
-            }
+extension NFTAssetSelectionViewController {
+    private func makeDataSource() -> NFTAssetSelectionViewModel.DataSource {
+        NFTAssetSelectionViewModel.DataSource(tableView: tableView) { [weak self] tableView, indexPath, viewModel -> SelectableAssetTableViewCell in
+            guard let strongSelf = self else { return SelectableAssetTableViewCell() }
+
+            let cell: SelectableAssetTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            let subview = strongSelf.tokenCardViewFactory.createTokenCardView(
+                for: viewModel.tokenHolder,
+                layout: .list,
+                listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
+
+            cell.prapare(with: subview)
+            cell.configure(viewModel: .init(
+                selected: viewModel.selected,
+                available: viewModel.available,
+                isSelected: viewModel.isSelected,
+                name: viewModel.name))
+
+            subview.configure(tokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId)
+            //NOTE: tweak views background color
+            subview.backgroundColor = .clear
+
+            return cell
         }
-    }
-
-    private func clearAllSelections() {
-        for indexPath in viewModel.unselectAll() {
-            reconfigureCell(at: indexPath)
-        }
-        configure(viewModel: viewModel)
-    }
-
-    private func reconfigureCell(at indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetTableViewCell else { return }
-
-        let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
-    }
-
-    private func selectAllTokens() {
-        for indexPath in viewModel.selectAllTokens() {
-            reconfigureCell(at: indexPath)
-        }
-        configure(viewModel: viewModel)
     }
 }
 
 extension NFTAssetSelectionViewController: StatefulViewController {
     func hasContent() -> Bool {
-        return viewModel.numberOfSections != .zero
+        return dataSource.snapshot().numberOfItems > 0
     }
 }
 
 extension NFTAssetSelectionViewController: UITableViewDelegate {
 
-}
-
-extension NFTAssetSelectionViewController: UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        let cell: SelectableNFTAssetTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let subview = tokenCardViewFactory.createTokenCardView(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
-
-        cell.prapare(with: subview)
-        cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
-
-        subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId)
-        //NOTE: tweak views background color
-        subview.backgroundColor = .clear
-
-        cell.delegate = self
-
-        return cell
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfSections
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfTokens(section: section)
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        assetsSelection.send(.item(indexPath: indexPath))
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let tokenHolder = viewModel.selectableTokenHolder(at: section)
+        let sectionViewModel = dataSource.snapshot().sectionIdentifiers[section]
+
         let view: NFTAssetSelectionSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
-        view.configure(viewModel: .init(tokenHolder: tokenHolder, backgroundColor: Configuration.Color.Semantic.tableViewAccessoryBackground))
-        view.delegate = self
-        view.section = section
+        view.cancellable.cancellAll()
+        view.configure(viewModel: .init(name: sectionViewModel.name, backgroundColor: Configuration.Color.Semantic.tableViewAccessoryBackground))
+        view.publisher
+            .map { _ in NFTAssetSelectionViewModel.AssetsSelection.all(section: section) }
+            .multicast(subject: assetsSelection)
+            .connect()
+            .store(in: &view.cancellable)
 
         return view
     }
@@ -231,52 +255,10 @@ extension NFTAssetSelectionViewController: UITableViewDataSource {
     }
 }
 
-extension NFTAssetSelectionViewController: NFTAssetSelectionSectionHeaderViewDelegate {
-    func didSelectAll(in view: NFTAssetSelectionSectionHeaderView) {
-        guard let section = view.section else { return }
-
-        for indexPath in viewModel.selectAllTokens(for: section) {
-            guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetTableViewCell else { continue }
-
-            let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-            cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
-        }
-
-        configure(viewModel: viewModel)
-    }
-}
-
-extension NFTAssetSelectionViewController: SelectableNFTAssetTableViewCellDelegate {
-
-    func didCloseSelection(in sender: SelectableNFTAssetTableViewCell, with selectedAmount: Int) {
-        guard let indexPath = sender.indexPath else { return }
-
-        let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        viewModel.selectTokens(indexPath: indexPath, selectedAmount: selectedAmount)
-        sender.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
-
-        view.endEditing(true)
-
-        configure(viewModel: viewModel)
-    }
-}
-
-extension NFTAssetSelectionViewController: UISearchControllerDelegate {
-    func willPresentSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = true
-    }
-
-    func willDismissSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = false
-    }
-}
-
 extension NFTAssetSelectionViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.viewModel.filter = .keyword(searchController.searchBar.text)
-            strongSelf.reload()
+            self?.assetsFilter.send(.keyword(searchController.searchBar.text))
         }
     }
 }
@@ -295,12 +277,12 @@ extension NFTAssetSelectionViewController {
 
     private func fixTableViewBackgroundColor() {
         let v = UIView()
-        v.backgroundColor = viewModel.backgroundColor
+        v.backgroundColor = view.backgroundColor
         tableView.backgroundView = v
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
-        view.superview?.backgroundColor = viewModel.backgroundColor
+        view.superview?.backgroundColor = view.backgroundColor
     }
 
     private func setupFilteringWithKeyword() {
@@ -327,10 +309,6 @@ extension NFTAssetSelectionViewController {
         //Hack to hide the horizontal separator below the search bar
         searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
     }
-}
-
-protocol SelectAllAssetsViewDelegate: AnyObject {
-    func selectAllSelected(in view: NFTAssetSelectionViewController.SelectAllAssetsView)
 }
 
 extension NFTAssetSelectionViewController {
@@ -365,7 +343,6 @@ extension NFTAssetSelectionViewController {
 
             return button
         }()
-        weak var delegate: SelectAllAssetsViewDelegate?
 
         init() {
             super.init(frame: .zero)
@@ -379,7 +356,6 @@ extension NFTAssetSelectionViewController {
             ])
 
             translatesAutoresizingMaskIntoConstraints = false
-            selectAllButton.addTarget(self, action: #selector(selectAllSelected), for: .touchUpInside)
         }
 
         func configure(viewModel: SelectAllAssetsViewModel) {
@@ -392,10 +368,6 @@ extension NFTAssetSelectionViewController {
 
         required init?(coder aDecoder: NSCoder) {
             return nil
-        }
-
-        @objc private func selectAllSelected(_ sender: UIButton) {
-            delegate?.selectAllSelected(in: self)
         }
     }
 }

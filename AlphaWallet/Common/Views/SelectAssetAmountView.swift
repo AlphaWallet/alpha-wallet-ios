@@ -6,88 +6,9 @@
 //
 
 import UIKit
+import Combine
 
-struct SelectTokenCardAmountViewModel {
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-    private let availableAmount: Int
-    private(set) var counter: Int = 0
-
-    init(availableAmount: Int, selectedAmount: Int) {
-        self.availableAmount = availableAmount
-        self.counter = selectedAmount
-    }
-
-    var amountTextFont: UIFont = Fonts.bold(size: 24)
-    var amountTextColor: UIColor = Configuration.Color.Semantic.defaultForegroundText
-
-    mutating func increaseCounter() {
-        guard counter + 1 <= availableAmount else { return }
-        counter += 1
-    }
-
-    mutating func decreaseCounter() {
-        guard counter - 1 >= 0 else { return }
-        counter -= 1
-    }
-
-    mutating func set(counter: Int) {
-        self.counter = counter
-    }
-
-    mutating func set(counter: String) {
-        if counter.isEmpty {
-            self.counter = 0
-        } else {
-            guard let value = Int(counter), value >= 0 && value <= availableAmount else { return }
-            self.counter = value
-        }
-    }
-}
-
-private class TokenCardSelectionAmountHeaderView: UIView {
-
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-
-        return label
-    }()
-
-    var closeButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(R.image.close(), for: .normal)
-        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
-
-        return button
-    }()
-
-    init() {
-        super.init(frame: .zero)
-
-        addSubview(titleLabel)
-        addSubview(closeButton)
-
-        NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            closeButton.centerYAnchor.constraint(equalTo: centerYAnchor)
-        ])
-        translatesAutoresizingMaskIntoConstraints = false
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-}
-
-protocol SelectTokenCardAmountViewDelegate: AnyObject {
-    func valueDidChange(in view: SelectTokenCardAmountView)
-}
-
-class SelectTokenCardAmountView: UIView {
+class SelectAssetAmountView: UIView {
 
     private (set) var plusButton: Button = {
         let button = Button(size: .normal, style: .borderless)
@@ -112,14 +33,16 @@ class SelectTokenCardAmountView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Configuration.Font.accessory
         label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
+        label.font = Fonts.bold(size: 24)
 
         return label
     }()
+    private var cancellable = Set<AnyCancellable>()
 
-    private (set) var viewModel: SelectTokenCardAmountViewModel
-    weak var delegate: SelectTokenCardAmountViewDelegate?
+    let viewModel: SelectAssetViewModel
 
-    init(viewModel: SelectTokenCardAmountViewModel, edgeInsets: UIEdgeInsets = .zero) {
+    init(viewModel: SelectAssetViewModel, edgeInsets: UIEdgeInsets = .zero) {
         self.viewModel = viewModel
         super.init(frame: .zero)
 
@@ -146,152 +69,29 @@ class SelectTokenCardAmountView: UIView {
             centeredView.heightAnchor.constraint(equalToConstant: 70)
         ])
 
-        minusButton.addTarget(self, action: #selector(minusButtonSelected), for: .touchUpInside)
-        plusButton.addTarget(self, action: #selector(plusButtonSelected), for: .touchUpInside)
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        configure(viewModel: viewModel)
+        bind(viewModel: viewModel)
     }
 
-    func configure(viewModel: SelectTokenCardAmountViewModel) {
-        self.viewModel = viewModel
+    private func bind(viewModel: SelectAssetViewModel) {
+        let input = SelectAssetViewModelInput(
+            increase: plusButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher(),
+            decrease: minusButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
 
-        countLabel.textColor = viewModel.amountTextColor
-        countLabel.font = viewModel.amountTextFont
-        backgroundColor = viewModel.backgroundColor
-
-        updateCounterLabel()
-    }
-
-    private func updateCounterLabel() {
-        countLabel.text = String(viewModel.counter)
+        let output = viewModel.transform(input: input)
+        output.text
+            .assign(to: \.text, on: countLabel)
+            .store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
-
-    @objc private func plusButtonSelected(_ sender: UIButton) {
-        viewModel.increaseCounter()
-        updateCounterLabel()
-
-        delegate?.valueDidChange(in: self)
-    }
-
-    @objc private func minusButtonSelected(_ sender: UIButton) {
-        viewModel.decreaseCounter()
-        updateCounterLabel()
-
-        delegate?.valueDidChange(in: self)
-    }
 }
 
-protocol SingleTokenCardAmountSelectionToolbarViewDelegate: AnyObject {
-    func closeSelected(in: SingleTokenCardAmountSelectionToolbarView)
-}
-
-struct SingleTokenCardAmountSelectionToolbarViewModel {
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-    let availableAmount: Int
-
-    var counter: Int {
-        selectionViewModel.counter
-    }
-
-    var selectionViewModel: SelectTokenCardAmountViewModel
-
-    init(availableAmount: Int = 0, selectedAmount: Int = 0) {
-        self.availableAmount = availableAmount
-        selectionViewModel = .init(availableAmount: availableAmount, selectedAmount: selectedAmount)
-    }
-
-    var attributedTitleString: NSAttributedString {
-        return .init(string: "Select Amount (max. \(availableAmount))", attributes: [
-            .font: Fonts.semibold(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
-        ])
+extension Publisher where Failure == Never {
+    func assign<Root: AnyObject>(to path: ReferenceWritableKeyPath<Root, Output?>, on instance: Root) -> Cancellable {
+        sink { instance[keyPath: path] = $0 }
     }
 }
-
-class SingleTokenCardAmountSelectionToolbarView: UIView {
-
-    private var headerView: TokenCardSelectionAmountHeaderView = {
-        let view = TokenCardSelectionAmountHeaderView()
-        return view
-    }()
-
-    private lazy var selectionView: SelectTokenCardAmountView = {
-        let view = SelectTokenCardAmountView(viewModel: viewModel.selectionViewModel)
-        view.delegate = self
-        return view
-    }()
-
-    private var separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-        return view
-    }()
-
-    weak var delegate: SingleTokenCardAmountSelectionToolbarViewDelegate?
-
-    private (set) var viewModel: SingleTokenCardAmountSelectionToolbarViewModel
-
-    init(viewModel: SingleTokenCardAmountSelectionToolbarViewModel) {
-        self.viewModel = viewModel
-        super.init(frame: .zero)
-
-        let stackView = [headerView, separatorView, selectionView].asStackView(axis: .vertical, spacing: 1)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(stackView)
-        NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self),
-
-            headerView.heightAnchor.constraint(equalToConstant: 60),
-        ])
-
-        headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
-
-        configure(viewModel: viewModel)
-    }
-
-    func configure(viewModel: SingleTokenCardAmountSelectionToolbarViewModel) {
-        self.viewModel = viewModel
-
-        selectionView.configure(viewModel: viewModel.selectionViewModel)
-        headerView.titleLabel.attributedText = viewModel.attributedTitleString
-        backgroundColor = viewModel.backgroundColor
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-
-    @objc private func closeButtonSelected(_ sender: UIButton) {
-        delegate?.closeSelected(in: self)
-    }
-}
-
-extension SingleTokenCardAmountSelectionToolbarView: SelectTokenCardAmountViewDelegate {
-    func valueDidChange(in view: SelectTokenCardAmountView) {
-        viewModel.selectionViewModel.set(counter: view.viewModel.counter)
-        configure(viewModel: viewModel)
-    }
-}
-
-extension SingleTokenCardAmountSelectionToolbarView: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let newValue = ((textField.text ?? "") as NSString).replacingCharacters(in: range, with: string)
-        viewModel.selectionViewModel.set(counter: newValue)
-        configure(viewModel: viewModel)
-
-        return true
-    }
-
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        delegate?.closeSelected(in: self)
-
-        return true
-    }
-}
-
