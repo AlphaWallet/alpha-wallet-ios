@@ -57,7 +57,7 @@ extension WKWebViewConfiguration {
         }
 
         HackToAllowUsingSafaryExtensionCodeInDappBrowser.injectJs(to: webViewConfig)
-
+        webViewConfig.userContentController.add(messageHandler, name: Method.sendTransaction.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
@@ -90,7 +90,7 @@ extension WKWebViewConfiguration {
                        console.log('signing a transaction', tx)
                        const { id = 8888 } = tx
                        AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object":     tx, id: id})
+                       webkit.messageHandlers.sendTransaction.postMessage({"name": "sendTransaction", "object":     tx, id: id})
                    },
                    signMessage: function (msgParams, cb) {
                        const { data } = msgParams
