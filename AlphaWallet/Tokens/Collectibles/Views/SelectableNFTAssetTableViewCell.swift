@@ -1,5 +1,5 @@
 //
-//  SelectableNFTAssetTableViewCell.swift
+//  SelectableAssetTableViewCell.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,12 +7,7 @@
 
 import UIKit
 
-protocol SelectableNFTAssetTableViewCellDelegate: AnyObject {
-    func didCloseSelection(in sender: SelectableNFTAssetTableViewCell, with selectedAmount: Int)
-}
-
-class SelectableNFTAssetTableViewCell: ContainerTableViewCell {
-    private var viewModel: SelectableNFTAssetContainerViewModel?
+class SelectableAssetTableViewCell: ContainerTableViewCell {
 
     private var selectionStateViews: (containerView: UIView, selectionImageView: UIImageView) = {
         let view = UIView()
@@ -34,36 +29,8 @@ class SelectableNFTAssetTableViewCell: ContainerTableViewCell {
         return (view, imageView)
     }()
 
-    weak var delegate: SelectableNFTAssetTableViewCellDelegate?
-
-    private lazy var hiddenTextField: UITextField = {
-        let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.inputAccessoryView = toolbar
-        textField.isHidden = true
-        textField.keyboardType = .numberPad
-        textField.delegate = toolbarAmountSelectionView
-
-        return textField
-    }()
-
-    private lazy var toolbarAmountSelectionView: SingleTokenCardAmountSelectionToolbarView = {
-        let view = SingleTokenCardAmountSelectionToolbarView(viewModel: .init())
-        view.delegate = self
-
-        return view
-    }()
-
-    private lazy var toolbar: UIToolbar = {
-        let toolbar = UIToolbar.customToolbar(with: toolbarAmountSelectionView, height: 130)
-        toolbar.isTranslucent = false
-        toolbar.barTintColor = toolbarAmountSelectionView.backgroundColor
-
-        return toolbar
-    }()
-
-    private let selectedAmountView: SingleNFTAssetSelectionView = {
-        let view = SingleNFTAssetSelectionView()
+    private let selectedAmountView: AssetSelectionCircleOverlayView = {
+        let view = AssetSelectionCircleOverlayView()
         return view
     }()
 
@@ -72,10 +39,6 @@ class SelectableNFTAssetTableViewCell: ContainerTableViewCell {
 
         stackView.removeAllArrangedSubviews()
         stackView.addArrangedSubviews([selectionStateViews.containerView, viewContainerView])
-
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
-        isUserInteractionEnabled = true
-        addSubview(hiddenTextField)
     }
 
     private var selectionViewPositioningConstraints: [NSLayoutConstraint] = []
@@ -103,36 +66,12 @@ class SelectableNFTAssetTableViewCell: ContainerTableViewCell {
         return nil
     }
 
-    func configure(viewModel: SelectableNFTAssetContainerViewModel) {
-        self.viewModel = viewModel
-
+    func configure(viewModel: SelectableAssetContainerViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
         background.backgroundColor = viewModel.contentsBackgroundColor
         contentView.backgroundColor = viewModel.contentsBackgroundColor
 
         selectedAmountView.configure(viewModel: viewModel.selectionViewModel)
-        toolbarAmountSelectionView.configure(viewModel: viewModel.cardAmountSelectionToolbarViewModel)
-
         selectionStateViews.selectionImageView.image = viewModel.selectionImage
-    }
-
-    @objc private func didTap(_ sender: UITapGestureRecognizer) {
-        if let viewModel = viewModel, viewModel.selectionViewModel.isSingleSelectionEnabled {
-            let newSelection = viewModel.selectionViewModel.isSelected ? 0 : 1
-
-            delegate?.didCloseSelection(in: self, with: newSelection)
-        } else {
-            hiddenTextField.becomeFirstResponder()
-        }
-    }
-
-    @objc private func doneSelected(_ sender: UITextField) {
-        hiddenTextField.endEditing(true)
-    }
-}
-
-extension SelectableNFTAssetTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
-    func closeSelected(in view: SingleTokenCardAmountSelectionToolbarView) {
-        delegate?.didCloseSelection(in: self, with: view.viewModel.counter)
     }
 }

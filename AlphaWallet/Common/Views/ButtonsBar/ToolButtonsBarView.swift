@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 enum ToolbarConfiguration {
     case buttons(type: ButtonsBarButtonType, count: Int)
@@ -21,7 +22,8 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
 
     weak var viewController: UIViewController?
     @objc dynamic private (set) var buttons: [BarButton] = []
-
+    var cancellable = Set<AnyCancellable>()
+    
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false

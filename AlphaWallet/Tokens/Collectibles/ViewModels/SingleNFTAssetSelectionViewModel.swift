@@ -1,5 +1,5 @@
 //
-//  SingleNFTAssetSelectionViewModel.swift
+//  AssetSelectionCircleOverlayViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 15.11.2021.
@@ -8,45 +8,24 @@
 import UIKit
 import AlphaWalletFoundation
 
-struct SingleNFTAssetSelectionViewModel {
-    var backgroundColor: UIColor = Configuration.Color.Semantic.appTint
+struct AssetSelectionCircleOverlayViewModel {
+    private let selected: Int
+    private let available: Int
+    private let isSelected: Bool
+    
+    var isHidden: Bool { available <= 1 }
 
-    var selectedAmount: Int? {
-        tokenHolder.selectedCount(tokenId: tokenId).flatMap { String($0) }.flatMap { Int($0) }
+    init(selected: Int,
+         available: Int,
+         isSelected: Bool) {
+
+        self.selected = selected
+        self.available = available
+        self.isSelected = isSelected
     }
 
-    var isSelected: Bool {
-        tokenHolder.isSelected(tokenId: tokenId)
-    }
-
-    var isSingleSelectionEnabled: Bool {
-        //NOTE: not sure in the logic of displaying selection token amount view, maybe its need to be changed in some way
-        guard let value = tokenHolder.token(tokenId: tokenId)?.value, value > 1 else {
-            return true
-        }
-        return false
-    }
-
-    var isHidden: Bool {
-        guard let value = tokenHolder.token(tokenId: tokenId)?.value, value > 1 else {
-            return true
-        }
-
-        return selectedAmount == nil
-    }
-
-    let tokenId: TokenId
-    let tokenHolder: TokenHolder
-
-    init(tokenHolder: TokenHolder, tokenId: TokenId) {
-        self.tokenId = tokenId
-        self.tokenHolder = tokenHolder
-    }
-
-    var selectedAmountAttributedString: NSAttributedString? {
-        guard let amount = selectedAmount else { return nil }
-
-        return .init(string: "\(amount)", attributes: [
+    var selectedAmountAttributedString: NSAttributedString {
+        return .init(string: String(selected), attributes: [
             .font: Fonts.semibold(size: 20),
             .foregroundColor: Configuration.Color.Semantic.defaultInverseText
         ])

@@ -1,5 +1,5 @@
 //
-//  SingleNFTAssetSelectionView.swift
+//  AssetSelectionCircleOverlayView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SingleNFTAssetSelectionView: UIView {
+class AssetSelectionCircleOverlayView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -26,11 +26,11 @@ class SingleNFTAssetSelectionView: UIView {
             titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor)
         ])
+        backgroundColor = Configuration.Color.Semantic.appTint
         translatesAutoresizingMaskIntoConstraints = false
     }
 
-    func configure(viewModel: SingleNFTAssetSelectionViewModel) {
-        backgroundColor = viewModel.backgroundColor
+    func configure(viewModel: AssetSelectionCircleOverlayViewModel) {
         titleLabel.attributedText = viewModel.selectedAmountAttributedString
         isHidden = viewModel.isHidden
     }

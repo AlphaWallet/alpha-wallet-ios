@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 enum HorizontalButtonsBarConfiguration {
     case empty
@@ -138,7 +139,7 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
             didUpdateView(with: configuration)
         }
     }
-
+    var cancellable = Set<AnyCancellable>()
     weak var viewController: UIViewController?
 
     init(configuration: HorizontalButtonsBarConfiguration = .primary(buttons: 1)) {

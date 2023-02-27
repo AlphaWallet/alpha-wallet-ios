@@ -183,6 +183,7 @@ class NFTCollectionViewController: UIViewController {
 
     //NOTE: there is only one possible action for now
     private func buildBarButtons(from actions: [NFTCollectionViewModel.NonFungibleTokenAction]) {
+        buttonsBar.cancellable.cancellAll()
         if actions.isEmpty {
             buttonsBar.configure(.empty)
         } else {
@@ -192,7 +193,7 @@ class NFTCollectionViewController: UIViewController {
                 button.setTitle(each.name, for: .normal)
                 button.publisher(forEvent: .touchUpInside)
                     .sink { [weak self] _ in self?.perform(action: each) }
-                    .store(in: &cancellable)
+                    .store(in: &buttonsBar.cancellable)
             }
         }
     }

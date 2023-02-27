@@ -7,21 +7,18 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-protocol NFTAssetSelectionSectionHeaderViewDelegate: AnyObject {
-    func didSelectAll(in view: NFTAssetSelectionViewController.NFTAssetSelectionSectionHeaderView)
-}
 protocol SelectionPositioningView: AnyObject {
     var positioningView: UIView { get }
 }
 
 extension NFTAssetSelectionViewController {
 
-    class NFTAssetSelectionSectionHeaderView: UITableViewHeaderFooterView, SelectAllAssetsViewDelegate {
+    class NFTAssetSelectionSectionHeaderView: UITableViewHeaderFooterView {
 
         private lazy var selectAllAssetsView: SelectAllAssetsView = {
             let view = SelectAllAssetsView()
-            view.delegate = self
 
             return view
         }()
@@ -33,8 +30,10 @@ extension NFTAssetSelectionViewController {
             return view
         }()
 
-        var section: Int?
-        weak var delegate: NFTAssetSelectionSectionHeaderViewDelegate?
+        var publisher: AnyPublisher<Void, Never> {
+            selectAllAssetsView.selectAllButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
+        }
+        var cancellable = Set<AnyCancellable>()
 
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
@@ -60,24 +59,16 @@ extension NFTAssetSelectionViewController {
             topSeparatorView.backgroundColor = viewModel.separatorColor
             selectAllAssetsView.configure(viewModel: viewModel.selectAllAssetsViewModel)
         }
-
-        func selectAllSelected(in view: NFTAssetSelectionViewController.SelectAllAssetsView) {
-            delegate?.didSelectAll(in: self)
-        }
     }
 
     struct NFTAssetSelectionSectionHeaderViewModel {
         let text: String
         var selectAllAssetsViewModel: SelectAllAssetsViewModel
         var separatorColor: UIColor = Configuration.Color.Semantic.tableViewSeparator
-        var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-        let tokenHolder: TokenHolder
         var isSelectAllHidden: Bool = false
 
-        init(tokenHolder: TokenHolder, backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground) {
-            self.tokenHolder = tokenHolder
-            self.text = tokenHolder.name
-            self.backgroundColor = backgroundColor
+        init(name: String, backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground) {
+            self.text = name
             self.selectAllAssetsViewModel = .init(text: text, backgroundColor: backgroundColor, isSelectAllHidden: isSelectAllHidden)
         }
     }

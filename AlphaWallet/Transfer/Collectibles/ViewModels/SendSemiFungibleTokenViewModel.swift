@@ -7,16 +7,17 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 final class SendSemiFungibleTokenViewModel {
     let token: Token
     let tokenHolders: [TokenHolder]
 
-    lazy var selectionViewModel: SelectTokenCardAmountViewModel = {
-        let availableAmountInt = Int(tokenHolders[0].values.valueIntValue ?? 0)
-        let selectedAmount: Int = tokenHolders[0].selectedCount(tokenId: tokenHolders[0].tokenId) ?? 0
+    lazy var selectionViewModel: SelectAssetViewModel = {
+        let available = Int(tokenHolders[0].values.valueIntValue ?? 1)
+        let selected: Int = tokenHolders[0].selectedCount(tokenId: tokenHolders[0].tokenId) ?? 0
 
-        return .init(availableAmount: availableAmountInt, selectedAmount: selectedAmount)
+        return SelectAssetViewModel(available: available, selected: selected)
     }()
 
     let title: String = R.string.localizable.send()
@@ -51,15 +52,19 @@ final class SendSemiFungibleTokenViewModel {
             return true
         }
     }
+    private var cancellable = Set<AnyCancellable>()
 
     init(token: Token, tokenHolders: [TokenHolder]) {
         self.token = token
         self.tokenHolders = tokenHolders
     }
 
-    func updateSelectedAmount(_ value: Int) {
-        guard tokenHolders.count == 1 else { return }
-        tokenHolders[0].select(with: .token(tokenId: tokenHolders[0].tokenId, amount: value))
+    func transform() -> Void {
+        selectionViewModel.selected
+            .filter { _ in self.tokenHolders.count == 1 }
+            .sink {
+                self.tokenHolders[0].select(with: .token(tokenId: self.tokenHolders[0].tokenId, amount: $0))
+            }.store(in: &cancellable)
     }
 }
 
