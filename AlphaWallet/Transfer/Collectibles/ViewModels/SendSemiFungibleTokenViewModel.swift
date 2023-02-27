@@ -59,11 +59,12 @@ final class SendSemiFungibleTokenViewModel {
         self.tokenHolders = tokenHolders
     }
 
-    func transform() -> Void {
+    func transform() {
         selectionViewModel.selected
-            .filter { _ in self.tokenHolders.count == 1 }
-            .sink {
-                self.tokenHolders[0].select(with: .token(tokenId: self.tokenHolders[0].tokenId, amount: $0))
+            .filter { [weak self] _ in self?.tokenHolders.count == 1 }
+            .sink { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tokenHolders[0].select(with: .token(tokenId: strongSelf.tokenHolders[0].tokenId, amount: $0))
             }.store(in: &cancellable)
     }
 }
