@@ -121,7 +121,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         infoLog("[WalletConnect] action: \(action)")
 
         do {
-            let wallet = try wallet(session: session)
+            let wallet = try wallet(session: session, action: action)
 
             guard let dep = dependencies[wallet] else { throw WalletConnectError.cancelled }
             guard let walletSession = request.server.flatMap({ dep.sessionsProvider.session(for: $0) }) else { throw WalletConnectError.cancelled }
@@ -163,8 +163,9 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         delegate?.provider(self, tookTooLongToConnectToUrl: url)
     }
 
+    //TODO: extract logic of performing actions in separate provider, dapp browser and wallet connect performing same actions
     /// Returns first available wallet matched in session, basically there always one address, but could support multiple in future
-    private func wallet(session: AlphaWallet.WalletConnect.Session) throws -> Wallet {
+    private func wallet(session: AlphaWallet.WalletConnect.Session, action: AlphaWallet.WalletConnect.Action) throws -> Wallet {
         guard let wallet = keystore.wallets.filter({ addr in session.accounts.contains(where: { $0 == addr.address }) }).first else {
             throw WalletConnectError.walletsNotFound(addresses: session.accounts)
         }
@@ -175,7 +176,12 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             if config.development.shouldPretendIsRealWallet {
                 break
             } else {
-                throw WalletConnectError.onlyForWatchWallet(address: wallet.address)
+                switch action.type {
+                case .signEip712v3And4, .sendRawTransaction, .typedMessage, .sendTransaction, .signMessage, .signPersonalMessage, .signTransaction:
+                    throw WalletConnectError.onlyForWatchWallet(address: wallet.address)
+                case .walletAddEthereumChain, .walletSwitchEthereumChain, .getTransactionCount:
+                    break
+                }
             }
         }
 
@@ -255,6 +261,28 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             .mapError { WalletConnectError(error: $0) }
             .eraseToAnyPublisher()
     }
+
+    private func validateMessage(session: AlphaWallet.WalletConnect.Session,
+                                 message: SignMessageType,
+                                 source: Analytics.SignMessageRequestSource) -> AnyPublisher<Void, PromiseError> {
+
+        do {
+            switch message {
+            case .eip712v3And4(let typedData):
+                let validator = WalletConnectEip712v3And4Validator(session: session, source: source)
+                try validator.validate(message: typedData)
+            case .typedMessage(let typedData):
+                let validator = TypedMessageValidator()
+                try validator.validate(message: typedData)
+            case .message, .personalMessage:
+                break
+            }
+            return .just(())
+        } catch {
+            return .fail(PromiseError(error: error))
+        }
+    }
+
     // swiftlint:disable function_body_length
     private func buildOperation(for action: AlphaWallet.WalletConnect.Action,
                                 walletSession: WalletSession,
@@ -287,45 +315,53 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             .map { .value(Data(_hex: $0.id)) }
             .eraseToAnyPublisher()
         case .signMessage(let hexMessage):
-            return dappRequestProvider.requestSignMessage(
-                message: .message(hexMessage.asSignableMessageData),
-                server: walletSession.server,
-                account: walletSession.account.address,
-                source: .walletConnect,
-                requester: requester)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+            return validateMessage(session: session, message: .message(hexMessage.asSignableMessageData), source: request.source)
+                .flatMap { _ in
+                    dappRequestProvider.requestSignMessage(
+                        message: .message(hexMessage.asSignableMessageData),
+                        server: walletSession.server,
+                        account: walletSession.account.address,
+                        source: request.source,
+                        requester: requester)
+                }.mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .signPersonalMessage(let hexMessage):
-            return dappRequestProvider.requestSignMessage(
-                message: .personalMessage(hexMessage.asSignableMessageData),
-                server: walletSession.server,
-                account: walletSession.account.address,
-                source: .walletConnect,
-                requester: requester)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+            return validateMessage(session: session, message: .personalMessage(hexMessage.asSignableMessageData), source: request.source)
+                .flatMap { _ in
+                    dappRequestProvider.requestSignMessage(
+                        message: .personalMessage(hexMessage.asSignableMessageData),
+                        server: walletSession.server,
+                        account: walletSession.account.address,
+                        source: request.source,
+                        requester: requester)
+                }.mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .signEip712v3And4(let typedData):
-            return dappRequestProvider.requestSignMessage(
-                message: .eip712v3And4(typedData),
-                server: walletSession.server,
-                account: walletSession.account.address,
-                source: .walletConnect,
-                requester: requester)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+            return validateMessage(session: session, message: .eip712v3And4(typedData), source: request.source)
+                .flatMap { _ in
+                    dappRequestProvider.requestSignMessage(
+                        message: .eip712v3And4(typedData),
+                        server: walletSession.server,
+                        account: walletSession.account.address,
+                        source: request.source,
+                        requester: requester)
+                }.mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .typedMessage(let typedData):
-            return dappRequestProvider.requestSignMessage(
-                message: .typedMessage(typedData),
-                server: walletSession.server,
-                account: walletSession.account.address,
-                source: .walletConnect,
-                requester: requester)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+            return validateMessage(session: session, message: .typedMessage(typedData), source: request.source)
+                .flatMap { _ in
+                    dappRequestProvider.requestSignMessage(
+                        message: .typedMessage(typedData),
+                        server: walletSession.server,
+                        account: walletSession.account.address,
+                        source: request.source,
+                        requester: requester)
+                }.mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .sendRawTransaction(let transaction):
             return dappRequestProvider.requestSendRawTransaction(
                 session: walletSession,
@@ -338,7 +374,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .getTransactionCount:
             return dappRequestProvider.requestGetTransactionCount(
                 session: walletSession,
-                source: .walletConnect)
+                source: request.source)
             .mapError { WalletConnectError(error: $0) }
             .map { .value($0) }
             .eraseToAnyPublisher()

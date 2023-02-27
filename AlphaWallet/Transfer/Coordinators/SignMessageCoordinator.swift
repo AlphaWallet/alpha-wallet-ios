@@ -5,8 +5,27 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol SignMessageCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Swift.Result<Data, KeystoreError>)
+    func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Data)
     func didCancel(in coordinator: SignMessageCoordinator)
+}
+
+extension SignMessageValidatorError: LocalizedError {
+    var localizedDescription: String {
+        switch self {
+        case .emptyMessage:
+            return R.string.localizable.signMessageValidationEmptyMessage()
+        case .notMatchesToChainId(let active, let requested, let source):
+            switch source {
+            case .dappBrowser, .deepLink, .tokenScript:
+                return R.string.localizable.signMessageValidationDappBrowserRequestedChainUnavailable(active.name, requested.name)
+            case .walletConnect:
+                return R.string.localizable.signMessageValidationWalletConnectV1RequestedChainUnavailable(active.name, requested.name)
+            }
+        case .notMatchesToAnyOfChainIds(let active, _, _):
+            let active = String(active.map { $0.name }.joined(by: ","))
+            return R.string.localizable.signMessageValidationWalletConnectV2RequestedChainUnavailable(active)
+        }
+    }
 }
 
 class SignMessageCoordinator: Coordinator {
@@ -17,7 +36,6 @@ class SignMessageCoordinator: Coordinator {
     private let message: SignMessageType
     private let source: Analytics.SignMessageRequestSource
     private weak var signatureConfirmationDetailsViewController: SignatureConfirmationDetailsViewController?
-    private var canBeDismissed = true
     private let requester: RequesterViewModel?
     private lazy var rootViewController: SignatureConfirmationViewController = {
         let controller = SignatureConfirmationViewController(viewModel: .init(message: message, requester: requester))
@@ -50,7 +68,7 @@ class SignMessageCoordinator: Coordinator {
 
     func start() {
         analytics.log(navigation: Analytics.Navigation.signMessageRequest, properties: [
-            Analytics.Properties.source.rawValue: source.rawValue,
+            Analytics.Properties.source.rawValue: source.description,
             Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue
         ])
 
@@ -77,36 +95,24 @@ class SignMessageCoordinator: Coordinator {
         navigationController.dismiss(animated: true, completion: completion)
     }
 
-    private func signMessage(with type: SignMessageType) {
-        let result: Result<Data, KeystoreError>
-        switch type {
+    private func sign(message: SignMessageType) throws -> Data {
+        switch message {
         case .message(let data):
             //This was previously `signMessage(_:for:). Changed it to `signPersonalMessage` because web3.js v1 (unlike v0.20.x) and probably other libraries expect so
-            result = keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
+            return try keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign()).get()
         case .personalMessage(let data):
-            result = keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
+            return try keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign()).get()
         case .typedMessage(let typedData):
-            if typedData.isEmpty {
-                result = .failure(KeystoreError.failedToSignMessage)
-            } else {
-                result = keystore.signTypedMessage(typedData, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
-            }
+            return try keystore.signTypedMessage(typedData, for: account, prompt: R.string.localizable.keystoreAccessKeySign()).get()
         case .eip712v3And4(let data):
-            result = keystore.signEip712TypedData(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
+            return try keystore.signEip712TypedData(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign()).get()
         }
+    }
 
-        close(completion: {
-            guard let delegate = self.delegate else { return }
-
-            switch result {
-            case .success(let data):
-                UINotificationFeedbackGenerator.show(feedbackType: .success)
-
-                delegate.coordinator(self, didSign: .success(data))
-            case .failure(let error):
-                delegate.coordinator(self, didSign: .failure(error))
-            }
-        })
+    private func showError(error: Error) {
+        UIApplication.shared
+            .presentedViewController(or: navigationController)
+            .displayError(message: error.prettyError)
     }
 }
 
@@ -120,7 +126,18 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
 
     func controller(_ controller: SignatureConfirmationViewController, continueButtonTapped sender: UIButton) {
         analytics.log(action: Analytics.Action.signMessageRequest)
-        signMessage(with: message)
+
+        do {
+            let data = try sign(message: message)
+
+            close(completion: {
+                UINotificationFeedbackGenerator.show(feedbackType: .success)
+
+                self.delegate?.coordinator(self, didSign: data)
+            })
+        } catch {
+            showError(error: error)
+        }
     }
 
     func controllerDidTapEdit(_ controller: SignatureConfirmationViewController, for section: Int) {

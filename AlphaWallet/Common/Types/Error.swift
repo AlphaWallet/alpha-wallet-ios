@@ -71,6 +71,8 @@ extension Error {
             return error.localizedDescription
         case let error as AddCustomChainError:
             return error.localizedDescription
+        case let error as SignMessageValidatorError:
+            return error.localizedDescription
         case let error as LocalizedError:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as NSError:

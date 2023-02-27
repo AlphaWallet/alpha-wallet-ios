@@ -25,6 +25,15 @@ extension AlphaWallet.WalletConnect.Session {
             }
         }
 
+        var source: Analytics.SignMessageRequestSource {
+            switch self {
+            case .v1:
+                return .walletConnect(.v1)
+            case .v2:
+                return .walletConnect(.v2)
+            }
+        }
+
         var method: String {
             switch self {
             case .v1(let request, _):

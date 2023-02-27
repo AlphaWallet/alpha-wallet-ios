@@ -208,13 +208,38 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserViewController.goTo(url: url)
     }
 
+    private func validateMessage(session: WalletSession, message: SignMessageType) -> AnyPublisher<Void, PromiseError> {
+        do {
+            switch message {
+            case .eip712v3And4(let typedData):
+                let validator = DappOrTokenScriptEip712v3And4Validator(server: session.server, source: .dappBrowser)
+                try validator.validate(message: typedData)
+            case .typedMessage(let typedData):
+                let validator = TypedMessageValidator()
+                try validator.validate(message: typedData)
+            case .message, .personalMessage:
+                break
+            }
+            return .just(())
+        } catch {
+            return .fail(PromiseError(error: error))
+        }
+    }
+
     private func requestSignMessage(session: WalletSession,
                                     delegate: DappBrowserCoordinatorDelegate,
                                     message: SignMessageType,
                                     callbackId: Int) {
 
-        delegate.requestSignMessage(message: message, server: session.server, account: session.account.address, source: .dappBrowser, requester: nil)
-            .sink(receiveCompletion: { [browserViewController] result in
+        validateMessage(session: session, message: message)
+            .flatMap { _ in
+                delegate.requestSignMessage(
+                    message: message,
+                    server: session.server,
+                    account: session.account.address,
+                    source: .dappBrowser,
+                    requester: nil)
+            }.sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
                 browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
             }, receiveValue: { [browserViewController] data in
@@ -467,6 +492,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 message: .typedMessage(typedData),
                 callbackId: callbackId)
         case .signEip712v3And4(let typedData):
+            
             requestSignMessage(
                 session: session,
                 delegate: delegate,
