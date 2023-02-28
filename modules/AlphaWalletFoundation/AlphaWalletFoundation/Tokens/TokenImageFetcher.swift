@@ -224,8 +224,8 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
 
     //TODO: refactor and rename
     private static func nftCollectionImageUrl(_ type: TokenType,
-                                            balance: NonFungibleFromJson?,
-                                            size: GoogleContentSize) throws -> ImageOrWebImageUrl {
+                                              balance: NonFungibleFromJson?,
+                                              size: GoogleContentSize) throws -> ImageOrWebImageUrl {
 
         switch type {
         case .erc721, .erc1155:
