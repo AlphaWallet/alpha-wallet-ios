@@ -16,7 +16,9 @@ extension SignatureConfirmationDetailsViewModel {
         case eip712v3And4(key: String, value: EIP712TypedData.JSON)
     }
 }
-typealias ColorsSemantic = Configuration.Color.Semantic
+
+fileprivate typealias ColorsSemantic = Configuration.Color.Semantic
+
 enum SignatureConfirmationDetailsViewModel {
     case rawValue(viewModel: RawValueViewModel)
     case typedMessageValue(viewModel: TypedMessageViewModel)
