@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 
 extension SignatureConfirmationDetailsViewModel {
-    enum Configutation {
+    enum Configuration {
         case message(String)
         case personalMessage(String)
         case typedMessage(EthTypedData)
@@ -22,7 +22,7 @@ enum SignatureConfirmationDetailsViewModel {
     case typedMessageValue(viewModel: TypedMessageViewModel)
     case eip712v3And4(viewModel: Eip712v3And4ValueViewModel)
 
-    init(value: Configutation) {
+    init(value: Configuration) {
         switch value {
         case .message, .personalMessage:
             self = .rawValue(viewModel: RawValueViewModel(rawValue: value))
@@ -34,7 +34,7 @@ enum SignatureConfirmationDetailsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
+        return ColorsSemantic.defaultViewBackground
     }
 
     var valueToCopy: String {
@@ -66,9 +66,9 @@ extension SignatureConfirmationDetailsViewModel {
         let messageAttributedString: NSAttributedString
         var backgroundColor: UIColor = ColorsSemantic.defaultViewBackground
 
-        private let rawValue: Configutation
+        private let rawValue: Configuration
 
-        init(rawValue: Configutation) {
+        init(rawValue: Configuration) {
             self.rawValue = rawValue
 
             switch rawValue {
@@ -123,7 +123,7 @@ extension SignatureConfirmationDetailsViewModel {
 
         private let textAlignment: NSTextAlignment
 
-        init(rawValue: Configutation) {
+        init(rawValue: Configuration) {
             switch rawValue {
             case .message, .personalMessage:
                 textAlignment = .center
@@ -169,7 +169,7 @@ extension SignatureConfirmationDetailsViewModel {
             case single(value: String)
         }
 
-        var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
+        var backgroundColor: UIColor = ColorsSemantic.defaultViewBackground
         let key: String
         var presentationType: PresentationType
         private let json: EIP712TypedData.JSON
