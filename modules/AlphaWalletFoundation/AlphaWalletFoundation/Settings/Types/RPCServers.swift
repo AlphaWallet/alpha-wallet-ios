@@ -224,8 +224,8 @@ public enum RPCServer: Hashable, CaseIterable {
             case .klaytnBaobabTestnet: return "https://baobab.scope.klaytn.com"
             case .ioTeX: return "https://iotexscan.io"
             case .ioTeXTestnet: return "https://testnet.iotexscan.io"
-            case .optimismGoerli: return "https://goerli-rollup-explorer.arbitrum.io"
-            case .arbitrumGoerli: return "https://blockscout.com/optimism/goerli"
+            case .optimismGoerli: return "https://blockscout.com/optimism/goerli"
+            case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io"
             }
         }()
         return urlString.flatMap { URL(string: $0) }
@@ -267,8 +267,8 @@ public enum RPCServer: Hashable, CaseIterable {
             case .klaytnBaobabTestnet: return "https://klaytn-testnet.blockscout.com/api"
             case .ioTeX: return nil
             case .ioTeXTestnet: return nil
-            case .optimismGoerli: return "https://goerli-rollup-explorer.arbitrum.io/api"
-            case .arbitrumGoerli: return "https://blockscout.com/optimism/goerli/api"
+            case .optimismGoerli: return "https://blockscout.com/optimism/goerli/api"
+            case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io/api"
             }
         }()
         return urlString.flatMap { URL(string: $0) }
