@@ -4,6 +4,7 @@ import UIKit
 import WebKit
 import Kingfisher
 import AlphaWalletFoundation
+import Combine
 
 final class FixedContentModeImageView: UIImageView {
     var fixedContentMode: UIView.ContentMode {
@@ -35,8 +36,9 @@ final class FixedContentModeImageView: UIImageView {
     }
 }
 
+//TODO: rename maybe, as its actually not image view
 final class WebImageView: UIView, ContentBackgroundSupportable {
-
+    
     private lazy var placeholderImageView: FixedContentModeImageView = {
         let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -44,19 +46,19 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         imageView.backgroundColor = backgroundColor
         imageView.isHidden = true
         imageView.rounding = .none
-
+        
         return imageView
     }()
-
+    
     private lazy var imageView: FixedContentModeImageView = {
         let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = backgroundColor
-
+        
         return imageView
     }()
-
+    
     private lazy var svgImageView: SvgImageView = {
         let imageView = SvgImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -65,96 +67,128 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         return imageView
     }()
 
+    private lazy var videoPlayerView: AVPlayerView = {
+        let view = AVPlayerView(edgeInsets: .zero, playButtonPositioning: playButtonPositioning, viewModel: viewModel.avPlayerViewModel)
+        view.translatesAutoresizingMaskIntoConstraints = false
+
+        return view
+    }()
+    
     override var contentMode: UIView.ContentMode {
         didSet { imageView.fixedContentMode = contentMode }
     }
-
+    
     var rounding: ViewRounding = .none {
-        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; }
+        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding; }
     }
-
+    
     var contentBackgroundColor: UIColor? {
         didSet { imageView.backgroundColor = contentBackgroundColor; }
     }
+    private let playButtonPositioning: AVPlayerView.PlayButtonPositioning
+    private let setContentSubject = PassthroughSubject<WebImageViewModel.SetContentEvent, Never>()
+    private var cancellable = Set<AnyCancellable>()
+    private let viewModel: WebImageViewModel
 
-    init(edgeInsets: UIEdgeInsets = .zero) {
+    init(edgeInsets: UIEdgeInsets = .zero,
+         playButtonPositioning: AVPlayerView.PlayButtonPositioning,
+         viewModel: WebImageViewModel = .init()) {
+
+        self.viewModel = viewModel
+        self.playButtonPositioning = playButtonPositioning
         super.init(frame: .zero)
+
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = false
         backgroundColor = .clear
         clipsToBounds = true
-
+        isUserInteractionEnabled = true
+        
         addSubview(imageView)
         addSubview(svgImageView)
         addSubview(placeholderImageView)
-
+        addSubview(videoPlayerView)
+        
         NSLayoutConstraint.activate([
+            videoPlayerView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             svgImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             placeholderImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
         ])
-    }
 
+        bind(viewModel: viewModel)
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     func setImage(image: UIImage?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         placeholderImageView.image = placeholder
-        svgImageView.alpha = 0
-        imageView.image = image
-        placeholderImageView.isHidden = imageView.image != nil
+        setContentSubject.send(.image(image))
     }
 
     func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         placeholderImageView.image = placeholder
 
-        guard let url = url?.url else {
+        setContentSubject.send(.url(url?.url))
+    }
+
+    private func bind(viewModel: WebImageViewModel) {
+        let input = WebImageViewModelInput(loadUrl: setContentSubject.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+        output.viewState
+            .sink { [weak self] in self?.reload(viewState: $0) }
+            .store(in: &cancellable)
+
+        output.isPlaceholderHiddenWhenVideoLoaded
+            .assign(to: \.isHidden, on: placeholderImageView)
+            .store(in: &cancellable)
+    }
+
+    private func reload(viewState: WebImageViewModel.ViewState) {
+        switch viewState {
+        case .loading:
             svgImageView.alpha = 0
             imageView.image = nil
+            videoPlayerView.alpha = 0
+            placeholderImageView.isHidden = false
+            videoPlayerView.cancel()
+        case .noContent:
+            svgImageView.alpha = 0
+            imageView.image = nil
+            videoPlayerView.alpha = 0
 
             placeholderImageView.isHidden = false
-            return
-        }
-
-        if url.pathExtension == "svg" {
-            imageView.image = nil
-            placeholderImageView.isHidden = !svgImageView.pageHasLoaded
-            svgImageView.setImage(url: url, completion: { [placeholderImageView] in
+            videoPlayerView.cancel()
+        case .content(let data):
+            switch data {
+            case .svg(let svg):
+                imageView.image = nil
+                svgImageView.setImage(svg: svg)
                 placeholderImageView.isHidden = true
-            })
-        } else {
-            svgImageView.alpha = 0
-            placeholderImageView.isHidden = imageView.image != nil
-            //NOTE: not quite sure, but we need to cancel prev loading operation, othervise we receive an error `notCurrentSourceTask`
-            cancel()
+                videoPlayerView.cancel()
+            case .image(let image):
+                imageView.image = image
 
-            let size = bounds.size.width.isZero ? CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width) : bounds.size
-            let processor = DownsamplingImageProcessor(size: size)
+                svgImageView.alpha = 0
+                videoPlayerView.alpha = 0
+                placeholderImageView.isHidden = true
+                videoPlayerView.cancel()
+            case .video(let video):
+                svgImageView.alpha = 0
+                videoPlayerView.alpha = 1
 
-            imageView.kf.setImage(with: url, options: [
-                .processor(processor),
-                .scaleFactor(UIScreen.main.scale),
-                .cacheOriginalImage,
-                .keepCurrentImageWhileLoading,
-                .alsoPrefetchToMemory,
-                .loadDiskFileSynchronously
-            ], completionHandler: { [imageView, placeholderImageView] result in
-                switch result {
-                case .success(let res):
-                    imageView.image = res.image
-                case .failure:
-                    imageView.image = nil
-                }
+                imageView.image = video.preview
+                placeholderImageView.isHidden = video.preview != nil
 
-                placeholderImageView.isHidden = imageView.image != nil
-            })
+                videoPlayerView.play(url: video.url)
+            }
         }
     }
 
     func cancel() {
-        svgImageView.stopLoading()
-        imageView.image = nil
-        imageView.kf.cancelDownloadTask()
+        setContentSubject.send(.cancel)
     }
 }

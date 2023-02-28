@@ -36,8 +36,8 @@ final class TokenCardViewFactory {
         self.wallet = wallet
     }
 
-    func createPreview(of type: NFTPreviewViewType, session: WalletSession, edgeInsets: UIEdgeInsets = .zero) -> NFTPreviewViewRepresentable {
-        return NFTPreviewView(type: type, session: session, assetDefinitionStore: assetDefinitionStore, edgeInsets: edgeInsets)
+    func createPreview(of type: NFTPreviewViewType, session: WalletSession, edgeInsets: UIEdgeInsets = .zero, playButtonPositioning: AVPlayerView.PlayButtonPositioning) -> NFTPreviewViewRepresentable {
+        return NFTPreviewView(type: type, session: session, assetDefinitionStore: assetDefinitionStore, edgeInsets: edgeInsets, playButtonPositioning: playButtonPositioning)
     }
 
     func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListLayout, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {

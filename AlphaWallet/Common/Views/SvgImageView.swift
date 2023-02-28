@@ -20,7 +20,7 @@ private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
 }()
 
 final class SvgImageView: WKWebView {
-    private var pendingLoadWebViewOperation: BlockOperation?
+
     private (set) var pageHasLoaded: Bool = false
     var rounding: ViewRounding = .none {
         didSet { layoutSubviews() }
@@ -42,35 +42,9 @@ final class SvgImageView: WKWebView {
         scrollView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
-    func setImage(url: URL, completion: @escaping () -> Void) {
-        if let data = try? ImageCache.default.diskStorage.value(forKey: url.absoluteString), let svgString = String(data: data, encoding: .utf8) {
-            loadHTMLString(html(svgString: svgString), baseURL: nil)
-            alpha = 1
-            completion()
-        } else {
-            alpha = 0
-
-            DispatchQueue.global(qos: .userInteractive).async {
-                if let data = try? Data(contentsOf: url), let svgString = String(data: data, encoding: .utf8) {
-                    if let op = self.pendingLoadWebViewOperation {
-                        op.cancel()
-                    }
-
-                    let op = BlockOperation {
-                        self.loadHTMLString(self.html(svgString: svgString), baseURL: nil)
-                        self.alpha = 1
-                        completion()
-                    }
-                    self.pendingLoadWebViewOperation = op
-
-                    OperationQueue.main.addOperations([op], waitUntilFinished: false)
-
-                    try? ImageCache.default.diskStorage.store(value: data, forKey: url.absoluteString)
-                } else {
-                    warnLog("[SvgImageView] suppose to a svg image, but failure")
-                }
-            }
-        }
+    func setImage(svg: String) {
+        loadHTMLString(html(svgString: svg), baseURL: nil)
+        alpha = 1
     }
 
     override func layoutSubviews() {
