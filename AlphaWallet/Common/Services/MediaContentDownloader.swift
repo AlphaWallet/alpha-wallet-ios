@@ -112,7 +112,7 @@ final class MediaContentDownloader {
             case .video(let video):
                 let preview = try? cache.value(for: ImageCacheKey.cacheKey(for: url, prefix: .viewStillPreview)).flatMap { UIImage(data: $0) }
                 let video = Video(url: video.url, preview: preview)
-                
+
                 return .just(.done(.video(video)))
             }
         }
@@ -138,6 +138,10 @@ final class MediaContentDownloader {
                         .mapError { ContentLoaderError.internal($0) }
                         .flatMap { response -> LoadContentPublisher in
                             do {
+                                guard let url = response.response.url else {
+                                    return .fail(ContentLoaderError.invalidData)
+                                }
+
                                 let value = try decoder.decode(response: response.response, data: response.data)
                                 try cache.set(data: value.data, for: ImageCacheKey.cacheKey(for: url, prefix: .raw))
 
@@ -145,8 +149,7 @@ final class MediaContentDownloader {
                             } catch {
                                 return .fail(ContentLoaderError.invalidData)
                             }
-                        }
-                        .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[urlRequest] = nil })
+                        }.handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[urlRequest] = nil })
                         .receive(on: RunLoop.main)
                         .share()
                         .eraseToAnyPublisher()
