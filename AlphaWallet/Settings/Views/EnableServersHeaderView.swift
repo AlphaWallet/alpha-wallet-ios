@@ -43,7 +43,7 @@ class EnableServersHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(mode: EnabledServersViewModel.Mode, isEnabled: Bool) {
+    func configure(mode: EnabledServersViewModel.Mode, isEnabled: Bool, isToggleHidden: Bool = false) {
         self.mode = mode
         backgroundColor  = Configuration.Color.Semantic.tableViewHeaderBackground
 
@@ -53,6 +53,7 @@ class EnableServersHeaderView: UIView {
         label.text = mode.headerText
 
         toggle.isOn = isEnabled
+        toggle.isHidden = isToggleHidden
     }
 
     func toggle(isEnabled: Bool) {

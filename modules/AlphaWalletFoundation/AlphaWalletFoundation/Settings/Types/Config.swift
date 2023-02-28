@@ -235,15 +235,7 @@ public struct Config {
                 } else {
                     //Remove duplicates. Useful for the occasion where users have enabled a chain, then we disable that chain in an update and the user might now end up with the Ethereum mainnet twice (default when we can't find a chain that we removed) in their enabled list
                     let servers: [RPCServer] = Array(Set(chainIds.map { .init(chainID: $0) }.filter { $0.conflictedServer == nil }))
-                    //TODO remove filter after some time as every user should have upgraded and no longer has a mix of mainnet and testnet enabled at the same time. We could have done this filtering one-time per wallet outside of here, but doing it here is more localized
-                    if servers.contains(where: { $0.isTestnet }) && servers.contains(where: { !$0.isTestnet }) {
-                        let filteredServers = servers.filter { !$0.isTestnet }
-                        var configForEditing = self
-                        configForEditing.enabledServers = filteredServers
-                        return filteredServers
-                    } else {
-                        return servers
-                    }
+                    return servers
                 }
             } else {
                 return Constants.defaultEnabledServers

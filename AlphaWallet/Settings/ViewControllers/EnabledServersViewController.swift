@@ -92,10 +92,10 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         switch viewModel.sections[section] {
         case .testnet:
             headerView = headers.testnet
-            headerView.configure(mode: .testnet, isEnabled: viewModel.mode == .testnet)
+            headerView.configure(mode: .testnet, isEnabled: viewModel.testnetEnabled)
         case .mainnet:
             headerView = headers.mainnet
-            headerView.configure(mode: .mainnet, isEnabled: viewModel.mode == .mainnet)
+            headerView.configure(mode: .mainnet, isEnabled: false, isToggleHidden: true)
         }
 
         headerView.delegate = self
@@ -160,18 +160,17 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
 
 extension EnabledServersViewController: EnableServersHeaderViewDelegate {
     func toggledTo(_ newValue: Bool, headerView: EnableServersHeaderView) {
-        switch (headerView.mode, newValue) {
-        case (.mainnet, true), (.testnet, false):
-            viewModel.switchMode(to: .mainnet)
-            self.configure(viewModel: self.viewModel)
-            tableView.reloadData()
-            tableView.reloadSections(viewModel.sectionIndices, with: .automatic)
-        case (.mainnet, false), (.testnet, true):
+        if newValue {
             let prompt = PromptViewController()
             prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
 
             prompt._delegate = self
             present(prompt, animated: true)
+        } else {
+            viewModel.enableTestnet(false)
+            self.configure(viewModel: self.viewModel)
+            tableView.reloadData()
+            tableView.reloadSections(viewModel.sectionIndices, with: .automatic)
         }
     }
 }
@@ -185,15 +184,14 @@ extension EnabledServersViewController: PopNotifiable {
 
 extension EnabledServersViewController: PromptViewControllerDelegate {
     func actionButtonTapped(inController controller: PromptViewController) {
-        viewModel.switchMode(to: .testnet)
+        viewModel.enableTestnet(true)
         configure(viewModel: viewModel)
         //Animation breaks section headers. No idea why. So don't animate
         tableView.reloadData()
     }
 
     func didClose(in controller: PromptViewController) {
-        headers.mainnet.configure(mode: .mainnet, isEnabled: true)
-        headers.testnet.configure(mode: .testnet, isEnabled: false)
+        headers.testnet.configure(mode: .testnet, isEnabled: viewModel.testnetEnabled)
         configure(viewModel: viewModel)
     }
 }
