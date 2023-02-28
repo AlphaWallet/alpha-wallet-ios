@@ -206,7 +206,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
                     return .init(image: .image(.loaded(image: image)), isFinal: true, overlayServerIcon: staticOverlayIcon)
                 }
         }.recover { _ -> Promise<TokenImage> in
-            let url = try TokenImageFetcherImpl.imageUrlFromOpenSea(type, balance: balance, size: size)
+            let url = try TokenImageFetcherImpl.nftCollectionImageUrl(type, balance: balance, size: size)
             return .value(.init(image: url, isFinal: true, overlayServerIcon: staticOverlayIcon))
         }.recover { _ -> Promise<TokenImage> in
             return self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
@@ -223,13 +223,13 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     }
 
     //TODO: refactor and rename
-    private static func imageUrlFromOpenSea(_ type: TokenType,
+    private static func nftCollectionImageUrl(_ type: TokenType,
                                             balance: NonFungibleFromJson?,
                                             size: GoogleContentSize) throws -> ImageOrWebImageUrl {
 
         switch type {
         case .erc721, .erc1155:
-            guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl(rewriteGoogleContentSizeUrl: size) else {
+            guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nftCollectionImageUrl(rewriteGoogleContentSizeUrl: size) else {
                 throw ImageAvailabilityError.notAvailable
             }
             return .url(url)

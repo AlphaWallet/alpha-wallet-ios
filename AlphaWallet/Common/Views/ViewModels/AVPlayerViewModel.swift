@@ -41,7 +41,7 @@ class AVPlayerViewModel {
     private (set) lazy var player: AVPlayer = {
         let player = AVPlayer()
         player.actionAtItemEnd = .none
-        player.volume = 0.0
+        player.volume = 0
         player.automaticallyWaitsToMinimizeStalling = false
 
         return player
@@ -85,7 +85,7 @@ class AVPlayerViewModel {
                 guard let strongSelf = self else { return .empty() }
 
                 guard let url = url else {
-                    viewStateSubject.send(.done(.undefined))
+                    viewStateSubject.send(.failure(.emptyUrl))
 
                     player.replaceCurrentItem(with: nil)
                     return .just(())
@@ -98,13 +98,13 @@ class AVPlayerViewModel {
                             viewStateSubject.send(.loading)
                         case .loaded(let item, let isVideo):
                             let mediaType: MediaType = isVideo ? .video : .audio
-                            viewStateSubject.send(.done(.content(mediaType)))
+                            viewStateSubject.send(.done(mediaType))
 
                             player.replaceCurrentItem(with: item)
                         }
                     }).mapToVoid()
                     .catch { e -> AnyPublisher<Void, Never> in
-                        viewStateSubject.send(.failure(e))
+                        viewStateSubject.send(.failure(.assetFailure(e)))
 
                         return .just(())
                     }.eraseToAnyPublisher()
@@ -133,15 +133,15 @@ extension AVPlayerViewModel {
         case audio
     }
 
-    enum ContentType {
-        case content(MediaType)
-        case undefined
+    enum PlayerError: Error {
+        case emptyUrl
+        case assetFailure(AVURLAsset.AVAssetError)
     }
 
     enum LoadVideoState {
         case loading
-        case done(ContentType)
-        case failure(Error)
+        case done(MediaType)
+        case failure(PlayerError)
     }
 }
 

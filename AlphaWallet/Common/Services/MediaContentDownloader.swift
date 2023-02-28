@@ -71,6 +71,7 @@ final class MediaContentDownloader {
     private let decoder: ContentDecoder
     private let contentResponseInterceptor: MediaContentDownloaderContentResponseInterceptor
     private let reachability: ReachabilityManagerProtocol /*use is later*/
+    private let base64Decoder = Base64Decoder()
 
     init(networking: MediaContentNetworking,
          cache: ContentCacheStorage,
@@ -85,9 +86,16 @@ final class MediaContentDownloader {
         self.networking = networking
     }
 
+    //NOTE: we receive can receive base64 as url, so we need to decode it first and return right data
+    //treat value from base64 as string to display in webview, might be needed to handle special mime types
+    //or maybe its better to handle decoding base64 when return image for token, make special manager for it, not just static func like it is for now
     public func fetch(_ url: URL) -> LoadContentPublisher {
-        let request = URLRequest(url: url)
-        return fetch(request)
+        if let data = base64Decoder.decode(string: url.absoluteString), data.mimeType != nil, let string = String(data: data.data, encoding: .utf8) {
+            return .just(.done(.svg(string))).prepend(.loading).eraseToAnyPublisher()
+        } else {
+            let request = URLRequest(url: url)
+            return fetch(request)
+        }
     }
 
     public func fetch(_ urlRequest: URLRequest) -> LoadContentPublisher {

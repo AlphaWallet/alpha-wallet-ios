@@ -11,11 +11,12 @@ final class NonFungibleContract {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
+    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<TokenUriData, SessionTaskError> {
         return blockchainProvider
             .call(Erc721TokenUriMethodCall(contract: contract, tokenId: tokenId))
-            .catch { [blockchainProvider] _ -> AnyPublisher<URL, SessionTaskError> in
-                blockchainProvider.call(Erc721UriMethodCall(contract: contract, tokenId: tokenId))
+            .catch { [blockchainProvider] _ -> AnyPublisher<TokenUriData, SessionTaskError> in
+                return blockchainProvider
+                    .call(Erc721UriMethodCall(contract: contract, tokenId: tokenId))
             }.eraseToAnyPublisher()
     }
 }

@@ -8,40 +8,61 @@
 import Foundation
 import BigInt
 
-struct Erc721TokenUriMethodCall: ContractMethodCall {
-    typealias Response = URL
+enum TokenUriData {
+    case uri(URL)
+    case string(String)
+    case json(JSON)
+    case data(Data)
+}
 
-    private let function = GetTokenUri()
-    private let tokenId: String
+import SwiftyJSON
 
-    let contract: AlphaWallet.Address
-    var name: String { function.name }
-    var abi: String { function.abi }
-    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+struct TokenUriDecoder {
+    let base64Decoder: Base64Decoder = Base64Decoder()
+    let tokenId: String
 
-    init(contract: AlphaWallet.Address, tokenId: String) {
-        self.contract = contract
-        self.tokenId = tokenId
+    private enum DecoderError: Error {
+        case decodeFailure
     }
 
-    func response(from resultObject: Any) throws -> URL {
+    func decode(from resultObject: Any) throws -> TokenUriData {
         guard let dictionary = resultObject as? [String: AnyObject] else {
             throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
         }
 
-        if let string = dictionary["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-            return url
+        guard let string = dictionary["0"] as? String else {
+            throw CastError(actualValue: resultObject, expectedType: String.self)
+        }
+
+        if let data = base64Decoder.decode(string: string) {
+            guard let mimeType = data.mimeType else { return .data(data.data) }
+
+            switch mimeType {
+            case "application/json":
+                guard let json = try? JSON(data: data.data) else { throw DecoderError.decodeFailure }
+                return .json(json)
+            case "text/plain", "svg+xml":
+                guard let string = String(data: data.data, encoding: .utf8) else { throw DecoderError.decodeFailure }
+                return .string(string)
+            default:
+                //NOTE: treat default as string representation, might be needed to tweak
+                guard let string = String(data: data.data, encoding: .utf8) else { throw DecoderError.decodeFailure }
+                return .string(string)
+            }
+        } else if let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
+            return .uri(url)
         } else {
-            throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
+            throw CastError(actualValue: string, expectedType: TokenUriData.self)
         }
     }
 }
 
-struct Erc721UriMethodCall: ContractMethodCall {
-    typealias Response = URL
+struct Erc721TokenUriMethodCall: ContractMethodCall {
+    typealias Response = TokenUriData
 
-    private let function = GetUri()
+    private let function = GetTokenUri()
     private let tokenId: String
+    private let decoder: TokenUriDecoder
 
     let contract: AlphaWallet.Address
     var name: String { function.name }
@@ -51,18 +72,34 @@ struct Erc721UriMethodCall: ContractMethodCall {
     init(contract: AlphaWallet.Address, tokenId: String) {
         self.contract = contract
         self.tokenId = tokenId
+        self.decoder = TokenUriDecoder(tokenId: tokenId)
     }
 
-    func response(from resultObject: Any) throws -> URL {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
+    func response(from resultObject: Any) throws -> TokenUriData {
+        return try decoder.decode(from: resultObject)
+    }
+}
 
-        if let string = dictionary["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-            return url
-        } else {
-            throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
-        }
+struct Erc721UriMethodCall: ContractMethodCall {
+    typealias Response = TokenUriData
+
+    private let function = GetUri()
+    private let tokenId: String
+    private let decoder: TokenUriDecoder
+
+    let contract: AlphaWallet.Address
+    var name: String { function.name }
+    var abi: String { function.abi }
+    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+
+    init(contract: AlphaWallet.Address, tokenId: String) {
+        self.contract = contract
+        self.tokenId = tokenId
+        self.decoder = TokenUriDecoder(tokenId: tokenId)
+    }
+
+    func response(from resultObject: Any) throws -> TokenUriData {
+        return try decoder.decode(from: resultObject)
     }
 }
 

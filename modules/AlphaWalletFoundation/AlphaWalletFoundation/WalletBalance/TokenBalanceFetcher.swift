@@ -236,7 +236,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         cancellable[randomUuid] = erc721TokenIdsFetcher
             .tokenIdsForErc721Token(contract: contract, forServer: session.server, inAccount: session.account.address)
             .flatMap { [jsonFromTokenUri] tokenIds -> AnyPublisher<[NonFungibleBalanceAndItsSource<JsonString>], Never> in
-                let guarantees = tokenIds.map { jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: $0, tokenType: .erc721, address: contract).mapToResult() }
+                let guarantees = tokenIds.map { jsonFromTokenUri.fetchJsonFromTokenUri(for: $0, tokenType: .erc721, address: contract).mapToResult() }
 
                 return Publishers.MergeMany(guarantees).collect()
                     .map { $0.compactMap { try? $0.get() } }

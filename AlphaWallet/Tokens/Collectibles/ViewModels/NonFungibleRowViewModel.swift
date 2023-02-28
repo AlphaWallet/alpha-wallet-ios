@@ -58,9 +58,9 @@ struct NonFungibleRowViewModel {
     } 
 
     var assetImage: TokenImagePublisher {
-        let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s300)
+        let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s300)
             .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-
-        return .just(tokenImage)
+        
+        return .just(assetImage)
     }
 }
