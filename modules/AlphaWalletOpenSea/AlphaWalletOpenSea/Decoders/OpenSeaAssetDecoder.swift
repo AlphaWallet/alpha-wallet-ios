@@ -83,7 +83,7 @@ extension NftAsset {
         guard let contract = AlphaWallet.Address(string: assetContractJson["address"].stringValue) else {
             return nil
         }
-        guard let tokenType = NonFungibleFromJsonTokenType(rawString: assetContractJson["schema_name"].stringValue) else {
+        guard let tokenType = NonFungibleFromJsonTokenType(rawValue: assetContractJson["schema_name"].stringValue) else {
             return nil
         }
         let tokenId = json["token_id"].stringValue

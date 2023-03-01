@@ -11,6 +11,7 @@ import AlphaWalletLogger
 import AlphaWalletOpenSea
 import SwiftyJSON
 import Combine
+import BigInt
 
 final class JsonFromTokenUri {
     typealias Publisher = AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>
@@ -38,7 +39,7 @@ final class JsonFromTokenUri {
     }
 
     func fetchJsonFromTokenUri(for tokenId: String,
-                               tokenType: TokenType,
+                               tokenType: NonFungibleFromJsonTokenType,
                                address: AlphaWallet.Address) -> Publisher {
 
         return Just(tokenId)
@@ -68,7 +69,7 @@ final class JsonFromTokenUri {
 
     private func handleUriData(data: TokenUriData,
                                tokenId: String,
-                               tokenType: TokenType,
+                               tokenType: NonFungibleFromJsonTokenType,
                                address: AlphaWallet.Address) -> Publisher {
 
         switch data {
@@ -89,7 +90,7 @@ final class JsonFromTokenUri {
     }
 
     private func generateTokenJsonFallback(for tokenId: String,
-                                           tokenType: TokenType,
+                                           tokenType: NonFungibleFromJsonTokenType,
                                            address: AlphaWallet.Address) -> Publisher {
         var jsonDictionary = JSON()
         if let token = tokensService.token(for: address, server: blockchainProvider.server) {
@@ -114,7 +115,7 @@ final class JsonFromTokenUri {
 
     private func fulfill(json: JSON,
                          tokenId: String,
-                         tokenType: TokenType,
+                         tokenType: NonFungibleFromJsonTokenType,
                          uri originalUri: URL?,
                          address: AlphaWallet.Address) throws -> NonFungibleBalanceAndItsSource<JsonString> {
 
@@ -126,6 +127,7 @@ final class JsonFromTokenUri {
             throw SessionTaskError(error: JsonFromTokenUriError(message: json["error"].stringValue))
         } else {
             verboseLog("Fetched token URI: \(originalUri?.absoluteString)")
+
             var jsonDictionary = json
             if let token = tokensService.token(for: address, server: blockchainProvider.server) {
                 jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
@@ -135,8 +137,8 @@ final class JsonFromTokenUri {
                 jsonDictionary["tokenId"] = JSON(tokenId)
                 jsonDictionary["decimals"] = JSON(json["decimals"].intValue)
                 jsonDictionary["name"] = JSON(json["name"].stringValue)
-                jsonDictionary["imageUrl"] = JSON(json["image"].string ?? json["image_url"].string ?? "")
-                jsonDictionary["thumbnailUrl"] = json["imageUrl"]
+                jsonDictionary["imageUrl"] = JSON(json["image"].string ?? json["image_url"].stringValue)
+                jsonDictionary["thumbnailUrl"] = JSON(json["thumbnail_url"].string ?? json["imageUrl"].stringValue)
                     //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
                 jsonDictionary["externalLink"] = JSON(json["home_url"].string ?? json["external_url"].string ?? "")
                 jsonDictionary["animationUrl"] = JSON(jsonDictionary["animation_url"].stringValue)
@@ -152,7 +154,7 @@ final class JsonFromTokenUri {
     }
 
     private func fetchTokenJson(for tokenId: String,
-                                tokenType: TokenType,
+                                tokenType: NonFungibleFromJsonTokenType,
                                 uri originalUri: URL,
                                 address: AlphaWallet.Address) -> Publisher {
         
