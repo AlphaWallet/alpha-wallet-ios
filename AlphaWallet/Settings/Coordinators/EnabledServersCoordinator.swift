@@ -24,7 +24,6 @@ class EnabledServersCoordinator: Coordinator {
         let viewModel = EnabledServersViewModel(
             servers: serverChoices,
             selectedServers: selectedServers,
-            mode: selectedServers.contains(where: { $0.isTestnet }) ? .testnet : .mainnet,
             restartQueue: restartQueue,
             config: config)
         

@@ -211,54 +211,25 @@ final class WalletConnectV2Provider: WalletConnectServer {
             return
         }
 
-        do {
-            try WalletConnectV2Provider.validateProposalForMixedMainnetOrTestnet(proposal)
+        delegate.server(self, shouldConnectFor: .init(proposal: proposal)) { [weak self, caip10AccountProvidable] response in
+            guard let strongSelf = self else { return }
 
-            delegate.server(self, shouldConnectFor: .init(proposal: proposal)) { [weak self, caip10AccountProvidable] response in
-                guard let strongSelf = self else { return }
-
-                guard response.shouldProceed else {
-                    strongSelf.currentProposal = .none
-                    reject(proposal: proposal)
-                    return
-                }
-
-                do {
-                    let namespaces = try caip10AccountProvidable.namespaces(proposalOrServer: .proposal(proposal))
-                    strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
-                    strongSelf.currentProposal = .none
-
-                    completion()
-                } catch {
-                    delegate.server(strongSelf, didFail: error)
-                    //NOTE: for now we dont throw any error, just rejecting connection proposal
-                    reject(proposal: proposal)
-                }
+            guard response.shouldProceed else {
+                strongSelf.currentProposal = .none
+                reject(proposal: proposal)
+                return
             }
-        } catch {
-            delegate.server(self, didFail: error)
-            //NOTE: for now we dont throw any error, just rejecting connection proposal
-            reject(proposal: proposal)
-            return
-        }
-    }
 
-    //NOTE: Throws an error in case when `sessionProposal` contains mainnets as well as testnets
-    private static func validateProposalForMixedMainnetOrTestnet(_ proposal: WalletConnectSwiftV2.Session.Proposal) throws {
-        struct MixedMainnetsOrTestnetsError: Error {}
-        for namespace in proposal.requiredNamespaces.values {
-            let blockchains = Set(namespace.chains.map { $0.absoluteString })
-            let servers = RPCServer.decodeEip155Array(values: blockchains)
-            let allAreTestnets = servers.allSatisfy { $0.isTestnet }
-            if allAreTestnets {
-                //no-op
-            } else {
-                let allAreMainnets = servers.allSatisfy { !$0.isTestnet }
-                if allAreMainnets {
-                    //no-op
-                } else {
-                    throw MixedMainnetsOrTestnetsError()
-                }
+            do {
+                let namespaces = try caip10AccountProvidable.namespaces(proposalOrServer: .proposal(proposal))
+                strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
+                strongSelf.currentProposal = .none
+
+                completion()
+            } catch {
+                delegate.server(strongSelf, didFail: error)
+                //NOTE: for now we dont throw any error, just rejecting connection proposal
+                reject(proposal: proposal)
             }
         }
     }

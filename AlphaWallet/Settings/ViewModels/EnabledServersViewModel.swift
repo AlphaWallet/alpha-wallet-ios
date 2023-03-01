@@ -14,19 +14,21 @@ struct EnabledServersViewModel {
         IndexSet(integersIn: Range(uncheckedBounds: (lower: 0, sections.count)))
     }
     let sections: [Section] = [.mainnet, .testnet]
+
     let servers: [RPCServer]
     private (set) var selectedServers: [RPCServer]
-    private (set) var mode: Mode
+    var testnetEnabled: Bool
 
     //Cannot infer `mode` from `selectedServers` because of this case: we are in testnet and tap to deselect all of them. Can't know to stay in testnet
-    init(servers: [RPCServer], selectedServers: [RPCServer], mode: Mode, restartQueue: RestartTaskQueue, config: Config) {
+    init(servers: [RPCServer], selectedServers: [RPCServer], restartQueue: RestartTaskQueue, config: Config) {
         self.servers = servers
         self.selectedServers = selectedServers
         self.mainnets = servers.filter { !$0.isTestnet }
         self.testnets = servers.filter { $0.isTestnet }
-        self.mode = mode
         self.restartQueue = restartQueue
         self.config = config
+
+        testnetEnabled = selectedServers.contains(where: { $0.isTestnet })
     }
 
     var title: String {
@@ -35,19 +37,28 @@ struct EnabledServersViewModel {
 
     func serverViewModel(indexPath: IndexPath) -> ServerImageViewModel {
         let server = server(for: indexPath)
-        let warningImage = server.isDeprecated ? R.image.gasWarning() : nil
         
-        return ServerImageViewModel(server: .server(server), isSelected: isServerSelected(server), isAvailableToSelect: !server.isDeprecated, warningImage: warningImage)
+        return ServerImageViewModel(
+            server: .server(server),
+            isSelected: isServerSelected(server),
+            isAvailableToSelect: !server.isDeprecated,
+            warningImage: server.isDeprecated ? R.image.gasWarning() : nil)
     }
 
-    mutating func switchMode(to mode: Mode) {
-        self.mode = mode
+    mutating func enableTestnet(_ enabled: Bool) {
+        testnetEnabled = enabled
+
         if let serversSelectedInPreviousMode = serversSelectedInPreviousMode {
             self.serversSelectedInPreviousMode = selectedServers
             self.selectedServers = serversSelectedInPreviousMode
         } else {
             serversSelectedInPreviousMode = selectedServers
-            selectedServers = mode == .mainnet ? Constants.defaultEnabledServers : Constants.defaultEnabledTestnetServers
+
+            if testnetEnabled {
+                selectedServers = Array(Set(selectedServers + Constants.defaultEnabledTestnetServers))
+            } else {
+                selectedServers = selectedServers.filter { !$0.isTestnet }
+            }
         }
     }
 
@@ -87,14 +98,14 @@ struct EnabledServersViewModel {
     func numberOfRowsInSection(_ section: Int) -> Int {
         switch sections[section] {
         case .testnet:
-            return serverCount(forMode: .testnet)
+            return testnetEnabled ? testnets.count : 0
         case .mainnet:
-            return serverCount(forMode: .mainnet)
+            return mainnets.count
         }
     }
 
     func server(for indexPath: IndexPath) -> RPCServer {
-        switch mode {
+        switch sections[indexPath.section] {
         case .testnet:
             return testnets[indexPath.row]
         case .mainnet:
@@ -105,19 +116,10 @@ struct EnabledServersViewModel {
     func isServerSelected(_ server: RPCServer) -> Bool {
         selectedServers.contains(server)
     }
-
-    func serverCount(forMode mode: Mode) -> Int {
-        guard mode == self.mode else { return 0 }
-        switch mode {
-        case .testnet:
-            return testnets.count
-        case .mainnet:
-            return mainnets.count
-        }
-    }
 }
 
 extension EnabledServersViewModel {
+
     enum Section {
         case testnet
         case mainnet
