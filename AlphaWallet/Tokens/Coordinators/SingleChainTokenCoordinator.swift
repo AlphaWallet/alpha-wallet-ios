@@ -13,8 +13,8 @@ struct NoTokenError: LocalizedError {
 
 protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: SingleChainTokenCoordinator)
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
@@ -128,12 +128,12 @@ extension SingleChainTokenCoordinator: FungibleTokenCoordinatorDelegate {
         delegate?.didTapSwap(swapTokenFlow: swapTokenFlow, in: self)
     }
 
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator) {
-        delegate?.didTapBridge(transactionType: transactionType, service: service, in: self)
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator) {
+        delegate?.didTapBridge(token: token, service: service, in: self)
     }
 
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator) {
-        delegate?.didTapBuy(transactionType: transactionType, service: service, in: self)
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator) {
+        delegate?.didTapBuy(token: token, service: service, in: self)
     }
 
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: FungibleTokenCoordinator) {
