@@ -999,12 +999,12 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         addCoordinator(coordinator)
     }
 
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator) {
         do {
             guard let service = service as? BridgeTokenURLProviderType else {
                 throw ActiveWalletError.unavailableToResolveBridgeActionProvider
             }
-            guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token, wallet: wallet) else {
+            guard let url = service.url(token: token, wallet: wallet) else {
                 throw ActiveWalletError.bridgeNotSupported
             }
 
@@ -1014,13 +1014,8 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         }
     }
 
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
-        do {
-            guard let token = transactionType.swapServiceInputToken else { throw ActiveWalletError.buyNotSupported }
-            buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
-        } catch {
-            show(error: error)
-        }
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
     }
 
     private func open(for url: URL) {

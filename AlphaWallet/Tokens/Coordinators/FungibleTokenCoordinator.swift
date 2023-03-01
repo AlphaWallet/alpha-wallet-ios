@@ -12,8 +12,8 @@ import Combine
 
 protocol FungibleTokenCoordinatorDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: FungibleTokenCoordinator)
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator)
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator)
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator)
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: FungibleTokenCoordinator)
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: FungibleTokenCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: FungibleTokenCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: FungibleTokenCoordinator)
@@ -156,11 +156,11 @@ extension FungibleTokenCoordinator: FungibleTokenDetailsViewControllerDelegate {
     }
 
     func didTapBridge(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenDetailsViewController) {
-        delegate?.didTapBridge(transactionType: .init(fungibleToken: token), service: service, in: self)
+        delegate?.didTapBridge(token: token, service: service, in: self)
     }
 
     func didTapBuy(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenDetailsViewController) {
-        delegate?.didTapBuy(transactionType: .init(fungibleToken: token), service: service, in: self)
+        delegate?.didTapBuy(token: token, service: service, in: self)
     }
 
     func didTapSend(for token: Token, in viewController: FungibleTokenDetailsViewController) {

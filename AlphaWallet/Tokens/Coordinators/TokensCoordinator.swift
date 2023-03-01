@@ -7,8 +7,8 @@ import AlphaWalletFoundation
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didTap(suggestedPaymentFlow: SuggestedPaymentFlow, viewController: UIViewController?, in coordinator: TokensCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator)
@@ -496,12 +496,12 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didTapSwap(swapTokenFlow: swapTokenFlow, in: self)
     }
 
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTapBridge(transactionType: transactionType, service: service, in: self)
+    func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBridge(token: token, service: service, in: self)
     }
 
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTapBuy(transactionType: transactionType, service: service, in: self)
+    func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBuy(token: token, service: service, in: self)
     }
 
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
