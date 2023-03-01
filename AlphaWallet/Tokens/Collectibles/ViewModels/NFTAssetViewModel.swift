@@ -15,37 +15,38 @@ struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
 }
 
-enum TokenInstanceViewMode {
-    case preview
-    case interactive
-}
-
 struct NFTAssetViewModelInput {
     let appear: AnyPublisher<Void, Never>
+    let action: AnyPublisher<TokenInstanceAction, Never>
 }
 
 struct NFTAssetViewModelOutput {
     let state: AnyPublisher<NFTAssetViewModel.ViewState, Never>
+    let nftAssetAction: AnyPublisher<NFTAssetViewModel.NftAssetAction, Never>
 }
 
 class NFTAssetViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
     private let nftProvider: NFTProvider
-    private let mode: TokenInstanceViewMode
+    private let mode: NFTAssetViewModel.InterationMode
     private let service: TokenViewModelState & TokenHolderState
+    private var actionAdapter: TokenInstanceActionAdapter {
+        return TokenInstanceActionAdapter(
+           session: session,
+           token: token,
+           tokenHolder: tokenHolder,
+           tokenActionsProvider: tokenActionsProvider)
+    }
+    private var tokenHolder: TokenHolder
+    private let tokenActionsProvider: SupportedTokenActionsProvider
     private (set) var viewTypes: [NFTAssetViewModel.ViewType] = []
     let session: WalletSession
     let token: Token
-    private (set) var tokenId: TokenId
-    private (set) var tokenHolder: TokenHolder
+    let tokenId: TokenId
     let assetDefinitionStore: AssetDefinitionStore
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-    var transferTransactionType: TransactionType {
-        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-        return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
-    }
 
+    let contractViewModel: TokenAttributeViewModel
     var previewViewType: NFTPreviewViewType {
         switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
         case .backedByOpenSea:
@@ -87,9 +88,18 @@ class NFTAssetViewModel {
             return .init(top: 0, left: 15, bottom: 0, right: 15)
         }
     }
-    private var cancellable = Set<AnyCancellable>()
 
-    init(tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode, nftProvider: NFTProvider, session: WalletSession, service: TokenViewModelState & TokenHolderState) {
+    init(tokenId: TokenId,
+         token: Token,
+         tokenHolder: TokenHolder,
+         assetDefinitionStore: AssetDefinitionStore,
+         mode: NFTAssetViewModel.InterationMode,
+         nftProvider: NFTProvider,
+         session: WalletSession,
+         service: TokenViewModelState & TokenHolderState,
+         tokenActionsProvider: SupportedTokenActionsProvider) {
+
+        self.tokenActionsProvider = tokenActionsProvider
         self.service = service
         self.nftProvider = nftProvider
         self.session = session
@@ -104,42 +114,56 @@ class NFTAssetViewModel {
     }
 
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
-        let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
-        if let collectionId = tokenHolder.values.collectionId, collectionId.trimmed.nonEmpty {
-            nftProvider.collectionStats(collectionId: collectionId)
-                .sink(receiveCompletion: { _ in
+        let collectionStats = loadCollectionStats()
+        let tokenHolderPublisher = tokenHolderPublisher()
 
-                }, receiveValue: { [weak self] stats in
-                    self?.configure(overiddenOpenSeaStats: stats)
-                    whenOpenSeaStatsHasChanged.send(())
-                }).store(in: &cancellable)
+        let viewTypes = Publishers.Merge3(input.appear, tokenHolderPublisher, collectionStats)
+            .map { _ in self.buildViewTypes(for: self.tokenHolderHelper) }
+            .handleEvents(receiveOutput: { self.viewTypes = $0 })
+
+        let actionButtons = buildActionButtons(trigger: tokenHolderPublisher)
+
+        let viewState = Publishers.CombineLatest(viewTypes, actionButtons)
+            .map { viewTypes, actionButtons in
+                return NFTAssetViewModel.ViewState(
+                    title: self.title,
+                    actionButtons: actionButtons,
+                    viewTypes: viewTypes,
+                    previewViewParams: self.previewViewParams,
+                    previewViewContentBackgroundColor: self.previewViewContentBackgroundColor)
+            }
+
+        let nftAssetAction = input.action
+            .compactMap { self.buildNftAssetAction(action: $0) }
+
+        return .init(
+            state: viewState.eraseToAnyPublisher(),
+            nftAssetAction: nftAssetAction.eraseToAnyPublisher())
+    }
+
+    private func buildNftAssetAction(action: TokenInstanceAction) -> NFTAssetViewModel.NftAssetAction? {
+        switch action.type {
+        case .nftRedeem:
+            return .redeem(token: token, tokenHolder: tokenHolder)
+        case .nftSell:
+            return .sell(tokenHolder: tokenHolder)
+        case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
+            //TODO when we support TokenScript views for ERC20s, we need to perform the action here
+            return nil
+        case .nonFungibleTransfer:
+            tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+            let transactionType = TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
+
+            return .transfer(token: token, tokenHolder: tokenHolder, transactionType: transactionType)
+        case .tokenScript:
+            if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: nil) {
+                guard case .warning(let denialMessage) = message else { return nil }
+
+                return .display(warning: denialMessage)
+            } else {
+                return .tokenScript(action: action, tokenHolder: tokenHolder)
+            }
         }
-
-        let tokenHolderHasChanged = service.tokenHoldersPublisher(for: token)
-            .dropFirst()
-            .compactMap { [weak self, token] updatedTokenHolders -> (tokenHolder: TokenHolder, tokenId: TokenId)? in
-                switch token.type {
-                case .erc721, .erc875, .erc721ForTickets:
-                    return self?.firstMatchingTokenHolder(from: updatedTokenHolders).flatMap { ($0, $0.tokenId) }
-                case .erc1155:
-                    return self?.isMatchingTokenHolder(from: updatedTokenHolders)
-                case .nativeCryptocurrency, .erc20:
-                    return nil
-                }
-            }.handleEvents(receiveOutput: { [weak self] in
-                self?.tokenId = $0.tokenId
-                self?.tokenHolder = $0.tokenHolder
-                self?.tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
-            }).map { _ in }.eraseToAnyPublisher()
-
-        let viewState = Publishers.Merge3(input.appear, tokenHolderHasChanged, whenOpenSeaStatsHasChanged)
-            .compactMap { [weak self] _ -> NFTAssetViewModel.ViewState? in
-                guard let strongSelf = self else { return nil }
-                strongSelf.viewTypes = strongSelf.buildViewTypes(for: strongSelf.tokenHolderHelper)
-                return NFTAssetViewModel.ViewState(title: strongSelf.title, actions: strongSelf.actions, viewTypes: strongSelf.viewTypes, previewViewParams: strongSelf.previewViewParams, previewViewContentBackgroundColor: strongSelf.previewViewContentBackgroundColor)
-            }.eraseToAnyPublisher()
-
-        return .init(state: viewState)
     }
 
     private func configure(overiddenOpenSeaStats: Stats?) {
@@ -147,51 +171,39 @@ class NFTAssetViewModel {
         tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
 
-    var actions: [TokenInstanceAction] {
-        switch mode {
-        case .preview:
-            return []
-        case .interactive:
-            break
-        }
+    private func tokenHolderPublisher() -> AnyPublisher<Void, Never> {
+        return service.tokenHolderPublisher(for: token, tokenId: tokenId)
+            .compactMap { $0 }
+            .handleEvents(receiveOutput: { [weak self] in
+                self?.tokenHolder = $0
+                self?.tokenHolderHelper.update(tokenHolder: $0, tokenId: $0.tokenId)
+            }).mapToVoid()
+            .eraseToAnyPublisher()
+    }
 
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        let actionsFromTokenScript = xmlHandler.actions
-        infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
-        let results: [TokenInstanceAction]
-        if xmlHandler.hasAssetDefinition {
-            results = actionsFromTokenScript
+    private func loadCollectionStats() -> AnyPublisher<Void, Never> {
+        if let collectionId = tokenHolder.values.collectionId, collectionId.trimmed.nonEmpty {
+            return nftProvider.collectionStats(collectionId: collectionId)
+                .handleEvents(receiveOutput: { [weak self] in self?.configure(overiddenOpenSeaStats: $0) })
+                .mapToVoid()
+                .replaceError(with: ())
+                .eraseToAnyPublisher()
         } else {
-            switch token.type {
-            case .erc1155, .erc721:
-                results = [
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .erc875, .erc721ForTickets:
-                results = [
-                    .init(type: .nftSell),
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .nativeCryptocurrency, .erc20:
-                results = []
-            }
-        }
-
-        if Features.default.isAvailable(.isNftTransferEnabled) {
-            return results
-        } else {
-            return results.filter {
-                $0.type != .nonFungibleTransfer
-            }
+            return .empty()
         }
     }
 
-    private func firstMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> TokenHolder? {
-        return tokenHolders.first { $0.tokens[0].id == tokenId }
-    }
-
-    private func isMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
-        return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
+    private func buildActionButtons(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<[FungibleTokenDetailsViewModel.ActionButton], Never> {
+        return trigger
+            .map { _ in self.actionAdapter.availableActions() }
+            .map { actions in
+                actions.map {
+                    FungibleTokenDetailsViewModel.ActionButton(
+                        actionType: $0,
+                        name: $0.name,
+                        state: self.actionAdapter.state(for: $0, fungibleBalance: nil))
+                }
+            }.eraseToAnyPublisher()
     }
 
     var tokenIdViewModel: TokenAttributeViewModel? {
@@ -211,8 +223,6 @@ class NFTAssetViewModel {
     var creatorViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.creator
     }
-
-    var contractViewModel: TokenAttributeViewModel
 
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
@@ -302,44 +312,15 @@ class NFTAssetViewModel {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
         }
     }
-
-    func tokenScriptWarningMessage(for action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.TokenScriptWarningMessage? {
-        if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
-            if let denialMessage = selection.denial {
-                return .warning(string: denialMessage)
-            } else {
-                //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                return .undefined
-            }
-        } else {
-            return nil
-        }
-    }
-
-    func buttonState(for action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.ActionButtonState {
-        func _configButton(action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.ActionButtonState {
-            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
-                if selection.denial == nil {
-                    return .isDisplayed(false)
-                }
-            }
-            return .noOption
-        }
-
-        switch session.account.type {
-        case .real:
-            return _configButton(action: action)
-        case .watch:
-            if session.config.development.shouldPretendIsRealWallet {
-                return _configButton(action: action)
-            } else {
-                return .isEnabled(false)
-            }
-        }
-    }
 }
 
 extension NFTAssetViewModel {
+
+    enum InterationMode {
+        case preview
+        case interactive
+    }
+
     enum ViewType {
         case header(viewModel: TokenInfoHeaderViewModel)
         case field(viewModel: TokenAttributeViewModel)
@@ -348,10 +329,18 @@ extension NFTAssetViewModel {
 
     struct ViewState {
         let title: String
-        let actions: [TokenInstanceAction]
+        let actionButtons: [FungibleTokenDetailsViewModel.ActionButton]
         let viewTypes: [NFTAssetViewModel.ViewType]
         let previewViewParams: NFTPreviewViewType.Params
         let previewViewContentBackgroundColor: UIColor
+    }
+
+    enum NftAssetAction {
+        case redeem(token: Token, tokenHolder: TokenHolder)
+        case sell(tokenHolder: TokenHolder)
+        case transfer(token: Token, tokenHolder: TokenHolder, transactionType: TransactionType)
+        case display(warning: String)
+        case tokenScript(action: TokenInstanceAction, tokenHolder: TokenHolder)
     }
 }
 
