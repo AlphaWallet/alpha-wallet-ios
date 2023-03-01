@@ -59,7 +59,7 @@ class AccountsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analytics: analytics, walletBalanceService: walletBalanceService, blockiesGenerator: blockiesGenerator, domainResolutionService: domainResolutionService)
+        let viewModel = AccountsViewModel(keystore: keystore, configuration: self.viewModel.configuration, analytics: analytics, walletBalanceService: walletBalanceService, blockiesGenerator: blockiesGenerator, domainResolutionService: domainResolutionService)
         viewModel.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
 
         let controller = AccountsViewController(viewModel: viewModel)

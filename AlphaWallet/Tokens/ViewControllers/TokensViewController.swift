@@ -263,7 +263,7 @@ final class TokensViewController: UIViewController {
             .sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
                 self?.showOrHideBackupWalletViewHolder()
 
-                walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, config: viewModel.config, alignment: .center))
+                walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, alignment: .center))
                 blockieImageView.set(blockieImage: state.blockiesImage)
 
                 navigationItem.title = state.title
@@ -367,13 +367,6 @@ extension TokensViewController: UITableViewDelegate {
             let header: ActiveWalletSessionView = tableView.dequeueReusableHeaderFooterView()
             header.configure(viewModel: .init(count: viewModel.walletConnectSessions))
             header.delegate = self
-
-            return header
-        case .testnetTokens:
-            let header: TokensViewController.GeneralTableViewSectionHeader<AddHideTokensView> = tableView.dequeueReusableHeaderFooterView()
-            header.useSeparatorTopLine = true
-            header.useSeparatorBottomLine = viewModel.isBottomSeparatorLineHiddenForTestnetHeader(section: section)
-            header.subview = whereAreMyTokensView
 
             return header
         case .search:

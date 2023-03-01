@@ -21,7 +21,6 @@ struct AccountsViewModelOutput {
 }
 
 final class AccountsViewModel {
-    private let config: Config
     private var viewModels: [AccountsViewModel.SectionViewModel] = []
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
@@ -47,7 +46,7 @@ final class AccountsViewModel {
         case .changeWallets:
             return false
         case .summary:
-            return !config.enabledServers.allSatisfy { $0.isTestnet }
+            return true
         }
     }
 
@@ -60,14 +59,12 @@ final class AccountsViewModel {
     }
 
     init(keystore: Keystore,
-         config: Config,
          configuration: AccountsCoordinatorViewModel.Configuration,
          analytics: AnalyticsLogger,
          walletBalanceService: WalletBalanceService,
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType) {
 
-        self.config = config
         self.keystore = keystore
         self.configuration = configuration
         self.analytics = analytics
@@ -96,9 +93,8 @@ final class AccountsViewModel {
             .flatMapLatest { $0.combineLatest() }
 
         let walletsSummary = input.willAppear
-            .flatMapLatest { [walletBalanceService] _ in
-                walletBalanceService.walletsSummary
-            }.map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
+            .flatMapLatest { [walletBalanceService] _ in walletBalanceService.walletsSummary }
+            .map { WalletSummaryViewModel(walletSummary: $0) }
 
         let viewState = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
             .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1) }
