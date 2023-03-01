@@ -11,10 +11,13 @@ public enum NonFungibleFromJsonTokenType: String, Codable {
     case erc721
     case erc1155
 
-    init?(rawString: String) {
-        if let value = Self(rawValue: rawString.lowercased()) {
-            self = value
-        } else {
+    public init?(rawValue: String) {
+        switch rawValue.lowercased() {
+        case "erc721":
+            self = .erc721
+        case "erc1155":
+            self = .erc1155
+        default:
             return nil
         }
     }
