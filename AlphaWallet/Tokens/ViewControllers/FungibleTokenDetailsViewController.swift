@@ -35,6 +35,7 @@ class FungibleTokenDetailsViewController: UIViewController {
     private let viewModel: FungibleTokenDetailsViewModel
     private var cancelable = Set<AnyCancellable>()
     private let willAppear = PassthroughSubject<Void, Never>()
+    private let action = PassthroughSubject<TokenInstanceAction, Never>()
 
     weak var delegate: FungibleTokenDetailsViewControllerDelegate?
 
@@ -113,63 +114,67 @@ class FungibleTokenDetailsViewController: UIViewController {
     }
 
     private func bind(viewModel: FungibleTokenDetailsViewModel) {
-        let input = FungibleTokenDetailsViewModelInput(willAppear: willAppear.eraseToAnyPublisher())
+        let input = FungibleTokenDetailsViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            action: action.eraseToAnyPublisher())
+
         let output = viewModel.transform(input: input)
         output.viewState
             .sink { [weak self] viewState in
                 guard let strongSelf = self else { return }
 
                 strongSelf.layoutSubviews(strongSelf.buildSubviews(for: viewState.views))
-                strongSelf.configureActionButtons(with: viewState.actions)
+                strongSelf.configureActionButtons(with: viewState.actionButtons)
             }.store(in: &cancelable)
+
+        output.action
+            .sink { [weak self] action in self?.perform(action: action) }
+            .store(in: &cancelable)
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    private func configureActionButtons(with actions: [TokenInstanceAction]) {
-        buttonsBar.configure(.combined(buttons: actions.count))
+    private func configureActionButtons(with buttons: [FungibleTokenDetailsViewModel.ActionButton]) {
+        buttonsBar.configure(.combined(buttons: buttons.count))
 
-        for (action, button) in zip(actions, buttonsBar.buttons) {
-            button.setTitle(action.name, for: .normal)
-            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+        for (button, view) in zip(buttons, buttonsBar.buttons) {
+            view.setTitle(button.name, for: .normal)
 
-            switch viewModel.buttonState(for: action) {
+            view.publisher(forEvent: .touchUpInside)
+                .map { _ in button.actionType }
+                .multicast(subject: action)
+                .connect()
+                .store(in: &buttonsBar.cancellable)
+
+            switch button.state {
             case .isEnabled(let isEnabled):
-                button.isEnabled = isEnabled
+                view.isEnabled = isEnabled
             case .isDisplayed(let isDisplayed):
-                button.displayButton = isDisplayed
+                view.displayButton = isDisplayed
             case .noOption:
                 continue
             }
         }
     }
 
-    @objc private func actionButtonTapped(sender: UIButton) {
-        for (action, button) in zip(viewModel.actions, buttonsBar.buttons) where button == sender {
-            switch action.type {
-            case .swap:
-                delegate?.didTapSwap(swapTokenFlow: .swapToken(token: viewModel.token), in: self)
-            case .erc20Send:
-                delegate?.didTapSend(for: viewModel.token, in: self)
-            case .erc20Receive:
-                delegate?.didTapReceive(for: viewModel.token, in: self)
-            case .nftRedeem, .nftSell, .nonFungibleTransfer:
-                break
-            case .tokenScript:
-                if let message = viewModel.tokenScriptWarningMessage(for: action) {
-                    guard case .warning(let string) = message else { return }
-                    show(message: string)
-                } else {
-                    delegate?.didTap(action: action, token: viewModel.token, in: self)
-                }
-            case .bridge(let service):
-                delegate?.didTapBridge(for: viewModel.token, service: service, in: self)
-            case .buy(let service):
-                delegate?.didTapBuy(for: viewModel.token, service: service, in: self)
-            }
-            break
+    private func perform(action: FungibleTokenDetailsViewModel.FungibleTokenAction) {
+        switch action {
+        case .swap(let flow):
+            delegate?.didTapSwap(swapTokenFlow: flow, in: self)
+        case .erc20Transfer(let token):
+            delegate?.didTapSend(for: token, in: self)
+        case .erc20Receive(let token):
+            delegate?.didTapReceive(for: token, in: self)
+        case .tokenScript(let action, let token):
+            delegate?.didTap(action: action, token: token, in: self)
+        case .display(let warning):
+            show(message: warning)
+        case .bridge(let token, let service):
+            delegate?.didTapBridge(for: token, service: service, in: self)
+        case .buy(let token, let service):
+            delegate?.didTapBuy(for: token, service: service, in: self)
         }
     }
 
