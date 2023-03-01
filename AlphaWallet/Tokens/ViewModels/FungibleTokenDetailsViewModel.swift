@@ -33,6 +33,13 @@ final class FungibleTokenDetailsViewModel {
     private (set) var actions: [TokenInstanceAction] = []
     private let currencyService: CurrencyService
     private let tokenImageFetcher: TokenImageFetcher
+    private var actionAdapter: TokenInstanceActionAdapter {
+        return TokenInstanceActionAdapter(
+           session: session,
+           token: token,
+           tokenHolder: tokenHolder,
+           tokenActionsProvider: tokenActionsProvider)
+    }
 
     let token: Token
     lazy var chartViewModel = TokenHistoryChartViewModel(
@@ -93,7 +100,8 @@ final class FungibleTokenDetailsViewModel {
         case .erc20Receive: return .erc20Receive(token: token)
         case .nftRedeem, .nftSell, .nonFungibleTransfer: return nil
         case .tokenScript:
-            if let message = tokenScriptWarningMessage(for: action) {
+            let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
+            if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: fungibleBalance) {
                 guard case .warning(let string) = message else { return nil }
                 return .display(warning: string)
             } else {
@@ -118,54 +126,16 @@ final class FungibleTokenDetailsViewModel {
         let tokenViewModel = tokensService.tokenViewModelPublisher(for: token)
 
         return Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChanged, whenTokenActionsHasChanged)
-            .compactMap { _ in self.buildTokenInstanceActions() }
-            .map { actions in
-                actions.map {
+            .compactMap { _ in self.actionAdapter.availableActions() }
+            .map { [tokensService, token] actions in
+                let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
+                return actions.map {
                     ActionButton(
                         actionType: $0,
                         name: $0.name,
-                        state: self.buttonState(for: $0))
+                        state: self.actionAdapter.state(for: $0, fungibleBalance: fungibleBalance))
                 }
             }.eraseToAnyPublisher()
-    }
-
-    private func buildTokenInstanceActions() -> [TokenInstanceAction] {
-        let xmlHandler = session.tokenAdaptor.xmlHandler(token: token)
-        let actionsFromTokenScript = xmlHandler.actions
-        infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
-        if actionsFromTokenScript.isEmpty {
-            switch token.type {
-            case .erc875, .erc721, .erc721ForTickets, .erc1155:
-                return []
-            case .erc20, .nativeCryptocurrency:
-                let actions: [TokenInstanceAction] = [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-
-                return actions + tokenActionsProvider.actions(token: token)
-            }
-        } else {
-            switch token.type {
-            case .erc875, .erc721, .erc721ForTickets, .erc1155:
-                return []
-            case .erc20:
-                return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
-            case .nativeCryptocurrency:
-                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
-                if let server = xmlHandler.server, server.matches(server: token.server) {
-                    return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
-                } else {
-                    //TODO .erc20Send and .erc20Receive names aren't appropriate
-                    let actions: [TokenInstanceAction] = [
-                        .init(type: .erc20Send),
-                        .init(type: .erc20Receive)
-                    ]
-
-                    return actions + tokenActionsProvider.actions(token: token)
-                }
-            }
-        }
     }
 
     private func buildViewTypes(for ticker: CoinTicker?) -> [FungibleTokenDetailsViewModel.ViewType] {
@@ -192,43 +162,6 @@ final class FungibleTokenDetailsViewModel {
         }
 
         return views
-    }
-
-    private func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
-        let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
-        if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
-            if let denialMessage = selection.denial {
-                return .warning(string: denialMessage)
-            } else {
-                //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                return .undefined
-            }
-        } else {
-            return nil
-        }
-    }
-
-    private func buttonState(for action: TokenInstanceAction) -> ActionButtonState {
-        func _configButton(action: TokenInstanceAction) -> ActionButtonState {
-            let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
-            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
-                if selection.denial == nil {
-                    return .isDisplayed(false)
-                }
-            }
-            return .noOption
-        }
-
-        switch wallet.type {
-        case .real:
-            return _configButton(action: action)
-        case .watch:
-            if session.config.development.shouldPretendIsRealWallet {
-                return _configButton(action: action)
-            } else {
-                return .isEnabled(false)
-            }
-        }
     }
 
     private func markerCapViewModel(for ticker: CoinTicker?) -> TokenAttributeViewModel {
@@ -333,17 +266,6 @@ final class FungibleTokenDetailsViewModel {
 }
 
 extension FungibleTokenDetailsViewModel {
-    
-    enum TokenScriptWarningMessage {
-        case warning(string: String)
-        case undefined
-    }
-
-    enum ActionButtonState {
-        case isDisplayed(Bool)
-        case isEnabled(Bool)
-        case noOption
-    }
 
     enum ViewType {
         case charts
@@ -360,7 +282,7 @@ extension FungibleTokenDetailsViewModel {
     struct ActionButton {
         let actionType: TokenInstanceAction
         let name: String
-        let state: ActionButtonState
+        let state: TokenInstanceActionAdapter.ActionState
     }
 
     enum FungibleTokenAction {

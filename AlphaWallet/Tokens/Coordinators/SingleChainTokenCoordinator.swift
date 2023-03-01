@@ -99,7 +99,8 @@ class SingleChainTokenCoordinator: Coordinator {
             tokensService: tokensService,
             sessions: sessions,
             currencyService: currencyService,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokenActionsProvider: tokenActionsProvider)
 
         addCoordinator(coordinator)
         coordinator.delegate = self

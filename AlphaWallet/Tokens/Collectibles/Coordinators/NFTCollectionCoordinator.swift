@@ -39,6 +39,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     }()
     private let currencyService: CurrencyService
     private let tokenImageFetcher: TokenImageFetcher
+    private let tokenActionsProvider: SupportedTokenActionsProvider
 
     weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -81,8 +82,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
          tokensService: TokenViewModelState & TokenHolderState,
          sessions: ServerDictionary<WalletSession>,
          currencyService: CurrencyService,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokenActionsProvider: SupportedTokenActionsProvider) {
 
+        self.tokenActionsProvider = tokenActionsProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.sessions = sessions
@@ -155,11 +158,14 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         showNftAsset(tokenHolder: tokenHolder, navigationController: viewController.navigationController)
     }
 
-    func showNftAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive) {
+    func showNftAsset(tokenHolder: TokenHolder, mode: NFTAssetViewModel.InterationMode = .interactive) {
         showNftAsset(tokenHolder: tokenHolder, mode: mode, navigationController: navigationController)
     }
 
-    private func showNftAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive, navigationController: UINavigationController?) {
+    private func showNftAsset(tokenHolder: TokenHolder,
+                              mode: NFTAssetViewModel.InterationMode = .interactive,
+                              navigationController: UINavigationController?) {
+        
         let vc: UIViewController
         switch tokenHolder.type {
         case .collectible:
@@ -173,7 +179,10 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     private func createNFTAssetListViewController(tokenHolder: TokenHolder) -> NFTAssetListViewController {
         let viewModel = NFTAssetListViewModel(tokenHolder: tokenHolder)
-        let viewController = NFTAssetListViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
+        let viewController = NFTAssetListViewController(
+            viewModel: viewModel,
+            tokenCardViewFactory: tokenCardViewFactory)
+
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -181,9 +190,24 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         return viewController
     }
 
-    private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
-        let viewModel = NFTAssetViewModel(tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, mode: mode, nftProvider: nftProvider, session: session, service: tokensService)
-        let viewController = NFTAssetViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
+    private func createNFTAssetViewController(tokenHolder: TokenHolder,
+                                              tokenId: TokenId,
+                                              mode: NFTAssetViewModel.InterationMode = .interactive) -> UIViewController {
+
+        let viewModel = NFTAssetViewModel(
+            tokenId: tokenId,
+            token: token,
+            tokenHolder: tokenHolder,
+            assetDefinitionStore: assetDefinitionStore,
+            mode: mode,
+            nftProvider: nftProvider,
+            session: session,
+            service: tokensService,
+            tokenActionsProvider: tokenActionsProvider)
+
+        let viewController = NFTAssetViewController(
+            viewModel: viewModel,
+            tokenCardViewFactory: tokenCardViewFactory)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
 
