@@ -11,13 +11,11 @@ import AlphaWalletFoundation
 
 struct WalletSummaryViewModel: Hashable {
     private let alignment: NSTextAlignment
-    private let areTestnetsEnabled: Bool
     private let walletSummary: WalletSummary
 
-    init(walletSummary: WalletSummary, config: Config, alignment: NSTextAlignment = .left) {
+    init(walletSummary: WalletSummary, alignment: NSTextAlignment = .left) {
         self.walletSummary = walletSummary
         self.alignment = alignment
-        self.areTestnetsEnabled = config.enabledServers.allSatisfy { $0.isTestnet }
     }
 
     var balanceAttributedString: NSAttributedString {
@@ -29,20 +27,12 @@ struct WalletSummaryViewModel: Hashable {
     }
 
     private func createbalanceAttributedString(summary: WalletSummary) -> NSAttributedString {
-        if areTestnetsEnabled {
-            return .init(string: "Testnet", attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
-        } else {
-            return .init(string: summary.totalAmountString, attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
-        }
+        return .init(string: summary.totalAmountString, attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
     }
 
     private func createApprecationAttributedString(summary: WalletSummary) -> NSAttributedString {
-        if areTestnetsEnabled {
-            return .init(string: "Testnet Mode", attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: Configuration.Color.Semantic.walletSummaryApprecationForeground))
-        } else {
-            let apprecation = Self.functional.todaysApprecationColorAndStringValuePair(summary: summary)
-            return .init(string: apprecation.0, attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: apprecation.1))
-        }
+        let apprecation = Self.functional.todaysApprecationColorAndStringValuePair(summary: summary)
+        return .init(string: apprecation.0, attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: apprecation.1))
     }
 
     var accessoryType: UITableViewCell.AccessoryType {

@@ -66,20 +66,6 @@ final class TokensViewModel {
         return (cells: cells, configuration: controlConfiguration)
     }
 
-        //NOTE: For case with empty tokens list we want
-    func isBottomSeparatorLineHiddenForTestnetHeader(section: Int) -> Bool {
-        switch sections[section] {
-        case .walletSummary, .filters, .activeWalletSession, .search, .tokens, .collectiblePairs:
-            return true
-        case .testnetTokens:
-            if let index = sections.firstIndex(where: { $0 == tokenListSection }) {
-                return numberOfItems(for: Int(index)) == 0
-            } else {
-                return true
-            }
-        }
-    }
-
     var emptyTokensTitle: String {
         switch filter {
         case .assets:
@@ -137,7 +123,7 @@ final class TokensViewModel {
             return DataEntry.Metric.Tokens.Filter.height
         case .activeWalletSession:
             return 80
-        case .search, .testnetTokens:
+        case .search:
             return DataEntry.Metric.AddHideToken.Header.height
         case .tokens, .collectiblePairs:
             return 0.01
@@ -146,7 +132,7 @@ final class TokensViewModel {
 
     func numberOfItems(for section: Int) -> Int {
         switch sections[section] {
-        case .search, .testnetTokens, .walletSummary, .filters, .activeWalletSession:
+        case .search, .walletSummary, .filters, .activeWalletSession:
             return 0
         case .tokens, .collectiblePairs:
             switch filter {
@@ -293,7 +279,7 @@ final class TokensViewModel {
                     guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
 
                     return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)
-                case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
+                case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
                     return nil
                 }
             case .cell(let indexPath):
@@ -359,7 +345,7 @@ final class TokensViewModel {
         }
 
         switch sections[indexPath.section] {
-        case .collectiblePairs, .testnetTokens, .search, .walletSummary, .filters, .activeWalletSession:
+        case .collectiblePairs, .search, .walletSummary, .filters, .activeWalletSession:
             return nil
         case .tokens:
             return trailingSwipeActionsConfiguration(forRowAt: indexPath)
@@ -368,7 +354,7 @@ final class TokensViewModel {
 
     private func viewModel(for indexPath: IndexPath) -> ViewModelType {
         switch sections[indexPath.section] {
-        case .search, .testnetTokens, .walletSummary, .filters, .activeWalletSession:
+        case .search, .walletSummary, .filters, .activeWalletSession:
             return .undefined
         case .tokens:
             switch tokenOrServer(at: indexPath) {
@@ -405,7 +391,7 @@ final class TokensViewModel {
 
     func cellHeight(for indexPath: IndexPath) -> CGFloat {
         switch sections[indexPath.section] {
-        case .tokens, .testnetTokens:
+        case .tokens:
             switch tokenOrServer(at: indexPath) {
             case .rpcServer:
                 return DataEntry.Metric.Tokens.headerHeight
@@ -524,20 +510,13 @@ final class TokensViewModel {
             sections = [varyTokenOrCollectiblePeirsSection]
         } else {
             let initialSections: [Section]
-            let testnetHeaderSections: [Section]
-
-            if config.enabledServers.allSatisfy({ $0.isTestnet }) {
-                testnetHeaderSections = [.testnetTokens]
-            } else {
-                testnetHeaderSections = []
-            }
 
             if count == .zero {
                 initialSections = [.walletSummary, .filters, .search]
             } else {
                 initialSections = [.walletSummary, .filters, .search, .activeWalletSession]
             }
-            sections = initialSections + testnetHeaderSections + [varyTokenOrCollectiblePeirsSection]
+            sections = initialSections + [varyTokenOrCollectiblePeirsSection]
         }
         tokenListSection = varyTokenOrCollectiblePeirsSection
     }
@@ -593,7 +572,6 @@ extension TokensViewModel {
     enum Section: Int, Hashable {
         case walletSummary
         case filters
-        case testnetTokens
         case search
         case tokens
         case collectiblePairs
