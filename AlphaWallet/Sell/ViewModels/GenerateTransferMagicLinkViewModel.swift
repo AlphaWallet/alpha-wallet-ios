@@ -4,10 +4,12 @@ import UIKit
 import AlphaWalletFoundation
 
 struct GenerateTransferMagicLinkViewModel {
-    let tokenHolder: TokenHolder
-    let linkExpiryDate: Date
+    private let magicLinkData: MagicLinkGenerator.MagicLinkData
+    private let linkExpiryDate: Date
     private let assetDefinitionStore: AssetDefinitionStore
-
+    private let keystore: Keystore
+    private let session: WalletSession
+    
     var contentsBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
@@ -21,9 +23,9 @@ struct GenerateTransferMagicLinkViewModel {
         return R.string.localizable.aWalletTokenTransferConfirmSubtitle()
     }
 
-	var headerTitle: String {
-		return R.string.localizable.aWalletTokenTransferConfirmTitle()
-	}
+    var headerTitle: String {
+        return R.string.localizable.aWalletTokenTransferConfirmTitle()
+    }
 
     var actionButtonTitleColor: UIColor {
         return Configuration.Color.Semantic.defaultForegroundText
@@ -63,12 +65,12 @@ struct GenerateTransferMagicLinkViewModel {
     }
 
     var tokenCountLabelText: String {
-        if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
+        if magicLinkData.count == 1 {
+            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
             return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
-            return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
+            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(magicLinkData.count, tokenTypeName)
         }
     }
 
@@ -76,16 +78,25 @@ struct GenerateTransferMagicLinkViewModel {
         return Configuration.Color.Semantic.defaultViewBackground
     }
 
-    private var tokenCount: Int {
-        return tokenHolder.count
-    }
-
-    init(tokenHolder: TokenHolder,
+    init(magicLinkData: MagicLinkGenerator.MagicLinkData,
          linkExpiryDate: Date,
-         assetDefinitionStore: AssetDefinitionStore) {
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession) {
 
-        self.tokenHolder = tokenHolder
+        self.session = session
+        self.keystore = keystore
+        self.magicLinkData = magicLinkData
         self.linkExpiryDate = linkExpiryDate
         self.assetDefinitionStore = assetDefinitionStore
+    }
+
+    func generateTransferLink() throws -> String {
+        return try MagicLinkGenerator(
+            keystore: keystore,
+            session: session,
+            prompt: R.string.localizable.keystoreAccessKeySign()).generateTransferLink(
+                magicLinkData: magicLinkData,
+                linkExpiryDate: linkExpiryDate)
     }
 }

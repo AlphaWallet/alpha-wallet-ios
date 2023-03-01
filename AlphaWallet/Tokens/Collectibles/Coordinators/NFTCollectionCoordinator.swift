@@ -106,62 +106,6 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         delegate?.didClose(in: self)
     }
 
-    private func generateTransferLink(tokenHolder: TokenHolder,
-                                      linkExpiryDate: Date,
-                                      server: RPCServer) throws -> String {
-
-        let order = Order(
-            price: BigUInt(0),
-            indices: tokenHolder.indices,
-            expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: tokenHolder.contractAddress,
-            count: BigUInt(tokenHolder.indices.count),
-            nonce: BigUInt(0),
-            tokenIds: tokenHolder.tokenIds,
-            spawnable: false,
-            nativeCurrencyDrop: false)
-
-        let signedOrders = try OrderHandler(keystore: keystore, prompt: R.string.localizable.keystoreAccessKeySign()).signOrders(
-            orders: [order],
-            account: session.account.address,
-            tokenType: tokenHolder.tokenType)
-
-        return UniversalLinkHandler(server: server).createUniversalLink(
-            signedOrder: signedOrders[0],
-            tokenType: tokenHolder.tokenType)
-    }
-
-    //note that the price must be in szabo for a sell link, price must be rounded
-    private func generateSellLink(tokenHolder: TokenHolder,
-                                  linkExpiryDate: Date,
-                                  ethCost: Double,
-                                  server: RPCServer) throws -> String {
-
-        let ethCostRoundedTo5dp = String(format: "%.5f", Float(String(ethCost))!)
-        let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
-        let wei = BigUInt(cost.description)!
-
-        let order = Order(
-            price: wei,
-            indices: tokenHolder.indices,
-            expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: tokenHolder.contractAddress,
-            count: BigUInt(tokenHolder.indices.count),
-            nonce: BigUInt(0),
-            tokenIds: tokenHolder.tokenIds,
-            spawnable: false,
-            nativeCurrencyDrop: false)
-
-        let signedOrders = try OrderHandler(keystore: keystore, prompt: R.string.localizable.keystoreAccessKeySign()).signOrders(
-            orders: [order],
-            account: session.account.address,
-            tokenType: tokenHolder.tokenType)
-
-        return UniversalLinkHandler(server: server).createUniversalLink(
-            signedOrder: signedOrders[0],
-            tokenType: tokenHolder.tokenType)
-    }
-
     private func displayShareUrlView(url: String, from viewController: UIViewController, sender: UIView) {
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
@@ -370,7 +314,7 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
         let viewModel = EnterSellTokensCardPriceQuantityViewModel(
             token: token,
             tokenHolder: tokenHolder,
-            server: session.server,
+            session: session,
             assetDefinitionStore: assetDefinitionStore,
             currencyService: currencyService)
 
@@ -461,7 +405,7 @@ extension NFTCollectionCoordinator: EnterSellTokensCardPriceQuantityViewControll
             token: token,
             tokenHolder: tokenHolder,
             ethCost: ethCost,
-            server: session.server,
+            session: session,
             assetDefinitionStore: assetDefinitionStore)
 
         let controller = SetSellTokensCardExpiryDateViewController(
@@ -489,11 +433,17 @@ extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDel
                                     in viewController: SetSellTokensCardExpiryDateViewController) {
 
         let viewModel = GenerateSellMagicLinkViewModel(
-            tokenHolder: tokenHolder,
+            magicLinkData: MagicLinkGenerator.MagicLinkData(
+                tokenIds: tokenHolder.tokenIds,
+                indices: tokenHolder.indices,
+                tokenType: tokenHolder.tokenType,
+                contractAddress: tokenHolder.contractAddress,
+                count: tokenHolder.count),
             ethCost: ethCost,
             linkExpiryDate: linkExpiryDate,
-            server: session.server,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            keystore: keystore,
+            session: session)
 
         let vc = GenerateSellMagicLinkViewController(viewModel: viewModel)
 
@@ -513,12 +463,7 @@ extension NFTCollectionCoordinator: GenerateSellMagicLinkViewControllerDelegate 
 
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
         do {
-            let url = try generateSellLink(
-                tokenHolder: viewController.viewModel.tokenHolder,
-                linkExpiryDate: viewController.viewModel.linkExpiryDate,
-                ethCost: viewController.viewModel.ethCost,
-                server: viewController.viewModel.server)
-
+            let url = try viewController.viewModel.generateSellLink()
             displayShareUrlView(url: url, from: viewController, sender: sender)
         } catch {
             viewController.displayError(error: error)
@@ -564,9 +509,16 @@ extension NFTCollectionCoordinator: ChooseTokenCardTransferModeViewControllerDel
 extension NFTCollectionCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
     func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController) {
         let viewModel = GenerateTransferMagicLinkViewModel(
-            tokenHolder: tokenHolder,
+            magicLinkData: .init(
+                tokenIds: tokenHolder.tokenIds,
+                indices: tokenHolder.indices,
+                tokenType: tokenHolder.tokenType,
+                contractAddress: tokenHolder.contractAddress,
+                count: tokenHolder.count),
             linkExpiryDate: linkExpiryDate,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            keystore: keystore,
+            session: session)
 
         let vc = GenerateTransferMagicLinkViewController(viewModel: viewModel)
         vc.delegate = self
@@ -584,10 +536,7 @@ extension NFTCollectionCoordinator: SetTransferTokensCardExpiryDateViewControlle
 extension NFTCollectionCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView) {
         do {
-            let url = try generateTransferLink(
-                tokenHolder: viewController.viewModel.tokenHolder,
-                linkExpiryDate: viewController.viewModel.linkExpiryDate,
-                server: session.server)
+            let url = try viewController.viewModel.generateTransferLink()
 
             displayShareUrlView(url: url, from: viewController, sender: sender)
         } catch {

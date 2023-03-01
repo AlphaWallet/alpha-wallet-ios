@@ -5,7 +5,7 @@ import UIKit
 import AlphaWalletFoundation
 
 struct SetSellTokensCardExpiryDateViewModel {
-    private let server: RPCServer
+    private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
 
     let ethCost: Double
@@ -43,13 +43,13 @@ struct SetSellTokensCardExpiryDateViewModel {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getLabel()
         let amount = NumberFormatter.shortCrypto.string(double: ethCost / Double(tokenCount), minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
         
-        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount, server.symbol, tokenTypeName)
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount, session.server.symbol, tokenTypeName)
     }
     
     var totalEthLabelText: String {
         let amount = NumberFormatter.shortCrypto.string(double: ethCost, minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
 
-        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(amount, server.symbol)
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(amount, session.server.symbol)
     }
     
     var noteTitleLabelText: String {
@@ -68,13 +68,13 @@ struct SetSellTokensCardExpiryDateViewModel {
     init(token: Token,
          tokenHolder: TokenHolder,
          ethCost: Double,
-         server: RPCServer,
+         session: WalletSession,
          assetDefinitionStore: AssetDefinitionStore) {
 
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
-        self.server = server
+        self.session = session
         self.assetDefinitionStore = assetDefinitionStore
     }
 }
