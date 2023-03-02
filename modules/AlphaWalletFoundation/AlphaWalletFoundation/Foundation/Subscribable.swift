@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 //TODO probably should have an ID which is really good for debugging
-public struct Subscribable<T>: Hashable {
+public struct Subscribable<T>: Equatable {
     public static func == (lhs: Subscribable<T>, rhs: Subscribable<T>) -> Bool {
         return lhs.uuid == rhs.uuid
     }
@@ -44,9 +44,5 @@ public struct Subscribable<T>: Hashable {
         subject.compactMap { $0 }
             .first()
             .sinkAsync(receiveValue: subscribe)
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
     }
 }
