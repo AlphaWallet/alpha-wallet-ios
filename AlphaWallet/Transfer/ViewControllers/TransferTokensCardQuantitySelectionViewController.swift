@@ -43,8 +43,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(viewModel: TransferTokensCardQuantitySelectionViewModel,
-         assetDefinitionStore: AssetDefinitionStore,
-         wallet: Wallet) {
+         assetDefinitionStore: AssetDefinitionStore) {
 
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
@@ -54,7 +53,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: wallet)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: viewModel.session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

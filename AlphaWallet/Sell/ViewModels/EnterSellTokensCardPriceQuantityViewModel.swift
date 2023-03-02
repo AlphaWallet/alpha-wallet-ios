@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 import BigInt
 
 struct EnterSellTokensCardPriceQuantityViewModel {
-    private let session: WalletSession
+    let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let currencyService: CurrencyService
     lazy var ethToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)

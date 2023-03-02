@@ -56,6 +56,10 @@ public struct TokenAdaptor {
         return XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     }
 
+    public func xmlHandler(contract: AlphaWallet.Address, tokenType: TokenType) -> XMLHandler {
+        return XMLHandler(contract: contract, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+    }
+
     public func tokenScriptOverrides(token: TokenScriptSupportable) -> TokenScriptOverrides {
         return TokenScriptOverrides(token: token, tokenAdaptor: self)
     }

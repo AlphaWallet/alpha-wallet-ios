@@ -282,12 +282,12 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
             let viewModel = TransferTokensCardQuantitySelectionViewModel(
                 token: token,
                 tokenHolder: tokenHolder,
-                assetDefinitionStore: assetDefinitionStore)
+                assetDefinitionStore: assetDefinitionStore,
+                session: session)
 
             let controller = TransferTokensCardQuantitySelectionViewController(
                 viewModel: viewModel,
-                assetDefinitionStore: assetDefinitionStore,
-                wallet: session.account)
+                assetDefinitionStore: assetDefinitionStore)
 
             controller.configure()
             controller.delegate = self
@@ -320,12 +320,12 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
         let viewModel = RedeemTokenCardQuantitySelectionViewModel(
             token: token,
             tokenHolder: tokenHolder,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            session: session)
 
         let controller = RedeemTokenCardQuantitySelectionViewController(
             viewModel: viewModel,
-            assetDefinitionStore: assetDefinitionStore,
-            session: session)
+            assetDefinitionStore: assetDefinitionStore)
 
         controller.configure()
         controller.delegate = self
@@ -345,7 +345,6 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
         let controller = EnterSellTokensCardPriceQuantityViewController(
             viewModel: viewModel,
             assetDefinitionStore: assetDefinitionStore,
-            walletSession: session,
             service: tokensService,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher)
@@ -370,13 +369,13 @@ extension NFTCollectionCoordinator: RedeemTokenCardQuantitySelectionViewControll
 
         let viewModel = TokenCardRedemptionViewModel(
             token: token,
-            tokenHolder: tokenHolder)
+            tokenHolder: tokenHolder,
+            session: session,
+            keystore: keystore)
 
         let controller = TokenCardRedemptionViewController(
-            session: session,
             viewModel: viewModel,
-            assetDefinitionStore: assetDefinitionStore,
-            keystore: keystore)
+            assetDefinitionStore: assetDefinitionStore)
 
         controller.configure()
         controller.delegate = self
@@ -399,12 +398,11 @@ extension NFTCollectionCoordinator: TransferTokenCardQuantitySelectionViewContro
         let viewModel = ChooseTokenCardTransferModeViewModel(
             token: token,
             tokenHolder: tokenHolder,
-            assetDefinitionStore: assetDefinitionStore)
+            session: session)
 
         let controller = ChooseTokenCardTransferModeViewController(
             viewModel: viewModel,
-            assetDefinitionStore: assetDefinitionStore,
-            session: session)
+            assetDefinitionStore: assetDefinitionStore)
 
         controller.configure()
         controller.delegate = self
@@ -429,8 +427,7 @@ extension NFTCollectionCoordinator: EnterSellTokensCardPriceQuantityViewControll
             token: token,
             tokenHolder: tokenHolder,
             ethCost: ethCost,
-            session: session,
-            assetDefinitionStore: assetDefinitionStore)
+            session: session)
 
         let controller = SetSellTokensCardExpiryDateViewController(
             viewModel: viewModel,
@@ -465,7 +462,6 @@ extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDel
                 count: tokenHolder.count),
             ethCost: ethCost,
             linkExpiryDate: linkExpiryDate,
-            assetDefinitionStore: assetDefinitionStore,
             keystore: keystore,
             session: session)
 
