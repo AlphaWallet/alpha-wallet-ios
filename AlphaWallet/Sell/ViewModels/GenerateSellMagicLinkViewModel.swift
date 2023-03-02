@@ -9,7 +9,6 @@ struct GenerateSellMagicLinkViewModel {
     private let magicLinkData: MagicLinkGenerator.MagicLinkData
     private let ethCost: Double
     private let linkExpiryDate: Date
-    private let assetDefinitionStore: AssetDefinitionStore
 
     var contentsBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
@@ -67,16 +66,17 @@ struct GenerateSellMagicLinkViewModel {
 
     var tokenCountLabelText: String {
         if magicLinkData.count == 1 {
-            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
+
+            let tokenTypeName = session.tokenAdaptor.xmlHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType).getLabel()
             return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = session.tokenAdaptor.xmlHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(magicLinkData.count, tokenTypeName)
         }
     }
 
     var perTokenPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
+        let tokenTypeName = session.tokenAdaptor.xmlHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType).getLabel()
         let amount = NumberFormatter.shortCrypto.string(
             double: ethCost / Double(magicLinkData.count),
             minimumFractionDigits: 4,
@@ -101,14 +101,12 @@ struct GenerateSellMagicLinkViewModel {
     init(magicLinkData: MagicLinkGenerator.MagicLinkData,
          ethCost: Double,
          linkExpiryDate: Date,
-         assetDefinitionStore: AssetDefinitionStore,
          keystore: Keystore,
          session: WalletSession) {
 
         self.magicLinkData = magicLinkData
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
-        self.assetDefinitionStore = assetDefinitionStore
         self.session = session
         self.keystore = keystore
     }

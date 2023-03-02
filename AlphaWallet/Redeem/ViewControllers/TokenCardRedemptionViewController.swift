@@ -17,8 +17,6 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private let containerView = ScrollableStackView()
     private let imageView = UIImageView()
     private let tokenRowView: TokenRowView & UIView
-    private var session: WalletSession
-    private let keystore: Keystore
 
     var contract: AlphaWallet.Address {
         return viewModel.token.contractAddress
@@ -29,22 +27,22 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession,
-         viewModel: TokenCardRedemptionViewModel,
-         assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore) {
-        
-        self.session = session
+    init(viewModel: TokenCardRedemptionViewModel,
+         assetDefinitionStore: AssetDefinitionStore) {
+
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
-        self.keystore = keystore
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
+            tokenRowView = TokenCardRowView(
+                server: viewModel.token.server,
+                tokenView: .viewIconified,
+                assetDefinitionStore: assetDefinitionStore,
+                wallet: viewModel.session.account)
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -96,41 +94,6 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc private func configureUI() {
-        let redeem = CreateRedeem(token: viewModel.token)
-        let redeemData: (message: String, qrCode: String)
-        switch viewModel.token.type {
-        case .nativeCryptocurrency, .erc20, .erc1155:
-            return
-        case .erc875:
-            redeemData = redeem.redeemMessage(indices: viewModel.tokenHolder.indices)
-        case .erc721, .erc721ForTickets:
-            redeemData = redeem.redeemMessage(tokenIds: viewModel.tokenHolder.tokens.map { $0.id })
-        }
-        func _generateQr(account: AlphaWallet.Address) {
-            do {
-                let prompt = R.string.localizable.keystoreAccessKeySign()
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore, prompt: prompt) else { return }
-                let qrCodeInfo = redeemData.qrCode + decimalSignature
-                imageView.image = qrCodeInfo.toQRCode()
-            } catch {
-                //no-op
-            }
-        }
-
-        switch session.account.type {
-        case .real(let account):
-            _generateQr(account: account)
-        case .watch(let account):
-            //TODO should pass in a Config instance instead
-            if Config().development.shouldPretendIsRealWallet {
-                _generateQr(account: account)
-            } else {
-                //no-op
-            }
-        }
-    }
-
     func configure(viewModel newViewModel: TokenCardRedemptionViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
@@ -138,7 +101,8 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         navigationItem.title = viewModel.headerTitle
-        configureUI()
+
+        imageView.image = viewModel.redeemQrCode()
 
         tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 

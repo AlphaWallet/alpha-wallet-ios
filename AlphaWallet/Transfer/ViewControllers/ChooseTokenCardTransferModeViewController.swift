@@ -26,8 +26,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(viewModel: ChooseTokenCardTransferModeViewModel,
-         assetDefinitionStore: AssetDefinitionStore,
-         session: WalletSession) {
+         assetDefinitionStore: AssetDefinitionStore) {
 
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
@@ -37,7 +36,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: viewModel.session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

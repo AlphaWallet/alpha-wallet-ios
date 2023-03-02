@@ -5,12 +5,13 @@ import UIKit
 import AlphaWalletFoundation
 
 struct ChooseTokenCardTransferModeViewModel {
-    var token: Token
-    var tokenHolder: TokenHolder
-    let assetDefinitionStore: AssetDefinitionStore
-    
+    let token: Token
+    let tokenHolder: TokenHolder
+    let session: WalletSession
+
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = session.tokenAdaptor.xmlHandler(token: token).getNameInPluralForm()
+
         return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 }

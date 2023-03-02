@@ -8,7 +8,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
-    
+    let session: WalletSession
     var headerTitle: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
