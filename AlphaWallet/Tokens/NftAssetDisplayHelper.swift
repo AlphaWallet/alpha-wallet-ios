@@ -1,5 +1,5 @@
 //
-//  TokenInstanceViewConfigurationHelper.swift
+//  NftAssetDisplayHelper.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 23.12.2021.
@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletOpenSea
 import AlphaWalletFoundation
 
-final class TokenInstanceViewConfigurationHelper {
+final class NftAssetDisplayHelper {
     private (set) var tokenId: TokenId
     private (set) var tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
@@ -216,54 +216,6 @@ final class TokenInstanceViewConfigurationHelper {
         return .init(title: displayName, attributedValue: attributedValue, attributedCountValue: count)
     }
 
-    var ownedAssetCountViewModel: TokenAttributeViewModel? {
-        openSeaCollection.flatMap {
-            TokenAttributeViewModel.defaultValueAttributedString(String($0.ownedAssetCount))
-        }.flatMap { .init(title: R.string.localizable.nonfungiblesValueOwnedAssetCount(), attributedValue: $0, value: $0.string) }
-    }
-
-    var wikiUrlViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.wikiUrl.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWiki())
-        }.flatMap { .init(title: R.string.localizable.wiki(), attributedValue: $0, value: openSeaCollection?.wikiUrl) }
-    }
-
-    var instagramUsernameViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.instagramUsername.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnInstagram())
-        }.flatMap { .init(title: R.string.localizable.instagram(), attributedValue: $0, value: openSeaCollection?.instagramUsername) }
-    }
-
-    var twitterUsernameViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.twitterUsername.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTwitter())
-        }.flatMap { .init(title: R.string.localizable.twitter(), attributedValue: $0, value: openSeaCollection?.twitterUsername) }
-    }
-
-    var discordUrlViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.discordUrl.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnDiscord())
-        }.flatMap { .init(title: R.string.localizable.discord(), attributedValue: $0, value: openSeaCollection?.discordUrl) }
-    }
-
-    var telegramUrlViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.telegramUrl.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTelegram())
-        }.flatMap { .init(title: R.string.localizable.telegram(), attributedValue: $0, value: openSeaCollection?.telegramUrl) }
-    }
-
-    var externalUrlViewModel: TokenAttributeViewModel? {
-        openSeaCollection?.externalUrl.flatMap {
-            guard $0.nonEmpty else { return nil }
-            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWebsite())
-        }.flatMap { .init(title: R.string.localizable.website(), attributedValue: $0, value: openSeaCollection?.externalUrl, isSeparatorHidden: true) }
-    }
-
     var itemsCount: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { StringFormatter().largeNumberFormatter(for: $0.itemsCount, currency: "", decimals: 0) }
@@ -344,12 +296,6 @@ final class TokenInstanceViewConfigurationHelper {
             }
     }
 
-    var numReports: TokenAttributeViewModel? {
-        return openSeaStats
-            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0.numReports)) }
-            .flatMap { .init(title: R.string.localizable.nonfungiblesValueNumReports(), attributedValue: $0) }
-    }
-
     var creator: TokenAttributeViewModel? {
         let value = values?.creatorValue?.contractAddress.eip55String
         return values?.creatorValue.flatMap { creator -> String in
@@ -362,11 +308,11 @@ final class TokenInstanceViewConfigurationHelper {
     }
 }
 
-extension TokenInstanceViewConfigurationHelper {
+extension NftAssetDisplayHelper {
     enum functional {}
 }
 
-extension TokenInstanceViewConfigurationHelper.functional {
+extension NftAssetDisplayHelper.functional {
     static func extractTokenScriptTokenLevelAttributesWithLabels(tokenHolder: TokenHolder, tokenAttributeValues: AssetAttributeValues, assetDefinitionStore: AssetDefinitionStore) -> [OpenSeaNonFungibleTrait] {
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokens[0].tokenType, assetDefinitionStore: assetDefinitionStore)
         let resolvedTokenAttributeNameValues = tokenAttributeValues.resolve { _ in }

@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct NFTAssetsPageViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
 }
 
 struct NFTAssetsPageViewModelOutput {
@@ -27,7 +27,6 @@ final class NFTAssetsPageViewModel {
 
     var layout: GridOrListLayout { layoutSubject.value }
     var title: String { R.string.localizable.semifungiblesAssetsTitle() }
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var spacingForGridLayout: CGFloat {
         switch token.type {
@@ -106,7 +105,9 @@ final class NFTAssetsPageViewModel {
     }
 
     func transform(input: NFTAssetsPageViewModelInput) -> NFTAssetsPageViewModelOutput {
-        let filterWhenAppear = input.appear.map { [searchFilterSubject] _ in searchFilterSubject.value }
+        let filterWhenAppear = input.willAppear
+            .map { [searchFilterSubject] _ in searchFilterSubject.value }
+
         let filter = Publishers.Merge(searchFilterSubject, filterWhenAppear)
 
         let assets = Publishers.CombineLatest(tokenHolders, filter)
@@ -133,7 +134,7 @@ final class NFTAssetsPageViewModel {
         return snapshot
     }
 
-    private func title(for tokenHolder: TokenHolder) -> String {
+    private func nftAssetTitle(for tokenHolder: TokenHolder) -> String {
         let displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
@@ -150,7 +151,7 @@ final class NFTAssetsPageViewModel {
         case .keyword(let keyword):
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 newTokenHolders = tokenHolders.filter { tokenHolder in
-                    return self.title(for: tokenHolder).lowercased().contains(valueToSearch)
+                    return self.nftAssetTitle(for: tokenHolder).lowercased().contains(valueToSearch)
                 }
             }
         }

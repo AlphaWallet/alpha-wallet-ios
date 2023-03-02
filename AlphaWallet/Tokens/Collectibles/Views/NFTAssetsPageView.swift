@@ -29,7 +29,7 @@ class NFTAssetsPageView: UIView, PageViewType {
 
     private (set) lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
-        collectionView.backgroundColor = viewModel.backgroundColor
+        collectionView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         collectionView.register(ContainerCollectionViewCell.self)
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -51,7 +51,7 @@ class NFTAssetsPageView: UIView, PageViewType {
     }()
 
     private lazy var dataSource: DataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private var cancelable = Set<AnyCancellable>()
 
     var title: String { viewModel.title }
@@ -65,7 +65,7 @@ class NFTAssetsPageView: UIView, PageViewType {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         addSubview(collectionView)
         addSubview(searchBar)
@@ -99,20 +99,20 @@ class NFTAssetsPageView: UIView, PageViewType {
     }
 
     func viewWillAppear() {
-        appear.send(())
+        willAppear.send(())
     }
 
     func bind(viewModel: NFTAssetsPageViewModel) {
-        let input = NFTAssetsPageViewModelInput(appear: appear.eraseToAnyPublisher())
-
+        let input = NFTAssetsPageViewModelInput(willAppear: willAppear.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
-        output.viewState.sink { [weak self, dataSource] state in
-            self?.startLoading(animated: false)
-            dataSource.apply(state.snapshot, animatingDifferences: state.animatingDifferences)
-            self?.invalidateLayout()
-            self?.endLoading(animated: false)
-        }.store(in: &cancelable)
+        output.viewState
+            .sink { [weak self, dataSource] state in
+                self?.startLoading(animated: false)
+                dataSource.apply(state.snapshot, animatingDifferences: state.animatingDifferences)
+                self?.invalidateLayout()
+                self?.endLoading(animated: false)
+            }.store(in: &cancelable)
 
         output.layout
             .sink { [weak self] in self?.configureLayout(layout: $0) }
@@ -143,8 +143,8 @@ class NFTAssetsPageView: UIView, PageViewType {
 
     private func fixCollectionViewBackgroundColor() {
         let v = UIView()
-        v.backgroundColor = viewModel.backgroundColor
-        collectionView.backgroundColor = viewModel.backgroundColor
+        v.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        collectionView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         collectionView.backgroundView = v
     }
 
