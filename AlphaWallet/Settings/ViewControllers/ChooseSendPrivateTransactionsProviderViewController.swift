@@ -113,4 +113,19 @@ extension UITableView {
 
         return tableView
     }
+
+    static var plain: UITableView {
+        let tableView = UITableView(frame: .zero, style: .plain)
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.automaticallyAdjustsScrollIndicatorInsets = false
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0.0
+        } 
+
+        return tableView
+    }
 }
