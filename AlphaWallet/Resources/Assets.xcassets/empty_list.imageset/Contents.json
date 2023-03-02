@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "iconsIllustrationsSearchResults.pdf",
+      "filename" : "icons-illustrations-search-results-light.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "icons-illustrations-search-results-dark.pdf",
       "idiom" : "universal"
     }
   ],
