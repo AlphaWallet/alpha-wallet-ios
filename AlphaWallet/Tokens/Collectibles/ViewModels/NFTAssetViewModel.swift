@@ -140,9 +140,7 @@ class NFTAssetViewModel {
             .compactMap { self.buildNftAssetAction(action: $0) }
 
         let attributeSelectionAction = input.selection
-            .print("xxx.selection")
             .compactMap { self.buildAttributeSelectionAction(indexPath: $0) }
-            .print("xxx.attributeSelectionAction")
 
         return .init(
             state: viewState.eraseToAnyPublisher(),
