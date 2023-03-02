@@ -12,7 +12,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct NFTCollectionViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let pullToRefresh: AnyPublisher<Void, Never>
 }
 

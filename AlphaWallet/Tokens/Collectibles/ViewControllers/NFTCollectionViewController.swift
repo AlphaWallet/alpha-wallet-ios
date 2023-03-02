@@ -45,7 +45,7 @@ class NFTCollectionViewController: UIViewController {
 
         return view
     }()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
 
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
         let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel.nftAssetsPageViewModel)
@@ -130,7 +130,7 @@ class NFTCollectionViewController: UIViewController {
 
         hideNavigationBarTopSeparatorLine()
         nftAssetsPageView.viewWillAppear()
-        appear.send(())
+        willAppear.send(())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -157,7 +157,7 @@ class NFTCollectionViewController: UIViewController {
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
         let input = NFTCollectionViewModelInput(
-            appear: appear.eraseToAnyPublisher(),
+            willAppear: willAppear.eraseToAnyPublisher(),
             pullToRefresh: refreshControl.publisher(forEvent: .valueChanged).eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)

@@ -544,6 +544,7 @@
 		8739BBC726CD29510045CFED /* NFTAssetSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BBC626CD29510045CFED /* NFTAssetSelectionViewController.swift */; };
 		8739BBCD26CD298B0045CFED /* NFTAssetSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BBCC26CD298B0045CFED /* NFTAssetSelectionViewModel.swift */; };
 		8739BBD426CD2A820045CFED /* NFTAssetSelectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BBD326CD2A820045CFED /* NFTAssetSelectionCoordinator.swift */; };
+		873D110A29B07FC700AEF23B /* NftCollectionDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873D110929B07FC700AEF23B /* NftCollectionDisplayHelper.swift */; };
 		873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */; };
 		87442BD827D615B500EA2209 /* CheckTransactionStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */; };
 		8747FD6128A22E350076C7B5 /* RetryPublisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8747FD6028A22E350076C7B5 /* RetryPublisherTests.swift */; };
@@ -631,7 +632,7 @@
 		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
 		87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */; };
-		87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */; };
+		87741FC527747C5C007F4604 /* NftAssetDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* NftAssetDisplayHelper.swift */; };
 		87757284282D46A800EAD907 /* TokenCardWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757283282D46A800EAD907 /* TokenCardWebView.swift */; };
 		87757286282D486900EAD907 /* TokenCardWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757285282D486900EAD907 /* TokenCardWebViewModel.swift */; };
 		87757288282E4B8100EAD907 /* UISearchBar+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757287282E4B8100EAD907 /* UISearchBar+Extensions.swift */; };
@@ -696,13 +697,13 @@
 		87A3020924BEE243000DF32E /* TransactionInProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */; };
 		87A3020B24BF04B6000DF32E /* TransactionInProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */; };
 		87A3022724C02212000DF32E /* TransactionConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3022624C02212000DF32E /* TransactionConfirmationViewController.swift */; };
+		87AA49D229A73F5C007C5D63 /* MediaContentNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49D129A73F5C007C5D63 /* MediaContentNetworking.swift */; };
+		87AA49D429A76472007C5D63 /* KingfisherImageCacheStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49D329A76472007C5D63 /* KingfisherImageCacheStorage.swift */; };
 		87AA49E029ACE910007C5D63 /* EditableSelectAssetAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49DF29ACE910007C5D63 /* EditableSelectAssetAmountView.swift */; };
 		87AA49E229ACE952007C5D63 /* EditableSelectAssetAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49E129ACE952007C5D63 /* EditableSelectAssetAmountViewModel.swift */; };
 		87AA49E429ACE998007C5D63 /* SelectAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49E329ACE998007C5D63 /* SelectAssetViewModel.swift */; };
 		87AA49E629ACEF89007C5D63 /* EnterAssetAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49E529ACEF89007C5D63 /* EnterAssetAmountView.swift */; };
 		87AA49E829ACEFA3007C5D63 /* EnterAssetAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49E729ACEFA3007C5D63 /* EnterAssetAmountViewModel.swift */; };
-		87AA49D229A73F5C007C5D63 /* MediaContentNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49D129A73F5C007C5D63 /* MediaContentNetworking.swift */; };
-		87AA49D429A76472007C5D63 /* KingfisherImageCacheStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA49D329A76472007C5D63 /* KingfisherImageCacheStorage.swift */; };
 		87AA56DF270F1B6E00A9EE3F /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
 		87AB425D2767A2C00099DF9F /* TokenScriptCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AB425C2767A2C00099DF9F /* TokenScriptCoordinator.swift */; };
 		87AE2736273D701A00E184D4 /* WalletConnectV2Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */; };
@@ -1432,6 +1433,7 @@
 		8739BBC626CD29510045CFED /* NFTAssetSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionViewController.swift; sourceTree = "<group>"; };
 		8739BBCC26CD298B0045CFED /* NFTAssetSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionViewModel.swift; sourceTree = "<group>"; };
 		8739BBD326CD2A820045CFED /* NFTAssetSelectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionCoordinator.swift; sourceTree = "<group>"; };
+		873D110929B07FC700AEF23B /* NftCollectionDisplayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionDisplayHelper.swift; sourceTree = "<group>"; };
 		873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyButton.swift; sourceTree = "<group>"; };
 		87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckTransactionStateViewController.swift; sourceTree = "<group>"; };
 		8747FD6028A22E350076C7B5 /* RetryPublisherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryPublisherTests.swift; sourceTree = "<group>"; };
@@ -1519,7 +1521,7 @@
 		8772D77128D1F03600615803 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
 		87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhereAreMyTokensCoordinator.swift; sourceTree = "<group>"; };
-		87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewConfigurationHelper.swift; sourceTree = "<group>"; };
+		87741FC427747C5C007F4604 /* NftAssetDisplayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftAssetDisplayHelper.swift; sourceTree = "<group>"; };
 		87757283282D46A800EAD907 /* TokenCardWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardWebView.swift; sourceTree = "<group>"; };
 		87757285282D486900EAD907 /* TokenCardWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardWebViewModel.swift; sourceTree = "<group>"; };
 		87757287282E4B8100EAD907 /* UISearchBar+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Extensions.swift"; sourceTree = "<group>"; };
@@ -1586,13 +1588,13 @@
 		87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewController.swift; sourceTree = "<group>"; };
 		87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewModel.swift; sourceTree = "<group>"; };
 		87A3022624C02212000DF32E /* TransactionConfirmationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationViewController.swift; sourceTree = "<group>"; };
+		87AA49D129A73F5C007C5D63 /* MediaContentNetworking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaContentNetworking.swift; sourceTree = "<group>"; };
+		87AA49D329A76472007C5D63 /* KingfisherImageCacheStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherImageCacheStorage.swift; sourceTree = "<group>"; };
 		87AA49DF29ACE910007C5D63 /* EditableSelectAssetAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableSelectAssetAmountView.swift; sourceTree = "<group>"; };
 		87AA49E129ACE952007C5D63 /* EditableSelectAssetAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableSelectAssetAmountViewModel.swift; sourceTree = "<group>"; };
 		87AA49E329ACE998007C5D63 /* SelectAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetViewModel.swift; sourceTree = "<group>"; };
 		87AA49E529ACEF89007C5D63 /* EnterAssetAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterAssetAmountView.swift; sourceTree = "<group>"; };
 		87AA49E729ACEFA3007C5D63 /* EnterAssetAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterAssetAmountViewModel.swift; sourceTree = "<group>"; };
-		87AA49D129A73F5C007C5D63 /* MediaContentNetworking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaContentNetworking.swift; sourceTree = "<group>"; };
-		87AA49D329A76472007C5D63 /* KingfisherImageCacheStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherImageCacheStorage.swift; sourceTree = "<group>"; };
 		87AA56DE270F1B6E00A9EE3F /* config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		87AB425C2767A2C00099DF9F /* TokenScriptCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScriptCoordinator.swift; sourceTree = "<group>"; };
 		87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Types.swift; sourceTree = "<group>"; };
@@ -2087,7 +2089,7 @@
 			children = (
 				8722324828D8A778001A9BCC /* UiTweaks.swift */,
 				5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */,
-				87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */,
+				87741FC427747C5C007F4604 /* NftAssetDisplayHelper.swift */,
 				8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */,
 				8739BB5226CCECB90045CFED /* Collectibles */,
 				29F114EA1FA448DE00114A29 /* Coordinators */,
@@ -2095,6 +2097,7 @@
 				2977CAF11F7E0C33009682A0 /* ViewControllers */,
 				2977CAF01F7E0C2E009682A0 /* Views */,
 				5E7C74CB1950B1EC558685A4 /* TokenScriptOverrides+Extensions.swift */,
+				873D110929B07FC700AEF23B /* NftCollectionDisplayHelper.swift */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -5358,6 +5361,7 @@
 				5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */,
 				875CA92628BF8BAD0020FA48 /* DappRequesterViewModel.swift in Sources */,
 				87E2555624F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift in Sources */,
+				873D110A29B07FC700AEF23B /* NftCollectionDisplayHelper.swift in Sources */,
 				87620028266E14A80059B05A /* PopularTokenViewCell.swift in Sources */,
 				023286E4277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift in Sources */,
 				5E7C7FC76A025AD91D57B960 /* HistoriesViewModel.swift in Sources */,
@@ -5495,7 +5499,7 @@
 				87D163A2242CD811002662D2 /* AddHideTokensViewModel.swift in Sources */,
 				87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */,
 				C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */,
-				87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */,
+				87741FC527747C5C007F4604 /* NftAssetDisplayHelper.swift in Sources */,
 				87F53A012817FF8400BD8017 /* WalletConnectSessionsViewModel.swift in Sources */,
 				8739BB6026CCED010045CFED /* SelectableNFTAssetContainerViewModel.swift in Sources */,
 				022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */,

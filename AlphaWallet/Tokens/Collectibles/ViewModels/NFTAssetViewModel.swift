@@ -18,16 +18,18 @@ struct AttributeCollectionViewModel {
 struct NFTAssetViewModelInput {
     let appear: AnyPublisher<Void, Never>
     let action: AnyPublisher<TokenInstanceAction, Never>
+    let selection: AnyPublisher<IndexPath, Never>
 }
 
 struct NFTAssetViewModelOutput {
     let state: AnyPublisher<NFTAssetViewModel.ViewState, Never>
     let nftAssetAction: AnyPublisher<NFTAssetViewModel.NftAssetAction, Never>
+    let attributeSelectionAction: AnyPublisher<NFTAssetViewModel.AttributeSelectionAction, Never>
 }
 
 class NFTAssetViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
-    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+    private let assetDisplayHelper: NftAssetDisplayHelper
     private let nftProvider: NFTProvider
     private let mode: NFTAssetViewModel.InterationMode
     private let service: TokenViewModelState & TokenHolderState
@@ -46,7 +48,6 @@ class NFTAssetViewModel {
     let tokenId: TokenId
     let assetDefinitionStore: AssetDefinitionStore
 
-    let contractViewModel: TokenAttributeViewModel
     var previewViewType: NFTPreviewViewType {
         switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
         case .backedByOpenSea:
@@ -109,8 +110,10 @@ class NFTAssetViewModel {
         self.tokenHolder = tokenHolder
         self.assetDefinitionStore = assetDefinitionStore
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
-        self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        self.contractViewModel = TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
+        self.assetDisplayHelper = NftAssetDisplayHelper(
+            tokenId: tokenId,
+            tokenHolder: tokenHolder,
+            assetDefinitionStore: assetDefinitionStore)
     }
 
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
@@ -118,7 +121,7 @@ class NFTAssetViewModel {
         let tokenHolderPublisher = tokenHolderPublisher()
 
         let viewTypes = Publishers.Merge3(input.appear, tokenHolderPublisher, collectionStats)
-            .map { _ in self.buildViewTypes(for: self.tokenHolderHelper) }
+            .map { _ in self.buildViewTypes(nftAssetDisplayHelper: self.assetDisplayHelper) }
             .handleEvents(receiveOutput: { self.viewTypes = $0 })
 
         let actionButtons = buildActionButtons(trigger: tokenHolderPublisher)
@@ -136,9 +139,15 @@ class NFTAssetViewModel {
         let nftAssetAction = input.action
             .compactMap { self.buildNftAssetAction(action: $0) }
 
+        let attributeSelectionAction = input.selection
+            .print("xxx.selection")
+            .compactMap { self.buildAttributeSelectionAction(indexPath: $0) }
+            .print("xxx.attributeSelectionAction")
+
         return .init(
             state: viewState.eraseToAnyPublisher(),
-            nftAssetAction: nftAssetAction.eraseToAnyPublisher())
+            nftAssetAction: nftAssetAction.eraseToAnyPublisher(),
+            attributeSelectionAction: attributeSelectionAction.eraseToAnyPublisher())
     }
 
     private func buildNftAssetAction(action: TokenInstanceAction) -> NFTAssetViewModel.NftAssetAction? {
@@ -167,8 +176,8 @@ class NFTAssetViewModel {
     }
 
     private func configure(overiddenOpenSeaStats: Stats?) {
-        tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
-        tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
+        assetDisplayHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
+        assetDisplayHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
 
     private func tokenHolderPublisher() -> AnyPublisher<Void, Never> {
@@ -176,7 +185,7 @@ class NFTAssetViewModel {
             .compactMap { $0 }
             .handleEvents(receiveOutput: { [weak self] in
                 self?.tokenHolder = $0
-                self?.tokenHolderHelper.update(tokenHolder: $0, tokenId: $0.tokenId)
+                self?.assetDisplayHelper.update(tokenHolder: $0, tokenId: $0.tokenId)
             }).mapToVoid()
             .eraseToAnyPublisher()
     }
@@ -206,98 +215,97 @@ class NFTAssetViewModel {
             }.eraseToAnyPublisher()
     }
 
-    var tokenIdViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.tokenIdViewModel
-    }
-
-    var creatorOnOpenSeaUrl: URL? {
-        return tokenHolder.values.creatorValue
-            .flatMap { URL(string: "https://opensea.io/\($0.contractAddress)?tab=created") }
-    }
-
-    var contractOnExplorerUrl: URL? {
-        ConfigExplorer(server: token.server)
-            .contractUrl(address: token.contractAddress)?.url
-    }
-
-    var creatorViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.creator
-    }
-
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
     }
 
-    private func buildViewTypes(for tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTAssetViewModel.ViewType] {
+    private func buildAttributeSelectionAction(indexPath: IndexPath) -> AttributeSelectionAction? {
+        switch viewTypes[indexPath.row] {
+        case .field(let vm) where assetDisplayHelper.tokenIdViewModel == vm:
+            UIPasteboard.general.string = vm.value
+
+            return .showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        case .field(let vm) where assetDisplayHelper.creator == vm:
+            guard let url = tokenHolder.values.creatorValue
+                .flatMap({ URL(string: "https://opensea.io/\($0.contractAddress)?tab=created") }) else { return nil }
+
+            return .openContractWebPage(url: url)
+        case .header, .field, .attributeCollection:
+            return nil
+        }
+    }
+
+    private func buildViewTypes(nftAssetDisplayHelper: NftAssetDisplayHelper) -> [NFTAssetViewModel.ViewType] {
         var configurations: [NFTAssetViewModel.ViewType] = []
 
         configurations += [
-            tokenHolderHelper.valueModelViewModel,
-            tokenHolderHelper.issuerViewModel,
-            tokenHolderHelper.transferFeeViewModel,
-            tokenHolderHelper.createdDateViewModel,
-            tokenHolderHelper.meltValueViewModel,
-            tokenHolderHelper.meltFeeRatioViewModel,
-            tokenHolderHelper.meltFeeMaxRatioViewModel,
-            tokenHolderHelper.totalSupplyViewModel,
-            tokenHolderHelper.circulatingSupplyViewModel,
-            tokenHolderHelper.reserveViewModel,
-            tokenHolderHelper.nonFungibleViewModel,
-            tokenHolderHelper.availableToMintViewModel,
-            tokenHolderHelper.transferableViewModel,
+            nftAssetDisplayHelper.valueModelViewModel,
+            nftAssetDisplayHelper.issuerViewModel,
+            nftAssetDisplayHelper.transferFeeViewModel,
+            nftAssetDisplayHelper.createdDateViewModel,
+            nftAssetDisplayHelper.meltValueViewModel,
+            nftAssetDisplayHelper.meltFeeRatioViewModel,
+            nftAssetDisplayHelper.meltFeeMaxRatioViewModel,
+            nftAssetDisplayHelper.totalSupplyViewModel,
+            nftAssetDisplayHelper.circulatingSupplyViewModel,
+            nftAssetDisplayHelper.reserveViewModel,
+            nftAssetDisplayHelper.nonFungibleViewModel,
+            nftAssetDisplayHelper.availableToMintViewModel,
+            nftAssetDisplayHelper.transferableViewModel,
         ].compactMap { each -> NFTAssetViewModel.ViewType? in
             return each.flatMap { .field(viewModel: $0) }
         }
 
         configurations += [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails())),
-        ] + [
-            tokenHolderHelper.creator,
-            tokenHolderHelper.tokenIdViewModel,
-            contractViewModel,
-            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
-            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
+            nftAssetDisplayHelper.creator,
+            nftAssetDisplayHelper.tokenIdViewModel,
         ].compactMap { each -> NFTAssetViewModel.ViewType? in
             return each.flatMap { .field(viewModel: $0) }
         }
 
         configurations += [
-            tokenHolderHelper.itemsCount,
-            tokenHolderHelper.totalVolume,
-            tokenHolderHelper.totalSales,
-            tokenHolderHelper.totalSupply,
-            tokenHolderHelper.owners,
-            tokenHolderHelper.averagePrice,
-            tokenHolderHelper.floorPrice
+            nftAssetDisplayHelper.itemsCount,
+            nftAssetDisplayHelper.totalVolume,
+            nftAssetDisplayHelper.totalSales,
+            nftAssetDisplayHelper.totalSupply,
+            nftAssetDisplayHelper.owners,
+            nftAssetDisplayHelper.averagePrice,
+            nftAssetDisplayHelper.floorPrice
         ].compactMap { viewModel -> NFTAssetViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
-        if let viewModel = tokenHolderHelper.descriptionViewModel {
+        if !configurations.isEmpty {
+            configurations = [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails())),
+            ] + configurations
+        }
+
+        if let viewModel = nftAssetDisplayHelper.descriptionViewModel {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
                 .field(viewModel: viewModel)
             ]
         }
 
-        if !tokenHolderHelper.attributes.isEmpty {
+        if !nftAssetDisplayHelper.attributes.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.attributes))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.attributes))
             ]
         }
 
-        if !tokenHolderHelper.stats.isEmpty {
+        if !nftAssetDisplayHelper.stats.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
-                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.stats))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.stats))
             ]
         }
 
-        if !tokenHolderHelper.rankings.isEmpty {
+        if !nftAssetDisplayHelper.rankings.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
-                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.rankings))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.rankings))
             ]
         }
 
@@ -315,6 +323,11 @@ class NFTAssetViewModel {
 }
 
 extension NFTAssetViewModel {
+
+    enum AttributeSelectionAction {
+        case showCopiedToClipboard(title: String)
+        case openContractWebPage(url: URL)
+    }
 
     enum InterationMode {
         case preview

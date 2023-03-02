@@ -26,8 +26,9 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     private var cancelable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
     private let action = PassthroughSubject<TokenInstanceAction, Never>()
-
+    private let selection = PassthroughSubject<IndexPath, Never>()
     private let viewModel: NFTAssetViewModel
+
     var server: RPCServer {
         return viewModel.token.server
     }
@@ -107,7 +108,8 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
         let input = NFTAssetViewModelInput(
             appear: appear.eraseToAnyPublisher(),
-            action: action.eraseToAnyPublisher())
+            action: action.eraseToAnyPublisher(),
+            selection: selection.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
 
@@ -123,6 +125,19 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         output.nftAssetAction
             .sink { [weak self] in self?.handle(action: $0) }
             .store(in: &cancelable)
+
+        output.attributeSelectionAction
+            .sink { [weak self] in self?.handle(attributeSelectionAction: $0) }
+            .store(in: &cancelable)
+    }
+
+    private func handle(attributeSelectionAction action: NFTAssetViewModel.AttributeSelectionAction) {
+        switch action {
+        case .openContractWebPage(let url):
+            delegate?.didPressViewContractWebPage(url, in: self)
+        case .showCopiedToClipboard(let title):
+            self.view.showCopiedToClipboard(title: title)
+        }
     }
 
     private func handle(action: NFTAssetViewModel.NftAssetAction) {
@@ -215,21 +230,6 @@ extension NFTAssetViewController: VerifiableStatusViewController {
 
 extension NFTAssetViewController: TokenAttributeViewDelegate {
     func didSelect(in view: TokenAttributeView) {
-        switch viewModel.viewTypes[view.indexPath.row] {
-        case .field(let vm) where viewModel.tokenIdViewModel == vm:
-            UIPasteboard.general.string = vm.value
-
-            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
-        case .field(let vm) where viewModel.creatorViewModel == vm:
-            guard let url = viewModel.creatorOnOpenSeaUrl else { return }
-
-            delegate?.didPressViewContractWebPage(url, in: self)
-        case .field(let vm) where viewModel.contractViewModel == vm:
-            guard let url = viewModel.contractOnExplorerUrl else { return }
-
-            delegate?.didPressViewContractWebPage(url, in: self)
-        case .header, .field, .attributeCollection:
-            break
-        }
+        selection.send(view.indexPath)
     }
 }
