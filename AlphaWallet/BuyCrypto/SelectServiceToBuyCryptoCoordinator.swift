@@ -72,7 +72,8 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
         } else if actions.count == 1 {
             completion(.service(actions[0].service))
         } else {
-            let alertController = UIAlertController(title: nil, message: .none, preferredStyle: .actionSheet)
+            let preferredStyle: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+            let alertController = UIAlertController(title: nil, message: nil, preferredStyle: preferredStyle)
             for each in actions {
                 alertController.addAction(each.action)
             }

@@ -77,8 +77,9 @@ class SelectServiceToSwapCoordinator: Coordinator {
             completion(.service(actions[0].service))
             return
         }
+        let preferredStyle: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+        let alertController = UIAlertController(title: nil, message: .none, preferredStyle: preferredStyle)
 
-        let alertController = UIAlertController(title: nil, message: .none, preferredStyle: .actionSheet)
         for each in actions {
             alertController.addAction(each.action)
         }
