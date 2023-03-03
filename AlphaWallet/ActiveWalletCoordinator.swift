@@ -901,31 +901,11 @@ extension ActiveWalletCoordinator: UITabBarControllerDelegate {
     }
 }
 
-extension ActiveWalletCoordinator: WhereAreMyTokensCoordinatorDelegate {
-
-    func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator) {
-        restartQueue.add(.reloadServers(Constants.defaultEnabledServers))
-        processRestartQueueAndRestartUI(reason: .serverChange)
-    }
-
-    func didClose(in coordinator: WhereAreMyTokensCoordinator) {
-        //no-op
-    }
-}
-
 extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
         tokenCollection.refreshBalance(updatePolicy: .all)
         activitiesPipeLine.start()
-    }
-
-    func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {
-        let coordinator = WhereAreMyTokensCoordinator(navigationController: navigationController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-
-        coordinator.start()
     }
 
     func blockieSelected(in coordinator: TokensCoordinator) {

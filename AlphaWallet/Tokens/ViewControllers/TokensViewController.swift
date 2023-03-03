@@ -9,7 +9,6 @@ protocol TokensViewControllerDelegate: AnyObject {
     func didSelect(token: Token, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
-    func whereAreMyTokensSelected(in viewController: UIViewController)
     func buyCryptoSelected(in viewController: UIViewController)
 }
 
@@ -95,14 +94,6 @@ final class TokensViewController: UIViewController {
         keyboardChecker.constraints = [bottomConstraint]
 
         return keyboardChecker
-    }()
-
-    private lazy var whereAreMyTokensView: AddHideTokensView = {
-        let view = AddHideTokensView()
-        view.delegate = self
-        view.configure(viewModel: ShowAddHideTokensViewModel.configuredForTestnet())
-
-        return view
     }()
 
     private var isConsoleButtonHidden: Bool {
@@ -489,13 +480,6 @@ fileprivate extension TokensViewController {
         }
 
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
-    }
-}
-
-extension TokensViewController: AddHideTokensViewDelegate {
-
-    func view(_ view: AddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
-        delegate?.whereAreMyTokensSelected(in: self)
     }
 }
 
