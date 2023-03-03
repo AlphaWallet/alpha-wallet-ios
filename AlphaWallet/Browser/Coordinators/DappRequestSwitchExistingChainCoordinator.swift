@@ -36,7 +36,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
 
     func start() -> AnyPublisher<SwitchExistingChainOperation, PromiseError> {
         guard let targetChainId = Int(chainId0xString: targetChain.chainId) else {
-            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.switchChainErrorInvalidChainId(targetChain.chainId))))
+            return .fail(PromiseError(error: JsonRpcError.internalError(message: R.string.localizable.switchChainErrorInvalidChainId(targetChain.chainId))))
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == targetChainId }) {
             if config.enabledServers.contains(where: { $0.chainID == targetChainId }) {
@@ -50,7 +50,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
                 promptAndActivateExistingServer(existingServer: existingServer, inViewController: viewController)
             }
         } else {
-            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.switchChainErrorNotSupportedChainId(targetChain.chainId))))
+            return .fail(PromiseError(error: JsonRpcError.unsupportedChain(chainId: targetChain.chainId)))
         }
 
         return subject.eraseToAnyPublisher()
@@ -70,7 +70,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
             case .action:
                 runEnableChain()
             case .canceled:
-                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
             }
         }.cauterize()
     }
@@ -84,7 +84,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
                 subject.send(.switchBrowserToExistingServer(existingServer, url: self.currentUrl))
                 subject.send(completion: .finished)
             case .canceled:
-                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
             }
         }.cauterize()
     }

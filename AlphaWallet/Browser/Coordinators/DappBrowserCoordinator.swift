@@ -142,7 +142,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestSignTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] data in
                 let callback = DappCallback(id: callbackId, value: .signTransaction(data))
                 browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
@@ -157,7 +157,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestSendTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .signThenSend))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] transaction in
                 let callback = DappCallback(id: callbackId, value: .sentTransaction(Data(_hex: transaction.id)))
                 browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
@@ -176,11 +176,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure(let error) = result else { return }
 
-                if case JSONRPCError.responseError(_, let message, _) = error.embedded {
-                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.nodeError(message)))
+                if case JSONRPCError.responseError(let code, let message, _) = error.embedded {
+                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.init(code: code, message: message)))
                 } else {
                     //TODO better handle. User didn't cancel
-                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.cancelled))
+                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
                 }
 
             }, receiveValue: { [browserViewController] value in
@@ -241,7 +241,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     requester: nil)
             }.sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] data in
                 let callback: DappCallback
                 switch message {
@@ -406,7 +406,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestAddCustomChain(server: server, customChain: customChain)
             .sink(receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
-                let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+                let error = e.embedded as? JsonRpcError ?? .internalError
 
                 self?.notifyFinish(callbackID: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
@@ -432,7 +432,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestSwitchChain(server: server, currentUrl: currentUrl, targetChain: targetChain)
             .sink(receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
-                let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+                let error = e.embedded as? JsonRpcError ?? .internalError
 
                 self?.notifyFinish(callbackID: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
@@ -448,7 +448,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }).store(in: &cancellable)
     }
 
-    private func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
+    private func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         browserViewController.notifyFinish(callbackID: callbackID, value: value)
     }
 }
@@ -529,16 +529,16 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
         guard let session = sessionsProvider.session(for: server) else {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.requestRejected))
             return
         }
         guard let delegate = delegate else {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.requestRejected))
             return
         }
 
         func rejectDappAction() {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(JsonRpcError.requestRejected))
             navigationController.topViewController?.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
         }
 

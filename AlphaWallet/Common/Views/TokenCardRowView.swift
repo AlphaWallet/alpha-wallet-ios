@@ -347,7 +347,7 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
                             source: Analytics.SignMessageRequestSource,
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
         
-        return .fail(PromiseError(error: DAppError.cancelled))
+        return .fail(PromiseError(error: JsonRpcError.requestRejected))
     }
 
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {

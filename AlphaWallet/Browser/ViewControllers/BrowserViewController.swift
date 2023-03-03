@@ -149,7 +149,7 @@ final class BrowserViewController: UIViewController {
         webView.load(URLRequest(url: url))
     }
 
-    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
+    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         let script: String = {
             switch value {
             case .success(let result):

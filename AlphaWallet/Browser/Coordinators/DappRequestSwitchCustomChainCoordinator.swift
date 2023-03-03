@@ -48,11 +48,11 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
 
     func start() -> AnyPublisher<SwitchCustomChainOperation, PromiseError> {
         guard let customChainId = Int(chainId0xString: customChain.chainId) else {
-            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))
+            return .fail(PromiseError(error: JsonRpcError.internalError(message: R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))
         }
         guard customChain.rpcUrls?.first != nil else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
-            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))
+            return .fail(PromiseError(error: JsonRpcError.internalError(message: R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == customChainId }) {
             if config.enabledServers.contains(where: { $0.chainID == customChainId }) {
@@ -85,7 +85,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
             case .action:
                 runEnableChain()
             case .canceled:
-                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
             }
         }.cauterize()
     }
@@ -118,10 +118,10 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                 case 1:
                     runAddCustomChain(isTestnet: true)
                 default:
-                    subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                    subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
                 }
             case .canceled:
-                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
             }
         }.cauterize()
     }
@@ -135,7 +135,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                 subject.send(.switchBrowserToExistingServer(existingServer, url: self.currentUrl))
                 subject.send(completion: .finished)
             case .canceled:
-                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
+                subject.send(completion: .failure(PromiseError(error: JsonRpcError.requestRejected)))
             }
         }.cauterize()
     }
@@ -172,16 +172,16 @@ extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
             subject.send(completion: .finished)
             return
         }
-        let dAppError: DAppError
+        let jsonRpcError: JsonRpcError
         switch error {
         case .cancelled:
-            dAppError = .cancelled
+            jsonRpcError = .requestRejected
         case .missingBlockchainExplorerUrl, .invalidBlockchainExplorerUrl, .noRpcNodeUrl, .invalidChainId, .chainIdNotMatch, .unknown:
-            dAppError = .nodeError(error.localizedDescription)
+            jsonRpcError = JsonRpcError.internalError(message: error.localizedDescription)
             UIAlertController.alert(title: nil, message: error.localizedDescription, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: viewController)
 
         }
 
-        subject.send(completion: .failure(.some(error: dAppError)))
+        subject.send(completion: .failure(.some(error: jsonRpcError)))
     }
 }

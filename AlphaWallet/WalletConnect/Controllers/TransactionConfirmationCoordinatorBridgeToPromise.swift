@@ -108,7 +108,7 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
-        seal.reject(DAppError.cancelled)
+        seal.reject(JsonRpcError.requestRejected)
     }
 
     func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {

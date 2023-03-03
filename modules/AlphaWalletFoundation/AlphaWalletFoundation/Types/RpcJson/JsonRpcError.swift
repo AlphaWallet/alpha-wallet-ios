@@ -29,4 +29,8 @@ public extension JsonRpcError {
     static func unsupportedChain(chainId: String) -> JsonRpcError {
         JsonRpcError(code: 4902, message: "Unrecognized chain ID \(chainId). Try adding the chain using wallet_addEthereumChain first.")
     }
+
+    static func internalError(message: String) -> JsonRpcError {
+        JsonRpcError(code: -32603, message: message)
+    }
 }
