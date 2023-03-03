@@ -631,7 +631,6 @@
 		8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76F28D1EFB200615803 /* ServiceProvider.swift */; };
 		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
-		87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */; };
 		87741FC527747C5C007F4604 /* NftAssetDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* NftAssetDisplayHelper.swift */; };
 		87757284282D46A800EAD907 /* TokenCardWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757283282D46A800EAD907 /* TokenCardWebView.swift */; };
 		87757286282D486900EAD907 /* TokenCardWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757285282D486900EAD907 /* TokenCardWebViewModel.swift */; };
@@ -1520,7 +1519,6 @@
 		8772D76F28D1EFB200615803 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
 		8772D77128D1F03600615803 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
-		87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhereAreMyTokensCoordinator.swift; sourceTree = "<group>"; };
 		87741FC427747C5C007F4604 /* NftAssetDisplayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftAssetDisplayHelper.swift; sourceTree = "<group>"; };
 		87757283282D46A800EAD907 /* TokenCardWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardWebView.swift; sourceTree = "<group>"; };
 		87757285282D486900EAD907 /* TokenCardWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardWebViewModel.swift; sourceTree = "<group>"; };
@@ -1918,7 +1916,6 @@
 				87B1ACDE28C0D6660072A5E2 /* Resources */,
 				87D7D66327D7667500202861 /* WalletPupup */,
 				87D7D66227D75AD400202861 /* Swap */,
-				87741F1B2770C3AD007F4604 /* WhereAreMyTokens */,
 				02FA3F632818E11F005EDD63 /* Features */,
 				8712A37A26F314EF0009C376 /* Alerts */,
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
@@ -3984,14 +3981,6 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
-		87741F1B2770C3AD007F4604 /* WhereAreMyTokens */ = {
-			isa = PBXGroup;
-			children = (
-				87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */,
-			);
-			path = WhereAreMyTokens;
-			sourceTree = "<group>";
-		};
 		8783EFC8256D11A700120C0D /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -5603,7 +5592,6 @@
 				02645122277206C0009260DC /* TableViewSection.swift in Sources */,
 				876C80CD2673940B00B16595 /* SwitchView.swift in Sources */,
 				87AA49D429A76472007C5D63 /* KingfisherImageCacheStorage.swift in Sources */,
-				87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */,
 				5E7C7E2109BCEB05899A4F9A /* DefaultActivityItemViewCell.swift in Sources */,
 				0277D92B282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift in Sources */,
 				5E7C78F7C4848D484AD4183A /* DefaultActivityView.swift in Sources */,

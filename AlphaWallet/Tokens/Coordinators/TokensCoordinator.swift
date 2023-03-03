@@ -17,7 +17,6 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
     func blockieSelected(in coordinator: TokensCoordinator)
     func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator)
 
-    func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
     func viewWillAppearOnce(in coordinator: TokensCoordinator)
 }
@@ -220,10 +219,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     func buyCryptoSelected(in viewController: UIViewController) {
         delegate?.buyCrypto(wallet: wallet, server: .main, viewController: viewController, source: .walletTab)
-    }
-
-    func whereAreMyTokensSelected(in viewController: UIViewController) {
-        delegate?.whereAreMyTokensSelected(in: self)
     }
     
     func viewWillAppear(in viewController: UIViewController) {
