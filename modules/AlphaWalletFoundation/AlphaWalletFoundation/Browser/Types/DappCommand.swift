@@ -173,6 +173,10 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
     public let chainId: String
     public let rpcUrls: [String]?
 
+    public var server: RPCServer? {
+        return Int(chainId0xString: chainId).flatMap { RPCServer(chainIdOptional: $0) }
+    }
+
     public init(nativeCurrency: NativeCurrency?, blockExplorerUrls: [String]?, chainName: String?, chainId: String, rpcUrls: [String]?) {
         self.nativeCurrency = nativeCurrency
         self.blockExplorerUrls = blockExplorerUrls

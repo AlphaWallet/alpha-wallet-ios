@@ -20,6 +20,8 @@ protocol WalletConnectProviderDelegate: AnyObject, DappRequesterDelegate {
 }
 
 final class WalletConnectProvider: NSObject {
+    typealias ResponsePublisher = AnyPublisher<AlphaWallet.WalletConnect.Response, WalletConnectError>
+
     private let services: CurrentValueSubject<[WalletConnectServer], Never> = .init([])
     private let sessionsSubject: CurrentValueSubject<[AlphaWallet.WalletConnect.Session], Never> = .init([])
     private var cancellable = Set<AnyCancellable>()
@@ -190,7 +192,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
 
     private func addCustomChain(object customChain: WalletAddEthereumChainObject,
                                 request: AlphaWallet.WalletConnect.Session.Request,
-                                walletConnectSession: AlphaWallet.WalletConnect.Session) -> AnyPublisher<AlphaWallet.WalletConnect.Response, WalletConnectError> {
+                                walletConnectSession: AlphaWallet.WalletConnect.Session) -> ResponsePublisher {
 
         guard let dappRequestProvider = delegate else { return .fail(.cancelled) }
 
@@ -200,33 +202,21 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         }
 
         return dappRequestProvider.requestAddCustomChain(server: server, customChain: customChain)
-            .map { [weak self] operation -> AlphaWallet.WalletConnect.Response in
-                switch operation {
-                case .notifySuccessful:
-                    //NOTE: it was like this before
-                    //try? walletConnectProvider.responseServerChangeSucceed(request: request)
-                    //try? walletConnectProvider.notifyUpdateServers(request: request, server: server)
+            .mapError { WalletConnectError(error: $0) }
+            .flatMap { [weak self] _ -> ResponsePublisher in
+                guard let newServer = customChain.server else { return .empty() }
 
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                case .restartToEnableAndSwitchBrowserToServer:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                case .restartToAddEnableAndSwitchBrowserToServer:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                case .switchBrowserToExistingServer:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                }
-            }.mapError { WalletConnectError(error: $0) }
-            .eraseToAnyPublisher()
+                try? self?.respond(.init(data: nil), request: request)
+                try? self?.notifyUpdateServers(request: request, server: newServer)
+
+                return .empty()
+            }.eraseToAnyPublisher()
     }
 
     private func switchChain(object targetChain: WalletSwitchEthereumChainObject,
                              request: AlphaWallet.WalletConnect.Session.Request,
                              walletConnectSession: AlphaWallet.WalletConnect.Session,
-                             dep: AppCoordinator.WalletDependencies) -> AnyPublisher<AlphaWallet.WalletConnect.Response, WalletConnectError> {
+                             dep: AppCoordinator.WalletDependencies) -> ResponsePublisher {
 
         guard let dappRequestProvider = delegate else { return .fail(.cancelled) }
 
@@ -239,27 +229,20 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             return server ?? walletConnectSession.servers.first
         }
 
-        guard let server = firstEnabledRPCServer(), targetChain.server != nil else {
+        guard let server = firstEnabledRPCServer(), let newServer = targetChain.server else {
             //TODO: implement switch chain if its available, but disabled
             return .fail(.internal(.unsupportedChain(chainId: targetChain.chainId)))
         }
 
         return dappRequestProvider.requestSwitchChain(server: server, currentUrl: nil, targetChain: targetChain)
-            .map { [weak self] operation -> AlphaWallet.WalletConnect.Response in
-                switch operation {
-                case .notifySuccessful:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                case .restartToEnableAndSwitchBrowserToServer:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                case .switchBrowserToExistingServer:
-                    try? self?.notifyUpdateServers(request: request, server: server)
-                    return .init(data: nil)
-                }
-            }
             .mapError { WalletConnectError(error: $0) }
-            .eraseToAnyPublisher()
+            .flatMap { [weak self] _ -> ResponsePublisher in
+                //save order of operations, first we have to respond of request then update session with server
+                try? self?.respond(.init(data: nil), request: request)
+                try? self?.notifyUpdateServers(request: request, server: newServer)
+
+                return .empty()
+            }.eraseToAnyPublisher()
     }
 
     private func validateMessage(session: AlphaWallet.WalletConnect.Session,
@@ -289,7 +272,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                                 dep: AppCoordinator.WalletDependencies,
                                 request: AlphaWallet.WalletConnect.Session.Request,
                                 session: AlphaWallet.WalletConnect.Session,
-                                requester: DappRequesterViewModel) -> AnyPublisher<AlphaWallet.WalletConnect.Response, WalletConnectError> {
+                                requester: DappRequesterViewModel) -> ResponsePublisher {
 
         guard let dappRequestProvider = delegate else { return .fail(.cancelled) }
 

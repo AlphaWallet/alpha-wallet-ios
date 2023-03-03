@@ -195,6 +195,12 @@ extension Session {
             peerId: walletInfo.peerId,
             peerMeta: walletInfo.peerMeta)
 
+        let dAppInfo = DAppInfo(
+            peerId: dAppInfo.peerId,
+            peerMeta: dAppInfo.peerMeta,
+            chainId: chainId,
+            approved: dAppInfo.approved)
+
         return Session(url: url, dAppInfo: dAppInfo, walletInfo: newWalletInfo)
     }
 }

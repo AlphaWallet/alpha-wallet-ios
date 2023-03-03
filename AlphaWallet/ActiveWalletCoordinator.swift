@@ -632,14 +632,11 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
         return coordinator.start()
             .handleEvents(receiveOutput: { [weak self] operation in
-                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removed when silent updated will be applied
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    switch operation {
-                    case .restartToEnableAndSwitchBrowserToServer:
-                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
-                    case .switchBrowserToExistingServer, .notifySuccessful:
-                        break
-                    }
+                switch operation {
+                case .restartToEnableAndSwitchBrowserToServer:
+                    self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                case .switchBrowserToExistingServer, .notifySuccessful:
+                    break
                 }
             }, receiveCompletion: { [weak self] _ in
                 self?.removeCoordinator(coordinator)
@@ -665,16 +662,13 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
         return coordinator.start()
             .handleEvents(receiveOutput: { [weak self] operation in
-                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removed when silent updated will be applied
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    switch operation {
-                    case .notifySuccessful:
-                        break
-                    case .restartToEnableAndSwitchBrowserToServer, .restartToAddEnableAndSwitchBrowserToServer:
-                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
-                    case .switchBrowserToExistingServer(let server, url: let url):
-                        self?.dappBrowserCoordinator?.switch(toServer: server, url: url)
-                    }
+                switch operation {
+                case .notifySuccessful:
+                    break
+                case .restartToEnableAndSwitchBrowserToServer, .restartToAddEnableAndSwitchBrowserToServer:
+                    self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                case .switchBrowserToExistingServer(let server, url: let url):
+                    self?.dappBrowserCoordinator?.switch(toServer: server, url: url)
                 }
             }, receiveCompletion: { [weak self] _ in
                 self?.removeCoordinator(coordinator)
