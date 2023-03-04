@@ -54,6 +54,10 @@ final class EventSourceForActivities {
             }.store(in: &cancellable)
     }
 
+    func stop() {
+        cancellable.cancellAll()
+    }
+
     private func addOrFetchWorker(sessions: ServerDictionary<WalletSession>) -> [RPCServer: ChainTokenEventsForActivitiesWorker] {
         var addedOrFetchedWorkers: [RPCServer: ChainTokenEventsForActivitiesWorker] = [:]
         for session in sessions {
