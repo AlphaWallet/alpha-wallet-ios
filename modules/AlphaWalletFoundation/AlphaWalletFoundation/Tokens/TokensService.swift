@@ -15,6 +15,7 @@ public protocol TokenProvidable {
 
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
     func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
+    func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
 }
 
 public protocol TokenAddable {

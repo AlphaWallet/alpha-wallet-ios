@@ -117,6 +117,10 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         tokensService.refreshBalance(updatePolicy: updatePolicy)
     }
 
+    public func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
+        tokensService.tokensChangesetPublisher(servers: servers)
+    }
+
     public func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) -> TokenViewModel? {
         return tokensService.token(for: contract, server: server)
             .flatMap { TokenViewModel(token: $0) }
