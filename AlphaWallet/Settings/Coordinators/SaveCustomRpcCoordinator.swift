@@ -21,7 +21,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
 
     private let navigationController: UINavigationController
     private let config: Config
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let operation: SaveOperationType
     private var activeViewController: OverallProtocol?
@@ -31,7 +31,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
 
     init(navigationController: UINavigationController,
          config: Config,
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          analytics: AnalyticsLogger,
          operation: SaveOperationType,
          networkService: NetworkService) {
@@ -39,7 +39,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
         self.networkService = networkService
         self.navigationController = navigationController
         self.config = config
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.analytics = analytics
         self.operation = operation
     }
@@ -116,7 +116,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
         let saveCustomChain = AddCustomChain(
             customChain,
             isTestnet: customRpc.isTestnet,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             url: nil,
             operation: operation,
             chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
@@ -136,7 +136,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcBrowseViewControllerDataDelegat
         let addViewController = AddMultipleCustomRpcViewController(
             model: model,
             analytics: analytics,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             networkService: networkService)
 
         addViewController.delegate = self

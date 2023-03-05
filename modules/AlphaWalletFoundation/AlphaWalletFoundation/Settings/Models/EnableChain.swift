@@ -8,22 +8,22 @@ public protocol EnableChainDelegate: AnyObject {
 
 public class EnableChain {
     private let server: RPCServer
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let url: URL?
 
     public weak var delegate: EnableChainDelegate?
 
-    public init(_ server: RPCServer, restartQueue: RestartTaskQueue, url: URL?) {
+    public init(_ server: RPCServer, restartHandler: RestartQueueHandler, url: URL?) {
         self.server = server
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.url = url
     }
 
     public func run() {
-        restartQueue.add(.enableServer(server))
-        restartQueue.add(.switchDappServer(server: server))
+        restartHandler.add(.enableServer(server))
+        restartHandler.add(.switchDappServer(server: server))
         if let url = url {
-            restartQueue.add(.loadUrlInDappBrowser(url))
+            restartHandler.add(.loadUrlInDappBrowser(url))
         }
         delegate?.notifyEnableChainQueuedSuccessfully(in: self)
     }

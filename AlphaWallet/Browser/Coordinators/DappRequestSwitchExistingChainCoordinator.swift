@@ -16,7 +16,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
     private let config: Config
     private let server: RPCServer
     private let targetChain: WalletSwitchEthereumChainObject
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let currentUrl: URL?
     private let viewController: UIViewController
@@ -24,11 +24,11 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
 
     var coordinators: [Coordinator] = []
 
-    init(config: Config, server: RPCServer, targetChain: WalletSwitchEthereumChainObject, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config, server: RPCServer, targetChain: WalletSwitchEthereumChainObject, restartHandler: RestartQueueHandler, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
         self.config = config
         self.server = server
         self.targetChain = targetChain
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.analytics = analytics
         self.currentUrl = currentUrl
         self.viewController = viewController
@@ -58,7 +58,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
 
     private func promptAndActivateExistingServer(existingServer: RPCServer, inViewController viewController: UIViewController) {
         func runEnableChain() {
-            let enableChain = EnableChain(existingServer, restartQueue: restartQueue, url: currentUrl)
+            let enableChain = EnableChain(existingServer, restartHandler: restartHandler, url: currentUrl)
             enableChain.delegate = self
             enableChain.run()
         }

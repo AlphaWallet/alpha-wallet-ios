@@ -46,7 +46,12 @@ class AppCoordinator: NSObject, Coordinator {
 
     private let analytics: AnalyticsServiceType
 
-    private let restartQueue = RestartTaskQueue()
+    private lazy var restartHandler: RestartQueueHandler = {
+        return RestartQueueHandler(
+            config: config,
+            restartQueue: RestartTaskQueue())
+    }()
+
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var activeWalletCoordinator: ActiveWalletCoordinator? {
@@ -441,7 +446,7 @@ class AppCoordinator: NSObject, Coordinator {
             config: config,
             appTracker: appTracker,
             analytics: analytics,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             universalLinkCoordinator: universalLinkService,
             accountsCoordinator: accountsCoordinator,
             walletBalanceService: walletBalanceService,

@@ -21,7 +21,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
     private let analytics: AnalyticsLogger
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let coinTickersFetcher: CoinTickersFetcher
     private let transactionsDataStore: TransactionDataStore
     private let blockscanChatService: BlockscanChatService
@@ -146,7 +146,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          config: Config,
          appTracker: AppTracker = AppTracker(),
          analytics: AnalyticsLogger,
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          universalLinkCoordinator: UniversalLinkService,
          accountsCoordinator: AccountsCoordinator,
          walletBalanceService: WalletBalanceService,
@@ -188,7 +188,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         self.config = config
         self.appTracker = appTracker
         self.analytics = analytics
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.assetDefinitionStore = assetDefinitionStore
         self.universalLinkService = universalLinkCoordinator
         self.accountsCoordinator = accountsCoordinator
@@ -235,7 +235,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
         fetchXMLAssetDefinitions()
 
-        RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
+        restartHandler.processRestartQueueAfterRestart(provider: self)
 
         showWhatsNew()
         notificationService.start(wallet: wallet)
@@ -417,7 +417,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             keystore: keystore,
             config: config,
             sessionsProvider: sessionsProvider,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             promptBackupCoordinator: promptBackupCoordinator,
             analytics: analytics,
             walletConnectCoordinator: walletConnectCoordinator,
@@ -564,7 +564,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }
 
     func processRestartQueueAndRestartUI(reason: RestartReason) {
-        RestartQueueHandler(config: config).processRestartQueueBeforeRestart(restartQueue: restartQueue)
+        restartHandler.processRestartQueueBeforeRestart()
         restartUI(withReason: reason, account: wallet)
     }
 
@@ -623,7 +623,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             config: config,
             server: server,
             targetChain: targetChain,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             analytics: analytics,
             currentUrl: currentUrl,
             inViewController: presentationViewController)
@@ -655,7 +655,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             config: config,
             server: server,
             customChain: customChain,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             analytics: analytics,
             currentUrl: nil,
             viewController: presentationViewController,

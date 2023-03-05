@@ -7,7 +7,7 @@ struct EnabledServersViewModel {
     private let mainnets: [RPCServer]
     private let testnets: [RPCServer]
     private let config: Config
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private var serversSelectedInPreviousMode: [RPCServer]?
 
     var sectionIndices: IndexSet {
@@ -20,12 +20,12 @@ struct EnabledServersViewModel {
     var testnetEnabled: Bool
 
     //Cannot infer `mode` from `selectedServers` because of this case: we are in testnet and tap to deselect all of them. Can't know to stay in testnet
-    init(servers: [RPCServer], selectedServers: [RPCServer], restartQueue: RestartTaskQueue, config: Config) {
+    init(servers: [RPCServer], selectedServers: [RPCServer], restartHandler: RestartQueueHandler, config: Config) {
         self.servers = servers
         self.selectedServers = selectedServers
         self.mainnets = servers.filter { !$0.isTestnet }
         self.testnets = servers.filter { $0.isTestnet }
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.config = config
 
         testnetEnabled = selectedServers.contains(where: { $0.isTestnet })
@@ -82,7 +82,7 @@ struct EnabledServersViewModel {
         if isUnchanged {
             //no-op
         } else {
-            restartQueue.add(.reloadServers(servers))
+            restartHandler.add(.reloadServers(servers))
         }
         return !isUnchanged
     }
@@ -90,7 +90,7 @@ struct EnabledServersViewModel {
     func markForDeletion(server: RPCServer) -> Bool {
         guard let customRpc = server.customRpc else { return false }
         pushReloadServersIfNeeded()
-        restartQueue.add(.removeServer(customRpc))
+        restartHandler.add(.removeServer(customRpc))
 
         return true
     }
