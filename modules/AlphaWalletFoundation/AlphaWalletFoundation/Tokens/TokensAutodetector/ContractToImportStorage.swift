@@ -28,7 +28,7 @@ struct ContractToImportFileStorage: ContractToImportStorage {
 }
 
 extension ContractToImportFileStorage {
-    struct functional {}
+    enum functional {}
 }
 
 extension ContractToImportFileStorage.functional {
