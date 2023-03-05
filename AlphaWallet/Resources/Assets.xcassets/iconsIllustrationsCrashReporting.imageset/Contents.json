@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "iconsIllustrationsCrashReporting.pdf",
+      "filename" : "iconsIllustrationsAnalyticsLight.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "iconsIllustrationsAnalyticsDark.pdf",
       "idiom" : "universal"
     }
   ],

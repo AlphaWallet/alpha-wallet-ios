@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "iconsIllustrationsAlert2.pdf",
+      "filename" : "icons-illustrations-bell-light.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "icons-illustrations-bell-dark.pdf",
       "idiom" : "universal"
     }
   ],
