@@ -137,6 +137,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private var cancelable = Set<AnyCancellable>()
     private let networkService: NetworkService
+    private let serversProvider: ServersProvidable
 
     init(navigationController: UINavigationController = NavigationController(),
          activitiesPipeLine: ActivitiesPipeLine,
@@ -167,8 +168,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          networkService: NetworkService,
          promptBackup: PromptBackup,
          caip10AccountProvidable: CAIP10AccountProvidable,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.promptBackup = promptBackup
         self.networkService = networkService
@@ -530,7 +533,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }
 
     private func fetchXMLAssetDefinitions() {
-        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, config: config)
+        let fetch = FetchTokenScriptFiles(
+            assetDefinitionStore: assetDefinitionStore,
+            tokensService: tokensService,
+            serversProvider: serversProvider)
+
         fetch.start()
     }
 

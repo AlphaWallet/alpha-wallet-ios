@@ -467,7 +467,8 @@ class AppCoordinator: NSObject, Coordinator {
             networkService: networkService,
             promptBackup: promptBackup,
             caip10AccountProvidable: caip10AccountProvidable,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            serversProvider: serversProvider)
 
         coordinator.delegate = self
 
