@@ -295,7 +295,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
 
         switch action.type {
         case .signTransaction(let transaction):
-            return dappRequestProvider.requestSingTransaction(
+            return dappRequestProvider.requestSignTransaction(
                 session: walletSession,
                 source: .walletConnect,
                 requester: requester,

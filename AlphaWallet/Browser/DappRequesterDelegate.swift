@@ -33,7 +33,7 @@ protocol DappRequesterDelegate: AnyObject, RequestSignMessageDelegate {
                                    requester: DappRequesterViewModel?,
                                    transaction: String) -> AnyPublisher<String, PromiseError>
 
-    func requestSingTransaction(session: WalletSession,
+    func requestSignTransaction(session: WalletSession,
                                 source: Analytics.TransactionConfirmationSource,
                                 requester: RequesterViewModel?,
                                 transaction: UnconfirmedTransaction,

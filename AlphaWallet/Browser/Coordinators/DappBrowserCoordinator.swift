@@ -134,12 +134,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return browserViewController
     }
 
-    private func requestSingTransaction(session: WalletSession,
+    private func requestSignTransaction(session: WalletSession,
                                         delegate: DappBrowserCoordinatorDelegate,
                                         callbackId: Int,
                                         transaction: UnconfirmedTransaction) {
 
-        delegate.requestSingTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
+        delegate.requestSignTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
                 browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
@@ -462,7 +462,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                                    delegate: DappBrowserCoordinatorDelegate) {
         switch action {
         case .signTransaction(let unconfirmedTransaction):
-            requestSingTransaction(
+            requestSignTransaction(
                 session: session,
                 delegate: delegate,
                 callbackId: callbackId,
@@ -492,7 +492,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 message: .typedMessage(typedData),
                 callbackId: callbackId)
         case .signEip712v3And4(let typedData):
-            
+
             requestSignMessage(
                 session: session,
                 delegate: delegate,

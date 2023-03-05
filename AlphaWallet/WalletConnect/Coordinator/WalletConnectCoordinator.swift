@@ -195,7 +195,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                                     source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError> {
 
         guard let delegate = delegate else { return .empty() }
-        
+
         return delegate.requestGetTransactionCount(
             session: session,
             source: source)
@@ -208,7 +208,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
 
         guard let delegate = delegate else { return .empty() }
-        
+
         return delegate.requestSignMessage(
             message: message,
             server: server,
@@ -238,7 +238,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                                 configuration: TransactionType.Configuration) -> AnyPublisher<SentTransaction, PromiseError> {
 
         guard let delegate = delegate else { return .empty() }
-        
+
         return delegate.requestSendTransaction(
             session: session,
             source: source,
@@ -247,7 +247,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
             configuration: configuration)
     }
 
-    func requestSingTransaction(session: WalletSession,
+    func requestSignTransaction(session: WalletSession,
                                 source: Analytics.TransactionConfirmationSource,
                                 requester: RequesterViewModel?,
                                 transaction: UnconfirmedTransaction,
@@ -255,7 +255,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
 
         guard let delegate = delegate else { return .empty() }
 
-        return delegate.requestSingTransaction(
+        return delegate.requestSignTransaction(
             session: session,
             source: source,
             requester: requester,
