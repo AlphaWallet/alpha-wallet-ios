@@ -214,7 +214,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
             let implicitAttributes = generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol)
             let tokenAttributes = implicitAttributes
-            var cardAttributes = Self.functional.generateImplicitAttributesForCard(forContract: contract, server: server, event: eachEvent)
+            var cardAttributes = functional.generateImplicitAttributesForCard(forContract: contract, server: server, event: eachEvent)
             cardAttributes.merge(eachEvent.data) { _, new in new }
 
             for parameter in card.eventOrigin.parameters {

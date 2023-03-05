@@ -31,17 +31,17 @@ public enum DeepLink {
     public init?(url: URL, supportedServers: [RPCServer] = [.main]) {
         if url.isFileURL {
             self = .maybeFileUrl(url: url)
-        } else if let eip681Url = Self.functional.extractEip681UrlMaybeEmbedded(in: url, supportedServers: supportedServers) {
+        } else if let eip681Url = functional.extractEip681UrlMaybeEmbedded(in: url, supportedServers: supportedServers) {
             self  = .eip681(url: eip681Url)
-        } else if let (wcUrl, source) = Self.functional.extractWalletConnectUrlMaybeEmbedded(in: url) {
+        } else if let (wcUrl, source) = functional.extractWalletConnectUrlMaybeEmbedded(in: url) {
             self = .walletConnect(url: wcUrl, source: source)
-        } else if let (server, url) = Self.functional.extractEmbeddedUrl(in: url, supportedServers: supportedServers) {
+        } else if let (server, url) = functional.extractEmbeddedUrl(in: url, supportedServers: supportedServers) {
             self = .embeddedUrl(server: server, url: url)
         } else if let value = ShareContentAction(url) {
             self = .shareContentAction(action: value)
-        } else if let (server, signedOrder) = Self.functional.extractEmbeddedMagicLinkData(url: url) {
+        } else if let (server, signedOrder) = functional.extractEmbeddedMagicLinkData(url: url) {
             self = .magicLink(signedOrder: signedOrder, server: server, url: url)
-        } else if let value = Self.functional.extractEmbeddedWalletApiCall(url: url, supportedServers: []) {
+        } else if let value = functional.extractEmbeddedWalletApiCall(url: url, supportedServers: []) {
             self = .walletApi(value)
         } else {
             return nil

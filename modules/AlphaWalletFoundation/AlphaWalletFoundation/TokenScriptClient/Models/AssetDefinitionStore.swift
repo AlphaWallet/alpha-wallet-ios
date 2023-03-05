@@ -295,7 +295,7 @@ public class AssetDefinitionStore: NSObject {
     }
 
     private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> AnyPublisher<(url: URL, isScriptUri: Bool)?, Never> {
-        let urlToFetchFromTokenScriptRepo = Self.functional.urlToFetchFromTokenScriptRepo(contract: contract).flatMap { ($0, false) }
+        let urlToFetchFromTokenScriptRepo = functional.urlToFetchFromTokenScriptRepo(contract: contract).flatMap { ($0, false) }
 
         if let server = server {
             return Just(server)
