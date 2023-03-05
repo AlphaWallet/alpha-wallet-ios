@@ -1139,13 +1139,13 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
 
 extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
-    func requestSingTransaction(session: WalletSession,
+    func requestSignTransaction(session: WalletSession,
                                 source: Analytics.TransactionConfirmationSource,
                                 requester: RequesterViewModel?,
                                 transaction: UnconfirmedTransaction,
                                 configuration: TransactionType.Configuration) -> AnyPublisher<Data, PromiseError> {
 
-        infoLog("[\(source)] singTransaction: \(transaction) type: \(configuration.confirmType)")
+        infoLog("[\(source)] signTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
