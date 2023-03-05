@@ -26,7 +26,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
-        return ActivitiesService(config: config, sessions: sessionsProvider.activeSessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
+        return ActivitiesService(config: config, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
     }()
 
     public var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> {

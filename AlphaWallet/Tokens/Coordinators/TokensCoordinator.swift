@@ -170,7 +170,7 @@ class TokensCoordinator: Coordinator {
                 activitiesService: activitiesService,
                 alertService: alertService,
                 tokensService: tokenCollection,
-                sessions: sessionsProvider.activeSessions,
+                sessionsProvider: sessionsProvider,
                 currencyService: currencyService,
                 tokenImageFetcher: tokenImageFetcher)
 

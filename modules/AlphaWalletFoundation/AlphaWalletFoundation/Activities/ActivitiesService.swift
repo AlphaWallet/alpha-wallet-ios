@@ -26,7 +26,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
     private typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)]
 
     private let config: Config
-    let sessions: ServerDictionary<WalletSession>
+    let sessionsProvider: SessionsProvider
     private let tokensService: TokenProvidable
 
     private let assetDefinitionStore: AssetDefinitionStore
@@ -43,7 +43,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
     private let activitiesSubject: CurrentValueSubject<[ActivityCollection.MappedToDateActivityOrTransaction], Never> = .init([])
 
     private var wallet: Wallet {
-        sessions.anyValue.account
+        sessionsProvider.activeSessions.anyValue.account
     }
 
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
@@ -60,7 +60,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     init(config: Config,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          assetDefinitionStore: AssetDefinitionStore,
          eventsActivityDataStore: EventsActivityDataStoreProtocol,
          eventsDataStore: NonActivityEventsDataStore,
@@ -70,7 +70,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
          tokensService: TokenProvidable) {
 
         self.config = config
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.eventsActivityDataStore = eventsActivityDataStore
@@ -98,7 +98,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     public func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensService: tokensService)
+        return ActivitiesService(config: config, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensService: tokensService)
     }
 
     private func getTokensAndXmlHandlers(forTokens tokens: [Token]) -> TokenObjectsAndXMLHandlers {
@@ -210,7 +210,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
         let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent in
             guard let token = tokensService.token(for: contract, server: server) else { return nil }
-            guard let session = sessions[safe: token.server] else { return nil }
+            guard let session = sessionsProvider.session(for: token.server) else { return nil }
 
             let implicitAttributes = generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol)
             let tokenAttributes = implicitAttributes
@@ -407,7 +407,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
             guard each.shouldInclude(forAddress: contract, isFungible: true) else { continue }
             switch each {
             case .ownerAddress:
-                guard let session = sessions[safe: server] else { continue }
+                guard let session = sessionsProvider.session(for: server) else { continue }
                 results[each.javaScriptName] = .address(session.account.address)
             case .tokenId:
                 //We aren't going to add `tokenId` as an implicit attribute even for ERC721s, because we don't know it

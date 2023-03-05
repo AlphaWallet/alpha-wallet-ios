@@ -17,7 +17,7 @@ protocol ActivitiesViewDelegate: AnyObject {
 
 class ActivitiesView: UIView {
     private var viewModel: ActivitiesViewModel
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private lazy var tableView: UITableView = {
         let tableView = UITableView.grouped
         tableView.register(ActivityViewCell.self)
@@ -42,14 +42,14 @@ class ActivitiesView: UIView {
          keystore: Keystore,
          wallet: Wallet,
          viewModel: ActivitiesViewModel,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.keystore = keystore
         self.wallet = wallet
         self.analytics = analytics
@@ -189,7 +189,7 @@ extension ActivitiesView: UITableViewDataSource {
                 return cell
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                let session = sessions[transaction.server]
+                guard let session = sessionsProvider.session(for: transaction.server) else { return UITableViewCell() }
                 cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), blockNumberProvider: session.blockNumberProvider, wallet: session.account))
                 return cell
             }
@@ -200,7 +200,7 @@ extension ActivitiesView: UITableViewDataSource {
                 return cell
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                let session = sessions[transaction.server]
+                guard let session = sessionsProvider.session(for: transaction.server) else { return UITableViewCell() }
                 cell.configure(viewModel: .init(transactionRow: .standalone(transaction), blockNumberProvider: session.blockNumberProvider, wallet: session.account))
                 return cell
             }

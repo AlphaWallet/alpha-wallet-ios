@@ -24,7 +24,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: Token
     private let session: WalletSession
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let nftProvider: NFTProvider
@@ -61,7 +61,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             assetDefinition: assetDefinitionStore,
             analytics: analytics,
             viewModel: viewModel,
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             tokenCardViewFactory: tokenCardViewFactory,
             tokenImageFetcher: tokenImageFetcher)
         
@@ -80,7 +80,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
          nftProvider: NFTProvider,
          activitiesService: ActivitiesServiceType,
          tokensService: TokenViewModelState & TokenHolderState,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher,
          tokenActionsProvider: SupportedTokenActionsProvider) {
@@ -88,7 +88,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         self.tokenActionsProvider = tokenActionsProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.tokensService = tokensService
         self.activitiesService = activitiesService
         self.session = session

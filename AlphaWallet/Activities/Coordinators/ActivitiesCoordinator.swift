@@ -10,7 +10,7 @@ protocol ActivitiesCoordinatorDelegate: AnyObject {
 }
 
 class ActivitiesCoordinator: NSObject, Coordinator {
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let activitiesService: ActivitiesServiceType
     private let keystore: Keystore
     private let wallet: Wallet
@@ -28,7 +28,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
 
     init(analytics: AnalyticsLogger,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          navigationController: UINavigationController = .withOverridenBarAppearence(),
          activitiesService: ActivitiesServiceType,
          keystore: Keystore,
@@ -40,7 +40,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
         self.activitiesService = activitiesService
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.navigationController = navigationController
         self.keystore = keystore
         self.wallet = wallet
@@ -54,7 +54,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel(collection: .init())
-        let controller = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
+        let controller = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
         controller.delegate = self
         
         return controller

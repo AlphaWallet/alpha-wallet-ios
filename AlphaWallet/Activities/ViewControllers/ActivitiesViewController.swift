@@ -25,7 +25,7 @@ class ActivitiesViewController: UIViewController {
          keystore: Keystore,
          wallet: Wallet,
          viewModel: ActivitiesViewModel,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher) {
 
@@ -36,7 +36,7 @@ class ActivitiesViewController: UIViewController {
             keystore: keystore,
             wallet: wallet,
             viewModel: viewModel,
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher)
         super.init(nibName: nil, bundle: nil)
