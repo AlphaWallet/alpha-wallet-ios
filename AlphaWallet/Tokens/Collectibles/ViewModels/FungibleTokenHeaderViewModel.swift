@@ -125,7 +125,7 @@ final class FungibleTokenHeaderViewModel {
 }
 
 extension FungibleTokenHeaderViewModel {
-    struct functional {}
+    enum functional {}
     struct ViewState {
         let title: NSAttributedString
         let value: NSAttributedString

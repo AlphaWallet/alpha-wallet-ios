@@ -40,7 +40,7 @@ public struct RpcNetwork: Codable {
         CustomRPC(chainID: chainId, nativeCryptoTokenName: nativeCurrency.name, chainName: name, symbol: nativeCurrency.symbol, rpcEndpoint: rpc.first ?? "", explorerEndpoint: infoURL, etherscanCompatibleType: .unknown, isTestnet: isTestNet)
     }
 
-    public struct functional {
+    public enum functional {
         public static func availableServersFromCompressedJSONFile(filePathUrl: URL?) -> [CustomRPC]? {
             if let availableRpc = networkCache {
                 return availableRpc

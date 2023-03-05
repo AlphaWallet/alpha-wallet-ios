@@ -86,7 +86,7 @@ extension AlphaWallet {
 }
 
 extension AlphaWallet.Address {
-    struct functional {}
+    enum functional {}
 }
 
 fileprivate extension AlphaWallet.Address.functional {
