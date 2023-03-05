@@ -24,7 +24,7 @@ class SettingsCoordinator: Coordinator {
     private let keystore: Keystore
     private var config: Config
     private let sessionsProvider: SessionsProvider
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
     private let walletConnectCoordinator: WalletConnectCoordinator
@@ -65,7 +65,7 @@ class SettingsCoordinator: Coordinator {
          keystore: Keystore,
          config: Config,
          sessionsProvider: SessionsProvider,
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          promptBackupCoordinator: PromptBackupCoordinator,
          analytics: AnalyticsLogger,
          walletConnectCoordinator: WalletConnectCoordinator,
@@ -87,7 +87,7 @@ class SettingsCoordinator: Coordinator {
         self.keystore = keystore
         self.config = config
         self.sessionsProvider = sessionsProvider
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analytics = analytics
         self.walletConnectCoordinator = walletConnectCoordinator
@@ -213,7 +213,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         let coordinator = EnabledServersCoordinator(
             navigationController: navigationController,
             selectedServers: config.enabledServers,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             analytics: analytics,
             config: config,
             networkService: networkService)

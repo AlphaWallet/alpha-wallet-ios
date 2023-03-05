@@ -27,7 +27,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private var currentCustomRpc: CustomRPC?
     private var isCanceled: Bool
     private var viewModel: AddMultipleCustomRpcViewModel
-    private var restartQueue: RestartTaskQueue
+    private var restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
     // MARK: Public
@@ -42,7 +42,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
 
     init(model: AddMultipleCustomRpcModel,
          analytics: AnalyticsLogger,
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          networkService: NetworkService) {
 
         let viewModel = AddMultipleCustomRpcViewModel(model: model)
@@ -50,7 +50,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
         self.viewModel = viewModel
         self.isCanceled = false
         self.analytics = analytics
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         super.init(nibName: nil, bundle: nil)
         self.modalPresentationStyle = .custom
         self.transitioningDelegate = self
@@ -117,7 +117,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private func startAddChain(for customRpc: CustomRPC) {
         let chain = AddCustomChain(
             customRpc,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             networkService: networkService,
             analytics: analytics)
 
@@ -190,7 +190,7 @@ extension AddMultipleCustomRpcViewController: AddCustomChainDelegate {
 
 extension AddCustomChain {
 
-    convenience init(_ customRpc: CustomRPC, restartQueue: RestartTaskQueue, networkService: NetworkService, analytics: AnalyticsLogger) {
+    convenience init(_ customRpc: CustomRPC, restartHandler: RestartQueueHandler, networkService: NetworkService, analytics: AnalyticsLogger) {
         let defaultDecimals = 18
         let explorerEndpoints: [String]?
 
@@ -212,7 +212,7 @@ extension AddCustomChain {
         self.init(
             customChain,
             isTestnet: customRpc.isTestnet,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             url: nil,
             operation: .add,
             chainNameFallback: R.string.localizable.addCustomChainUnnamed(),

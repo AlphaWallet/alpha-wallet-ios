@@ -7,22 +7,32 @@
 
 import Foundation
 
-public protocol LoadUrlInDappBrowserProvider {
+public protocol LoadUrlInDappBrowserProvider: AnyObject {
     func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler)
 }
 
 public final class RestartQueueHandler {
     private let config: Config
+    private let restartQueue: RestartTaskQueue
 
-    public init(config: Config) {
+    public convenience init() {
+        self.init(config: .init(), restartQueue: .init())
+    }
+
+    public init(config: Config, restartQueue: RestartTaskQueue) {
         self.config = config
+        self.restartQueue = restartQueue
     }
 
-    public func processRestartQueueBeforeRestart(restartQueue: RestartTaskQueue) {
-        processRestartQueueBeforeRestart(config: config, restartQueue: restartQueue)
+    public func add(_ task: RestartTaskQueue.Task) {
+        restartQueue.add(task)
     }
 
-    public func processRestartQueueAfterRestart(provider: LoadUrlInDappBrowserProvider, restartQueue: RestartTaskQueue) {
+    public func remove(_ task: RestartTaskQueue.Task) {
+        restartQueue.remove(task)
+    }
+
+    public func processRestartQueueAfterRestart(provider: LoadUrlInDappBrowserProvider) {
         for each in restartQueue.queue {
             switch each {
             case .addServer, .reloadServers, .editServer, .removeServer, .enableServer, .switchDappServer:
@@ -34,7 +44,7 @@ public final class RestartQueueHandler {
         }
     }
 
-    private func processRestartQueueBeforeRestart(config: Config, restartQueue: RestartTaskQueue) {
+    public func processRestartQueueBeforeRestart() {
         for each in restartQueue.queue {
             switch each {
             case .addServer(let server):
@@ -57,7 +67,7 @@ public final class RestartQueueHandler {
             case .switchDappServer(server: let server):
                 restartQueue.remove(each)
                 Config.setChainId(server.chainID)
-            case .loadUrlInDappBrowser:
+            case .loadUrlInDappBrowser(let url):
                 break
             case .reloadServers(let servers):
                 restartQueue.remove(each)
@@ -68,12 +78,7 @@ public final class RestartQueueHandler {
     }
 
     private func replaceServer(original: CustomRPC, edited: CustomRPC) {
-        RPCServer.customRpcs = RPCServer.customRpcs.map { (item: CustomRPC) -> CustomRPC in
-            if item.chainID == original.chainID {
-                return edited
-            }
-            return item
-        }
+        RPCServer.customRpcs = RPCServer.customRpcs.map { $0.chainID == original.chainID ? edited : $0 }
     }
 
     private func removeServer(_ server: CustomRPC) {

@@ -16,7 +16,7 @@ class EnabledServersCoordinator: Coordinator {
     private let serverChoices = EnabledServersCoordinator.serversOrdered
     private let navigationController: UINavigationController
     private let selectedServers: [RPCServer]
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let config: Config
     private let networkService: NetworkService
@@ -24,7 +24,7 @@ class EnabledServersCoordinator: Coordinator {
         let viewModel = EnabledServersViewModel(
             servers: serverChoices,
             selectedServers: selectedServers,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             config: config)
         
         let controller = EnabledServersViewController(viewModel: viewModel)
@@ -40,7 +40,7 @@ class EnabledServersCoordinator: Coordinator {
 
     init(navigationController: UINavigationController,
          selectedServers: [RPCServer],
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          analytics: AnalyticsLogger,
          config: Config,
          networkService: NetworkService) {
@@ -48,7 +48,7 @@ class EnabledServersCoordinator: Coordinator {
         self.networkService = networkService
         self.navigationController = navigationController
         self.selectedServers = selectedServers
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.analytics = analytics
         self.config = config
     }
@@ -62,7 +62,7 @@ class EnabledServersCoordinator: Coordinator {
         let coordinator = SaveCustomRpcCoordinator(
             navigationController: navigationController,
             config: config,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             analytics: analytics,
             operation: .add,
             networkService: networkService)
@@ -76,7 +76,7 @@ class EnabledServersCoordinator: Coordinator {
         let coordinator = SaveCustomRpcCoordinator(
             navigationController: navigationController,
             config: config,
-            restartQueue: restartQueue,
+            restartHandler: restartHandler,
             analytics: analytics,
             operation: .edit(customRpc),
             networkService: networkService)

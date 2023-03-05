@@ -18,7 +18,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private let config: Config
     private let server: RPCServer
     private let customChain: WalletAddEthereumChainObject
-    private let restartQueue: RestartTaskQueue
+    private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let currentUrl: URL?
     private let viewController: UIViewController
@@ -30,7 +30,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     init(config: Config,
          server: RPCServer,
          customChain: WalletAddEthereumChainObject,
-         restartQueue: RestartTaskQueue,
+         restartHandler: RestartQueueHandler,
          analytics: AnalyticsLogger,
          currentUrl: URL?,
          viewController: UIViewController,
@@ -40,7 +40,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         self.config = config
         self.server = server
         self.customChain = customChain
-        self.restartQueue = restartQueue
+        self.restartHandler = restartHandler
         self.analytics = analytics
         self.currentUrl = currentUrl
         self.viewController = viewController
@@ -73,7 +73,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
 
     private func promptAndActivateExistingServer(existingServer: RPCServer, inViewController viewController: UIViewController) {
         func runEnableChain() {
-            let enableChain = EnableChain(existingServer, restartQueue: restartQueue, url: currentUrl)
+            let enableChain = EnableChain(existingServer, restartHandler: restartHandler, url: currentUrl)
             enableChain.delegate = self
             enableChain.run()
         }
@@ -95,7 +95,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
             let addCustomChain = AddCustomChain(
                 customChain,
                 isTestnet: isTestnet,
-                restartQueue: restartQueue,
+                restartHandler: restartHandler,
                 url: currentUrl,
                 operation: .add,
                 chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
