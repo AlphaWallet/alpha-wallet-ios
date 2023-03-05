@@ -21,7 +21,7 @@ protocol NFTCollectionViewControllerDelegate: AnyObject, CanOpenURL {
 
 class NFTCollectionViewController: UIViewController {
     private let session: WalletSession
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private lazy var buttonsBar: HorizontalButtonsBar = {
@@ -40,7 +40,7 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init(collection: .init()))
-        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
+        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
         view.delegate = self
 
         return view
@@ -72,14 +72,14 @@ class NFTCollectionViewController: UIViewController {
          assetDefinition: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          viewModel: NFTCollectionViewModel,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          tokenCardViewFactory: TokenCardViewFactory,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.session = session
         self.assetDefinitionStore = assetDefinition
         self.analytics = analytics

@@ -348,7 +348,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
     private func createTransactionCoordinator() -> TransactionsCoordinator {
         let transactionsService = TransactionsService(
-            sessions: sessionsProvider.activeSessions,
+            sessionsProvider: sessionsProvider,
             transactionDataStore: transactionsDataStore,
             analytics: analytics,
             tokensService: tokensService,
@@ -359,7 +359,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
         let coordinator = TransactionsCoordinator(
             analytics: analytics,
-            sessions: sessionsProvider.activeSessions,
+            sessionsProvider: sessionsProvider,
             transactionsService: transactionsService,
             tokensService: tokenCollection,
             tokenImageFetcher: tokenImageFetcher)
@@ -376,7 +376,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private func createActivityCoordinator() -> ActivitiesCoordinator {
         let coordinator = ActivitiesCoordinator(
             analytics: analytics,
-            sessions: sessionsProvider.activeSessions,
+            sessionsProvider: sessionsProvider,
             activitiesService: activitiesPipeLine,
             keystore: keystore,
             wallet: wallet,

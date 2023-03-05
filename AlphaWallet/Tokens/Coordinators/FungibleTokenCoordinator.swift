@@ -28,7 +28,7 @@ class FungibleTokenCoordinator: Coordinator {
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let coinTickersFetcher: CoinTickersFetcher
     private let activitiesService: ActivitiesServiceType
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
     private let tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
@@ -61,7 +61,7 @@ class FungibleTokenCoordinator: Coordinator {
          activitiesService: ActivitiesServiceType,
          alertService: PriceAlertServiceType,
          tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher) {
 
@@ -69,7 +69,7 @@ class FungibleTokenCoordinator: Coordinator {
         self.currencyService = currencyService
         self.token = token
         self.navigationController = navigationController
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.tokensService = tokensService
         self.session = session
         self.keystore = keystore
@@ -105,7 +105,7 @@ class FungibleTokenCoordinator: Coordinator {
             keystore: keystore,
             wallet: session.account,
             viewModel: .init(collection: .init(activities: [])),
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher)
         

@@ -39,7 +39,7 @@ class ActivitiesPageView: UIView, PageViewType {
          keystore: Keystore,
          wallet: Wallet,
          viewModel: ActivityPageViewModel,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher) {
 
@@ -49,7 +49,7 @@ class ActivitiesPageView: UIView, PageViewType {
             keystore: keystore,
             wallet: wallet,
             viewModel: viewModel.activitiesViewModel,
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher)
         super.init(frame: .zero)

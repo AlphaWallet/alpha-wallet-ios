@@ -5,11 +5,11 @@ import Combine
 
 public class TransactionsService {
     private let transactionDataStore: TransactionDataStore
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     private let analytics: AnalyticsLogger
     private var providers: [SingleChainTransactionProvider] = []
-    private var config: Config { return sessions.anyValue.config }
+    private var config: Config { return sessionsProvider.activeSessions.anyValue.config }
     private let fetchLatestTransactionsQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Fetch Latest Transactions"
@@ -19,7 +19,7 @@ public class TransactionsService {
     }()
 
     public var transactionsChangeset: AnyPublisher<[TransactionInstance], Never> {
-        let servers = sessions.values.map { $0.server }
+        let servers = sessionsProvider.activeSessions.values.map { $0.server }
         return transactionDataStore
             .transactionsChangeset(filter: .all, servers: servers)
             .map { change -> [TransactionInstance] in
@@ -34,14 +34,14 @@ public class TransactionsService {
     private let networkService: NetworkService
     private let assetDefinitionStore: AssetDefinitionStore
 
-    public init(sessions: ServerDictionary<WalletSession>,
+    public init(sessionsProvider: SessionsProvider,
                 transactionDataStore: TransactionDataStore,
                 analytics: AnalyticsLogger,
                 tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
                 networkService: NetworkService,
                 assetDefinitionStore: AssetDefinitionStore) {
 
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.tokensService = tokensService
         self.transactionDataStore = transactionDataStore
         self.analytics = analytics
@@ -66,7 +66,7 @@ public class TransactionsService {
     }
 
     private func setupSingleChainTransactionProviders() {
-        providers = sessions.values.map { each in
+        providers = sessionsProvider.activeSessions.values.map { each in
             let ercTokenDetector = ErcTokenDetector(
                 tokensService: tokensService,
                 server: each.server,
@@ -138,7 +138,7 @@ public class TransactionsService {
     }
 
     public func addSentTransaction(_ transaction: SentTransaction) {
-        let session = sessions[transaction.original.server]
+        guard let session = sessionsProvider.session(for: transaction.original.server) else { return }
 
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensService.token(for: $0, server: transaction.original.server) }

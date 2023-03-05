@@ -17,11 +17,11 @@ struct TransactionsViewModelOutput {
 
 class TransactionsViewModel {
     private let transactionsService: TransactionsService
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
 
-    init(transactionsService: TransactionsService, sessions: ServerDictionary<WalletSession>) {
+    init(transactionsService: TransactionsService, sessionsProvider: SessionsProvider) {
         self.transactionsService = transactionsService
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
     }
 
     func transform(input: TransactionsViewModelInput) -> TransactionsViewModelOutput {
@@ -52,8 +52,9 @@ class TransactionsViewModel {
             .eraseToAnyPublisher()
     }
 
-    func buildCellViewModel(for transactionRow: TransactionRow) -> TransactionRowCellViewModel {
-        let session = sessions[transactionRow.server]
+    func buildCellViewModel(for transactionRow: TransactionRow) -> TransactionRowCellViewModel? {
+        guard let session = sessionsProvider.session(for: transactionRow.server) else { return nil }
+
         return .init(transactionRow: transactionRow, blockNumberProvider: session.blockNumberProvider, wallet: session.account)
     }
 }

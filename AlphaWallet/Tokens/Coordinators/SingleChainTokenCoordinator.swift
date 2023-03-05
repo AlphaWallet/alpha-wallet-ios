@@ -31,7 +31,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let coinTickersFetcher: CoinTickersFetcher
     private let activitiesService: ActivitiesServiceType
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let alertService: PriceAlertServiceType
     private let tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
     private let currencyService: CurrencyService
@@ -55,13 +55,13 @@ class SingleChainTokenCoordinator: Coordinator {
          activitiesService: ActivitiesServiceType,
          alertService: PriceAlertServiceType,
          tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.tokensService = tokensService
         self.session = session
         self.keystore = keystore
@@ -97,7 +97,7 @@ class SingleChainTokenCoordinator: Coordinator {
             nftProvider: nftProvider,
             activitiesService: activitiesService,
             tokensService: tokensService,
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher,
             tokenActionsProvider: tokenActionsProvider)
@@ -112,7 +112,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = token.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
 
-        let coordinator = FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokensService, sessions: sessions, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher)
+        let coordinator = FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokensService, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
