@@ -124,7 +124,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }
 
     private lazy var transactionNotificationService: NotificationSourceService = {
-        let service = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, config: config)
+        let service = TransactionNotificationSourceService(
+            transactionDataStore: transactionsDataStore,
+            config: config,
+            serversProvider: serversProvider)
+        
         service.delegate = promptBackup
         return service
     }()

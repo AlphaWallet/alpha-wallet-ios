@@ -16,24 +16,29 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
     private let formatter = EtherNumberFormatter.short
     private static let maximumNumberOfNotifications = 10
     private let receiveNotificationSubject: PassthroughSubject<LocalNotification, Never> = .init()
-
+    private let serversProvider: ServersProvidable
     public weak var delegate: NotificationSourceServiceDelegate?
 
     public var receiveNotification: AnyPublisher<LocalNotification, Never> {
         receiveNotificationSubject.eraseToAnyPublisher()
     }
 
-    public init(transactionDataStore: TransactionDataStore, config: Config) {
+    public init(transactionDataStore: TransactionDataStore,
+                config: Config,
+                serversProvider: ServersProvidable) {
+
         self.transactionDataStore = transactionDataStore
         self.config = config
+        self.serversProvider = serversProvider
     }
 
     public func start(wallet: Wallet) {
         let predicate = transactionsPredicate(wallet: wallet)
 
-        transactionDataStore
-            .transactionsChangeset(filter: .predicate(predicate), servers: config.enabledServers)
-            .map { changeset -> ServerDictionary<[TransactionInstance]> in
+        serversProvider.servers
+            .flatMapLatest { [transactionDataStore] in
+                return transactionDataStore.transactionsChangeset(filter: .predicate(predicate), servers: Array($0))
+            }.map { changeset -> ServerDictionary<[TransactionInstance]> in
                 switch changeset {
                 case .initial(let transactions):
                     return TransactionNotificationSourceService.mappedByServer(transactions: transactions)
