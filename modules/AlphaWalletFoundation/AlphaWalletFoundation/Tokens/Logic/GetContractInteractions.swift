@@ -102,7 +102,7 @@ class TransactionsNetworkProvider {
                 }
 
                 do {
-                    let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data)
+                    let promises = try JSONDecoder().decode(ArrayResponse<NormalTransaction>.self, from: result.data)
                         .result.map { transactionBuilder.buildTransaction(from: $0) }
 
                     return Publishers.MergeMany(promises)
