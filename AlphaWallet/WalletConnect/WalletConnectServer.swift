@@ -21,7 +21,7 @@ enum WalletConnectError: Error {
     case `internal`(JsonRpcError)
 
     init(error: PromiseError) {
-        if case DAppError.cancelled = error.embedded {
+        if let e = error.embedded as? JsonRpcError, e == .requestRejected {
             self = .cancelled
         } else if case PMKError.cancelled = error.embedded {
             self = .cancelled

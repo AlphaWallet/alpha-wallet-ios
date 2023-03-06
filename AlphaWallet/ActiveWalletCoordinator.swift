@@ -1169,14 +1169,14 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         return firstly {
             showAskSendRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: transaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
-            guard shouldSend else { return .init(error: DAppError.cancelled) }
+            guard shouldSend else { return .init(error: JsonRpcError.requestRejected) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
             let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
             return sender.send(rawTransaction: transaction)
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
-                throw DAppError.cancelled
+                throw JsonRpcError.requestRejected
             case .sentRawTransaction(let transactionId, _):
                 return transactionId
             }

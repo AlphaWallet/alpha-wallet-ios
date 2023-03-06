@@ -342,7 +342,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             switch action {
             case .signPersonalMessage(let message):
                 guard let delegate = self.delegate else {
-                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
                     return
                 }
 
@@ -353,10 +353,10 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                     source: .tokenScript,
                     requester: nil)
                 .handleEvents(receiveCancel: {
-                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
                 })
                 .sinkAsync(receiveCompletion: { _ in
-                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
                 }, receiveValue: { value in
                     let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
                     self.notifyFinish(callbackID: command.id, value: .success(callback))
@@ -399,13 +399,13 @@ extension TokenInstanceWebView: WKUIDelegate {
 
 //TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
 extension TokenInstanceWebView {
-    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
+    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         let script: String = {
             switch value {
             case .success(let result):
                 return "executeCallback(\(callbackID), null, \"\(result.value.object)\")"
             case .failure(let error):
-                return "executeCallback(\(callbackID), \"\(error)\", null)"
+                return "executeCallback(\(callbackID), \"\(error.message)\", null)"
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)

@@ -56,7 +56,7 @@ extension SignMessageCoordinatorBridgeToPromise: SignMessageCoordinatorDelegate 
     }
 
     func didCancel(in coordinator: SignMessageCoordinator) {
-        seal.reject(DAppError.cancelled)
+        seal.reject(JsonRpcError.requestRejected)
     }
 }
 

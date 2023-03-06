@@ -269,8 +269,8 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
                 return transaction.id
             }
         }.recover { error -> Promise<String> in
-            //TODO no good to have `DAppError` here, but this is because of `TransactionConfirmationCoordinatorBridgeToPromise`. Maybe good to have a global "UserCancelled" or something? If enum, not too many cases? To avoid `switch`
-            if case DAppError.cancelled = error {
+            //TODO no good to have `JsonRpcError` here, but this is because of `TransactionConfirmationCoordinatorBridgeToPromise`. Maybe good to have a global "UserCancelled" or something? If enum, not too many cases? To avoid `switch`
+            if let e = error as? JsonRpcError, e == .requestRejected {
                 throw SwapError.userCancelledApproval
             } else {
                 throw error
