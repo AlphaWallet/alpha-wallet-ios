@@ -150,15 +150,12 @@ final class BrowserViewController: UIViewController {
     }
 
     func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
-        let script: String = {
-            switch value {
-            case .success(let result):
-                return "executeCallback(\(callbackID), null, \"\(result.value.object)\")"
-            case .failure(let error):
-                return "executeCallback(\(callbackID), \"\(error.message)\", null)"
-            }
-        }()
-        webView.evaluateJavaScript(script, completionHandler: nil)
+        switch value {
+        case .success(let result):
+            webView.evaluateJavaScript("executeCallback(\(callbackID), null, \"\(result.value.object)\")")
+        case .failure(let error):
+            webView.evaluateJavaScript("executeCallback(\(callbackID), {message: \"\(error.message)\", code: \(error.code)}, null)")
+        }
     }
 
     func reload() {
