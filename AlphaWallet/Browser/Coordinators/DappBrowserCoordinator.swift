@@ -127,7 +127,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserViewController() -> BrowserViewController {
-        let browserViewController = BrowserViewController(account: wallet, server: server)
+        let viewModel = BrowserViewModel(wallet: wallet, server: server)
+        let browserViewController = BrowserViewController(viewModel: viewModel)
         browserViewController.delegate = self
         browserViewController.webView.uiDelegate = self
 
@@ -142,10 +143,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestSignTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] data in
                 let callback = DappCallback(id: callbackId, value: .signTransaction(data))
-                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 
@@ -157,10 +158,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate.requestSendTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .signThenSend))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] transaction in
                 let callback = DappCallback(id: callbackId, value: .sentTransaction(Data(_hex: transaction.id)))
-                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 
@@ -177,15 +178,15 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 guard case .failure(let error) = result else { return }
 
                 if case JSONRPCError.responseError(let code, let message, _) = error.embedded {
-                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.init(code: code, message: message)))
+                    browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.init(code: code, message: message)))
                 } else {
                     //TODO better handle. User didn't cancel
-                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
+                    browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.responseError))
                 }
 
             }, receiveValue: { [browserViewController] value in
                 let callback = DappCallback(id: callbackId, value: .ethCall(value))
-                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 
@@ -241,7 +242,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     requester: nil)
             }.sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
-                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.responseError))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.responseError))
             }, receiveValue: { [browserViewController] data in
                 let callback: DappCallback
                 switch message {
@@ -255,7 +256,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     callback = DappCallback(id: callbackId, value: .signEip712v3And4(data))
                 }
 
-                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+                browserViewController.notifyFinish(callbackId: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 
@@ -408,12 +409,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 guard case .failure(let e) = result else { return }
                 let error = e.embedded as? JsonRpcError ?? .internalError
 
-                self?.notifyFinish(callbackID: callbackId, value: .failure(error))
+                self?.notifyFinish(callbackId: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
                 switch operation {
                 case .notifySuccessful:
                     let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
-                    self?.notifyFinish(callbackID: callbackId, value: .success(callback))
+                    self?.notifyFinish(callbackId: callbackId, value: .success(callback))
                 case .switchBrowserToExistingServer:
                     break //no-op handled in parent
                 case .restartToEnableAndSwitchBrowserToServer:
@@ -434,12 +435,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 guard case .failure(let e) = result else { return }
                 let error = e.embedded as? JsonRpcError ?? .internalError
 
-                self?.notifyFinish(callbackID: callbackId, value: .failure(error))
+                self?.notifyFinish(callbackId: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
                 switch operation {
                 case .notifySuccessful:
                     let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
-                    self?.notifyFinish(callbackID: callbackId, value: .success(callback))
+                    self?.notifyFinish(callbackId: callbackId, value: .success(callback))
                 case .switchBrowserToExistingServer(let server, let url):
                     self?.switch(toServer: server, url: url)
                 case .restartToEnableAndSwitchBrowserToServer:
@@ -448,8 +449,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }).store(in: &cancellable)
     }
 
-    private func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
-        browserViewController.notifyFinish(callbackID: callbackID, value: value)
+    private func notifyFinish(callbackId: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
+        browserViewController.notifyFinish(callbackId: callbackId, value: value)
     }
 }
 // swiftlint:enable type_body_length
@@ -527,39 +528,39 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         }
     }
 
-    func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
+    func didCall(action: DappAction, callbackId: Int, in viewController: BrowserViewController) {
         guard let session = sessionsProvider.session(for: server) else {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.requestRejected))
+            browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.requestRejected))
             return
         }
         guard let delegate = delegate else {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.requestRejected))
+            browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.requestRejected))
             return
         }
 
         func rejectDappAction() {
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(JsonRpcError.requestRejected))
+            browserViewController.notifyFinish(callbackId: callbackId, value: .failure(JsonRpcError.requestRejected))
             navigationController.topViewController?.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
         }
 
         switch wallet.type {
         case .real:
-            performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
+            performDappAction(action: action, callbackId: callbackId, session: session, delegate: delegate)
         case .watch:
             if config.development.shouldPretendIsRealWallet {
-                performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
+                performDappAction(action: action, callbackId: callbackId, session: session, delegate: delegate)
             } else {
                 switch action {
                 case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signEip712v3And4, .unknown, .sendRawTransaction:
                     rejectDappAction()
                 case .walletAddEthereumChain, .walletSwitchEthereumChain, .ethCall:
-                    performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
+                    performDappAction(action: action, callbackId: callbackId, session: session, delegate: delegate)
                 }
             }
         }
     }
 
-    func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
+    func didVisitURL(url: URL, title: String, in viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
         if let mostRecentUrl = browserHistoryStorage.firstHistoryRecord?.url, mostRecentUrl == url {
 
@@ -568,15 +569,15 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         }
     }
 
-    func dismissKeyboard(inBrowserViewController viewController: BrowserViewController) {
+    func dismissKeyboard(in viewController: BrowserViewController) {
         browserNavBar?.cancelEditing()
     }
 
-    func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController) {
+    func forceUpdate(url: URL, in viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
     }
 
-    func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
+    func handleUniversalLink(_ url: URL, in viewController: BrowserViewController) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
     }
 }

@@ -6,55 +6,42 @@ import WebKit
 import JavaScriptCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
 
 protocol BrowserViewControllerDelegate: AnyObject {
-    func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController)
-    func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController)
-    func dismissKeyboard(inBrowserViewController viewController: BrowserViewController)
-    func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController)
-    func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController)
+    func didCall(action: DappAction, callbackId: Int, in viewController: BrowserViewController)
+    func didVisitURL(url: URL, title: String, in viewController: BrowserViewController)
+    func dismissKeyboard(in viewController: BrowserViewController)
+    func forceUpdate(url: URL, in viewController: BrowserViewController)
+    func handleUniversalLink(_ url: URL, in viewController: BrowserViewController)
 }
 
 final class BrowserViewController: UIViewController {
-    private let account: Wallet
-    private let server: RPCServer
-
-    private struct Keys {
-        static let estimatedProgress = "estimatedProgress"
-        static let developerExtrasEnabled = "developerExtrasEnabled"
-        static let URL = "URL"
-        static let ClientName = "AlphaWallet"
-    }
-
-    private lazy var userClient: String = {
-        Keys.ClientName + "/" + (Bundle.main.versionNumber ?? "") + " 1inchWallet"
-    }()
-
     private lazy var errorView: BrowserErrorView = {
         let errorView = BrowserErrorView()
         errorView.translatesAutoresizingMaskIntoConstraints = false
         errorView.delegate = self
         return errorView
     }()
-    private var estimatedProgressObservation: NSKeyValueObservation!
+    private var cancellable = Set<AnyCancellable>()
+    private let decidePolicy = PassthroughSubject<BrowserViewModel.DecidePolicy, Never>()
 
     weak var delegate: BrowserViewControllerDelegate?
 
     lazy var webView: WKWebView = {
         let webView = WKWebView(
             frame: .init(x: 0, y: 0, width: 40, height: 40),
-            configuration: config
-        )
+            configuration: viewModel.config)
         webView.allowsBackForwardNavigationGestures = true
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         if Environment.isDebug {
-            webView.configuration.preferences.setValue(true, forKey: Keys.developerExtrasEnabled)
+            webView.configuration.preferences.setValue(true, forKey: BrowserViewModel.Keys.developerExtrasEnabled)
         }
         return webView
     }()
 
-    lazy var progressView: UIProgressView = {
+    private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.tintColor = Configuration.Color.Semantic.appTint
@@ -62,16 +49,10 @@ final class BrowserViewController: UIViewController {
         return progressView
     }()
 
-    lazy var config: WKWebViewConfiguration = {
-        let config = WKWebViewConfiguration.make(forType: .dappBrowser(server), address: account.address, in: ScriptMessageProxy(delegate: self))
-        config.websiteDataStore = WKWebsiteDataStore.default()
-        return config
-    }()
+    private let viewModel: BrowserViewModel
 
-    init(account: Wallet, server: RPCServer) {
-        self.account = account
-        self.server = server
-
+    init(viewModel: BrowserViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(webView)
@@ -93,17 +74,40 @@ final class BrowserViewController: UIViewController {
         ])
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] webView, _ in
-            guard let strongSelf = self else { return }
-
-            let progress = Float(webView.estimatedProgress)
-
-            strongSelf.progressView.progress = progress
-            strongSelf.progressView.isHidden = progress == 1
-        }
-
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+
+        bind(viewModel: viewModel)
+    }
+
+    private func bind(viewModel: BrowserViewModel) {
+        let input = BrowserViewModelInput(
+            progress: webView.publisher(for: \.estimatedProgress).eraseToAnyPublisher(),
+            decidePolicy: decidePolicy.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+
+        output.progressBarState
+            .sink { [weak progressView] in
+                progressView?.progress = $0.value
+                progressView?.isHidden = $0.isHidden
+            }.store(in: &cancellable)
+
+        output.universalLink
+            .sink { [weak self] url in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.handleUniversalLink(url, in: strongSelf)
+            }.store(in: &cancellable)
+
+        output.dappAction
+            .sink { [weak self] data in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didCall(action: data.action, callbackId: data.callbackId, in: strongSelf)
+            }.store(in: &cancellable)
+
+        output.recordUrl
+            .sink { [weak self] _ in self?.recordURL() }
+            .store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -132,14 +136,14 @@ final class BrowserViewController: UIViewController {
         if !isExternalKeyboard || !isEnteringEditModeWithExternalKeyboard {
             webView.scrollView.contentInset.bottom = 0
             //Must exit editing more explicitly (and update the nav bar buttons) because tapping on the web view can hide keyboard
-            delegate?.dismissKeyboard(inBrowserViewController: self)
+            delegate?.dismissKeyboard(in: self)
         }
     }
 
     private func injectUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak self] result, _ in
             guard let strongSelf = self, let currentUserAgent = result as? String else { return }
-            strongSelf.webView.customUserAgent = currentUserAgent + " " + strongSelf.userClient
+            strongSelf.webView.customUserAgent = currentUserAgent + " " + BrowserViewModel.userClient
         }
     }
 
@@ -149,12 +153,12 @@ final class BrowserViewController: UIViewController {
         webView.load(URLRequest(url: url))
     }
 
-    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
+    func notifyFinish(callbackId: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         switch value {
         case .success(let result):
-            webView.evaluateJavaScript("executeCallback(\(callbackID), null, \"\(result.value.object)\")")
+            webView.evaluateJavaScript("executeCallback(\(callbackId), null, \"\(result.value.object)\")")
         case .failure(let error):
-            webView.evaluateJavaScript("executeCallback(\(callbackID), {message: \"\(error.message)\", code: \(error.code)}, null)")
+            webView.evaluateJavaScript("executeCallback(\(callbackId), {message: \"\(error.message)\", code: \(error.code)}, null)")
         }
     }
 
@@ -169,15 +173,11 @@ final class BrowserViewController: UIViewController {
 
     private func recordURL() {
         guard let url = webView.url else { return }
-        delegate?.didVisitURL(url: url, title: webView.title ?? "", inBrowserViewController: self)
+        delegate?.didVisitURL(url: url, title: webView.title ?? "", in: self)
     }
 
     private func hideErrorView() {
         errorView.isHidden = true
-    }
-
-    deinit {
-        estimatedProgressObservation.invalidate()
     }
 
     func handleError(error: Error) {
@@ -186,7 +186,7 @@ final class BrowserViewController: UIViewController {
         } else {
             if error.domain == NSURLErrorDomain,
                 let failedURL = (error as NSError).userInfo[NSURLErrorFailingURLErrorKey] as? URL {
-                delegate?.forceUpdate(url: failedURL, inBrowserViewController: self)
+                delegate?.forceUpdate(url: failedURL, in: self)
             }
             errorView.show(error: error)
         }
@@ -214,49 +214,7 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        infoLog("[Browser] decidePolicyFor url: \(String(describing: navigationAction.request.url?.absoluteString))")
-
-        guard let url = navigationAction.request.url, let scheme = url.scheme else {
-            decisionHandler(.allow)
-            return
-        }
-        let app = UIApplication.shared
-        if ["tel", "mailto"].contains(scheme), app.canOpenURL(url) {
-            app.open(url)
-            decisionHandler(.cancel)
-            return
-        }
-
-        //TODO extract `DeepLink`, if reasonable
-        if url.host == "aw.app" && url.path == "/wc", let components = URLComponents(url: url, resolvingAgainstBaseURL: false), components.queryItems.isEmpty {
-            infoLog("[Browser] Swallowing URL and doing a no-op, url: \(url.absoluteString)")
-            decisionHandler(.cancel)
-            return
-        }
-
-        if DeepLink.supports(url: url) {
-            delegate?.handleUniversalLink(url, inBrowserViewController: self)
-            decisionHandler(.cancel)
-            return
-        }
-
-        decisionHandler(.allow)
-    }
-}
-
-extension BrowserViewController: WKScriptMessageHandler {
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let command = DappAction.fromMessage(message) else {
-            if message.name == Browser.locationChangedEventName {
-                recordURL()
-            }
-            return
-        }
-        infoLog("[Browser] dapp command: \(command)")
-        let action = DappAction.fromCommand(command, server: server, transactionType: .prebuilt(server))
-
-        infoLog("[Browser] dapp action: \(action)")
-        delegate?.didCall(action: action, callbackID: command.id, inBrowserViewController: self)
+        decidePolicy.send((navigationAction, decisionHandler))
     }
 }
 

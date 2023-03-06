@@ -11,7 +11,7 @@ public enum WebViewType {
 
 extension WKWebViewConfiguration {
 
-    public static func make(forType type: WebViewType, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+    public static func make(forType type: WebViewType, address: AlphaWallet.Address, messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
 
