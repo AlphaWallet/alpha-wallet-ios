@@ -13,6 +13,9 @@ class DeepLinkTests: XCTestCase {
     func testHasWalletConnectPathFromMobileLinking() {
         let url = URL(string: "https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202")!
         XCTAssertNotNil(DeepLink.functional.extractWalletConnectUrlMaybeEmbedded(in: url))
+
+        let url2 = URL(string: "awallet://wc?uri=wc%3A5f577f99-2f54-40f7-9463-7ff640772090%401%3Fbridge%3Dhttps%253A%252F%252Fwalletconnect.depay.com%26key%3D1938aa2c9d4104c91cbc60e94631cf769c96ebad1ea2fc30e18ba09e39bc3c0b")!
+        XCTAssertNotNil(DeepLink.functional.extractWalletConnectUrlMaybeEmbedded(in: url2))
     }
 
     func testWalletApiUrl() {
