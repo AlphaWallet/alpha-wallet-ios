@@ -42,6 +42,10 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }()
 
+    public func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
+        tokensDataStore.enabledTokensChangeset(for: servers)
+    }
+
     public func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
         providers.map { $0.values.filter { servers.contains($0.session.server) } }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
