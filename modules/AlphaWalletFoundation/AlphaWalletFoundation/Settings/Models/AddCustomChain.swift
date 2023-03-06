@@ -49,7 +49,7 @@ public class AddCustomChain {
     private let url: URL?
     private let operation: SaveOperationType
     private let chainNameFallback: String
-    private let network: AddCustomChainNetworking
+    private let networking: AddCustomChainNetworking
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
     private lazy var getChainId = GetChainId(analytics: analytics)
@@ -66,7 +66,7 @@ public class AddCustomChain {
                 analytics: AnalyticsLogger) {
 
         self.networkService = networkService
-        self.network = AddCustomChainNetworking(networkService: networkService)
+        self.networking = AddCustomChainNetworking(networkService: networkService)
         self.customChain = customChain
         self.isTestnet = isTestnet
         self.restartHandler = restartHandler
@@ -88,9 +88,9 @@ public class AddCustomChain {
                         }
                         return self.requestToUseFailedExplorerHostname(customChain: customChain, chainId: chainId)
                     }
-            }.flatMap { [network] customChain, chainId, rpcUrl -> AnyPublisher<(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType), AddCustomChainError> in
+            }.flatMap { [networking] customChain, chainId, rpcUrl -> AnyPublisher<(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType), AddCustomChainError> in
                 self.customChain = customChain
-                return network.checkExplorerType(customChain)
+                return networking.checkExplorerType(customChain)
                     .map { (chainId: chainId, rpcUrl: rpcUrl, explorerType: $0) }
                     .eraseToAnyPublisher()
             }.flatMap { chainId, rpcUrl, explorerType in
@@ -222,7 +222,7 @@ public class AddCustomChain {
             return .fail(AddCustomChainError.missingBlockchainExplorerUrl)
         }
 
-        return network
+        return networking
             .figureOutHostname(urlString)
             .map { newUrlString in
                 if urlString == newUrlString {
