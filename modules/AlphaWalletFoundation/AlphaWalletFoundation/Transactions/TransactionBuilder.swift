@@ -26,7 +26,7 @@ final class TransactionBuilder {
         self.server = server
     }
 
-    func buildTransaction(from transaction: RawTransaction) -> AnyPublisher<TransactionInstance?, Never> {
+    func buildTransaction(from transaction: NormalTransaction) -> AnyPublisher<TransactionInstance?, Never> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return .just(nil)
         }
@@ -90,7 +90,7 @@ final class TransactionBuilder {
             }.eraseToAnyPublisher()
     }
 
-    private func buildOperationForTokenTransfer(for transaction: RawTransaction) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
+    private func buildOperationForTokenTransfer(for transaction: NormalTransaction) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
         guard let contract = transaction.toAddress else {
             return .just([])
         }
