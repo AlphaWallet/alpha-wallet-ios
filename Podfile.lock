@@ -218,7 +218,7 @@ DEPENDENCIES:
   - AlphaWalletShareExtensionCore (from `.`)
   - AlphaWalletTrackAPICalls (from `.`)
   - AlphaWalletWeb3 (from `.`)
-  - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
+  - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `bdb38b06eeedeb4ca1e32d3ecd81783b5116ae68`)
   - BigInt (~> 3.1)
   - Charts
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
@@ -318,7 +318,7 @@ EXTERNAL SOURCES:
   AlphaWalletWeb3:
     :path: "."
   AlphaWalletWeb3Provider:
-    :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
+    :commit: bdb38b06eeedeb4ca1e32d3ecd81783b5116ae68
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   EthereumABI:
     :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
@@ -347,7 +347,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
-    :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
+    :commit: bdb38b06eeedeb4ca1e32d3ecd81783b5116ae68
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   EthereumABI:
     :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
@@ -441,6 +441,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: 52e67915f8d861ed3ba4eabb0f69fee0990f0a5f
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: ad23d195bb504301a0822c595bca600f109b4f58
+PODFILE CHECKSUM: ba2913918cee4456ab48a2a7a9ddd2a8db74ea79
 
 COCOAPODS: 1.11.3
