@@ -496,7 +496,7 @@ class AppCoordinator: NSObject, Coordinator {
     private func runServices() {
         services = [
             ReportUsersWalletAddresses(keystore: keystore),
-            ReportUsersActiveChains(config: config),
+            ReportUsersActiveChains(serversProvider: serversProvider),
         ]
         services.forEach { $0.perform() }
     }
