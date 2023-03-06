@@ -30,7 +30,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     private let assetDefinitionStore: AssetDefinitionStore
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
-        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, in: ScriptMessageProxy(delegate: self))
+        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
     }()
@@ -295,7 +295,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
 
         let errorMessage = checkPropsNameClashErrorWithCardAttributes()
 
-        notifyTokenScriptFinish(callbackID: id, errorMessage: errorMessage)
+        notifyTokenScriptFinish(callbackId: id, errorMessage: errorMessage)
         guard errorMessage == nil else { return }
 
         for (key, value) in changedProperties {
@@ -342,7 +342,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             switch action {
             case .signPersonalMessage(let message):
                 guard let delegate = self.delegate else {
-                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
+                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
                     return
                 }
 
@@ -353,13 +353,13 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                     source: .tokenScript,
                     requester: nil)
                 .handleEvents(receiveCancel: {
-                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
+                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
                 })
                 .sinkAsync(receiveCompletion: { _ in
-                    self.notifyFinish(callbackID: command.id, value: .failure(JsonRpcError.requestRejected))
+                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
                 }, receiveValue: { value in
                     let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
-                    self.notifyFinish(callbackID: command.id, value: .success(callback))
+                    self.notifyFinish(callbackId: command.id, value: .success(callback))
                 })
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signEip712v3And4, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
@@ -399,24 +399,24 @@ extension TokenInstanceWebView: WKUIDelegate {
 
 //TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
 extension TokenInstanceWebView {
-    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
+    func notifyFinish(callbackId: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         let script: String = {
             switch value {
             case .success(let result):
-                return "executeCallback(\(callbackID), null, \"\(result.value.object)\")"
+                return "executeCallback(\(callbackId), null, \"\(result.value.object)\")"
             case .failure(let error):
-                return "executeCallback(\(callbackID), \"\(error.message)\", null)"
+                return "executeCallback(\(callbackId), \"\(error.message)\", null)"
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    func notifyTokenScriptFinish(callbackID: Int, errorMessage: String?) {
+    func notifyTokenScriptFinish(callbackId: Int, errorMessage: String?) {
         let script: String = {
             if let errorMessage = errorMessage {
-                return "executeTokenScriptCallback(\(callbackID), \"\(errorMessage)\")"
+                return "executeTokenScriptCallback(\(callbackId), \"\(errorMessage)\")"
             } else {
-                return "executeTokenScriptCallback(\(callbackID), null)"
+                return "executeTokenScriptCallback(\(callbackId), null)"
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
