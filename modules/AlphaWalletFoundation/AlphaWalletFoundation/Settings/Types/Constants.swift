@@ -10,7 +10,6 @@ public struct Constants {
     static let legacyMagicLinkHost = "app.awallet.io"
     static let classicMagicLinkHost = "classic.aw.app"
     static let callistoMagicLinkHost = "callisto.aw.app"
-    static let poaMagicLinkHost = "poa.aw.app"
     static let xDaiMagicLinkHost = "xdai.aw.app"
     static let goerliMagicLinkHost = "goerli.aw.app"
     static let artisSigma1MagicLinkHost = "artis_sigma1.aw.app"

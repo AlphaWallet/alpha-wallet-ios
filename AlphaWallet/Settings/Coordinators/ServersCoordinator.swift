@@ -17,7 +17,6 @@ class ServersCoordinator: Coordinator {
             .xDai,
             .polygon,
             .classic,
-            .poa,
             .goerli,
             .binance_smart_chain,
             .binance_smart_chain_testnet,
