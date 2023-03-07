@@ -76,7 +76,11 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     }()
 
     private lazy var videoPlayerView: AVPlayerView = {
-        let view = AVPlayerView(edgeInsets: .zero, playButtonPositioning: playButtonPositioning, viewModel: viewModel.avPlayerViewModel)
+        let view = AVPlayerView(
+            edgeInsets: .zero,
+            playButtonPositioning: playButtonPositioning,
+            viewModel: viewModel.avPlayerViewModel)
+        
         view.translatesAutoresizingMaskIntoConstraints = false
 
         return view
@@ -89,6 +93,8 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     var rounding: ViewRounding = .none {
         didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding; }
     }
+
+    @Published var loading: ViewLoading = .enabled
     
     var contentBackgroundColor: UIColor? {
         didSet { imageView.backgroundColor = contentBackgroundColor; }
@@ -147,7 +153,9 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     }
 
     private func bind(viewModel: WebImageViewModel) {
-        let input = WebImageViewModelInput(loadUrl: setContentSubject.eraseToAnyPublisher())
+        let input = WebImageViewModelInput(
+            loadUrl: setContentSubject.eraseToAnyPublisher(),
+            viewLoading: $loading.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState
@@ -157,6 +165,12 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         output.isPlaceholderHiddenWhenVideoLoaded
             .assign(to: \.isHidden, on: placeholderImageView)
             .store(in: &cancellable)
+
+        output.loadingViewAlpha
+            .sink { [weak loadingIndicator, weak videoPlayerView] in
+                loadingIndicator?.alpha = $0
+                videoPlayerView?.loadingIndicator.alpha = $0
+            }.store(in: &cancellable)
     }
 
     private func reload(viewState: WebImageViewModel.ViewState) {

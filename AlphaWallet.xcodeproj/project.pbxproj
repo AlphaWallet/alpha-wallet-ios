@@ -787,6 +787,7 @@
 		87E2555624F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */; };
 		87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */; };
 		87E4D65328B645E600E1A17E /* SelectServiceToSwapCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E4D65228B645E600E1A17E /* SelectServiceToSwapCoordinator.swift */; };
+		87E5457B29B6618700C6CB58 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E5457A29B6618700C6CB58 /* ImageView.swift */; };
 		87E960DD28868D3600218E7E /* TickerIdsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */; };
 		87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
@@ -1673,6 +1674,7 @@
 		87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderViewModel.swift; sourceTree = "<group>"; };
 		87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		87E4D65228B645E600E1A17E /* SelectServiceToSwapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectServiceToSwapCoordinator.swift; sourceTree = "<group>"; };
+		87E5457A29B6618700C6CB58 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerIdsFetcherTests.swift; sourceTree = "<group>"; };
 		87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenCoordinator.swift; sourceTree = "<group>"; };
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
@@ -2964,6 +2966,7 @@
 				87AA49DF29ACE910007C5D63 /* EditableSelectAssetAmountView.swift */,
 				87AA49E529ACEF89007C5D63 /* EnterAssetAmountView.swift */,
 				878D2559298A6FD200C0CF5E /* AVPlayerView.swift */,
+				87E5457A29B6618700C6CB58 /* ImageView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5380,6 +5383,7 @@
 				5E7C749B7C5CBC729B7E256F /* OpenSeaNonFungibleTokenTraitCell.swift in Sources */,
 				5E7C773E3E3BBEB65C51DF2A /* UIStackView.swift in Sources */,
 				5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */,
+				87E5457B29B6618700C6CB58 /* ImageView.swift in Sources */,
 				873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */,
 				875CA90528BE49680020FA48 /* ActivitiesViewModel.swift in Sources */,
 				87CA8495253DDFF200BF8443 /* TransitionButton.swift in Sources */,

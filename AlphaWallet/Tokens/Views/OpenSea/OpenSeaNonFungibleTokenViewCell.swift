@@ -12,6 +12,7 @@ class OpenSeaNonFungibleTokenView: UIView {
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isSymbolLabelHidden = true
+        imageView.loading = .disabled
         
         return imageView
     }()

@@ -31,11 +31,13 @@ class App {
 
 struct WebImageViewModelInput {
     let loadUrl: AnyPublisher<WebImageViewModel.SetContentEvent, Never>
+    let viewLoading: AnyPublisher<ViewLoading, Never>
 }
 
 struct WebImageViewModelOutput {
     let viewState: AnyPublisher<WebImageViewModel.ViewState, Never>
     let isPlaceholderHiddenWhenVideoLoaded: AnyPublisher<Bool, Never>
+    let loadingViewAlpha: AnyPublisher<CGFloat, Never>
 }
 
 class WebImageViewModel {
@@ -94,7 +96,13 @@ class WebImageViewModel {
             }
         }.eraseToAnyPublisher()
 
-        return .init(viewState: viewState, isPlaceholderHiddenWhenVideoLoaded: isPlaceholderHiddenWhenVideoLoaded)
+        let loadingViewAlpha = input.viewLoading
+            .map { $0 == .enabled ? CGFloat(1) : CGFloat(0) }
+
+        return .init(
+            viewState: viewState,
+            isPlaceholderHiddenWhenVideoLoaded: isPlaceholderHiddenWhenVideoLoaded,
+            loadingViewAlpha: loadingViewAlpha.eraseToAnyPublisher())
     }
 }
 

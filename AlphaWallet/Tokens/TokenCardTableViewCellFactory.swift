@@ -36,20 +36,48 @@ final class TokenCardViewFactory {
         self.wallet = wallet
     }
 
-    func createPreview(of type: NFTPreviewViewType, session: WalletSession, edgeInsets: UIEdgeInsets = .zero, playButtonPositioning: AVPlayerView.PlayButtonPositioning) -> NFTPreviewViewRepresentable {
-        return NFTPreviewView(type: type, session: session, assetDefinitionStore: assetDefinitionStore, edgeInsets: edgeInsets, playButtonPositioning: playButtonPositioning)
+    func createPreview(of type: NFTPreviewViewType,
+                       session: WalletSession,
+                       edgeInsets: UIEdgeInsets = .zero,
+                       playButtonPositioning: AVPlayerView.PlayButtonPositioning) -> NFTPreviewViewRepresentable {
+
+        return NFTPreviewView(
+            type: type,
+            session: session,
+            assetDefinitionStore: assetDefinitionStore,
+            edgeInsets: edgeInsets,
+            playButtonPositioning: playButtonPositioning)
     }
 
-    func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListLayout, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
+    func createTokenCardView(for tokenHolder: TokenHolder,
+                             layout: GridOrListLayout,
+                             gridEdgeInsets: UIEdgeInsets = .zero,
+                             listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
+
         var rowView: TokenCardViewRepresentable
 
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(
+            token: token,
+            assetDefinitionStore: assetDefinitionStore,
+            tokenViewType: .viewIconified)
 
         switch tokenHolder.tokenType {
         case .erc875, .erc721ForTickets:
-            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets, tokenImageFetcher: tokenImageFetcher)
+            rowView = Erc875NonFungibleRowView(
+                token: token,
+                tokenType: tokenType,
+                assetDefinitionStore: assetDefinitionStore,
+                wallet: wallet,
+                layout: layout,
+                gridEdgeInsets: gridEdgeInsets,
+                listEdgeInsets: listEdgeInsets,
+                tokenImageFetcher: tokenImageFetcher)
+
         case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
-            rowView = NonFungibleRowView(layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
+            rowView = NonFungibleRowView(
+                layout: layout,
+                gridEdgeInsets: gridEdgeInsets,
+                listEdgeInsets: listEdgeInsets)
         } 
 
         return rowView

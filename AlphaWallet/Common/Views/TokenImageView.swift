@@ -4,46 +4,7 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-class ImageView: UIImageView {
-    private let subject: PassthroughSubject<ImagePublisher, Never> = .init()
-    private var cancellable = Set<AnyCancellable>()
-
-    var hideWhenImageIsNil: Bool = false
-
-    init() {
-        super.init(frame: .zero)
-
-        subject.flatMapLatest { $0 }
-            .sink { [weak self] image in
-                self?.image = image
-                if self?.hideWhenImageIsNil ?? false {
-                    self?.isHidden = self?.hideWhenImageIsNil ?? false
-                }
-            }.store(in: &cancellable)
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        subject.flatMapLatest { $0 }
-            .sink { [weak self] image in
-                self?.image = image
-                if self?.hideWhenImageIsNil ?? false {
-                    self?.isHidden = self?.hideWhenImageIsNil ?? false
-                }
-            }.store(in: &cancellable)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func set(imageSource: ImagePublisher) {
-        subject.send(imageSource)
-    }
-}
-
-final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
+final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupportable {
 
     private let playButtonPositioning: AVPlayerView.PlayButtonPositioning
     private let symbolLabel: ResponsiveLabel = {
@@ -81,6 +42,10 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
 
     var rounding: ViewRounding = .circle {
         didSet { imageView.rounding = rounding }
+    }
+
+    var loading: ViewLoading = .enabled {
+        didSet { imageView.loading = loading }
     }
 
     override var contentMode: UIView.ContentMode {
