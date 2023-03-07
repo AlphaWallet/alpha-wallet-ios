@@ -62,7 +62,7 @@ class NewTokenViewController: UIViewController {
         return textField
     }()
     private lazy var symbolTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.inputAccessoryButtonType = .next
         textField.returnKeyType = .next
         textField.delegate = self
@@ -70,7 +70,7 @@ class NewTokenViewController: UIViewController {
         return textField
     }()
     private lazy var decimalsTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.inputAccessoryButtonType = .next
         textField.keyboardType = .decimalPad
         textField.returnKeyType = .next
@@ -79,7 +79,7 @@ class NewTokenViewController: UIViewController {
         return textField
     }()
     private lazy var balanceTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.inputAccessoryButtonType = .next
         textField.keyboardType = .numbersAndPunctuation
         textField.delegate = self
@@ -87,7 +87,7 @@ class NewTokenViewController: UIViewController {
         return textField
     }()
     private lazy var nameTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.inputAccessoryButtonType = .done
         textField.returnKeyType = .done
         textField.delegate = self

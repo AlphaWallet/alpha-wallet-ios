@@ -16,7 +16,7 @@ protocol ChangeCurrencyViewControllerDelegate: AnyObject {
 
 class ChangeCurrencyViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.delegate = self
         tableView.separatorInset = .zero
         tableView.register(CurrencyTableViewCell.self)

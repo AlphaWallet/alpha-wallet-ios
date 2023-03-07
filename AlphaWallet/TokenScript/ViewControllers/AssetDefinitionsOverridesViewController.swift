@@ -12,7 +12,7 @@ protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
 
 class AssetDefinitionsOverridesViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(AssetDefinitionsOverridesViewCell.self)
         tableView.delegate = self
 

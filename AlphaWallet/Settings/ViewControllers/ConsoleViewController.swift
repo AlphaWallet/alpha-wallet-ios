@@ -12,7 +12,7 @@ protocol ConsoleViewControllerDelegate: AnyObject {
 
 class ConsoleViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(UITableViewCell.self)
         tableView.delegate = self
 

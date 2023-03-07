@@ -9,7 +9,7 @@ protocol LocalesViewControllerDelegate: AnyObject {
 
 class LocalesViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.delegate = self
         tableView.register(LocaleViewCell.self)
 

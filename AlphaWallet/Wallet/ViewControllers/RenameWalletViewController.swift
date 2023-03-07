@@ -17,7 +17,7 @@ class RenameWalletViewController: UIViewController {
     private let viewModel: RenameWalletViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var nameTextField: TextField = {
-        let textField: TextField = .textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.returnKeyType = .done
         textField.inputAccessoryButtonType = .done

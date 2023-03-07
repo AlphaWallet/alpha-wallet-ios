@@ -10,7 +10,7 @@ protocol ServersViewControllerDelegate: AnyObject {
 
 class ServersViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.delegate = self
         tableView.dataSource = self

@@ -32,7 +32,7 @@ class SlidableTextField: UIView {
     }()
 
     lazy var textField: TextField = {
-        let textField: TextField = .textField
+        let textField = TextField.buildTextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .numberPad
         textField.delegate = self

@@ -18,7 +18,7 @@ class SelectTokenViewController: UIViewController {
     private let viewModel: SelectTokenViewModel
     private var cancellable = Set<AnyCancellable>()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)

@@ -16,7 +16,7 @@ protocol NFTAssetListViewControllerDelegate: AnyObject {
 
 class NFTAssetListViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(ContainerTableViewCell.self)
         tableView.estimatedRowHeight = 100
         tableView.delegate = self

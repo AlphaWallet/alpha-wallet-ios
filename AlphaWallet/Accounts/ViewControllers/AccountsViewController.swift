@@ -23,7 +23,7 @@ class AccountsViewController: UIViewController {
 
     private lazy var dataSource = makeDataSource()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
         tableView.register(WalletSummaryTableViewCell.self)

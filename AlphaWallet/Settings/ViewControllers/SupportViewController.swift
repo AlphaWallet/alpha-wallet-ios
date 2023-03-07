@@ -22,7 +22,7 @@ class SupportViewController: UIViewController {
     private let viewModel: SupportViewModel
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SettingTableViewCell.self)
         tableView.delegate = self
         

@@ -19,7 +19,7 @@ class PriceAlertsViewController: UIViewController {
     private let viewModel: PriceAlertsViewModel
     private lazy var dataSource = makeDataSource()
     private lazy var tableView: UITableView = {
-        var tableView = UITableView.grouped
+        var tableView = UITableView.buildGroupedTableView()
         tableView.register(PriceAlertTableViewCell.self)
         tableView.delegate = self
 

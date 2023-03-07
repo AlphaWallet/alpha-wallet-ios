@@ -11,7 +11,7 @@ import Combine
 final class EditableSlippageView: UIControl {
 
     private lazy var textField: TextField = {
-        let textField: TextField = .roundedTextField
+        let textField = TextField.buildRoundedTextField()
         textField.keyboardType = .decimalPad
         textField.textField.textAlignment = .center
         textField.inputAccessoryButtonType = .done

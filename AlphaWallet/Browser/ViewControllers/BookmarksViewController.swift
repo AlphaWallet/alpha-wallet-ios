@@ -16,7 +16,7 @@ protocol BookmarksViewControllerDelegate: AnyObject {
 
 final class BookmarksViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(MyDappCell.self)
         tableView.tableHeaderView = headerView
         tableView.separatorStyle = .none

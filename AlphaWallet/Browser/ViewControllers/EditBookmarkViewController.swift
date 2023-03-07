@@ -27,7 +27,7 @@ class EditBookmarkViewController: UIViewController {
     }()
     private lazy var imageHolder = ContainerViewWithShadow(aroundView: iconImageView)
     private lazy var titleTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.label.text = viewModel.titleText
         textField.returnKeyType = .next
@@ -36,7 +36,7 @@ class EditBookmarkViewController: UIViewController {
         return textField
     }()
     private lazy var urlTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.label.text = viewModel.urlText
         textField.returnKeyType = .done
