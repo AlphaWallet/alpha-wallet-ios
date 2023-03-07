@@ -89,7 +89,7 @@ class ConfigureTransactionViewController: UIViewController {
         NSLayoutConstraint.activate([
             containerView.anchorsIgnoringBottomSafeArea(to: view)
         ])
-        
+
         handleRecovery()
         generateViews(viewModel: viewModel)
     }
@@ -240,7 +240,7 @@ class ConfigureTransactionViewController: UIViewController {
             warningIcon.widthAnchor.constraint(equalToConstant: 24),
             warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
 
-            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50) 
+            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50)
         ])
 
         return background
@@ -416,7 +416,7 @@ extension ConfigureTransactionViewController {
         }
 
         typealias ContainerView = TokensViewController.ContainerView<UIView>
-        
+
         for indexPath in viewModel.indexPaths {
             switch viewModel.sections[indexPath.section] {
             case .configurations:
@@ -510,4 +510,4 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
 
         return true
     }
-} 
+}
