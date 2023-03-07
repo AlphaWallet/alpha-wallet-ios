@@ -26,7 +26,7 @@ extension RPCServer {
         case .binance_smart_chain_testnet: return R.string.localizable.blockchainBinanceTest()
         case .heco: return R.string.localizable.blockchainHeco()
         case .heco_testnet: return R.string.localizable.blockchainHecoTest()
-        case .main, .callisto, .classic, .poa, .goerli: return R.string.localizable.blockchainEthereum()
+        case .main, .callisto, .classic, .goerli: return R.string.localizable.blockchainEthereum()
         case .fantom: return R.string.localizable.blockchainFantom()
         case .fantom_testnet: return R.string.localizable.blockchainFantomTest()
         case .avalanche: return R.string.localizable.blockchainAvalanche()
@@ -53,7 +53,6 @@ extension RPCServer {
         switch self {
         case .main: return R.image.eth()
         case .xDai: return R.image.xDai()
-        case .poa: return R.image.tokenPoa()
         case .classic: return R.image.tokenEtc()
         case .callisto: return R.image.tokenCallisto()
         case .artis_sigma1: return R.image.tokenArtis()
@@ -83,7 +82,6 @@ extension RPCServer {
         case .main: return Configuration.Color.Semantic.blockChainMain
         case .classic: return Configuration.Color.Semantic.blockChainClassic
         case .callisto: return Configuration.Color.Semantic.blockChainCallisto
-        case .poa: return Configuration.Color.Semantic.blockChainPoa
         case .goerli: return Configuration.Color.Semantic.blockChainGoerli
         case .xDai: return Configuration.Color.Semantic.blockChainXDai
         case .artis_sigma1: return Configuration.Color.Semantic.blockChainArtisSigma1
@@ -115,7 +113,6 @@ extension RPCServer {
         switch self {
         case .main: return R.image.iconsNetworkEth()
         case .xDai: return R.image.iconsNetworkXdai()
-        case .poa: return R.image.iconsNetworkPoa()
         case .classic: return nil
         case .callisto: return R.image.iconsNetworkCallisto()
         case .artis_sigma1: return nil
