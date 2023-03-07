@@ -22,7 +22,7 @@ class EnterKeystorePasswordViewController: UIViewController {
     }()
 
     private lazy var passwordTextField: TextField = {
-        let textField = TextField.password
+        let textField = TextField.buildPasswordTextField()
         textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
         textField.inputAccessoryButtonType = .done
         textField.delegate = self

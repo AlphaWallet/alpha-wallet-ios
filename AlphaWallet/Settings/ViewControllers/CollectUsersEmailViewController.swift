@@ -43,7 +43,7 @@ class CollectUsersEmailViewController: ModalViewController {
     }()
 
     private lazy var textField: TextField = {
-        let textField: TextField = .textField
+        let textField = TextField.buildTextField()
         textField.keyboardType = .emailAddress
         textField.returnKeyType = .done
         textField.delegate = self

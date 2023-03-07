@@ -19,7 +19,7 @@ class ActivitiesView: UIView {
     private var viewModel: ActivitiesViewModel
     private let sessionsProvider: SessionsProvider
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(ActivityViewCell.self)
         tableView.register(DefaultActivityItemViewCell.self)
         tableView.register(TransactionTableViewCell.self)

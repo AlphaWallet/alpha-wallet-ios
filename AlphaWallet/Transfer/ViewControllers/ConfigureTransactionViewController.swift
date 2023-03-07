@@ -20,7 +20,7 @@ class ConfigureTransactionViewController: UIViewController {
     }()
 
     private lazy var nonceTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.keyboardType = .decimalPad
 
@@ -28,7 +28,7 @@ class ConfigureTransactionViewController: UIViewController {
     }()
 
     private lazy var totalFeeTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.inputAccessoryButtonType = .none
         textField.keyboardType = .decimalPad
@@ -37,7 +37,7 @@ class ConfigureTransactionViewController: UIViewController {
     }()
 
     private lazy var dataTextField: TextField = {
-        let textField = TextField.textField
+        let textField = TextField.buildTextField()
         textField.delegate = self
         textField.inputAccessoryButtonType = .done
         textField.keyboardType = .decimalPad

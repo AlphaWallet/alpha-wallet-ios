@@ -25,7 +25,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
 class AdvancedSettingsViewController: UIViewController {
     private let viewModel: AdvancedSettingsViewModel
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SettingTableViewCell.self)
         tableView.delegate = self
 

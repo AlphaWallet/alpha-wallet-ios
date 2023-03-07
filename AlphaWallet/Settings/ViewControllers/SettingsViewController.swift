@@ -21,7 +21,7 @@ protocol SettingsViewControllerDelegate: AnyObject, CanOpenURL {
 class SettingsViewController: UIViewController {
     private let promptBackupWalletViewHolder = UIView()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SettingTableViewCell.self)
         tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine

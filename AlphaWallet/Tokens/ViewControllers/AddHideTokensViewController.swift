@@ -16,7 +16,7 @@ class AddHideTokensViewController: UIViewController {
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
         tableView.registerHeaderFooterView(TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>>.self)

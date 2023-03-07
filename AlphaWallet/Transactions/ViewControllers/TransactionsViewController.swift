@@ -12,7 +12,7 @@ protocol TransactionsViewControllerDelegate: AnyObject {
 class TransactionsViewController: UIViewController {
     private let viewModel: TransactionsViewModel
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(TransactionTableViewCell.self)
         tableView.registerHeaderFooterView(TransactionSectionHeaderView.self)
         tableView.delegate = self

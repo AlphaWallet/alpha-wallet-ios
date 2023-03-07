@@ -14,7 +14,7 @@ final class SelectSwapToolViewController: UIViewController {
     private let viewModel: SelectSwapToolViewModel
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SelectableSwapToolTableViewCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero

@@ -11,7 +11,7 @@ protocol EnabledServersViewControllerDelegate: AnyObject {
 class EnabledServersViewController: UIViewController {
     private let headers = (mainnet: EnableServersHeaderView(), testnet: EnableServersHeaderView())
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.plain
+        let tableView = UITableView.buildPlainTableView()
         tableView.delegate = self
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.dataSource = self

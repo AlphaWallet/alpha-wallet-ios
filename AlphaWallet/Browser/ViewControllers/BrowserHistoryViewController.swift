@@ -15,7 +15,7 @@ protocol BrowserHistoryViewControllerDelegate: AnyObject {
 
 final class BrowserHistoryViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.delegate = self
         tableView.tableHeaderView = headerView
         tableView.separatorStyle = .none

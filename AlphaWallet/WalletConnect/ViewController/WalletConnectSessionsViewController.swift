@@ -16,7 +16,7 @@ protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
 class WalletConnectSessionsViewController: UIViewController {
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(WalletConnectSessionCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero

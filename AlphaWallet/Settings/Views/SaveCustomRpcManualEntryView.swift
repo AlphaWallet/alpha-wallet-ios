@@ -21,7 +21,7 @@ class SaveCustomRpcManualEntryView: UIView {
     private let scrollView = UIScrollView()
 
     var chainNameTextField: TextField = {
-        let textField = TextField.textField(
+        let textField = TextField.buildTextField(
             keyboardType: .default,
             placeHolder: R.string.localizable.addrpcServerNetworkNameTitle(),
             label: R.string.localizable.addrpcServerNetworkNameTitle())
@@ -29,7 +29,7 @@ class SaveCustomRpcManualEntryView: UIView {
     }()
 
     var rpcEndPointTextField: TextField = {
-        let textField = TextField.textField(
+        let textField = TextField.buildTextField(
             keyboardType: .URL,
             placeHolder: R.string.localizable.addrpcServerRpcUrlPlaceholder(),
             label: R.string.localizable.addrpcServerRpcUrlTitle())
@@ -37,7 +37,7 @@ class SaveCustomRpcManualEntryView: UIView {
     }()
 
     var chainIDTextField: TextField = {
-        let textField = TextField.textField(
+        let textField = TextField.buildTextField(
             keyboardType: .numberPad,
             placeHolder: R.string.localizable.chainID(),
             label: R.string.localizable.chainID())
@@ -45,7 +45,7 @@ class SaveCustomRpcManualEntryView: UIView {
     }()
 
     var symbolTextField: TextField = {
-        let textField = TextField.textField(
+        let textField = TextField.buildTextField(
             keyboardType: .default,
             placeHolder: R.string.localizable.symbol(),
             label: R.string.localizable.symbol())
@@ -53,7 +53,7 @@ class SaveCustomRpcManualEntryView: UIView {
     }()
 
     var explorerEndpointTextField: TextField = {
-        let textField = TextField.textField(
+        let textField = TextField.buildTextField(
             keyboardType: .URL,
             placeHolder: R.string.localizable.addrpcServerBlockExplorerUrlPlaceholder(),
             label: R.string.localizable.addrpcServerBlockExplorerUrlTitle())

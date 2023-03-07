@@ -23,7 +23,7 @@ class NFTAssetSelectionViewController: UIViewController {
 
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SelectableAssetTableViewCell.self)
         tableView.registerHeaderFooterView(NFTAssetSelectionSectionHeaderView.self)
         tableView.estimatedRowHeight = 100

@@ -14,7 +14,7 @@ final class SelectSwapRouteViewController: UIViewController {
     private let viewModel: SelectSwapRouteViewModel
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SelectableSwapRouteTableViewCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero

@@ -67,7 +67,7 @@ class ImportWalletViewController: UIViewController {
     }()
 
     private lazy var passwordTextField: TextField = {
-        let textField: TextField = .password
+        let textField = TextField.buildPasswordTextField()
         textField.delegate = self
         textField.returnKeyType = .done
         textField.inputAccessoryButtonType = .done

@@ -12,7 +12,7 @@ protocol ToolsViewControllerDelegate: AnyObject {
 class ToolsViewController: UIViewController {
     private let viewModel: ToolsViewModel
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = UITableView.buildGroupedTableView()
         tableView.register(SettingTableViewCell.self)
         tableView.dataSource = self
         tableView.delegate = self

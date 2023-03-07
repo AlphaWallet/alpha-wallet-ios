@@ -16,7 +16,7 @@ import Combine
 class ExportJsonKeystorePasswordViewController: UIViewController {
     private let viewModel: ExportJsonKeystorePasswordViewModel
     private lazy var passwordTextField: TextField = {
-        let textField = TextField.password
+        let textField = TextField.buildPasswordTextField()
         textField.delegate = self
         textField.inputAccessoryButtonType = .done
         textField.label.text = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordLabel()
