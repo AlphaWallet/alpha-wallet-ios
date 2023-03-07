@@ -19,7 +19,13 @@ class ActivityViewController: UIViewController {
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let tokenImageView = TokenImageView()
+    private let tokenImageView: TokenImageView = {
+        let imageView = TokenImageView()
+        imageView.contentMode = .scaleAspectFit
+
+        return imageView
+    }()
+
     private let stateView = ActivityStateView()
     private let titleLabel = UILabel()
     private let subTitleLabel = UILabel()
@@ -69,7 +75,6 @@ class ActivityViewController: UIViewController {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        tokenImageView.contentMode = .scaleAspectFit
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
         tokenImageView.addGestureRecognizer(tap)
 

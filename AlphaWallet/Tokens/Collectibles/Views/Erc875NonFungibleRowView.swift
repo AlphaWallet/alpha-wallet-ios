@@ -34,7 +34,8 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         imageView.rounding = .none
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFit
-
+        imageView.loading = .disabled
+        
         return imageView
     }()
 

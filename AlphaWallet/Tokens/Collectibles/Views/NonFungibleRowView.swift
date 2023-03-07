@@ -23,7 +23,8 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         imageView.rounding = .none
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFill
-
+        imageView.loading = .disabled
+        
         return imageView
     }()
 

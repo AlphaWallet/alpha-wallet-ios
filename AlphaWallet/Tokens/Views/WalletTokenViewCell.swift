@@ -18,6 +18,8 @@ class WalletTokenViewCell: UITableViewCell {
     private var tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.loading = .disabled
+        
         return imageView
     }()
 

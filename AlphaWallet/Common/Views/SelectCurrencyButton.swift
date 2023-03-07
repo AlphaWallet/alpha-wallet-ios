@@ -37,7 +37,8 @@ class SelectCurrencyButton: UIControl {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.setContentHuggingPriority(.required, for: .horizontal)
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
-
+        imageView.loading = .disabled
+        
         return imageView
     }()
 
