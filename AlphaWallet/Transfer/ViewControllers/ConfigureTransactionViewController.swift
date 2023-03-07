@@ -350,6 +350,16 @@ class ConfigureTransactionViewController: UIViewController {
         lastSavedConfiguration = newConfiguration
         return newConfiguration
     }
+
+    private func moveFocusToNextTextField(afterTextField textField: UIView) {
+        if textField == gasPriceTextField {
+            gasLimitTextField.becomeFirstResponder()
+        } else if textField == gasLimitTextField {
+            nonceTextField.becomeFirstResponder()
+        } else if textField == nonceTextField {
+            dataTextField.becomeFirstResponder()
+        }
+    }
 }
 
 extension ConfigureTransactionViewController: SlidableTextFieldDelegate {
@@ -362,14 +372,7 @@ extension ConfigureTransactionViewController: SlidableTextFieldDelegate {
     }
 
     func nextButtonTapped(for textField: SlidableTextField) {
-        switch textField {
-        case gasPriceTextField:
-            gasLimitTextField.becomeFirstResponder()
-        case gasLimitTextField:
-            nonceTextField.becomeFirstResponder()
-        default:
-            break
-        }
+        moveFocusToNextTextField(afterTextField: textField)
     }
 
     func textField(_ textField: SlidableTextField, textDidChange value: Int) {
@@ -490,13 +493,7 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
     }
 
     func nextButtonTapped(for textField: TextField) {
-        if textField == gasPriceTextField {
-            gasLimitTextField.becomeFirstResponder()
-        } else if textField == gasLimitTextField {
-            nonceTextField.becomeFirstResponder()
-        } else if textField == nonceTextField {
-            dataTextField.becomeFirstResponder()
-        }
+        moveFocusToNextTextField(afterTextField: textField)
     }
 
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
