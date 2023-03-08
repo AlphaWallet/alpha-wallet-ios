@@ -4,7 +4,8 @@ import Foundation
 
 enum TransactionsSource {
     case etherscan
-    case covalent
+    case covalent(apiKey: String?)
+    case oklink(apiKey: String?)
 }
 
 public protocol SingleChainTransactionProvider: AnyObject {

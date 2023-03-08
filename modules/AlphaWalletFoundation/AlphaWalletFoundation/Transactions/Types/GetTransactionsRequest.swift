@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GetTransactions: URLRequestConvertible {
+public struct GetTransactions: URLRequestConvertible {
     struct NoBlockchainExplorerApi: Error {
     }
 
@@ -22,7 +22,7 @@ struct GetTransactions: URLRequestConvertible {
         case desc
     }
 
-    func asURLRequest() throws -> URLRequest {
+    public func asURLRequest() throws -> URLRequest {
         guard let url = server.transactionInfoEndpoints else { throw NoBlockchainExplorerApi() }
 
         var parameters: [String: Any] = [

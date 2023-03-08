@@ -205,6 +205,7 @@ public class Erc1155TokenIdsFetcher {
         guard let (fromBlockNumber, toBlockNumber) = Erc1155TokenIdsFetcher.functional.makeBlockRangeForEvents(
             toBlockNumber: UInt64(currentBlockNumber),
             maximumWindow: maximumBlockRangeWindow,
+            server: server,
             excludingRanges: tokenIds.blockNumbersProcessed) else {
             return .fail(Erc1155TokenIdsFetcherError.fromAndToBlockNumberNotFound)
         }
@@ -215,7 +216,7 @@ public class Erc1155TokenIdsFetcher {
     private func fetchTokenIdsByCatchingUpOlderEvents(tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
         let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        if let range = Erc1155TokenIdsFetcher.functional.makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
+        if let range = Erc1155TokenIdsFetcher.functional.makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, server: server, excludingRanges: tokenIds.blockNumbersProcessed) {
             let (fromBlockNumber, toBlockNumber) = range
             return fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
         } else {
@@ -373,7 +374,7 @@ extension Erc1155TokenIdsFetcher.functional {
         }
     }
 
-    static func makeBlockRangeForEvents(toBlockNumber to: UInt64, maximumWindow: UInt64?, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64)? {
+    static func makeBlockRangeForEvents(toBlockNumber to: UInt64, maximumWindow: UInt64?, server: RPCServer = .main, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64)? {
         if let range = excludingRanges.last {
             if range.upperBound == to {
                 return (to, to)
@@ -395,12 +396,12 @@ extension Erc1155TokenIdsFetcher.functional {
         if let maximumWindow = maximumWindow, to >= maximumWindow {
             return (to - maximumWindow + 1, to)
         } else {
-            return (0, to)
+            return (server.startBlock, to)
         }
     }
 
     //When we say "older events", we only look at the events processed and not the latest block in the blockchain
-    static func makeBlockRangeToCatchUpForOlderEvents(maximumWindow: UInt64?, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64)? {
+    static func makeBlockRangeToCatchUpForOlderEvents(maximumWindow: UInt64?, server: RPCServer = .main, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64)? {
         if let range = excludingRanges.last {
             guard range.lowerBound != 0 else { return nil }
 
@@ -411,7 +412,7 @@ extension Erc1155TokenIdsFetcher.functional {
                     let range = excludingRanges[i]
                     return range.upperBound
                 } else {
-                    return 0
+                    return server.startBlock
                 }
             }()
             if let maximumWindow = maximumWindow, to >= maximumWindow {

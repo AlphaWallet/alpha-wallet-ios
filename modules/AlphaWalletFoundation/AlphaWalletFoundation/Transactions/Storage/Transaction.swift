@@ -129,23 +129,22 @@ public struct TransactionInstance: Equatable, Hashable {
     public var isERC20Interaction: Bool
     public var localizedOperations: [LocalizedOperationObjectInstance]
 
-    public init(
-        id: String,
-        server: RPCServer,
-        blockNumber: Int,
-        transactionIndex: Int,
-        from: String,
-        to: String,
-        value: String,
-        gas: String,
-        gasPrice: String,
-        gasUsed: String,
-        nonce: String,
-        date: Date,
-        localizedOperations: [LocalizedOperationObjectInstance],
-        state: TransactionState,
-        isErc20Interaction: Bool
-    ) {
+    public init(id: String,
+                server: RPCServer,
+                blockNumber: Int,
+                transactionIndex: Int,
+                from: String,
+                to: String,
+                value: String,
+                gas: String,
+                gasPrice: String,
+                gasUsed: String,
+                nonce: String,
+                date: Date,
+                localizedOperations: [LocalizedOperationObjectInstance],
+                state: TransactionState,
+                isErc20Interaction: Bool) {
+        
         self.primaryKey = Transaction.generatePrimaryKey(for: id, server: server)
         self.id = id
         self.chainId = server.chainID

@@ -66,17 +66,17 @@ public class TransactionsService {
     }
 
     private func setupSingleChainTransactionProviders() {
-        providers = sessionsProvider.activeSessions.values.map { each in
+        providers = sessionsProvider.activeSessions.values.map { session in
             let ercTokenDetector = ErcTokenDetector(
                 tokensService: tokensService,
-                server: each.server,
-                ercProvider: each.tokenProvider,
+                server: session.server,
+                ercProvider: session.tokenProvider,
                 assetDefinitionStore: assetDefinitionStore)
 
-            switch each.server.transactionsSource {
+            switch session.server.transactionsSource {
             case .etherscan:
                 let provider = EtherscanSingleChainTransactionProvider(
-                    session: each,
+                    session: session,
                     analytics: analytics,
                     transactionDataStore: transactionDataStore,
                     tokensService: tokensService,
@@ -85,14 +85,43 @@ public class TransactionsService {
                     networkService: networkService)
 
                 return provider
-            case .covalent:
-                let provider = CovalentSingleChainTransactionProvider(
-                    session: each,
+            case .covalent(let apiKey):
+                let transporter = BaseApiTransporter()
+                let networking = CovalentApiNetworking(
+                    server: session.server,
+                    apiKey: apiKey,
+                    transporter: transporter)
+
+                let provider = TransactionProvider(
+                    session: session,
                     analytics: analytics,
                     transactionDataStore: transactionDataStore,
-                    fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
                     ercTokenDetector: ercTokenDetector,
-                    networkService: networkService)
+                    networking: networking,
+                    defaultPagination: session.server.defaultTransactionsPagination)
+
+                return provider
+            case .oklink(let apiKey):
+                let transporter = BaseApiTransporter()
+                let transactionBuilder = TransactionBuilder(
+                    tokensService: tokensService,
+                    server: session.server,
+                    tokenProvider: session.tokenProvider)
+
+                let networking = OklinkApiNetworking(
+                    server: session.server,
+                    apiKey: apiKey,
+                    transporter: transporter,
+                    ercTokenProvider: session.tokenProvider,
+                    transactionBuilder: transactionBuilder)
+
+                let provider = TransactionProvider(
+                    session: session,
+                    analytics: analytics,
+                    transactionDataStore: transactionDataStore,
+                    ercTokenDetector: ercTokenDetector,
+                    networking: networking,
+                    defaultPagination: session.server.defaultTransactionsPagination)
 
                 return provider
             }
@@ -149,6 +178,19 @@ public class TransactionsService {
     public func stop() {
         for each in providers {
             each.stop()
+        }
+    }
+}
+
+extension RPCServer {
+    var defaultTransactionsPagination: TransactionsPagination {
+        switch transactionsSource {
+        case .etherscan:
+            return .init(page: 0, lastFetched: [], limit: 200)
+        case .covalent:
+            return .init(page: 0, lastFetched: [], limit: 500)
+        case .oklink:
+            return .init(page: 0, lastFetched: [], limit: 50)
         }
     }
 }

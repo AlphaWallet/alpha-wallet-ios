@@ -105,6 +105,7 @@ struct Configuration {
             static let blockChainOptimismGoerli = UIColor.red
             static let blockChainArbitrumGoerli = UIColor.red
             static let blockChainCustom = UIColor.red
+            static let blockChainOkx = UIColor.black
 
             static let openSeaNonFungibleTokenCardRowIconText = UIColor(red: 192, green: 192, blue: 192)
             static let openSeaNonFungibleTokenCardRowIdText = UIColor(red: 155, green: 155, blue: 155)
