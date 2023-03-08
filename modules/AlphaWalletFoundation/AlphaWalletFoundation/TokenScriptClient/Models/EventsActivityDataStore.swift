@@ -5,7 +5,7 @@ import RealmSwift
 import Combine
 
 public protocol EventsActivityDataStoreProtocol {
-    var recentEventsChangeset: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> { get }
+    func recentEventsChangeset(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>
 
     func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
     func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
@@ -19,10 +19,12 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         self.store = store
     }
 
-    public var recentEventsChangeset: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> {
+    public func recentEventsChangeset(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>!
+
         store.performSync { realm in
             publisher = realm.objects(EventActivity.self)
+                .filter(EventsActivityDataStore.functional.chainIdPredicate(servers: servers))
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
                 .freeze()
@@ -103,6 +105,10 @@ extension EventsActivityDataStore.functional {
 
     static func isChainIdMatchPredicate(server: RPCServer) -> NSPredicate {
         return NSPredicate(format: "chainId = \(server.chainID)")
+    }
+
+    static func chainIdPredicate(servers: [RPCServer]) -> NSPredicate {
+        return NSPredicate(format: "chainId IN %@", servers.map { $0.chainID })
     }
 
     static func isEventNameMatchPredicate(eventName: String) -> NSPredicate {

@@ -26,7 +26,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
-        return ActivitiesService(config: config, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
+        return ActivitiesService(sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
     }()
 
     public var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> {
@@ -62,6 +62,12 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
         eventSourceForActivities?.start()
 
         activitiesSubService.start()
+    }
+
+    public func stop() {
+        activitiesSubService.stop()
+        eventSource.stop()
+        eventSourceForActivities?.stop()
     }
 
     public func reinject(activity: Activity) {
