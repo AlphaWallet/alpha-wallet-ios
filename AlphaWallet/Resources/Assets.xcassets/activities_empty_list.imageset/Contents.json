@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "activities_empty_list.pdf",
+      "filename" : "icons-illustrations-empty-2.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "iconsIllustrationsEmptyDark.pdf",
       "idiom" : "universal"
     }
   ],
