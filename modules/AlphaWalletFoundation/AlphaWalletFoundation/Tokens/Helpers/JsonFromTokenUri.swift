@@ -53,6 +53,7 @@ final class JsonFromTokenUri {
                     return promise
                 } else {
                     let promise = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
+                        .receive(on: queue)
                         .flatMap { strongSelf.handleUriData(data: $0, tokenId: tokenId, tokenType: tokenType, address: address) }
                         .catch { _ in return strongSelf.generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address) }
                         .receive(on: queue)
@@ -164,6 +165,7 @@ final class JsonFromTokenUri {
 
         return networkService
             .dataTaskPublisher(UrlRequest(url: uri))
+            .receive(on: queue)
             .flatMap { data -> Publisher in
                 if let json = try? JSON(data: data.data) {
                     do {
