@@ -17,6 +17,7 @@ class FakeActivitiesService: ActivitiesServiceType {
     }
 
     func start() {}
+    func stop() {}
     func reinject(activity: Activity) {}
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType { self }
 }
