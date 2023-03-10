@@ -27,12 +27,8 @@ public extension TokenAdaptor {
     }
 
     func titleInPluralFormOptional(token: TokenScriptSupportable) -> String? {
-        if let tokenHolders = getTokenHolders(token: token).first {
-            guard let name = tokenHolders.tokens.first?.values.collectionValue?.name, name.nonEmpty else { return nil }
-            return name
-        } else {
-            return nil
-        }
+        guard let collection = token.balanceNft.first?.nonFungibleBalance?.collection else { return nil }
+        return collection.name.nonEmpty ? collection.name : nil
     }
 
     func titleInPluralForm(token: TokenScriptSupportable) -> String {
