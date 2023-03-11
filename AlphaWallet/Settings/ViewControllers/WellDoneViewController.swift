@@ -34,6 +34,7 @@ class WellDoneViewController: UIViewController {
         let stackView = [
             imageView,
             //titleLabel,
+            .spacer(height: 32),
             descriptionLabel,
             .spacer(height: 10),
             .spacer(),
@@ -41,7 +42,7 @@ class WellDoneViewController: UIViewController {
         ].asStackView(axis: .vertical, spacing: 10, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        view.backgroundColor = Configuration.Color.Semantic.dialogBackground
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([

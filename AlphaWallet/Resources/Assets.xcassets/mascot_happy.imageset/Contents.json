@@ -1,17 +1,50 @@
 {
   "images" : [
     {
-      "filename" : "icon-200x200.png",
+      "filename" : "happy_mascot-light-113x80.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "icon-400x400.png",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "happy_mascot-dark-113x80.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "happy_mascot-light-226x160.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "icon-600x600.png",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "happy_mascot-dark-226x160.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "happy_mascot-light-339x240.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "happy_mascot-dark-339x240.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
