@@ -54,6 +54,7 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
         guard let server = serverSelection.asServersArray.first, let session = sessionsProvider.session(for: server) else { return }
 
         rootViewController.set(isActionButtonEnable: false)
+        rootViewController.displayLoading()
 
         session.blockchainProvider
             .transactionsState(hash: transactionHash)
@@ -63,6 +64,7 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
                 }
 
                 self.rootViewController.set(isActionButtonEnable: true)
+                self.rootViewController.hideLoading()
             }, receiveValue: { state in
                 self.displayErrorMessage(R.string.localizable.checkTransactionStateComplete(state.description))
             }).store(in: &cancellable)

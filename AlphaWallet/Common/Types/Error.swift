@@ -73,12 +73,12 @@ extension Error {
             return error.localizedDescription
         case let error as SignMessageValidatorError:
             return error.localizedDescription
+        case let error as SessionTaskError:
+            return generatePrettyError(forSessionTaskError: error)
         case let error as LocalizedError:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as NSError:
             return error.localizedDescription
-        case let error as SessionTaskError:
-            return generatePrettyError(forSessionTaskError: error)
         default:
             return UndefinedError().localizedDescription
         }
@@ -90,12 +90,12 @@ extension Error {
     private func generatePrettyError(forSessionTaskError error: SessionTaskError) -> String {
         switch error {
         case .connectionError(let error):
-            return error.localizedDescription
+            return error.prettyError
         case .requestError(let error):
-            return error.localizedDescription
+            return error.prettyError
         case .responseError(let error):
             guard let JSONError = error as? JSONRPCError else {
-                return error.localizedDescription
+                return error.prettyError
             }
             switch JSONError {
             case .responseError(_, let message, _):
