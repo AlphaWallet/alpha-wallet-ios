@@ -1,7 +1,6 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
-import PromiseKit
 import AlphaWalletFoundation
 import Combine
 
@@ -19,60 +18,61 @@ class PingInfuraCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: PingInfuraCoordinatorDelegate?
 
-    init(viewController: UIViewController, analytics: AnalyticsLogger, sessionsProvider: SessionsProvider) {
+    init(viewController: UIViewController,
+         analytics: AnalyticsLogger,
+         sessionsProvider: SessionsProvider) {
+
         self.viewController = viewController
         self.sessionsProvider = sessionsProvider
         self.analytics = analytics
     }
 
     func start() {
-        UIAlertController.alert(title: "\(R.string.localizable.settingsPingInfuraTitle())?",
-                message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
-                alertButtonStyles: [.default, .cancel],
-                viewController: viewController,
-                completion: { choice in
-                    guard choice == 0 else {
-                        self.delegate?.didCancel(in: self)
-                        return
-                    }
-                    self.pingInfura()
-                    self.logUse()
-                    self.delegate?.didPing(in: self)
-                })
+        UIAlertController.alert(
+            title: "\(R.string.localizable.settingsPingInfuraTitle())?",
+            message: nil,
+            alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
+            alertButtonStyles: [.default, .cancel],
+            viewController: viewController,
+            completion: { choice in
+                guard choice == 0 else {
+                    self.delegate?.didCancel(in: self)
+                    return
+                }
+
+                self.pingInfura()
+                self.logUse()
+            })
     }
 
     private func pingInfura() {
+        viewController.displayLoading()
+
         sessionsProvider
             .activeSessions
             .anyValue
             .blockchainProvider
             .blockNumber()
             .sink(receiveCompletion: { result in
-                guard case .failure(let error) = result else { return }
-                UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(),
+                if case .failure(let error) = result {
+                    UIAlertController.alert(
+                        title: R.string.localizable.settingsPingInfuraFail(),
                         message: "\(error.prettyError)",
-                        alertButtonTitles: [
-                            R.string.localizable.oK(),
-                        ],
-                        alertButtonStyles: [
-                            .cancel
-                        ],
+                        alertButtonTitles: [R.string.localizable.oK()],
+                        alertButtonStyles: [.cancel],
                         viewController: self.viewController,
                         style: .alert)
-
+                }
+                self.viewController.hideLoading()
+                self.delegate?.didPing(in: self)
             }, receiveValue: { _ in
                 UIAlertController.alert(
-                        title: R.string.localizable.settingsPingInfuraSuccessful(),
-                        message: nil,
-                        alertButtonTitles: [
-                            R.string.localizable.oK()
-                        ],
-                        alertButtonStyles: [
-                            .cancel
-                        ],
-                        viewController: self.viewController,
-                        style: .alert)
+                    title: R.string.localizable.settingsPingInfuraSuccessful(),
+                    message: nil,
+                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonStyles: [.cancel],
+                    viewController: self.viewController,
+                    style: .alert)
             }).store(in: &cancellable)
     }
 }
