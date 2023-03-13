@@ -13,10 +13,17 @@ import AlphaWalletLogger
 import AlphaWalletCore
 
 protocol WalletConnectProviderDelegate: AnyObject, DappRequesterDelegate {
-    func provider(_ provider: WalletConnectProvider, didConnect session: AlphaWallet.WalletConnect.Session)
-    func provider(_ provider: WalletConnectProvider, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void)
-    func provider(_ provider: WalletConnectProvider, didFail error: WalletConnectError)
-    func provider(_ provider: WalletConnectProvider, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
+    func provider(_ provider: WalletConnectProvider,
+                  didConnect session: AlphaWallet.WalletConnect.Session)
+
+    func provider(_ provider: WalletConnectProvider,
+                  shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal) -> AnyPublisher<AlphaWallet.WalletConnect.ProposalResponse, Never>
+
+    func provider(_ provider: WalletConnectProvider,
+                  didFail error: WalletConnectError)
+
+    func provider(_ provider: WalletConnectProvider,
+                  tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
 }
 
 final class WalletConnectProvider: NSObject {
@@ -109,10 +116,11 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer,
-                shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal,
-                completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void) {
+                shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal) -> AnyPublisher<AlphaWallet.WalletConnect.ProposalResponse, Never> {
 
-        delegate?.provider(self, shouldConnectFor: proposal, completion: completion)
+        guard let delegate = delegate else { return .empty() }
+
+        return delegate.provider(self, shouldConnectFor: proposal)
     }
 
     func server(_ server: WalletConnectServer,

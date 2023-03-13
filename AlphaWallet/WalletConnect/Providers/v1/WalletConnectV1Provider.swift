@@ -181,29 +181,30 @@ extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
         if let delegate = self.delegate {
             let sessionProposal = AlphaWallet.WalletConnect.Proposal(dAppInfo: session.dAppInfo)
 
-            delegate.server(self, shouldConnectFor: sessionProposal) { [weak self, caip10AccountProvidable] choice in
-                guard let strongSelf = self else { return }
+            delegate.server(self, shouldConnectFor: sessionProposal)
+                .sink { [weak self, caip10AccountProvidable] response in
+                    guard let strongSelf = self else { return }
 
-                guard let server = choice.server else {
-                    completion(nil)
-                    return
-                }
+                    guard let server = response.server else {
+                        completion(nil)
+                        return
+                    }
 
-                guard let data = try? caip10AccountProvidable.namespaces(for: server) else {
-                    completion(nil)
-                    return
-                }
+                    guard let data = try? caip10AccountProvidable.namespaces(for: server) else {
+                        completion(nil)
+                        return
+                    }
 
-                let session = session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+                    let session = session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
 
-                if let index = strongSelf.storage.value.firstIndex(where: { $0.topicOrUrl == session.topicOrUrl }) {
-                    strongSelf.storage.value[index] = .init(session: session, namespaces: data.namespaces)
-                } else {
-                    strongSelf.storage.value.append(.init(session: session, namespaces: data.namespaces))
-                }
+                    if let index = strongSelf.storage.value.firstIndex(where: { $0.topicOrUrl == session.topicOrUrl }) {
+                        strongSelf.storage.value[index] = .init(session: session, namespaces: data.namespaces)
+                    } else {
+                        strongSelf.storage.value.append(.init(session: session, namespaces: data.namespaces))
+                    }
 
-                completion(session.walletInfo!)
-            }
+                    completion(session.walletInfo!)
+                }.store(in: &cancelable)
         } else {
             completion(nil)
         }

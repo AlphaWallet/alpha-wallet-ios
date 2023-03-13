@@ -211,27 +211,28 @@ final class WalletConnectV2Provider: WalletConnectServer {
             return
         }
 
-        delegate.server(self, shouldConnectFor: .init(proposal: proposal)) { [weak self, caip10AccountProvidable] response in
-            guard let strongSelf = self else { return }
+        delegate.server(self, shouldConnectFor: .init(proposal: proposal))
+            .sink { [weak self, caip10AccountProvidable] response in
+                guard let strongSelf = self else { return }
 
-            guard response.shouldProceed else {
-                strongSelf.currentProposal = .none
-                reject(proposal: proposal)
-                return
-            }
+                guard response.shouldProceed else {
+                    strongSelf.currentProposal = .none
+                    reject(proposal: proposal)
+                    return
+                }
 
-            do {
-                let namespaces = try caip10AccountProvidable.namespaces(proposalOrServer: .proposal(proposal))
-                strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
-                strongSelf.currentProposal = .none
+                do {
+                    let namespaces = try caip10AccountProvidable.namespaces(proposalOrServer: .proposal(proposal))
+                    strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
+                    strongSelf.currentProposal = .none
 
-                completion()
-            } catch {
-                delegate.server(strongSelf, didFail: error)
-                //NOTE: for now we dont throw any error, just rejecting connection proposal
-                reject(proposal: proposal)
-            }
-        }
+                    completion()
+                } catch {
+                    delegate.server(strongSelf, didFail: error)
+                    //NOTE: for now we dont throw any error, just rejecting connection proposal
+                    reject(proposal: proposal)
+                }
+            }.store(in: &cancelable)
     }
 }
 

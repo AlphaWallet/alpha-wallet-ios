@@ -8,7 +8,6 @@
 import UIKit
 import AlphaWalletGoBack
 import WalletConnectSwift
-import PromiseKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
@@ -321,24 +320,27 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         }
     }
 
-    func provider(_ provider: WalletConnectProvider, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void) {
+    func provider(_ provider: WalletConnectProvider,
+                  shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal) -> AnyPublisher<AlphaWallet.WalletConnect.ProposalResponse, Never> {
+
         infoLog("[WalletConnect] shouldConnectFor connection: \(proposal)")
         let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, config: config))
-        firstly {
-            AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics)
-        }.done { choise in
-            guard case .walletConnect(let server) = choise else {
-                completion(.cancel)
-                JumpBackToPreviousApp.goBackForWalletConnectSessionCancelled()
-                return
-            }
-            completion(.connect(server))
-            JumpBackToPreviousApp.goBackForWalletConnectSessionApproved()
-        }.catch { _ in
-            completion(.cancel)
-        }.finally {
-            self.resetSessionsToRemoveLoadingIfNeeded()
-        }
+
+        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics)
+            .publisher()
+            .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
+                guard case .walletConnect(let server) = choise else { return .cancel }
+                return .connect(server)
+            }.replaceError(with: .cancel)
+            .handleEvents(receiveOutput: { response in
+                switch response {
+                case .cancel:
+                    JumpBackToPreviousApp.goBackForWalletConnectSessionCancelled()
+                case .connect:
+                    JumpBackToPreviousApp.goBackForWalletConnectSessionApproved()
+                }
+            }).handleEvents(receiveCompletion: { _ in self.resetSessionsToRemoveLoadingIfNeeded() })
+            .eraseToAnyPublisher()
     }
 }
 

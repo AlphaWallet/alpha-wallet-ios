@@ -76,9 +76,21 @@ protocol WalletConnectServer: WalletConnectResponder {
 }
 
 protocol WalletConnectServerDelegate: AnyObject {
-    func server(_ server: WalletConnectServer, didConnect session: AlphaWallet.WalletConnect.Session)
-    func server(_ server: WalletConnectServer, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void)
-    func server(_ server: WalletConnectServer, action: AlphaWallet.WalletConnect.Action, request: AlphaWallet.WalletConnect.Session.Request, session: AlphaWallet.WalletConnect.Session)
-    func server(_ server: WalletConnectServer, didFail error: Error)
-    func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
+    
+    func server(_ server: WalletConnectServer,
+                didConnect session: AlphaWallet.WalletConnect.Session)
+
+    func server(_ server: WalletConnectServer,
+                shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal) -> AnyPublisher<AlphaWallet.WalletConnect.ProposalResponse, Never>
+
+    func server(_ server: WalletConnectServer,
+                action: AlphaWallet.WalletConnect.Action,
+                request: AlphaWallet.WalletConnect.Session.Request,
+                session: AlphaWallet.WalletConnect.Session)
+
+    func server(_ server: WalletConnectServer,
+                didFail error: Error)
+
+    func server(_ server: WalletConnectServer,
+                tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
 }
