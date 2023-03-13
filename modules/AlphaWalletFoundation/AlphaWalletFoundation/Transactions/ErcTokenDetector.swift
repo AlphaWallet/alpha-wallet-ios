@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PromiseKit
 import Combine
 
 public final class ErcTokenDetector {

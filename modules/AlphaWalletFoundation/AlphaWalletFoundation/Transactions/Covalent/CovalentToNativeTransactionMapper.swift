@@ -48,7 +48,7 @@ extension Covalent {
                     let value = params["value"]?.value
 
                     let operationType: OperationType
-                    //TODO check have tokenID + no "value", cos those might be ERC1155?
+                    //TODO: check have tokenID + no "value", cos those might be ERC1155?
                     if tokenId.nonEmpty {
                         operationType = .erc721TokenTransfer
                     } else {
@@ -76,6 +76,26 @@ extension Covalent {
                 localizedOperations: operations,
                 state: .completed,
                 isErc20Interaction: true)
+        }
+
+        static func mapCovalentToNativeTransaction(transactions: [Covalent.Transaction], server: RPCServer) -> [TransactionInstance] {
+            let transactions: [TransactionInstance] = Covalent.ToNativeTransactionMapper()
+                .mapToNativeTransactions(transactions: transactions, server: server)
+            return mergeTransactionOperationsIntoSingleTransaction(transactions)
+        }
+
+        static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
+            var results: [TransactionInstance] = .init()
+            for each in transactions {
+                if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
+                    var found = results[index]
+                    found.localizedOperations.append(contentsOf: each.localizedOperations)
+                    results[index] = found
+                } else {
+                    results.append(each)
+                }
+            }
+            return results
         }
     }
 }

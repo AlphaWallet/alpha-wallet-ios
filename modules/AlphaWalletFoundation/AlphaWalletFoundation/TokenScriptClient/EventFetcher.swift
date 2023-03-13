@@ -36,7 +36,7 @@ final class EventFetcher {
                 if let newestEvent = oldEventBlockNumber {
                     fromBlock = .blockNumber(UInt64(newestEvent + 1))
                 } else {
-                    fromBlock = .blockNumber(0)
+                    fromBlock = .blockNumber(token.server.startBlock)
                 }
                 let addresses = [EthereumAddress(address: eventOrigin.contract)]
                 let parameterFilters = filterParam.map { $0?.filter }

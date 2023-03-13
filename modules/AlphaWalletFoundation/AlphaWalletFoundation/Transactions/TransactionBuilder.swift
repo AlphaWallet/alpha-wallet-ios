@@ -9,7 +9,7 @@ import Foundation
 import BigInt
 import Combine
 
-final class TransactionBuilder {
+public final class TransactionBuilder {
     private typealias LocalizedOperation = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
 
     private let tokenProvidable: TokenProvidable
@@ -17,9 +17,9 @@ final class TransactionBuilder {
 
     let server: RPCServer
 
-    init(tokensService: TokenProvidable,
-         server: RPCServer,
-         tokenProvider: TokenProviderType) {
+    public init(tokensService: TokenProvidable,
+                server: RPCServer,
+                tokenProvider: TokenProviderType) {
 
         self.ercProvider = tokenProvider
         self.tokenProvidable = tokensService

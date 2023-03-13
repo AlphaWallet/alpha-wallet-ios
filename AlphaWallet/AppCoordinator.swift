@@ -292,11 +292,12 @@ class AppCoordinator: NSObject, Coordinator {
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 promptBackup.deleteWallet(wallet: account)
+                //TODO: make same as WalletConfig
                 TransactionsTracker.resetFetchingState(account: account, config: config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
                 legacyFileBasedKeystore.delete(wallet: account)
-
+                WalletConfig(address: account.address).clear()
                 self.destroy(for: account)
             }.store(in: &cancelable)
 

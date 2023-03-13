@@ -46,6 +46,7 @@ extension RPCServer {
         case .ioTeXTestnet: return "IoTeX Testnet"
         case .optimismGoerli: return "Optimism Goerli"
         case .arbitrumGoerli: return "Arbitrum Goerli"
+        case .okx: return "OKXChain Mainnet"
         }
     }
 
@@ -74,6 +75,7 @@ extension RPCServer {
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
         case .optimismGoerli: return nil
         case .arbitrumGoerli: return nil
+        case .okx: return R.image.okc_logo()
         }
     }
 
@@ -106,6 +108,7 @@ extension RPCServer {
         case .optimismGoerli: return Configuration.Color.Semantic.blockChainOptimismGoerli
         case .arbitrumGoerli: return Configuration.Color.Semantic.blockChainArbitrumGoerli
         case .custom: return Configuration.Color.Semantic.blockChainCustom
+        case .okx: return Configuration.Color.Semantic.blockChainOkx
         }
     }
 
@@ -133,6 +136,7 @@ extension RPCServer {
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
         case .optimismGoerli: return nil
         case .arbitrumGoerli: return nil
+        case .okx: return R.image.okc_logo()
         }
     }
 }

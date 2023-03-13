@@ -43,7 +43,7 @@ final class EventForActivitiesFetcher {
                     let value = UInt64(blockNumber + 1)
                     fromBlock = (.blockNumber(value), value)
                 } else {
-                    fromBlock = (.blockNumber(0), 0)
+                    fromBlock = (.blockNumber(token.server.startBlock), token.server.startBlock)
                 }
 
                 let parameterFilters = filterParam.map { $0?.filter }
