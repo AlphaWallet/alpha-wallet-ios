@@ -51,7 +51,7 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
 
         let wallets = keystore.walletsPublisher.filter { !$0.isEmpty }
 
-        let servers = serversProvidable.servers
+        let servers = serversProvidable.enabledServersPublisher
             .filter { !$0.isEmpty }
             .map { $0.sorted(by: { $0.displayOrderPriority < $1.displayOrderPriority }) }
 
