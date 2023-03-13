@@ -2,14 +2,14 @@
 
 import Foundation
 
-enum Loadable<T, F> {
+public enum Loadable<T, F> {
     case loading
     case done(T)
     case failure(F)
 }
 
 extension Loadable: Equatable where T: Equatable, F: Equatable {
-    static func == (lhs: Loadable<T, F>, rhs: Loadable<T, F>) -> Bool {
+    public static func == (lhs: Loadable<T, F>, rhs: Loadable<T, F>) -> Bool {
         switch (lhs, rhs) {
         case (.loading, .loading):
             return true
