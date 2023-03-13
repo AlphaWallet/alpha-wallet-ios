@@ -100,6 +100,8 @@ public class TransactionsService {
                     networking: networking,
                     defaultPagination: session.server.defaultTransactionsPagination)
 
+                provider.start()
+
                 return provider
             case .oklink(let apiKey):
                 let transporter = BaseApiTransporter()
@@ -122,6 +124,8 @@ public class TransactionsService {
                     ercTokenDetector: ercTokenDetector,
                     networking: networking,
                     defaultPagination: session.server.defaultTransactionsPagination)
+
+                provider.start()
 
                 return provider
             }

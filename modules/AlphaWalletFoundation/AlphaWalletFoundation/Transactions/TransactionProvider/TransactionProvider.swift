@@ -128,7 +128,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
         erc20TransferTransactionProvider.startScheduler()
         erc721TransferTransactionProvider.startScheduler()
         erc1155TransferTransactionProvider.startScheduler()
-        DispatchQueue(label: "com.OldestTransactionProvider.updateQueue").async { [weak self] in self?.removeUnknownTransactions() }
+        DispatchQueue(label: "com.transactionProvider.updateQueue").async { [weak self] in self?.removeUnknownTransactions() }
     }
 
     public func stopTimers() {
