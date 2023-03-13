@@ -35,7 +35,7 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
     public func start(wallet: Wallet) {
         let predicate = transactionsPredicate(wallet: wallet)
 
-        serversProvider.servers
+        serversProvider.enabledServersPublisher
             .flatMapLatest { [transactionDataStore] in
                 return transactionDataStore.transactionsChangeset(filter: .predicate(predicate), servers: Array($0))
             }.map { changeset -> ServerDictionary<[TransactionInstance]> in

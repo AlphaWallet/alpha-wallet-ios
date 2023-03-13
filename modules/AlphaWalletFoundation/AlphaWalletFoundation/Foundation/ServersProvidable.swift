@@ -9,13 +9,23 @@ import Foundation
 import Combine
 
 public protocol ServersProvidable {
-    var servers: AnyPublisher<Set<RPCServer>, Never> { get }
+    var allServers: [RPCServer] { get }
+    var enabledServersPublisher: AnyPublisher<Set<RPCServer>, Never> { get }
+    var enabledServers: [RPCServer] { get }
 }
 
 public class BaseServersProvider: ServersProvidable {
     private let config: Config
 
-    public var servers: AnyPublisher<Set<RPCServer>, Never> {
+    public var allServers: [RPCServer] {
+        RPCServer.allCases
+    }
+
+    public var enabledServers: [RPCServer] {
+        config.enabledServers
+    }
+
+    public var enabledServersPublisher: AnyPublisher<Set<RPCServer>, Never> {
         Just(config.enabledServers)
             .merge(with: config.enabledServersPublisher)//subscribe for servers changing so not active providers can handle changes too
             .removeDuplicates()

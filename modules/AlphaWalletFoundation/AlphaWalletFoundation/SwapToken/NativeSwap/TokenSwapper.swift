@@ -57,7 +57,7 @@ open class TokenSwapper: ObservableObject {
         guard Features.default.isAvailable(.isSwapEnabled) else { return }
 
         reachabilityManager.networkBecomeReachablePublisher
-            .combineLatest(serversProvider.servers, reloadSubject)
+            .combineLatest(serversProvider.enabledServersPublisher, reloadSubject)
             .map { (_, servers, _) in servers }
             .receive(on: RunLoop.main)
             .flatMap { self.fetchAllSupportedTokens(servers: $0) }

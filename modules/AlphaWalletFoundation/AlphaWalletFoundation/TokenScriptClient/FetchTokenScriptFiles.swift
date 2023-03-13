@@ -20,7 +20,7 @@ public class FetchTokenScriptFiles {
     }
 
     public func start() {
-        serversProvider.servers
+        serversProvider.enabledServersPublisher
             .receive(on: queue)
             .map { [tokensService] in tokensService.tokens(for: Array($0)) }
             .map { tokens in

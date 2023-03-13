@@ -40,6 +40,7 @@ class SettingsCoordinator: Coordinator {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let networkService: NetworkService
     private let promptBackup: PromptBackup
+    private let serversProvider: ServersProvidable
 
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
@@ -77,8 +78,10 @@ class SettingsCoordinator: Coordinator {
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
          networkService: NetworkService,
-         promptBackup: PromptBackup) {
+         promptBackup: PromptBackup,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.promptBackup = promptBackup
         self.networkService = networkService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
@@ -216,7 +219,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             restartHandler: restartHandler,
             analytics: analytics,
             config: config,
-            networkService: networkService)
+            networkService: networkService,
+            serversProvider: serversProvider)
 
         coordinator.delegate = self
         coordinator.start()

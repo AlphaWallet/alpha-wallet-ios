@@ -13,7 +13,7 @@ public final class ReportUsersActiveChains: Initializer {
 
     public func perform() {
         //NOTE: make 2 sec delay to avoid load on launch
-        serversProvider.servers
+        serversProvider.enabledServersPublisher
             .delay(for: .seconds(2), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { crashlytics.track(enabledServers: Array($0)) }

@@ -436,7 +436,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
             networkService: networkService,
-            promptBackup: promptBackup)
+            promptBackup: promptBackup,
+            serversProvider: serversProvider)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()

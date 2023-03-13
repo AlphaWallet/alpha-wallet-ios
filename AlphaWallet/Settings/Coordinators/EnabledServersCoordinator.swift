@@ -13,20 +13,21 @@ class EnabledServersCoordinator: Coordinator {
         ServersCoordinator.serversOrdered
     }
 
-    private let serverChoices = EnabledServersCoordinator.serversOrdered
     private let navigationController: UINavigationController
     private let selectedServers: [RPCServer]
     private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let config: Config
     private let networkService: NetworkService
-    private lazy var enabledServersViewController: EnabledServersViewController = {
-        let viewModel = EnabledServersViewModel(
-            servers: serverChoices,
+    private let serversProvider: ServersProvidable
+    private lazy var viewModel: EnabledServersViewModel = {
+        return EnabledServersViewModel(
             selectedServers: selectedServers,
             restartHandler: restartHandler,
-            config: config)
-        
+            serversProvider: serversProvider)
+    }()
+
+    private lazy var enabledServersViewController: EnabledServersViewController = {
         let controller = EnabledServersViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
@@ -43,8 +44,10 @@ class EnabledServersCoordinator: Coordinator {
          restartHandler: RestartQueueHandler,
          analytics: AnalyticsLogger,
          config: Config,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.networkService = networkService
         self.navigationController = navigationController
         self.selectedServers = selectedServers
