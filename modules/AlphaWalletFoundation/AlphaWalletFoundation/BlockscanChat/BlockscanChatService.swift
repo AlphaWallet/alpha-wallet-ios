@@ -21,7 +21,7 @@ public class BlockscanChatService {
     private var realWalletAddresses: [AlphaWallet.Address] {
         keystore.wallets.compactMap {
             switch $0.type {
-            case .real(let address):
+            case .real(let address), .hardware(let address):
                 return address
             case .watch:
                 return nil

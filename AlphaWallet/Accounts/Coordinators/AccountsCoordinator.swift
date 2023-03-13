@@ -176,7 +176,7 @@ class AccountsCoordinator: Coordinator {
             controller.addAction(cancelAction)
 
             navigationController.present(controller, animated: true)
-        case .watch:
+        case .watch, .hardware:
             let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
                 self?.promptRenameWallet(account)
             }

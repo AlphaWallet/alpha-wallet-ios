@@ -43,7 +43,7 @@ struct TokenCardRedemptionViewModel {
         }
 
         switch session.account.type {
-        case .real(let account):
+        case .real(let account), .hardware(let account):
             return _generateQr(account: account)
         case .watch(let account):
             //TODO should pass in a Config instance instead

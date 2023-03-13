@@ -367,7 +367,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
 
         switch wallet.type {
-        case .real(let account):
+        case .real(let account), .hardware(let account):
             _sign(action: action, command: command, account: account)
         case .watch(let account):
             //TODO pass in Config instance instead

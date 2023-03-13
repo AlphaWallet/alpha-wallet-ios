@@ -395,7 +395,7 @@ open class EtherKeystore: NSObject, Keystore {
 
             deleteKeysAndSeedCipherTextFromKeychain(forAccount: wallet.address)
             deletePrivateKeysFromSecureEnclave(forAccount: wallet.address)
-        case .watch:
+        case .watch, .hardware:
             walletAddressesStore.removeAddress(wallet)
         }
 
