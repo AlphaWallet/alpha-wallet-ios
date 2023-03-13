@@ -110,7 +110,7 @@ class PaymentCoordinator: Coordinator {
             tokensService: tokenCollection,
             networkService: networkService,
             tokenImageFetcher: tokenImageFetcher)
-        
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -206,9 +206,9 @@ class PaymentCoordinator: Coordinator {
         }
 
         switch (flow, session.account.type) {
-        case (.swap(let swapPair), .real):
+        case (.swap(let swapPair), .real), (.swap(let swapPair), .hardware):
             startWithSwapCoordinator(swapPair: swapPair)
-        case (.send(let paymentFlowType), .real):
+        case (.send(let paymentFlowType), .real), (.send(let paymentFlowType), .hardware):
             _startPaymentFlow(paymentFlowType: paymentFlowType)
         case (.request, _):
             let coordinator = RequestCoordinator(

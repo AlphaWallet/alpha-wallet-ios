@@ -30,7 +30,7 @@ final class NFTCollectionViewModel {
     private let config: Config
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     private let tokenImageFetcher: TokenImageFetcher
-    
+
     let activitiesService: ActivitiesServiceType
     let tokenHolders: CurrentValueSubject<[TokenHolder], Never> = .init([])
     let token: Token
@@ -79,8 +79,8 @@ final class NFTCollectionViewModel {
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenImageFetcher = tokenImageFetcher
-    } 
-    
+    }
+
     func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput {
         activitiesService.start()
 
@@ -135,7 +135,7 @@ final class NFTCollectionViewModel {
         switch token.type {
         case .erc1155:
             switch wallet.type {
-            case .real:
+            case .real, .hardware:
                 return .assetSelection(isEnabled: true)
             case .watch:
                 return .assetSelection(isEnabled: config.development.shouldPretendIsRealWallet)

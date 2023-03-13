@@ -69,7 +69,7 @@ public class LegacyFileBasedKeystore {
             } catch {
                 return .failure(.failedToDeleteAccount)
             }
-        case .watch:
+        case .watch, .hardware:
             return .success(())
         }
     }

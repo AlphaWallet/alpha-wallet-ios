@@ -544,7 +544,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         }
 
         switch wallet.type {
-        case .real:
+        case .real, .hardware:
             performDappAction(action: action, callbackId: callbackId, session: session, delegate: delegate)
         case .watch:
             if config.development.shouldPretendIsRealWallet {

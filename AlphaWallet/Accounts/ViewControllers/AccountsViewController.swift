@@ -118,7 +118,7 @@ class AccountsViewController: UIViewController {
 
     @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
         guard let cell = recognizer.view as? AccountViewCell, let indexPath = cell.indexPath, recognizer.state == .began else { return }
-        
+
         switch dataSource.item(at: indexPath) {
         case .wallet(let viewModel):
             delegate?.didSelectInfoForAccount(account: viewModel.wallet, sender: cell, in: self)
