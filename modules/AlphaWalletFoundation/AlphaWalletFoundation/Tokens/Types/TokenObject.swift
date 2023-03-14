@@ -41,17 +41,16 @@ class TokenObject: Object {
         set { rawType = newValue.rawValue }
     }
 
-    convenience init(
-            contract: AlphaWallet.Address = Constants.nullAddress,
-            server: RPCServer,
-            name: String = "",
-            symbol: String = "",
-            decimals: Int = 0,
-            value: String,
-            isCustom: Bool = false,
-            isDisabled: Bool = false,
-            type: TokenType
-    ) {
+    convenience init(contract: AlphaWallet.Address = Constants.nullAddress,
+                     server: RPCServer,
+                     name: String = "",
+                     symbol: String = "",
+                     decimals: Int = 0,
+                     value: String,
+                     isCustom: Bool = false,
+                     isDisabled: Bool = false,
+                     type: TokenType) {
+
         self.init()
         self.primaryKey = TokenObject.generatePrimaryKey(fromContract: contract, server: server)
         self.contract = contract.eip55String
@@ -87,8 +86,8 @@ class TokenObject: Object {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }
 
-    var valueBigInt: BigInt {
-        return BigInt(value) ?? BigInt()
+    var valueBigInt: BigUInt {
+        return BigUInt(value) ?? BigUInt()
     }
 
     override static func primaryKey() -> String? {

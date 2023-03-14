@@ -16,7 +16,7 @@ public protocol TokenProviderType: AnyObject {
     func getDecimals(for address: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func getTokenType(for address: AlphaWallet.Address) -> AnyPublisher<TokenType, SessionTaskError>
     func getEthBalance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
-    func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigInt, SessionTaskError>
+    func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError>
     func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
     func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
     func getErc721Balance(for address: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
@@ -60,7 +60,7 @@ public class TokenProvider: TokenProviderType {
         getTokenType.getTokenType(for: address)
     }
 
-    public func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigInt, SessionTaskError> {
+    public func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError> {
         getErc20Balance.getErc20Balance(for: account.address, contract: address)
     }
 

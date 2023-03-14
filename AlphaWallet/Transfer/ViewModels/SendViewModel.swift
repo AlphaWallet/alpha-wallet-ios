@@ -339,7 +339,7 @@ final class SendViewModel: TransactionTypeSupportable {
             .eraseToAnyPublisher()
     }
 
-    private func validatedAmountToSend(_ amount: FungibleAmount, tokenViewModel: TokenViewModel?, checkIfGreaterThanZero: Bool = true) -> BigInt? {
+    private func validatedAmountToSend(_ amount: FungibleAmount, tokenViewModel: TokenViewModel?, checkIfGreaterThanZero: Bool = true) -> BigUInt? {
         switch amount {
         case .notSet:
             return nil
@@ -355,7 +355,7 @@ final class SendViewModel: TransactionTypeSupportable {
                 break
             }
 
-            return Decimal(value).toBigInt(decimals: transactionType.tokenObject.decimals)
+            return Decimal(value).toBigUInt(decimals: transactionType.tokenObject.decimals)
         case .allFunds:
             return tokenViewModel?.balance.value
         }

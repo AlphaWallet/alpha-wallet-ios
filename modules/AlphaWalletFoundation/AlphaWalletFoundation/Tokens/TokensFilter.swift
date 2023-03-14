@@ -20,7 +20,7 @@ public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable,
 
 public protocol TokenSortable {
     var name: String { get }
-    var value: BigInt { get }
+    var value: BigUInt { get }
     var contractAddress: AlphaWallet.Address { get }
     var server: RPCServer { get }
     var shouldDisplay: Bool { get }
@@ -29,7 +29,7 @@ public protocol TokenSortable {
 
 public extension TokenSortable {
     var valueDecimal: Decimal {
-        return Decimal(bigInt: value, decimals: decimals) ?? .zero
+        return Decimal(bigUInt: value, decimals: decimals) ?? .zero
     }
 }
 
@@ -252,7 +252,7 @@ fileprivate extension TokenFilterable {
     var hasNonZeroBalance: Bool {
         switch type {
         case .nativeCryptocurrency, .erc20:
-            return !valueBI.isZero
+            return valueBI.signum() != .zero
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return !nonZeroBalance.isEmpty
         }

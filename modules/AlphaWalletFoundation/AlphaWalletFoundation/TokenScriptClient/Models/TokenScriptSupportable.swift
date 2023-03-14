@@ -15,7 +15,7 @@ public protocol TokenScriptSupportable {
     var type: TokenType { get }
     var decimals: Int { get }
     var server: RPCServer { get }
-    var valueBI: BigInt { get }
+    var valueBI: BigUInt { get }
     var balanceNft: [TokenBalanceValue] { get }
 }
 

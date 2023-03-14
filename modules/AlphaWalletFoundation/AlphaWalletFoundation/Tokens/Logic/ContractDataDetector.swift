@@ -8,10 +8,10 @@ import Combine
 public enum ContractData {
     case name(String)
     case symbol(String)
-    case balance(nonFungible: NonFungibleBalance?, fungible: BigInt?, tokenType: TokenType)
+    case balance(nonFungible: NonFungibleBalance?, fungible: BigUInt?, tokenType: TokenType)
     case decimals(Int)
     case nonFungibleTokenComplete(name: String, symbol: String, balance: NonFungibleBalance, tokenType: TokenType)
-    case fungibleTokenComplete(name: String, symbol: String, decimals: Int, value: BigInt, tokenType: TokenType)
+    case fungibleTokenComplete(name: String, symbol: String, decimals: Int, value: BigUInt, tokenType: TokenType)
     case delegateTokenComplete
     case failed(networkReachable: Bool, error: Error)
 }
@@ -40,7 +40,7 @@ public class ContractDataDetector {
     private let symbolPromise: Promise<String>
     private let tokenTypePromise: Promise<TokenType>
     private let (nonFungibleBalancePromise, nonFungibleBalanceSeal) = Promise<NonFungibleBalance>.pending()
-    private let (fungibleBalancePromise, fungibleBalanceSeal) = Promise<BigInt>.pending()
+    private let (fungibleBalancePromise, fungibleBalanceSeal) = Promise<BigUInt>.pending()
     private let (decimalsPromise, decimalsSeal) = Promise<Int>.pending()
     private var failed = false
     private var completion: ((ContractData) -> Void)?

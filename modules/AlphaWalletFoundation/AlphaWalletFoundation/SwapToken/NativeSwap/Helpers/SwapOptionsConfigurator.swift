@@ -22,7 +22,7 @@ public final class SwapOptionsConfigurator {
     private var errorSubject: PassthroughSubject<TokenSwapper.TokenSwapperError?, Never> = .init()
     private var cancelable = Set<AnyCancellable>()
     private let tokenCollection: TokenCollection
-    private var fromAmountSubject: CurrentValueSubject<BigInt?, Never> = .init(nil)
+    private var fromAmountSubject: CurrentValueSubject<BigUInt?, Never> = .init(nil)
     private var fetchSwapQuoteStateSubject: CurrentValueSubject<SwapQuoteState, Never> = .init(.pendingInput)
     @Published public private(set) var sessions: [WalletSession]
     @Published public private(set) var server: RPCServer
@@ -65,7 +65,7 @@ public final class SwapOptionsConfigurator {
         let hasFromAndToSwapTokens = fromAndToTokensPublisher
             .map { $0 != nil }
 
-        return fromAmountSubject.combineLatest(hasFromAndToSwapTokens) { amount, hasSwapToken -> BigInt? in
+        return fromAmountSubject.combineLatest(hasFromAndToSwapTokens) { amount, hasSwapToken -> BigUInt? in
             return hasSwapToken ? amount : nil
         }.compactMap { $0.flatMap { BigUInt($0) } }
         .removeDuplicates()
@@ -141,7 +141,7 @@ public final class SwapOptionsConfigurator {
         tokenSwapper.reload()
     }
 
-    public func set(fromAmount amount: BigInt?) {
+    public func set(fromAmount amount: BigUInt?) {
         fromAmountSubject.value = amount
     }
 

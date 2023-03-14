@@ -18,7 +18,7 @@ struct BalanceRequest: JSONRPCKit.Request {
     }
 
     func response(from resultObject: Any) throws -> Response {
-        if let response = resultObject as? String, let value = BigInt(response.drop0x, radix: 16) {
+        if let response = resultObject as? String, let value = BigUInt(response.drop0x, radix: 16) {
             return Balance(value: value)
         } else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)

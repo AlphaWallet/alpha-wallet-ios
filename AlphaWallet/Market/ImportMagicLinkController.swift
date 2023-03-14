@@ -115,7 +115,7 @@ final class ImportMagicLinkController {
                 name: "",
                 symbol: "",
                 decimals: 0,
-                value: BigInt(signedOrder.order.price),
+                value: signedOrder.order.price,
                 isCustom: true,
                 isDisabled: false,
                 type: .erc875)

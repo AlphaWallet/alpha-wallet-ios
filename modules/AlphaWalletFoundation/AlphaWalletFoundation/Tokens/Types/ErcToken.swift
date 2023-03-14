@@ -10,10 +10,18 @@ public struct ErcToken {
     public let symbol: String
     public let decimals: Int
     public let type: TokenType
-    public let value: BigInt
+    public let value: BigUInt
     public let balance: NonFungibleBalance
 
-    public init(contract: AlphaWallet.Address, server: RPCServer, name: String, symbol: String, decimals: Int, type: TokenType, value: BigInt, balance: NonFungibleBalance) {
+    public init(contract: AlphaWallet.Address,
+                server: RPCServer,
+                name: String,
+                symbol: String,
+                decimals: Int,
+                type: TokenType,
+                value: BigUInt,
+                balance: NonFungibleBalance) {
+        
         self.contract = contract
         self.server = server
         self.name = name
