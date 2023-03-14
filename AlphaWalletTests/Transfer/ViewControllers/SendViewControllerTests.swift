@@ -25,7 +25,7 @@ class SendViewControllerTests: XCTestCase {
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
-        let testValue = BigInt("10000000000000000000000")
+        let testValue = BigUInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
 
         vc.allFundsSelected()
@@ -40,7 +40,7 @@ class SendViewControllerTests: XCTestCase {
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
-        let testValue = BigInt("10000000000000000000000")
+        let testValue = BigUInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
 
         vc.allFundsSelected()
@@ -56,7 +56,7 @@ class SendViewControllerTests: XCTestCase {
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
-        let testValue = BigInt("10000000000000")
+        let testValue = BigUInt("10000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
         vc.allFundsSelected()
 
@@ -70,7 +70,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(0.002)))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2000000020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "0,002")
 
         XCTAssertTrue(vc.viewModel.amountToSend == .amount(0.002))
@@ -84,7 +84,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2000000020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
         vc.allFundsSelected()
 
@@ -104,7 +104,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
@@ -123,20 +123,20 @@ class SendViewControllerTests: XCTestCase {
 
         let viewModel = dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel)
-        XCTAssertEqual(viewModel?.value, BigInt("2020224719101120")!)
+        XCTAssertEqual(viewModel?.value, BigUInt("2020224719101120")!)
 
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("10000000000000")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("10000000000000")), for: token)
 
         let viewModel_2 = dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel_2)
-        XCTAssertEqual(viewModel_2?.value, BigInt("10000000000000")!)
+        XCTAssertEqual(viewModel_2?.value, BigUInt("10000000000000")!)
     }
 
     func testERC20AllFundsEnglish() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
@@ -150,7 +150,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         Config.setLocale(AppLocale.system)
@@ -164,7 +164,7 @@ class SendViewControllerTests: XCTestCase {
 
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "1.34")
 
         let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
@@ -204,7 +204,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "1,34")
 
         let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
@@ -236,7 +236,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .allFunds))
-        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
@@ -287,7 +287,7 @@ class TokenBalanceTests: XCTestCase {
                 }
             }.store(in: &cancelable)
         
-        tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("3000000020224719101120")!), for: token)
+        tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")!), for: token)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
         let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
@@ -296,7 +296,7 @@ class TokenBalanceTests: XCTestCase {
         pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 0), for: tokenToTicker) // no changes should be, as value is stay the same
         pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 666), for: tokenToTicker)
 
-        tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("4000000020224719101120")!), for: token)
+        tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("4000000020224719101120")!), for: token)
         
         waitForExpectations(timeout: 50)
     }
@@ -386,7 +386,7 @@ class TokenBalanceTests: XCTestCase {
             group.enter()
             if each % 2 == 0 {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
-                    guard let testValue1 = BigInt("10000000000000000000\(each)") else { return }
+                    guard let testValue1 = BigUInt("10000000000000000000\(each)") else { return }
                     tokensService.setBalanceTestsOnly(balance: .init(value: testValue1), for: token)
                     group.leave()
                 }
@@ -520,7 +520,7 @@ class TokenBalanceTests: XCTestCase {
 
         for each in 1 ... 10 {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(each)) {
-                guard let testValue1 = BigInt("10000000000000000000\(each)") else { return }
+                guard let testValue1 = BigUInt("10000000000000000000\(each)") else { return }
                 tokensService.setBalanceTestsOnly(balance: .init(value: testValue1), for: token)
             }
         }
@@ -536,12 +536,12 @@ class TokenBalanceTests: XCTestCase {
 
         XCTAssertEqual(pipeline.tokenViewModel(for: token)!.balance.value, .zero)
 
-        let testValue1 = BigInt("10000000000000000000000")
+        let testValue1 = BigUInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue1), for: token)
 
         XCTAssertEqual(pipeline.tokenViewModel(for: token)!.balance.value, testValue1)
 
-        let testValue2 = BigInt("20000000000000000000000")
+        let testValue2 = BigUInt("20000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue2), for: token)
 
         XCTAssertNotNil(pipeline.tokenViewModel(for: token))

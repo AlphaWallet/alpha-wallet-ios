@@ -77,7 +77,9 @@ extension TransactionConfirmationViewModel {
                         amountToSend = value
                     case .allFunds:
                         //NOTE: ignore passed value of 'allFunds', as we recalculating it again
-                        configurator.updateTransaction(value: BigUInt(balanceViewModel.value) - configurator.gasValue)
+                        if balanceViewModel.value > configurator.gasValue {
+                            configurator.updateTransaction(value: balanceViewModel.value - configurator.gasValue)
+                        }
                         amountToSend = balance
                     }
 

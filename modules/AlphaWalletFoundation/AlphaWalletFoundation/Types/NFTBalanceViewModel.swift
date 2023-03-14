@@ -22,8 +22,8 @@ struct NFTBalanceViewModel: BalanceViewModelType {
         return _balance.balanceNft
     }
 
-    var value: BigInt { return _balance.valueBI }
-    var valueDecimal: Decimal { Decimal(bigInt: value, decimals: _balance.decimals) ?? .zero }
+    var value: BigUInt { return _balance.valueBI }
+    var valueDecimal: Decimal { Decimal(bigUInt: value, decimals: _balance.decimals) ?? .zero }
     var amountString: String { return "\(nonZeroBalance) \(_balance.symbol)" }
     var currencyAmount: String? { return nil }
     var amountInFiat: Double? { return nil }

@@ -12,14 +12,14 @@ protocol BalanceViewModelType {
     var valueDecimal: Decimal { get }
     var amountInFiat: Double? { get }
 
-    var value: BigInt { get }
+    var value: BigUInt { get }
     var balance: [TokenBalanceValue] { get }
 
     var ticker: CoinTicker? { get }
 }
 
 extension BalanceViewModelType {
-    var isZero: Bool { value.isZero }
+    var isZero: Bool { value.signum() == .zero }
 }
 
 public struct BalanceViewModel: BalanceViewModelType {
@@ -29,7 +29,7 @@ public struct BalanceViewModel: BalanceViewModelType {
     public let valueDecimal: Decimal
     public let amountInFiat: Double?
     
-    public let value: BigInt
+    public let value: BigUInt
     public let balance: [TokenBalanceValue]
 
     public let ticker: CoinTicker?

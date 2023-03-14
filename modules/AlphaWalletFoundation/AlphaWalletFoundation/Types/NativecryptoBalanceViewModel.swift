@@ -18,8 +18,8 @@ struct NativecryptoBalanceViewModel: BalanceViewModelType {
         self.ticker = ticker
     }
     var balance: [TokenBalanceValue] { return [] }
-    var value: BigInt { _balance.valueBI }
-    var valueDecimal: Decimal { Decimal(bigInt: value, decimals: _balance.decimals) ?? .zero }
+    var value: BigUInt { _balance.valueBI }
+    var valueDecimal: Decimal { Decimal(bigUInt: value, decimals: _balance.decimals) ?? .zero }
 
     var amountString: String {
         guard !isZero else { return "0.00 \(_balance.server.symbol)" }

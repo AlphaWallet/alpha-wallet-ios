@@ -118,7 +118,7 @@ final class SwapTokensViewModel: NSObject {
             .map { $0.asAmount }
             .eraseToAnyPublisher()
 
-        self.buildBigIntValue(amount: amountToSwap)
+        self.buildBigUIntValue(amount: amountToSwap)
             .sink { [configurator] in configurator.set(fromAmount: $0) }
             .store(in: &cancelable)
 
@@ -180,12 +180,12 @@ final class SwapTokensViewModel: NSObject {
         }.eraseToAnyPublisher()
     }
 
-    private func buildBigIntValue(amount: AnyPublisher<FungibleAmount, Never>) -> AnyPublisher<BigInt?, Never> {
+    private func buildBigUIntValue(amount: AnyPublisher<FungibleAmount, Never>) -> AnyPublisher<BigUInt?, Never> {
         return Publishers.CombineLatest(amount, activeSession.combineLatest(swapPair))
-            .map { amount, sessionAndSwapPair -> BigInt? in
+            .map { amount, sessionAndSwapPair -> BigUInt? in
                 switch amount {
                 case .amount(let amount):
-                    return Decimal(amount).toBigInt(decimals: sessionAndSwapPair.1.from.decimals)
+                    return Decimal(amount).toBigUInt(decimals: sessionAndSwapPair.1.from.decimals)
                 case .allFunds:
                     guard let balance: BalanceViewModel = self.balance(for: sessionAndSwapPair.1.from, session: sessionAndSwapPair.0) else {
                         return nil

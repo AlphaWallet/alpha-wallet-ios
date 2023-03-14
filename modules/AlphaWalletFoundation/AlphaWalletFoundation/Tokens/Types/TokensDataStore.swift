@@ -176,7 +176,7 @@ public enum NonFungibleBalance {
 }
 
 public enum TokenFieldUpdate {
-    case value(BigInt)
+    case value(BigUInt)
     case isDisabled(Bool)
     case nonFungibleBalance(NonFungibleBalance)
     case name(String)
@@ -520,7 +520,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return result
     }
 
-    private func updateFungibleBalance(balance value: BigInt, token: TokenObject) -> Bool {
+    private func updateFungibleBalance(balance value: BigUInt, token: TokenObject) -> Bool {
         if token.value != value.description {
             token.value = value.description
             return true

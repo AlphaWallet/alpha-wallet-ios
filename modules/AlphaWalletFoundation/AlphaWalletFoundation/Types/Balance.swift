@@ -4,9 +4,9 @@ import BigInt
 import Foundation
 
 public struct Balance {
-    public let value: BigInt
+    public let value: BigUInt
     
-    public init(value: BigInt) {
+    public init(value: BigUInt) {
         self.value = value
     }
 }

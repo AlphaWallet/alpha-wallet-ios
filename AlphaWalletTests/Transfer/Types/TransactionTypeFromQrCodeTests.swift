@@ -76,7 +76,7 @@ class ImportTokenTests: XCTestCase {
         tokensDataStore.addOrUpdate(with: [.init(token)])
 
         let expectation = self.expectation(description: "did resolve erc20 token")
-        contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .init("1"), tokenType: .erc20)
+        contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: BigUInt("1"), tokenType: .erc20)
 
         importToken.importToken(for: address)
             .sink(receiveCompletion: { _ in
