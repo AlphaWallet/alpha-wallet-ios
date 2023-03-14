@@ -200,24 +200,24 @@ final class WalletConnectV2Provider: WalletConnectServer {
     private func _didReceive(proposal: WalletConnectSwiftV2.Session.Proposal, completion: @escaping () -> Void) {
         infoLog("[WalletConnect2] WC: Did receive session proposal")
 
-        func reject(proposal: WalletConnectSwiftV2.Session.Proposal) {
-            infoLog("[WalletConnect2] WC: Did reject session proposal: \(proposal)")
-            client.reject(proposalId: proposal.id, reason: .userRejectedChains)
+        func reject(proposal: WalletConnectSwiftV2.Session.Proposal, reason: RejectionReason) {
+            infoLog("[WalletConnect2] WC: Did reject session proposal: \(proposal), reason: \(reason)")
+            client.reject(proposalId: proposal.id, reason: reason)
             completion()
         }
 
-        guard let delegate = delegate else {
-            reject(proposal: proposal)
+        guard let delegate = delegate, let newProposal = AlphaWallet.WalletConnect.Proposal(proposal: proposal) else {
+            reject(proposal: proposal, reason: .userRejectedChains)
             return
         }
 
-        delegate.server(self, shouldConnectFor: .init(proposal: proposal))
+        delegate.server(self, shouldConnectFor: newProposal)
             .sink { [weak self, caip10AccountProvidable] response in
                 guard let strongSelf = self else { return }
 
                 guard response.shouldProceed else {
                     strongSelf.currentProposal = .none
-                    reject(proposal: proposal)
+                    reject(proposal: proposal, reason: .userRejected)
                     return
                 }
 
@@ -230,7 +230,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
                 } catch {
                     delegate.server(strongSelf, didFail: error)
                     //NOTE: for now we dont throw any error, just rejecting connection proposal
-                    reject(proposal: proposal)
+                    reject(proposal: proposal, reason: .userRejected)
                 }
             }.store(in: &cancelable)
     }
@@ -238,13 +238,18 @@ final class WalletConnectV2Provider: WalletConnectServer {
 
 fileprivate extension AlphaWallet.WalletConnect.Proposal {
 
-    init(proposal: WalletConnectSwiftV2.Session.Proposal) {
+    init?(proposal: WalletConnectSwiftV2.Session.Proposal) {
         name = proposal.proposer.name
-        dappUrl = URL(string: proposal.proposer.url)!
+        guard let dappUrl = URL(string: proposal.proposer.url) else { return nil }
+        self.dappUrl = dappUrl
         description = proposal.proposer.description
-        iconUrl = proposal.proposer.icons.compactMap({ URL(string: $0) }).first
-        servers = proposal.requiredNamespaces.values.flatMap { RPCServer.decodeEip155Array(values: Set($0.chains.map { $0.absoluteString }) ) }
+        iconUrl = proposal.proposer.icons.compactMap { URL(string: $0) }.first
+        //NOTE: prevent create proposals for non supported chains
+        let servers = proposal.requiredNamespaces.values.flatMap { RPCServer.decodeEip155Array(values: Set($0.chains.map { $0.absoluteString }) ) }
+        guard !servers.isEmpty else { return nil }
+        self.servers = servers
         methods = Array(proposal.requiredNamespaces.values.flatMap { $0.methods })
         serverEditing = .notSupporting
+
     }
 }
