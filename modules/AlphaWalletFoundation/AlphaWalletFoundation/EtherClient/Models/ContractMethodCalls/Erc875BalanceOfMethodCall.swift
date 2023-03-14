@@ -27,7 +27,8 @@ struct Erc875BalanceOfMethodCall: ContractMethodCall {
         guard let dictionary = resultObject as? [String: AnyObject] else {
             throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
         }
-        return Erc875BalanceOfMethodCall.adapt(dictionary)
+        
+        return Erc875BalanceOfMethodCall.adapt(dictionary["0"])
     }
 
     private static func adapt(_ values: Any?) -> [String] {
