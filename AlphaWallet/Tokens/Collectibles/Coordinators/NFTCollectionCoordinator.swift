@@ -64,7 +64,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             sessionsProvider: sessionsProvider,
             tokenCardViewFactory: tokenCardViewFactory,
             tokenImageFetcher: tokenImageFetcher)
-        
+
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -165,7 +165,7 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     private func showNftAsset(tokenHolder: TokenHolder,
                               mode: NFTAssetViewModel.InterationMode = .interactive,
                               navigationController: UINavigationController?) {
-        
+
         let vc: UIViewController
         switch tokenHolder.type {
         case .collectible:
@@ -482,11 +482,13 @@ extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDel
 extension NFTCollectionCoordinator: GenerateSellMagicLinkViewControllerDelegate {
 
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
-        do {
-            let url = try viewController.viewModel.generateSellLink()
-            displayShareUrlView(url: url, from: viewController, sender: sender)
-        } catch {
-            viewController.displayError(error: error)
+        Task.init { @MainActor in
+            do {
+                let url = try await viewController.viewModel.generateSellLink()
+                displayShareUrlView(url: url, from: viewController, sender: sender)
+            } catch {
+                viewController.displayError(error: error)
+            }
         }
     }
 
@@ -555,12 +557,13 @@ extension NFTCollectionCoordinator: SetTransferTokensCardExpiryDateViewControlle
 
 extension NFTCollectionCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView) {
-        do {
-            let url = try viewController.viewModel.generateTransferLink()
-
-            displayShareUrlView(url: url, from: viewController, sender: sender)
-        } catch {
-            viewController.displayError(error: error)
+        Task.init { @MainActor in
+            do {
+                let url = try await viewController.viewModel.generateTransferLink()
+                displayShareUrlView(url: url, from: viewController, sender: sender)
+            } catch {
+                viewController.displayError(error: error)
+            }
         }
     }
 

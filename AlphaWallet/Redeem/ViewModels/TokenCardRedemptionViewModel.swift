@@ -20,7 +20,7 @@ struct TokenCardRedemptionViewModel {
         return R.string.localizable.aWalletTokenRedeemShowQRCodeTitle()
     }
 
-    func redeemQrCode() -> UIImage? {
+    func redeemQrCode() async -> UIImage? {
         let redeem = CreateRedeem(token: token)
         let redeemData: (message: String, qrCode: String)
         switch token.type {
@@ -31,10 +31,10 @@ struct TokenCardRedemptionViewModel {
         case .erc721, .erc721ForTickets:
             redeemData = redeem.redeemMessage(tokenIds: tokenHolder.tokens.map { $0.id })
         }
-        func _generateQr(account: AlphaWallet.Address) -> UIImage? {
+        func _generateQr(account: AlphaWallet.Address) async -> UIImage? {
             do {
                 let prompt = R.string.localizable.keystoreAccessKeySign()
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore, prompt: prompt) else { return nil }
+                guard let decimalSignature = try await SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore, prompt: prompt) else { return nil }
                 let qrCodeInfo = redeemData.qrCode + decimalSignature
                 return qrCodeInfo.toQRCode()
             } catch {
@@ -44,11 +44,11 @@ struct TokenCardRedemptionViewModel {
 
         switch session.account.type {
         case .real(let account), .hardware(let account):
-            return _generateQr(account: account)
+            return await _generateQr(account: account)
         case .watch(let account):
             //TODO should pass in a Config instance instead
             if session.config.development.shouldPretendIsRealWallet {
-                return _generateQr(account: account)
+                return await _generateQr(account: account)
             } else {
                 return nil
             }

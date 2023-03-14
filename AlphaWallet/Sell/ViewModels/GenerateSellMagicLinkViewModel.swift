@@ -97,7 +97,7 @@ struct GenerateSellMagicLinkViewModel {
     var detailsBackgroundBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
-    
+
     init(magicLinkData: MagicLinkGenerator.MagicLinkData,
          ethCost: Double,
          linkExpiryDate: Date,
@@ -111,8 +111,8 @@ struct GenerateSellMagicLinkViewModel {
         self.keystore = keystore
     }
 
-    func generateSellLink() throws -> String {
-        return try MagicLinkGenerator(
+    func generateSellLink() async throws -> String {
+        return try await MagicLinkGenerator(
             keystore: keystore,
             session: session,
             prompt: R.string.localizable.keystoreAccessKeySign()).generateSellLink(
