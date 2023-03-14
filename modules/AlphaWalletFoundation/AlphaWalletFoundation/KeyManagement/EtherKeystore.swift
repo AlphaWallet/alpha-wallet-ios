@@ -428,7 +428,7 @@ open class EtherKeystore: NSObject, Keystore {
 
     public func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
         let prefix = "\u{19}Ethereum Signed Message:\n\(message.count)".data(using: .utf8)!
-        return signMessage(prefix + message, for: account, prompt: prompt)
+        return signMessageData(prefix + message, for: account, prompt: prompt)
     }
 
     public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
@@ -460,10 +460,6 @@ open class EtherKeystore: NSObject, Keystore {
         let values = datas.map { $0.typedData }.reduce(Data(), { $0 + $1 }).sha3(.keccak256)
         let combined = (schemas + values).sha3(.keccak256)
         return signHash(combined, for: account, prompt: prompt)
-    }
-
-    public func signMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
-        return signHash(message.sha3(.keccak256), for: account, prompt: prompt)
     }
 
     public func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
