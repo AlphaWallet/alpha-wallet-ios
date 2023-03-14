@@ -31,7 +31,6 @@ public protocol Keystore: AnyObject {
     func isProtectedByUserPresence(account: AlphaWallet.Address) -> Bool
     func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
     func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
-    func signMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
     func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
     func signTransaction(_ transaction: UnsignedTransaction, prompt: String) -> Result<Data, KeystoreError>
     func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
