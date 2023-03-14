@@ -21,10 +21,10 @@ extension SignMessageValidatorError: LocalizedError {
             case .walletConnect:
                 return R.string.localizable.signMessageValidationWalletConnectV1RequestedChainUnavailable(active.name, requested.name)
             }
-        case .notMatchesToAnyOfChainIds(let active, _, _):
-            let active = String(active.map { $0.name }.joined(by: ","))
-            return R.string.localizable.signMessageValidationWalletConnectV2RequestedChainUnavailable(active)
+        case .notMatchesToAnyOfChainIds(_, let requested, _):
+            return R.string.localizable.signMessageValidationWalletConnectV2RequestedChainUnavailable(requested.name, requested.name)
         }
+        
     }
 }
 

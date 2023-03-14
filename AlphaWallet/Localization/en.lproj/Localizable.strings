@@ -462,7 +462,7 @@
 "signMessage.validation.emptyMessage" = "Message to sign MUST be non empty";
 "signMessage.validation.dappBrowser.requestedChainUnavailable" = "You were requested to sign a message for the %@ chain. You are currently on the %@ chain";
 "signMessage.validation.walletConnect.v1.requestedChainUnavailable" = "You were requested to sign a message for the %@ chain. You are currently on the %@ chai";
-"signMessage.validation.walletConnect.v2.requestedChainUnavailable" = "You were requested to sign a message for the %@ chain. You need to enable this chain for your WalletConnect session";
+"signMessage.validation.walletConnect.v2.requestedChainUnavailable" = "You were requested to sign a message for the %@ chain. Make sure the %@ chain is enabled";
 "recent.transactions" = "Recent Transactions";
 "blockchain.XDAI" = "xDAI Chain";
 "blockchain.ARTIS.sigma1" = "ARTIS sigma1 Network";
