@@ -431,15 +431,14 @@ open class EtherKeystore: NSObject, Keystore {
         return signMessageData(prefix + message, for: account, prompt: prompt)
     }
 
-    public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+    private func _signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
         let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
         switch key {
         case .seed, .seedPhrase:
             return .failure(.failedToExportPrivateKey)
         case .key(let key):
             do {
-                var data = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-                data[64] += EthereumSigner.vitaliklizeConstant
+                let data = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
                 return .success(data)
             } catch {
                 return .failure(KeystoreError.failedToSignMessage)
@@ -448,6 +447,36 @@ open class EtherKeystore: NSObject, Keystore {
             return .failure(.userCancelled)
         case .notFound, .otherFailure:
             return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
+        }
+    }
+
+    private func _signHashes(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
+        let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
+        switch key {
+        case .seed, .seedPhrase:
+            return .failure(.failedToExportPrivateKey)
+        case .key(let key):
+            do {
+                let data = try EthereumSigner().signHashes(hashes, withPrivateKey: key)
+                return .success(data)
+            } catch {
+                return .failure(KeystoreError.failedToSignMessage)
+            }
+        case .userCancelled:
+            return .failure(.userCancelled)
+        case .notFound, .otherFailure:
+            return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
+        }
+    }
+
+    public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+        let result = _signHash(hash, for: account, prompt: prompt)
+        switch result {
+        case .success(var data):
+            data[64] += EthereumSigner.vitaliklizeConstant
+            return .success(data)
+        case .failure:
+            return result
         }
     }
 
@@ -465,49 +494,26 @@ open class EtherKeystore: NSObject, Keystore {
     public func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
         guard !data.isEmpty else { return .failure(KeystoreError.signDataIsEmpty) }
 
-        switch getPrivateKeyForSigning(forAccount: account, prompt: prompt) {
-        case .seed, .seedPhrase:
-            return .failure(.failedToExportPrivateKey)
-        case .key(let key):
-            do {
-                var messageHashes = [Data]()
-                for i in 0...data.count - 1 {
-                    let hash = data[i].sha3(.keccak256)
-                    messageHashes.append(hash)
-                }
-                var data = try EthereumSigner().signHashes(messageHashes, withPrivateKey: key)
-                for i in 0...data.count - 1 {
-                    data[i][64] += EthereumSigner.vitaliklizeConstant
-                }
-                return .success(data)
-            } catch {
-                return .failure(KeystoreError.failedToSignMessage)
+        var messageHashes = [Data]()
+        for i in 0...data.count - 1 {
+            let hash = data[i].sha3(.keccak256)
+            messageHashes.append(hash)
+        }
+        let result = _signHashes(messageHashes, for: account, prompt: prompt)
+        switch result {
+        case .success(var data):
+            for i in 0...data.count - 1 {
+                data[i][64] += EthereumSigner.vitaliklizeConstant
             }
-        case .userCancelled:
-            return .failure(.userCancelled)
-        case .notFound, .otherFailure:
-            return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
+            return .success(data)
+        case .failure:
+            return result
         }
     }
 
     public func signMessageData(_ message: Data?, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
         guard let hash = message?.sha3(.keccak256) else { return .failure(KeystoreError.failedToSignMessage) }
-        switch getPrivateKeyForSigning(forAccount: account, prompt: prompt) {
-        case .seed, .seedPhrase:
-            return .failure(.failedToExportPrivateKey)
-        case .key(let key):
-            do {
-                var data = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-                data[64] += EthereumSigner.vitaliklizeConstant
-                return .success(data)
-            } catch {
-                return .failure(KeystoreError.failedToSignMessage)
-            }
-        case .userCancelled:
-            return .failure(.userCancelled)
-        case .notFound, .otherFailure:
-            return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
-        }
+        return try signHash(hash, for: account, prompt: prompt)
     }
 
     public func signTransaction(_ transaction: UnsignedTransaction, prompt: String) -> Result<Data, KeystoreError> {
@@ -520,11 +526,9 @@ open class EtherKeystore: NSObject, Keystore {
 
         do {
             let hash = try signer.hash(transaction: transaction)
-            switch getPrivateKeyForSigning(forAccount: transaction.account, prompt: prompt) {
-            case .seed, .seedPhrase:
-                return .failure(.failedToExportPrivateKey)
-            case .key(let key):
-                let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
+            let data = _signHash(hash, for: transaction.account, prompt: prompt)
+            switch data {
+            case .success(let signature):
                 let (r, s, v) = signer.values(signature: signature)
                 let values: [Any] = [
                     transaction.nonce,
@@ -540,10 +544,8 @@ open class EtherKeystore: NSObject, Keystore {
                     return .failure(.failedToSignTransaction)
                 }
                 return .success(data)
-            case .userCancelled:
-                return .failure(.userCancelled)
-            case .notFound, .otherFailure:
-                return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
+            case .failure:
+                return data
             }
         } catch {
             return .failure(.failedToSignTransaction)
