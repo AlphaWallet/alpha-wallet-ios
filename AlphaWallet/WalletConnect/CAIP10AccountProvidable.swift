@@ -28,7 +28,7 @@ extension CAIP10AccountProvidable {
 }
 
 class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
-    enum CAIP10AccountProvidableError: LocalizedError {
+    enum CAIP10AccountProvidableError: Error {
         case unavailableToBuildBlockchain
         case accountsNotFound
         case emptyNamespaces

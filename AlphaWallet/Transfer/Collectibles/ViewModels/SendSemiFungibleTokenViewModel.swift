@@ -69,7 +69,7 @@ final class SendSemiFungibleTokenViewModel {
     }
 }
 
-extension RpcNodeRetryableRequestError {
+extension RpcNodeRetryableRequestError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .possibleBinanceTestnetTimeout:
@@ -89,8 +89,8 @@ extension RpcNodeRetryableRequestError {
     }
 }
 
-extension SwapTokenError {
-    var localizedDescription: String {
+extension SwapTokenError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .swapNotSupported:
             return "Swap Not Supported"
@@ -98,8 +98,8 @@ extension SwapTokenError {
     }
 }
 
-extension BuyCryptoError {
-    var localizedDescription: String {
+extension BuyCryptoError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .buyNotSupported:
             return "Buy Crypto Not Supported"
@@ -107,8 +107,8 @@ extension BuyCryptoError {
     }
 }
 
-extension ActiveWalletError {
-    var localizedDescription: String {
+extension ActiveWalletError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .unavailableToResolveBridgeActionProvider:
             return "Unavailable To Resolve BridgeActionProvider"
@@ -124,8 +124,8 @@ extension ActiveWalletError {
     }
 }
 
-extension WalletApiError {
-    var localizedDescription: String {
+extension WalletApiError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .connectionAddressNotFound:
             return "Connection Address not Found"
@@ -139,8 +139,8 @@ extension WalletApiError {
     }
 }
 
-extension OpenURLError {
-    var localizedDescription: String {
+extension OpenURLError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .unsupportedTokenScriptVersion:
             return R.string.localizable.tokenScriptNotSupportedSchemaError()

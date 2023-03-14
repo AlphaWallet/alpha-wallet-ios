@@ -149,7 +149,7 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: presentingViewController)
-            .displayError(message: error.prettyError)
+            .displayError(message: error.localizedDescription)
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {

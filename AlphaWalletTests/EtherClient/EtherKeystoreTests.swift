@@ -154,7 +154,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.createHDWallet()
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { account in
@@ -177,7 +177,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.createHDWallet()
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
@@ -201,7 +201,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.importWallet(json: dict.jsonString!, password: passphrase)
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
@@ -219,7 +219,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.importWallet(privateKey: privateKey)
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
@@ -254,7 +254,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.importWallet(mnemonic: words, passphrase: "")
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
@@ -280,7 +280,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.importWallet(privateKey: privateKey)
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
@@ -306,7 +306,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.watchWallet(address: address)
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { _ in
@@ -325,7 +325,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.watchWallet(address: address)
             .sink(receiveCompletion: { result in
                 if case .failure(let e) = result {
-                    XCTFail(e.prettyError)
+                    XCTFail(e.localizedDescription)
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in

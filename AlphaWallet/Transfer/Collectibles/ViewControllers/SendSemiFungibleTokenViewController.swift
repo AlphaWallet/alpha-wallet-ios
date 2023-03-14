@@ -167,7 +167,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
         if let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) {
             delegate?.didEnterWalletAddress(tokenHolders: viewModel.tokenHolders, to: address, in: self)
         } else {
-            targetAddressTextField.errorState = .error(InputError.invalidAddress.prettyError)
+            targetAddressTextField.errorState = .error(InputError.invalidAddress.localizedDescription)
         }
     }
 
@@ -219,7 +219,7 @@ extension SendSemiFungibleTokenViewController: AddressTextFieldDelegate {
     }
 
     func displayError(error: Error, for textField: AddressTextField) {
-        targetAddressTextField.errorState = .error(InputError.invalidAddress.prettyError)
+        targetAddressTextField.errorState = .error(InputError.invalidAddress.localizedDescription)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {

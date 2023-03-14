@@ -143,7 +143,7 @@ final class SendViewModel: TransactionTypeSupportable {
             .eraseToAnyPublisher()
 
         let recipientErrorState = isRecipientValid(inputsValidationError: inputsValidationError)
-            .map { $0 ? TextField.TextFieldErrorState.none : TextField.TextFieldErrorState.error(InputError.invalidAddress.prettyError) }
+            .map { $0 ? TextField.TextFieldErrorState.none : TextField.TextFieldErrorState.error(InputError.invalidAddress.localizedDescription) }
             .eraseToAnyPublisher()
 
         let cryptoErrorState = isCryptoValueValid(cryptoValue: input.amountToSend, send: input.send)
@@ -464,7 +464,7 @@ extension TransactionTypeFromQrCode {
         case serverNotMatches
         case tokenNotFound
 
-        var localizedDescription: String {
+        var errorDescription: String? {
             switch self {
             case .serverNotMatches:
                 return "Server Not Matches"

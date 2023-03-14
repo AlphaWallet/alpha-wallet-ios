@@ -10,7 +10,7 @@ public enum FunctionError: LocalizedError {
     case formValue
     case postTransaction
 
-    var localizedDescription: String {
+    public var errorDescription: String? {
         switch self {
         case .formPayload:
             return "Impossible To Build Configuration! Form Payload missing"

@@ -107,7 +107,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
     private func displayError(_ error: Error, completion: @escaping () -> Void) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.prettyError, completion: completion)
+            .displayError(message: error.localizedDescription, completion: completion)
     }
 
     private func acceptProposal(proposalType: ProposalType) -> Promise<ProposalResult> {

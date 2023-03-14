@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum SwapError: Error {
+public enum SwapError: LocalizedError {
     case unableToBuildSwapUnsignedTransactionFromSwapProvider
     case unableToBuildSwapUnsignedTransaction(message: String)
     case invalidJson
@@ -16,7 +16,7 @@ public enum SwapError: Error {
     case inner(Error)
     case unknownError
 
-    public var localizedDescription: String {
+    public var errorDescription: String? {
         switch self {
         case .unableToBuildSwapUnsignedTransaction(let message):
             return "Unable To Build Swap Unsigned Transaction: \(message)"

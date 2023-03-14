@@ -872,7 +872,7 @@ extension DappBrowserCoordinator {
     enum DappBrowserError: Error, LocalizedError {
         case serverUnavailable
 
-        var localizedDescription: String {
+        var errorDescription: String? {
             return "RPC Server Unavailable"
         }
     }

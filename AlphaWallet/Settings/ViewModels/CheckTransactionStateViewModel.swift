@@ -68,14 +68,3 @@ extension AlphaWalletWeb3.Web3Error: LocalizedError {
         }
     }
 }
-extension UndefinedError {
-    public var localizedDescription: String {
-        R.string.localizable.undefinedError()
-    }
-}
-
-extension UnknownError {
-    public var localizedDescription: String {
-        R.string.localizable.unknownError()
-    }
-}

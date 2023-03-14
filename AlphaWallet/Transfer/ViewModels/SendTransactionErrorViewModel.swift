@@ -20,8 +20,8 @@ extension SendTransactionNotRetryableError: LocalizedError {
             return message
         case .executionReverted(let message):
             return message
-        case .unknown:
-            return R.string.localizable.unknownError()
+        case .unknown(_, let message):
+            return message
         }
     }
 }

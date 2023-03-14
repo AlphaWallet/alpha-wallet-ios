@@ -8,7 +8,7 @@ import SafariServices
 import UIKit
 import AlphaWalletFoundation
 
-enum ConfirmationError: LocalizedError {
+enum ConfirmationError: Error {
     case cancel
 }
 
@@ -55,10 +55,10 @@ extension UIViewController {
         var title = title
         let message: String
         if title.isEmpty {
-            title = error.prettyError
+            title = error.localizedDescription
             message = ""
         } else {
-            message = error.prettyError
+            message = error.localizedDescription
         }
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view

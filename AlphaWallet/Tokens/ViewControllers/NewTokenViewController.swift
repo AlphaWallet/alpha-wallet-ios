@@ -318,7 +318,7 @@ class NewTokenViewController: UIViewController {
         var balance: [String] = viewModel.erc875TokenBalance
 
         guard let address = AlphaWallet.Address(string: contract) else {
-            addressTextField.errorState = .error(InputError.invalidAddress.prettyError)
+            addressTextField.errorState = .error(InputError.invalidAddress.localizedDescription)
             return
         }
         addressTextField.errorState = .none
@@ -378,7 +378,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func displayError(error: Error, for textField: AddressTextField) {
-        textField.errorState = .error(error.prettyError)
+        textField.errorState = .error(error.localizedDescription)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {

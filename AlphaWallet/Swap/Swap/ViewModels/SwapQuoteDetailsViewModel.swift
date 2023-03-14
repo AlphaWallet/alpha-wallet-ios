@@ -128,7 +128,7 @@ final class SwapQuoteDetailsViewModel {
 }
 
 extension TokenLevelTokenScriptDisplayStatus.SignatureValidationError {
-    var localizedDescription: String {
+    var errorDescription: String? {
         switch self {
         case .tokenScriptType1SupportedNotCanonicalizedAndUnsigned:
             return R.string.localizable.tokenScriptType1SupportedNotCanonicalizedAndUnsigned()

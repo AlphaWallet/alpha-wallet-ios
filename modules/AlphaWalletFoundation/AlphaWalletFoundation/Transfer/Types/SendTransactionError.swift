@@ -23,7 +23,7 @@ public struct SendTransactionNotRetryableError: Error {
     }
 }
 
-public enum RpcNodeRetryableRequestError: LocalizedError {
+public enum RpcNodeRetryableRequestError: Error {
     //TODO move those that aren't retryable to a not-retryable version
     case possibleBinanceTestnetTimeout
     //TODO rate limited means we should retry after delay. Or maybe all retries should have a delay
