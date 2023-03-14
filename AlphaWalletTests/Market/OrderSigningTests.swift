@@ -10,7 +10,7 @@ class OrderSigningTests: XCTestCase {
     func testSigningOrders() throws {
         let keystore = FakeEtherKeystore()
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
-        
+
         var testOrdersList = [Order]()
         //set up test orders
         var indices = [UInt16]()
@@ -42,16 +42,16 @@ class OrderSigningTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { account in
                 let account = account.address
-
-                guard let signedOrders = try? signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
-                    XCTFail("Failure to sign an order")
-                    return
+                Task.init { [testOrdersList] in
+                    guard let signedOrders = try? await signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
+                        XCTFail("Failure to sign an order")
+                        return
+                    }
+                    XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
+                    keystore.delete(wallet: Wallet(address: account, origin: .hd))
                 }
-                XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
-                keystore.delete(wallet: Wallet(address: account, origin: .hd))
-
             }).store(in: &cancellable)
-        
+
         wait(for: [expectation], timeout: 20)
     }
 }

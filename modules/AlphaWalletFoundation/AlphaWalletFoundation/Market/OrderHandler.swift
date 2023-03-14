@@ -74,9 +74,9 @@ public class OrderHandler {
         self.prompt = prompt
     }
 
-    public func signOrders(orders: [Order], account: AlphaWallet.Address, tokenType: TokenType) throws -> [SignedOrder] {
+    public func signOrders(orders: [Order], account: AlphaWallet.Address, tokenType: TokenType) async throws -> [SignedOrder] {
         let messages = createMessagesFromOrders(orders: orders, tokenType: tokenType)
-        return try bulkSignOrders(messages: messages, account: account, orders: orders)
+        return try await bulkSignOrders(messages: messages, account: account, orders: orders)
     }
 
     private func createMessagesFromOrders(orders: [Order], tokenType: TokenType) -> [Data] {
@@ -108,9 +108,9 @@ public class OrderHandler {
         return messages
     }
 
-    private func bulkSignOrders(messages: [Data], account: AlphaWallet.Address, orders: [Order]) throws -> [SignedOrder] {
+    private func bulkSignOrders(messages: [Data], account: AlphaWallet.Address, orders: [Order]) async throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
-        let signatures = try keystore.signMessageBulk(messages, for: account, prompt: prompt).get()
+        let signatures = try await keystore.signMessageBulk(messages, for: account, prompt: prompt).get()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
                     order: orders[i],

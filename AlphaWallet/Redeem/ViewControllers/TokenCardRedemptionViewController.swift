@@ -102,7 +102,10 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
         navigationItem.title = viewModel.headerTitle
 
-        imageView.image = viewModel.redeemQrCode()
+        //TODO async-await: This could cause timing issues since we might finish the async call later
+        Task.init {
+            imageView.image = await viewModel.redeemQrCode()
+        }
 
         tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 

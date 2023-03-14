@@ -9,7 +9,7 @@ struct GenerateTransferMagicLinkViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
     private let keystore: Keystore
     private let session: WalletSession
-    
+
     var contentsBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
@@ -91,8 +91,8 @@ struct GenerateTransferMagicLinkViewModel {
         self.assetDefinitionStore = assetDefinitionStore
     }
 
-    func generateTransferLink() throws -> String {
-        return try MagicLinkGenerator(
+    func generateTransferLink() async throws -> String {
+        return try await MagicLinkGenerator(
             keystore: keystore,
             session: session,
             prompt: R.string.localizable.keystoreAccessKeySign()).generateTransferLink(

@@ -223,13 +223,15 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
-                guard let data = try? signResult.get() else {
-                    XCTFail("Failure to import wallet")
-                    return
+                Task.init {
+                    let signResult = await keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
+                    guard let data = try? signResult.get() else {
+                        XCTFail("Failure to import wallet")
+                        return
+                    }
+                    let expected = Data(hexString: "0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c")
+                    XCTAssertEqual(expected, data)
                 }
-                let expected = Data(hexString: "0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c")
-                XCTAssertEqual(expected, data)
             }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 20)
@@ -256,13 +258,15 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
-                guard let data = try? signResult.get() else {
-                    XCTFail("Failure to import wallet")
-                    return
+                Task.init {
+                    let signResult = await keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
+                    guard let data = try? signResult.get() else {
+                        XCTFail("Failure to import wallet")
+                        return
+                    }
+                    let expected = Data(hexString: "0x03f79a4efa290627cf3e134debd95f6effb60b1119997050fba7f6fd34db17144c8873b8a7a312797623f21a3e69e895d2afe3e1cb334f4bf46c58c5aaab9dac1c")
+                    XCTAssertEqual(expected, data)
                 }
-                let expected = Data(hexString: "0x03f79a4efa290627cf3e134debd95f6effb60b1119997050fba7f6fd34db17144c8873b8a7a312797623f21a3e69e895d2afe3e1cb334f4bf46c58c5aaab9dac1c")
-                XCTAssertEqual(expected, data)
             }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 20)
@@ -280,13 +284,15 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                let signResult = keystore.signPersonalMessage("0x3f44c2dfea365f01c1ada3b7600db9e2999dfea9fe6c6017441eafcfbc06a543".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
-                guard let data = try? signResult.get() else {
-                    XCTFail("Failure to import wallet")
-                    return
+                Task.init {
+                    let signResult = await keystore.signPersonalMessage("0x3f44c2dfea365f01c1ada3b7600db9e2999dfea9fe6c6017441eafcfbc06a543".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
+                    guard let data = try? signResult.get() else {
+                        XCTFail("Failure to import wallet")
+                        return
+                    }
+                    let expected = Data(hexString: "0x619b03743672e31ad1d7ee0e43f6802860082d161acc602030c495a12a68b791666764ca415a2b3083595aee448402874a5a376ea91855051e04c7b3e4693d201c")
+                    XCTAssertEqual(expected, data)
                 }
-                let expected = Data(hexString: "0x619b03743672e31ad1d7ee0e43f6802860082d161acc602030c495a12a68b791666764ca415a2b3083595aee448402874a5a376ea91855051e04c7b3e4693d201c")
-                XCTAssertEqual(expected, data)
             }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 20)

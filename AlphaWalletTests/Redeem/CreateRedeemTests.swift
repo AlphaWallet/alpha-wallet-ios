@@ -12,7 +12,7 @@ import Combine
 class CreateRedeemTests: XCTestCase {
     let keyStore = FakeEtherKeystore()
     private var cancellable = Set<AnyCancellable>()
-    
+
     //when loading qr only include signature in decimal and the indices
     func testGenerateRedeem() {
         var token = [BigUInt]()
@@ -29,14 +29,16 @@ class CreateRedeemTests: XCTestCase {
 
                 expectation.fulfill()
             }, receiveValue: { [keyStore] account in
-                do {
-                    let signature = keyStore.signMessageData(data!, for: account.address, prompt: R.string.localizable.keystoreAccessKeySign())
-                    //message and signature is to go in qr code
-                    verboseLog("message: " + message)
-                    verboseLog(try "signature: " + signature.get().hexString)
-                    //TODO no test?
-                } catch {
-                    warnLog(error)
+                Task.init {
+                    do {
+                        let signature = await keyStore.signMessageData(data!, for: account.address, prompt: R.string.localizable.keystoreAccessKeySign())
+                        //message and signature is to go in qr code
+                        verboseLog("message: " + message)
+                        verboseLog(try "signature: " + signature.get().hexString)
+                        //TODO no test?
+                    } catch {
+                        warnLog(error)
+                    }
                 }
             }).store(in: &cancellable)
 

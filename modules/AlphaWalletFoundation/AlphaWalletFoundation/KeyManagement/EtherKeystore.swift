@@ -426,12 +426,12 @@ open class EtherKeystore: NSObject, Keystore {
         return walletAddressesStore.ethereumAddressesProtectedByUserPresence.contains(account.eip55String)
     }
 
-    public func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+    public func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
         let prefix = "\u{19}Ethereum Signed Message:\n\(message.count)".data(using: .utf8)!
-        return signMessageData(prefix + message, for: account, prompt: prompt)
+        return await signMessageData(prefix + message, for: account, prompt: prompt)
     }
 
-    private func _signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+    private func _signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
         let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
         switch key {
         case .seed, .seedPhrase:
@@ -450,7 +450,7 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    private func _signHashes(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
+    private func _signHashes(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) async -> Result<[Data], KeystoreError> {
         let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
         switch key {
         case .seed, .seedPhrase:
@@ -469,8 +469,8 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
-        let result = _signHash(hash, for: account, prompt: prompt)
+    public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
+        let result = await _signHash(hash, for: account, prompt: prompt)
         switch result {
         case .success(var data):
             data[64] += EthereumSigner.vitaliklizeConstant
@@ -480,18 +480,18 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    public func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
-        signHash(data.digest, for: account, prompt: prompt)
+    public func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
+        await signHash(data.digest, for: account, prompt: prompt)
     }
 
-    public func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+    public func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
         let schemas = datas.map { $0.schemaData }.reduce(Data(), { $0 + $1 }).sha3(.keccak256)
         let values = datas.map { $0.typedData }.reduce(Data(), { $0 + $1 }).sha3(.keccak256)
         let combined = (schemas + values).sha3(.keccak256)
-        return signHash(combined, for: account, prompt: prompt)
+        return await signHash(combined, for: account, prompt: prompt)
     }
 
-    public func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
+    public func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) async -> Result<[Data], KeystoreError> {
         guard !data.isEmpty else { return .failure(KeystoreError.signDataIsEmpty) }
 
         var messageHashes = [Data]()
@@ -499,7 +499,7 @@ open class EtherKeystore: NSObject, Keystore {
             let hash = data[i].sha3(.keccak256)
             messageHashes.append(hash)
         }
-        let result = _signHashes(messageHashes, for: account, prompt: prompt)
+        let result = await _signHashes(messageHashes, for: account, prompt: prompt)
         switch result {
         case .success(var data):
             for i in 0...data.count - 1 {
@@ -511,12 +511,12 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    public func signMessageData(_ message: Data?, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError> {
+    public func signMessageData(_ message: Data?, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
         guard let hash = message?.sha3(.keccak256) else { return .failure(KeystoreError.failedToSignMessage) }
-        return try signHash(hash, for: account, prompt: prompt)
+        return try await signHash(hash, for: account, prompt: prompt)
     }
 
-    public func signTransaction(_ transaction: UnsignedTransaction, prompt: String) -> Result<Data, KeystoreError> {
+    public func signTransaction(_ transaction: UnsignedTransaction, prompt: String) async -> Result<Data, KeystoreError> {
         let signer: Signer
         if transaction.server.chainID == 0 {
             signer = HomesteadSigner()
@@ -526,7 +526,7 @@ open class EtherKeystore: NSObject, Keystore {
 
         do {
             let hash = try signer.hash(transaction: transaction)
-            let data = _signHash(hash, for: transaction.account, prompt: prompt)
+            let data = await _signHash(hash, for: transaction.account, prompt: prompt)
             switch data {
             case .success(let signature):
                 let (r, s, v) = signer.values(signature: signature)
