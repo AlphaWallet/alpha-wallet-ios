@@ -79,6 +79,8 @@ extension TransactionConfirmationViewModel {
                         //NOTE: ignore passed value of 'allFunds', as we recalculating it again
                         if balanceViewModel.value > configurator.gasValue {
                             configurator.updateTransaction(value: balanceViewModel.value - configurator.gasValue)
+                        } else {
+                            configurator.updateTransaction(value: .zero)
                         }
                         amountToSend = balance
                     }
