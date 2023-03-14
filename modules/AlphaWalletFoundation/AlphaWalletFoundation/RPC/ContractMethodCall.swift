@@ -17,7 +17,7 @@ public protocol ContractMethodCall: CustomStringConvertible {
     /// Special flag for token script
     var shouldDelayIfCached: Bool { get }
 
-    func response(from resultObject: Any) throws -> Response
+    func response(from dictionary: [String: Any]) throws -> Response
 }
 
 extension ContractMethodCall {

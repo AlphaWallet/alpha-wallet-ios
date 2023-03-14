@@ -30,11 +30,7 @@ struct AssetAttributeMethodCall: ContractMethodCall {
         self.parameters = functionCall.arguments
     }
 
-    func response(from resultObject: Any) throws -> AssetInternalValue {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> AssetInternalValue {
         if let value = dictionary["0"] {
             return CallForAssetAttributeProvider.functional.mapValue(of: functionCall.output, for: value)
         } else {

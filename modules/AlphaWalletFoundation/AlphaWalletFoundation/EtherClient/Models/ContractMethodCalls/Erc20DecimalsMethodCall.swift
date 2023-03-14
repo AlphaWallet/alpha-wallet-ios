@@ -20,11 +20,7 @@ struct Erc20DecimalsMethodCall: ContractMethodCall {
         self.contract = contract
     }
 
-    func response(from resultObject: Any) throws -> Int {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> Int {
         guard let decimalsOfUnknownType = dictionary["0"], let decimals = Int(String(describing: decimalsOfUnknownType)) else {
             throw CastError(actualValue: dictionary["0"], expectedType: Int.self)
         }

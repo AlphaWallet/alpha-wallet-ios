@@ -23,11 +23,7 @@ struct Erc20SupportsInterfaceMethodCall: ContractMethodCall {
         self.hash = hash
     }
 
-    func response(from resultObject: Any) throws -> Bool {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> Bool {
         guard let supported = dictionary["0"] as? Bool else {
             throw CastError(actualValue: dictionary["0"], expectedType: Bool.self)
         }

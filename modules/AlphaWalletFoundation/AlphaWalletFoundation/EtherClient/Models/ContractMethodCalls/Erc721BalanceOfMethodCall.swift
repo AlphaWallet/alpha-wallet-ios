@@ -25,11 +25,7 @@ struct Erc721BalanceOfMethodCall: ContractMethodCall {
         self.contract = contract
     }
 
-    func response(from resultObject: Any) throws -> [String] {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> [String] {
         let balance = Erc721BalanceOfMethodCall.adapt(dictionary["0"] as Any)
         if balance >= Int.max {
             throw CastError(actualValue: dictionary["0"], expectedType: Int.self)

@@ -19,11 +19,7 @@ struct Erc20NameMethodCall: ContractMethodCall {
         self.contract = contract
     }
 
-    func response(from resultObject: Any) throws -> String {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> String {
         guard let name = dictionary["0"] as? String else {
             throw CastError(actualValue: dictionary["0"], expectedType: String.self)
         }
