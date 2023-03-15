@@ -1,8 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import AlphaWalletFoundation
 import Combine
+import AlphaWalletFoundation
+import AlphaWalletTrustWalletCoreExtensions
 
 protocol ImportWalletViewControllerDelegate: AnyObject {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)

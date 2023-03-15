@@ -30,6 +30,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletTrackAPICalls', :path => '.'
   pod 'AlphaWalletWeb3', :path => '.'
   pod 'AlphaWalletShareExtensionCore', :path => '.'
+  pod 'AlphaWalletTrustWalletCoreExtensions', :path => '.'
   pod 'MailchimpSDK'
   pod 'xcbeautify'
   pod 'FloatingPanel'

@@ -173,3 +173,10 @@ public class OrderHandler {
     }
 
 }
+
+fileprivate extension Data {
+    //TODO: Duplicated here when we break out `AlphaWalletTrustWalletCoreExtensions` pod. To de-dup anytime
+    var hexString: String {
+        return map({ String(format: "%02x", $0) }).joined()
+    }
+}
