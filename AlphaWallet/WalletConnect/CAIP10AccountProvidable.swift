@@ -30,7 +30,7 @@ extension CAIP10AccountProvidable {
 class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
     enum CAIP10AccountProvidableError: Error {
         case unavailableToBuildBlockchain
-        case accountsNotFound
+        case chainNotSupported
         case emptyNamespaces
         case eip155NotFound
     }
@@ -121,7 +121,7 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
             let toAdd = (accountsSubject.value ?? .init()).filter { $0.blockchain == blockchain }
             accounts = accounts.union(toAdd)
         }
-        guard !accounts.isEmpty else { throw CAIP10AccountProvidableError.accountsNotFound }
+        guard !accounts.isEmpty else { throw CAIP10AccountProvidableError.chainNotSupported }
 
         return accounts
     }

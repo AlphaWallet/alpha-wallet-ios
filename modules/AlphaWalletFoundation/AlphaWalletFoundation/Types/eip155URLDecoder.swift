@@ -40,7 +40,7 @@ public struct eip155URLCoder {
     public static func decodeRPC(from string: String) -> RPCServer? {
         let components = string.components(separatedBy: ":")
         guard components.count >= 2, components[0].contains(eip155URLCoder.key) else { return .none }
-        return components[1].optionalDecimalValue.flatMap({ RPCServer(chainID: $0.intValue) })
+        return components[1].optionalDecimalValue.flatMap { RPCServer(chainIdOptional: $0.intValue) }
     }
 
     ///"eip155:42:0x9E7aAF819E8f227B766E71FAc2DD018A36a0969A"
@@ -61,7 +61,7 @@ extension RPCServer {
             if let server = eip155URLCoder.decodeRPC(from: str) {
                 return server
             } else if let value = Int(str, radix: 10) {
-                return RPCServer(chainID: value)
+                return RPCServer(chainIdOptional: value)
             } else {
                 return nil
             }
