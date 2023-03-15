@@ -14,10 +14,10 @@ public protocol TransactionConfiguratorDelegate: AnyObject {
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
 }
 
-public enum TransactionConfiguratorError: Error {
+public enum TransactionConfiguratorError: LocalizedError {
     case impossibleToBuildConfiguration
 
-    var localizedDescription: String {
+    public var errorDescription: String? {
         return "Impossible To Build Configuration"
     }
 }

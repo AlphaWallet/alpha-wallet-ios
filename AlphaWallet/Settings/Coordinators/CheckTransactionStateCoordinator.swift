@@ -60,7 +60,7 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
             .transactionsState(hash: transactionHash)
             .sink(receiveCompletion: { result in
                 if case .failure(let error) = result {
-                    self.displayErrorMessage(R.string.localizable.checkTransactionStateError(error.prettyError), title: R.string.localizable.error())
+                    self.displayErrorMessage(R.string.localizable.checkTransactionStateError(error.localizedDescription), title: R.string.localizable.error())
                 }
 
                 self.rootViewController.set(isActionButtonEnable: true)

@@ -8,6 +8,6 @@ class ErrorTests: XCTestCase {
     func testMakeSureErrorMessageDefinedInExtensionAvailableCorrectlyAcrossFrameworks() {
         //Must be stored as `Error` for test
         let e: Error = KeystoreError.duplicateAccount
-        XCTAssertEqual(e.prettyError, "You already added this address to wallets")
+        XCTAssertEqual(e.localizedDescription, "You already added this address to wallets")
     }
 }

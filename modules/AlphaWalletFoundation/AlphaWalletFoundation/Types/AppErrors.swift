@@ -7,15 +7,15 @@
 
 import Foundation
 
-public enum SwapTokenError: LocalizedError {
+public enum SwapTokenError: Error {
     case swapNotSupported
 }
 
-public enum BuyCryptoError: LocalizedError {
+public enum BuyCryptoError: Error {
     case buyNotSupported
 }
 
-public enum ActiveWalletError: LocalizedError {
+public enum ActiveWalletError: Error {
     case unavailableToResolveSwapActionProvider
     case unavailableToResolveBridgeActionProvider
     case bridgeNotSupported
@@ -23,7 +23,7 @@ public enum ActiveWalletError: LocalizedError {
     case operationForTokenNotFound
 }
 
-public enum WalletApiError: LocalizedError {
+public enum WalletApiError: Error {
     case connectionAddressNotFound
     case requestedWalletNonActive
     case requestedServerDisabled

@@ -179,7 +179,7 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.prettyError)
+            .displayError(message: error.localizedDescription)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
@@ -250,7 +250,7 @@ extension TokenScriptCoordinator: ConfirmTokenScriptActionTransactionDelegate {
         } catch {
             UIApplication.shared
                 .presentedViewController(or: navigationController)
-                .displayError(message: error.prettyError)
+                .displayError(message: error.localizedDescription)
         }
     }
 }

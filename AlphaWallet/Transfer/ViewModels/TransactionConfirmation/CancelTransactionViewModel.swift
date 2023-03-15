@@ -150,8 +150,8 @@ extension TransactionConfigurator.GasFeeWarning {
     }
 }
 
-extension ConfigureTransactionError {
-    var localizedDescription: String {
+extension ConfigureTransactionError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .gasLimitTooHigh:
             return R.string.localizable.configureTransactionErrorGasLimitTooHigh(ConfigureTransaction.gasLimitMax)
@@ -168,7 +168,7 @@ extension ConfigureTransactionError {
 }
 
 extension AddCustomChainError {
-    var localizedDescription: String {
+    var errorDescription: String? {
         switch self {
         case .cancelled:
             //This is the default behavior, just keep it

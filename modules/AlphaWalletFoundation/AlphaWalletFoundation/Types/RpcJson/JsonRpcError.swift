@@ -34,3 +34,9 @@ public extension JsonRpcError {
         JsonRpcError(code: -32603, message: message)
     }
 }
+
+extension JsonRpcError: LocalizedError {
+    public var errorDescription: String? {
+        return message
+    }
+}

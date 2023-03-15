@@ -10,7 +10,7 @@ protocol SignMessageCoordinatorDelegate: AnyObject {
 }
 
 extension SignMessageValidatorError: LocalizedError {
-    var localizedDescription: String {
+    public var errorDescription: String? {
         switch self {
         case .emptyMessage:
             return R.string.localizable.signMessageValidationEmptyMessage()
@@ -112,7 +112,7 @@ class SignMessageCoordinator: Coordinator {
     private func showError(error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.prettyError)
+            .displayError(message: error.localizedDescription)
     }
 }
 

@@ -303,7 +303,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     func provider(_ provider: WalletConnectProvider, didFail error: WalletConnectError) {
         infoLog("[WalletConnect] didFail error: \(error)")
 
-        guard let description = error.localizedDescription else { return }
+        guard let description = error.errorDescription else { return }
         displayErrorMessage(description)
     }
 

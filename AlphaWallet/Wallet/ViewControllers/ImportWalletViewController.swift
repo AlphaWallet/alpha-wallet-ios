@@ -676,7 +676,7 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
     }
 
     func displayError(error: Error, for textField: AddressTextField) {
-        textField.errorState = .error(error.prettyError)
+        textField.errorState = .error(error.localizedDescription)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {

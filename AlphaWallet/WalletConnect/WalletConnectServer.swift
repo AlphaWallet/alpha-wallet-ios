@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 import PromiseKit
 import AlphaWalletCore
 
-enum WalletConnectError: Error {
+enum WalletConnectError: LocalizedError {
     case onlyForWatchWallet(address: AlphaWallet.Address)
     case walletsNotFound(addresses: [AlphaWallet.Address])
     case callbackIdMissing
@@ -30,7 +30,7 @@ enum WalletConnectError: Error {
         } else if let error = error.embedded as? WalletConnectError {
             self = error
         } else {
-            self = .internal(.init(code: -32051, message: error.embedded.prettyError))
+            self = .internal(.init(code: -32051, message: error.embedded.localizedDescription))
         }
     }
 
@@ -43,7 +43,7 @@ enum WalletConnectError: Error {
         }
     }
 
-    var localizedDescription: String? {
+    var errorDescription: String? {
         switch self {
         case .internal(let error):
             return error.message

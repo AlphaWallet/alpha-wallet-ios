@@ -205,7 +205,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         } else {
             UIApplication.shared
                 .presentedViewController(or: navigationController)
-                .displayError(message: error.prettyError)
+                .displayError(message: error.localizedDescription)
         }
     }
 
@@ -281,7 +281,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     private func showError(_ error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.prettyError)
+            .displayError(message: error.localizedDescription)
     }
 }
 
@@ -313,7 +313,7 @@ extension SwapTokensCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.prettyError)
+            .displayError(message: error.localizedDescription)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {

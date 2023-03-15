@@ -57,7 +57,7 @@ class ExportJsonKeystoreFileViewModel {
             .share()
             .eraseToAnyPublisher()
 
-        let error = Publishers.Merge(makeJsonFile.compactMap { $0.error?.prettyError }, computeJson.compactMap { $0.error?.prettyError })
+        let error = Publishers.Merge(makeJsonFile.compactMap { $0.error?.localizedDescription }, computeJson.compactMap { $0.error?.localizedDescription })
             .eraseToAnyPublisher()
 
         let fileUrl = makeJsonFile.compactMap { $0.value }
