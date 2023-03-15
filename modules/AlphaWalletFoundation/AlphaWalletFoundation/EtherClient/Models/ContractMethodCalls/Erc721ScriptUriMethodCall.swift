@@ -44,11 +44,7 @@ struct Erc721ScriptUriMethodCall: ContractMethodCall {
         self.contract = contract
     }
 
-    func response(from resultObject: Any) throws -> URL {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> URL {
         guard let urlString = dictionary["0"] as? String, let url = URL(string: urlString) else {
             throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
         }

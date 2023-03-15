@@ -25,11 +25,7 @@ struct Erc20AllowanceMethodCall: ContractMethodCall {
         self.spender = spender
     }
 
-    func response(from resultObject: Any) throws -> BigUInt {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> BigUInt {
         guard let allowance = dictionary["0"] as? BigUInt else {
             throw CastError.init(actualValue: dictionary["0"], expectedType: BigUInt.self)
         }

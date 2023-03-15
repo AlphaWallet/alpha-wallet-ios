@@ -24,11 +24,7 @@ struct Erc20BalanceOfMethodCall: ContractMethodCall {
         self.address = address
     }
 
-    func response(from resultObject: Any) throws -> BigUInt {
-        guard let dictionary = resultObject as? [String: AnyObject] else {
-            throw CastError(actualValue: resultObject, expectedType: BigUInt.self)
-        }
-
+    func response(from dictionary: [String: Any]) throws -> BigUInt {
         guard let balanceOfUnknownType = dictionary["0"], let balance = BigUInt(String(describing: balanceOfUnknownType)) else {
             throw CastError(actualValue: dictionary["0"], expectedType: BigUInt.self)
         }
