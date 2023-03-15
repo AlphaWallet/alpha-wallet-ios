@@ -22,6 +22,7 @@ public protocol Keystore: AnyObject {
     func importWallet(json: String, password: String) -> AnyPublisher<Wallet, KeystoreError>
     func importWallet(mnemonic: [String], passphrase: String) -> AnyPublisher<Wallet, KeystoreError>
     func importWallet(privateKey: Data) -> AnyPublisher<Wallet, KeystoreError>
+    func addHardwareWallet(address: AlphaWallet.Address) -> AnyPublisher<Wallet, KeystoreError>
 
     func elevateSecurity(forAccount account: AlphaWallet.Address, prompt: String) -> Bool
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount account: AlphaWallet.Address, prompt: String, newPassword: String) -> AnyPublisher<Result<String, KeystoreError>, Never>

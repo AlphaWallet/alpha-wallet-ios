@@ -22,6 +22,7 @@ public enum WalletType: Equatable, Hashable, CustomStringConvertible {
 public enum WalletOrigin: Int {
     case privateKey
     case hd
+    case hardware
     case watch
 }
 
@@ -57,6 +58,8 @@ public struct Wallet: Equatable, CustomStringConvertible {
         switch origin {
         case .privateKey, .hd:
             self.type = .real(address)
+        case .hardware:
+            self.type = .hardware(address)
         case .watch:
             self.type = .watch(address)
         }

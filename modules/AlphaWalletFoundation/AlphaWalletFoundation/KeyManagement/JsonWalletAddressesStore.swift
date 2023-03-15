@@ -84,6 +84,18 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         }
     }
 
+    //TODO have proper storage. Maybe a dictionary since we want to support more than 1 type of hardware wallet
+    public var ethereumAddressesWithHardwareWallet: [String] {
+        get {
+            walletAddresses.ethereumAddressesWithHardwareWallet ?? []
+        }
+        set {
+            guard walletAddresses.ethereumAddressesWithHardwareWallet != newValue else { return }
+            walletAddresses.ethereumAddressesWithHardwareWallet = newValue
+            saveWalletCollectionToFile()
+        }
+    }
+
     public var ethereumAddressesWithPrivateKeys: [String] {
         get {
             walletAddresses.ethereumAddressesWithPrivateKeys ?? []
@@ -140,6 +152,8 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
             addToListOfEthereumAddressesWithPrivateKeys(wallet.address)
         case .watch:
             addToListOfWatchEthereumAddresses(wallet.address)
+        case .hardware:
+            addToListOfEthereumAddressesWithHardwareWallet(wallet.address)
         }
     }
 
@@ -162,10 +176,15 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         ethereumAddressesProtectedByUserPresence = updated
     }
 
+    mutating private func addToListOfEthereumAddressesWithHardwareWallet(_ address: AlphaWallet.Address) {
+        ethereumAddressesWithHardwareWallet = [ethereumAddressesWithHardwareWallet, [address.eip55String]].flatMap { $0 }
+    }
+
     mutating public func removeAddress(_ account: Wallet) {
         ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter { $0 != account.address.eip55String }
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
+        ethereumAddressesWithHardwareWallet = ethereumAddressesWithHardwareWallet.filter { $0 != account.address.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
     }
 
@@ -198,6 +217,7 @@ private struct WalletAddresses: Codable {
     var ethereumAddressesWithPrivateKeys: [String]?
     var ethereumAddressesWithSeed: [String]?
     var ethereumAddressesProtectedByUserPresence: [String]?
+    var ethereumAddressesWithHardwareWallet: [String]?
     var recentlyUsedWallet: String?
 
     init() {
@@ -205,6 +225,7 @@ private struct WalletAddresses: Codable {
         ethereumAddressesWithPrivateKeys = []
         ethereumAddressesWithSeed = []
         ethereumAddressesProtectedByUserPresence = []
+        ethereumAddressesWithHardwareWallet = []
         recentlyUsedWallet = nil
     }
 
@@ -212,7 +233,8 @@ private struct WalletAddresses: Codable {
         let watchAddresses = (watchAddresses ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .watch) }
         let addressesWithPrivateKeys = (ethereumAddressesWithPrivateKeys ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .privateKey) }
         let addressesWithSeed = (ethereumAddressesWithSeed ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .hd) }
+        let ethereumAddressesWithHardwareWallet = (ethereumAddressesWithHardwareWallet ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .hardware) }
 
-        return Set(addressesWithSeed + addressesWithPrivateKeys + watchAddresses)
+        return Set(addressesWithSeed + addressesWithPrivateKeys + watchAddresses + ethereumAddressesWithHardwareWallet)
     }
 }

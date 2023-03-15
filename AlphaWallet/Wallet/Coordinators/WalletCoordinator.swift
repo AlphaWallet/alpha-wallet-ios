@@ -74,6 +74,13 @@ class WalletCoordinator: Coordinator {
             controller.delegate = self
             controller.configure()
             navigationController.viewControllers = [controller]
+        case .addHardwareWallet:
+            if BCHardwareWallet.isEnabled {
+                addHardwareWallet()
+            } else {
+                //no-op
+            }
+            return false
         }
         return true
     }
@@ -120,6 +127,35 @@ class WalletCoordinator: Coordinator {
         //Bit of delay to wait for the UI animation to almost finish
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             SuccessOverlayView.show()
+        }
+    }
+
+    private func addHardwareWallet() {
+        let hwWallet = BCHardwareWalletCreator().createWallet()
+        Task.init { @MainActor in
+            do {
+                let address = try await hwWallet.getAddress()
+                keystore
+                    .addHardwareWallet(address: address)
+                    .sink(receiveCompletion: { result in
+                        switch result {
+                        case .finished:
+                            break
+                        case .failure:
+                            //TODO: show an error, especially if the address/card has already been added
+                            break
+                        }
+                    }, receiveValue: { wallet in
+                        self.didImportAccount(account: wallet)
+                    }).store(in: &cancellable)
+            } catch {
+                if error.isCancelledBChainRequest {
+                    //no-op
+                } else {
+                    //no-op because already shown in the NFC UI
+                    //TODO but error displayed can be more user friendly. E.g. try not using biometrics when required
+                }
+            }
         }
     }
 }

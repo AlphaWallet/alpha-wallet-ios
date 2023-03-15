@@ -18,6 +18,7 @@ PODS:
     - AlphaWalletCore
     - AlphaWalletENS
     - AlphaWalletGoBack
+    - AlphaWalletHardwareWallet
     - AlphaWalletLogger
     - AlphaWalletOpenSea
     - AlphaWalletShareExtensionCore
@@ -41,6 +42,11 @@ PODS:
     - TrezorCrypto
     - TrustKeystore
   - AlphaWalletGoBack (1.0.0)
+  - AlphaWalletHardwareWallet (1.0.0):
+    - AlphaWalletAddress
+    - AlphaWalletTrustWalletCoreExtensions
+    - AlphaWalletWeb3
+    - TrustKeystore
   - AlphaWalletLogger (1.0.0):
     - CocoaLumberjack (= 3.7.0)
   - AlphaWalletOpenSea (1.0.0):
@@ -216,6 +222,7 @@ DEPENDENCIES:
   - AlphaWalletENS (from `.`)
   - AlphaWalletFoundation (from `.`)
   - AlphaWalletGoBack (from `.`)
+  - AlphaWalletHardwareWallet (from `.`)
   - AlphaWalletLogger (from `.`)
   - AlphaWalletOpenSea (from `.`)
   - AlphaWalletShareExtensionCore (from `.`)
@@ -311,6 +318,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletGoBack:
     :path: "."
+  AlphaWalletHardwareWallet:
+    :path: "."
   AlphaWalletLogger:
     :path: "."
   AlphaWalletOpenSea:
@@ -385,8 +394,9 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: ad96bd240255db44aaeaecc10928e82a24ef54c3
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: b86d1d7cdd9dac45c85337383bd153f00f5c63ec
+  AlphaWalletFoundation: 80c660e30d0e85e29b408ed5ba6e45ffb831b0b2
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
+  AlphaWalletHardwareWallet: 033da65fb8488c3a77b3438ac642618227c17d48
   AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
@@ -448,6 +458,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: 52e67915f8d861ed3ba4eabb0f69fee0990f0a5f
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 8a685e73e69e5d10dcc935bfe7ef503f4409fa4c
+PODFILE CHECKSUM: 47b917eb6fe46eac4e9c24ca03d9c777310ac62e
 
 COCOAPODS: 1.11.3

@@ -33,9 +33,9 @@ final class AccountsViewModel {
     private var sections: [AccountsViewModel.Section] {
         switch configuration {
         case .changeWallets:
-            return [.hdWallet, .keystoreWallet, .watchedWallet]
+            return [.hdWallet, .keystoreWallet, .hardwareWallet, .watchedWallet]
         case .summary:
-            return [.summary, .hdWallet, .keystoreWallet, .watchedWallet]
+            return [.summary, .hdWallet, .keystoreWallet, .hardwareWallet, .watchedWallet]
         }
     }
 
@@ -207,6 +207,14 @@ final class AccountsViewModel {
             case .summary:
                 return (isWatchedWalletsEmpty, .watchedWallet)
             }
+        case .hardwareWallet:
+            let isHardwareWalletsEmpty = viewModels[section].views.isEmpty
+            switch configuration {
+            case .changeWallets:
+                return (shouldHideSectionHeaders || isHardwareWalletsEmpty, .hardwareWallet)
+            case .summary:
+                return (isHardwareWalletsEmpty, .hardwareWallet)
+            }
         case .summary:
             return (shouldHide: false, section: .summary)
         }
@@ -256,6 +264,19 @@ final class AccountsViewModel {
                         return .wallet(viewModel)
                     }
                 return .init(section: section, views: views)
+            case .hardwareWallet:
+                let views: [ViewModelType] = accountViewModels
+                    .filter { $0.wallet.origin == .hardware }
+                    .sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
+                    .map {
+                        let viewModel = AccountViewModel(
+                            displayBalanceApprecation: displayBalanceApprecation,
+                            accountRowViewModel: $0,
+                            current: keystore.currentWallet)
+
+                        return .wallet(viewModel)
+                    }
+                return .init(section: section, views: views)
             }
         }
     }
@@ -277,11 +298,12 @@ final class AccountsViewModel {
         let isKeystoreWalletsEmpty = sectionViewModel(for: .keystoreWallet)?.views.isEmpty ?? true
         let isWatchedWalletsEmpty = sectionViewModel(for: .watchedWallet)?.views.isEmpty ?? true
         let isHdWalletsEmpty = sectionViewModel(for: .hdWallet)?.views.isEmpty ?? true
+        let isHardwareWalletsEmpty = sectionViewModel(for: .hardwareWallet)?.views.isEmpty ?? true
 
-        if isKeystoreWalletsEmpty && isWatchedWalletsEmpty {
+        if isKeystoreWalletsEmpty && isWatchedWalletsEmpty && isHardwareWalletsEmpty {
             return true
         }
-        if isHdWalletsEmpty && isWatchedWalletsEmpty {
+        if isHdWalletsEmpty && isWatchedWalletsEmpty && isHardwareWalletsEmpty {
             return true
         }
         return false
@@ -372,6 +394,7 @@ extension AccountsViewModel {
         case summary
         case hdWallet
         case keystoreWallet
+        case hardwareWallet
         case watchedWallet
 
         var title: String {
@@ -382,6 +405,8 @@ extension AccountsViewModel {
                 return R.string.localizable.walletTypesHdWallets().uppercased()
             case .keystoreWallet:
                 return R.string.localizable.walletTypesKeystoreWallets().uppercased()
+            case .hardwareWallet:
+                return R.string.localizable.walletTypesHardwareWallets().uppercased()
             case .watchedWallet:
                 return R.string.localizable.walletTypesWatchedWallets().uppercased()
             }

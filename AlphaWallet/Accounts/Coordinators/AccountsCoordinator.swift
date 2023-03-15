@@ -101,20 +101,26 @@ class AccountsCoordinator: Coordinator {
 
     @objc private func addWallet() {
         guard let barButtonItem = accountsViewController.navigationItem.rightBarButtonItem else { return }
+        let isBCHardwareWalletEnabled = BCHardwareWallet.isEnabled
+        let alertButtonTitles: [String] = [
+            R.string.localizable.walletCreateButtonTitle(),
+            R.string.localizable.walletImportButtonTitle(),
+            R.string.localizable.walletWatchButtonTitle(),
+            //TODO localize
+            isBCHardwareWalletEnabled ? "Add \(BCHardwareWallet.name)" : nil,
+            R.string.localizable.cancel()
+        ].compactMap { $0 }
+        let alertButtonStyles: [UIAlertAction.Style] = [
+            .default,
+            .default,
+            .default,
+            isBCHardwareWalletEnabled ? .default : nil,
+            .cancel
+        ].compactMap { $0 }
         UIAlertController.alert(title: nil,
                 message: nil,
-                alertButtonTitles: [
-                    R.string.localizable.walletCreateButtonTitle(),
-                    R.string.localizable.walletImportButtonTitle(),
-                    R.string.localizable.walletWatchButtonTitle(),
-                    R.string.localizable.cancel()
-                ],
-                alertButtonStyles: [
-                    .default,
-                    .default,
-                    .default,
-                    .cancel
-                ],
+                alertButtonTitles: alertButtonTitles,
+                alertButtonStyles: alertButtonStyles,
                 viewController: navigationController,
                 style: .actionSheet(source: .barButtonItem(barButtonItem))) { [weak self] index in
                     guard let strongSelf = self else { return }
@@ -124,6 +130,10 @@ class AccountsCoordinator: Coordinator {
                         strongSelf.showImportWallet()
                     } else if index == 2 {
                         strongSelf.showWatchWallet()
+                    } else if index == 3 {
+                        if isBCHardwareWalletEnabled {
+                            strongSelf.showAddHardwareWallet()
+                        }
                     }
         }
 	}
@@ -236,6 +246,11 @@ class AccountsCoordinator: Coordinator {
 
     private func showWatchWallet() {
         importOrCreateWallet(entryPoint: .watchWallet(address: nil))
+    }
+
+    //TODO We should have create functionality too to set up new hardware wallet, but keep this (for migration of the wallet to other devices), i.e. add
+    private func showAddHardwareWallet() {
+        importOrCreateWallet(entryPoint: .addHardwareWallet)
     }
 }
 

@@ -14,4 +14,5 @@ enum WalletEntryPoint {
     case createInstantWallet
     case importWallet(params: ImportWalletParams?)
     case watchWallet(address: AlphaWallet.Address?)
+    case addHardwareWallet
 }
