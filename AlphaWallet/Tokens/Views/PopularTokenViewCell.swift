@@ -19,6 +19,7 @@ class PopularTokenViewCell: UITableViewCell {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.loading = .disabled
+        imageView.contentMode = .scaleAspectFit
         
         return imageView
     }()

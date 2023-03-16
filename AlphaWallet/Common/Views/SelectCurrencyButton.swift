@@ -38,6 +38,7 @@ class SelectCurrencyButton: UIControl {
         imageView.setContentHuggingPriority(.required, for: .horizontal)
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         imageView.loading = .disabled
+        imageView.contentMode = .scaleAspectFit
         
         return imageView
     }()
