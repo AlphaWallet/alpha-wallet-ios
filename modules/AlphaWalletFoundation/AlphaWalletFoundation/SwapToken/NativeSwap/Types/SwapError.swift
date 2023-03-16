@@ -16,6 +16,14 @@ public enum SwapError: LocalizedError {
     case inner(Error)
     case unknownError
 
+    init(error: Error) {
+        if let e = error as? SwapError {
+            self = e
+        } else {
+            self = .inner(error)
+        }
+    }
+
     public var errorDescription: String? {
         switch self {
         case .unableToBuildSwapUnsignedTransaction(let message):

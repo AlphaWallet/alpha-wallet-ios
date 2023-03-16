@@ -20,6 +20,7 @@ public protocol TokenSwapperNetworkProvider {
 }
 
 public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
+    //NOTE: for debug using: testnet URL(string: "https://staging.li.quest")!
     private static let baseUrl = URL(string: "https://li.quest")!
     private let networkService: NetworkService
     private let decoder = JSONDecoder()
@@ -32,7 +33,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
         networkService
             .dataTaskPublisher(ToolsRequest())
             .receive(on: DispatchQueue.global())
-            .mapError { SwapError.inner($0.unwrapped) }
+            .mapError { SwapError(error: $0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<[SwapTool], SwapError> in
                 if let response: SwapToolsResponse = try? decoder.decode(SwapToolsResponse.self, from: data) {
                     return .just(response.tools)
@@ -46,7 +47,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
         return networkService
             .dataTaskPublisher(RoutesRequest(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges))
             .receive(on: DispatchQueue.global())
-            .mapError { SwapError.inner($0.unwrapped) }
+            .mapError { SwapError(error: $0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<[SwapRoute], SwapError> in
                 if let response: SwapRouteReponse = try? decoder.decode(SwapRouteReponse.self, from: data) {
                     return .just(response.routes)
@@ -85,7 +86,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
         return networkService
             .dataTaskPublisher(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
             .receive(on: DispatchQueue.global())
-            .mapError { SwapError.inner($0.unwrapped) }
+            .mapError { SwapError(error: $0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<SwapQuote, SwapError> in
                 if let swapQuote = try? decoder.decode(SwapQuote.self, from: data) {
                     return .just(swapQuote)

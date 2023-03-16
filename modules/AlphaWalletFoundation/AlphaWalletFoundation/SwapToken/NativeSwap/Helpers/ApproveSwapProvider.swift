@@ -56,7 +56,7 @@ public final class ApproveSwapProvider {
             spender: swapQuote.estimate.spender,
             amount: fromAmount)
         .map { (swapQuote, $0.hasEnough, $0.shortOf) }
-        .mapError { SwapError.inner($0) }
+        .mapError { SwapError(error: $0.unwrapped) }
         .flatMap { [configurator] swapQuote, isApproved, shortOf -> AnyPublisher<SwapQuote, SwapError> in
             if isApproved {
                 return .just(swapQuote)
@@ -94,7 +94,7 @@ public final class ApproveSwapProvider {
 
         return delegate
             .promptForErc20Approval(token: token, server: server, owner: owner, spender: spender, amount: amount, in: self)
-            .mapError { SwapError.inner($0) }
+            .mapError { SwapError(error: $0.embedded) }
             .flatMap { [provider] hash -> AnyPublisher<Bool, SwapError> in
                 self.delegate?.changeState(in: self, state: .waitTillApproveCompleted)
 
