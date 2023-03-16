@@ -97,11 +97,11 @@ extension SwapQuote.Token: Decodable {
         let addressString = try container.decode(String.self, forKey: .address)
         address = try AlphaWallet.Address(string: addressString) ?? { throw ParsingError(fieldName: .address) }()
         chainId = try container.decode(Int.self, forKey: .chainId)
-        coinKey = try container.decode(String.self, forKey: .coinKey)
+        coinKey = try container.decode(String.self, forKey: .coinKey, defaultValue: "")
         decimals = try container.decode(Int.self, forKey: .decimals)
         logoURI = try container.decodeIfPresent(String.self, forKey: .logoURI)
-        name = try container.decode(String.self, forKey: .name)
-        priceUSD = try container.decode(String.self, forKey: .priceUSD)
-        symbol = try container.decode(String.self, forKey: .symbol)
+        name = try container.decode(String.self, forKey: .name, defaultValue: "")
+        priceUSD = try container.decode(String.self, forKey: .priceUSD, defaultValue: "")
+        symbol = try container.decode(String.self, forKey: .symbol, defaultValue: "")
     }
 }
