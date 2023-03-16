@@ -6,9 +6,9 @@ class DefaultActivityItemViewCell: UITableViewCell {
     private let background = UIView()
     private let tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
-        imageView.contentMode = .scaleAspectFit
         imageView.loading = .disabled
-
+        imageView.contentMode = .scaleAspectFit
+        
         return imageView
     }()
     private let stateView: ActivityStateView = {

@@ -13,6 +13,8 @@ class FungibleTokenHeaderView: UIView {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
+        imageView.contentMode = .scaleAspectFit
+
         return imageView
     }()
 
