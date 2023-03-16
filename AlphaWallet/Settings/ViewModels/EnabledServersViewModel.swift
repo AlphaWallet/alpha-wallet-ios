@@ -31,7 +31,7 @@ class EnabledServersViewModel {
 
     func transform(input: EnabledServersViewModelInput) -> EnabledServersViewModelOutput {
         input.selection
-            .sink { self.select(server: $0) }
+            .sink { [weak self] in self?.select(server: $0) }
             .store(in: &cancellable)
 
         let testnetEnabled = testnetEnabled(input: input.enableTestnet)
@@ -77,7 +77,7 @@ class EnabledServersViewModel {
 
     private func testnetEnabled(input: AnyPublisher<Bool, Never>) -> AnyPublisher<Bool, Never> {
         let usersInput = input
-            .handleEvents(receiveOutput: { self.enableTestnet($0) })
+            .handleEvents(receiveOutput: { [weak self] in self?.enableTestnet($0) })
 
         let isAnyOfSelectedServersIsTestnet = serversProvider.enabledServersPublisher
             .map { $0.contains(where: { $0.isTestnet }) }
