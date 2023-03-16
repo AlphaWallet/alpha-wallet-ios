@@ -24,7 +24,8 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupporta
     }()
     private lazy var chainOverlayImageView: UIImageView = {
         let imageView = UIImageView()
-
+        imageView.contentMode = .scaleAspectFit
+        
         return imageView
     }()
 

@@ -47,6 +47,7 @@ extension RPCServer {
         case .optimismGoerli: return "Optimism Goerli"
         case .arbitrumGoerli: return "Arbitrum Goerli"
         case .okx: return "OKXChain Mainnet"
+        case .sepolia: return "Sepolia"
         }
     }
 
@@ -76,6 +77,7 @@ extension RPCServer {
         case .optimismGoerli: return nil
         case .arbitrumGoerli: return nil
         case .okx: return R.image.okc_logo()
+        case .sepolia: return R.image.sepolia()
         }
     }
 
@@ -109,6 +111,7 @@ extension RPCServer {
         case .arbitrumGoerli: return Configuration.Color.Semantic.blockChainArbitrumGoerli
         case .custom: return Configuration.Color.Semantic.blockChainCustom
         case .okx: return Configuration.Color.Semantic.blockChainOkx
+        case .sepolia: return Configuration.Color.Semantic.blockChainSepolia
         }
     }
 
@@ -137,6 +140,7 @@ extension RPCServer {
         case .optimismGoerli: return nil
         case .arbitrumGoerli: return nil
         case .okx: return R.image.okc_logo()
+        case .sepolia: return R.image.sepolia()
         }
     }
 }
