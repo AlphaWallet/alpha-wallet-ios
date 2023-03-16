@@ -165,7 +165,7 @@ extension AlphaWallet.WalletConnect {
 
         var servers: [RPCServer] {
             let chains = Array(namespaces.values.flatMap { $0.accounts.map { $0.blockchain.absoluteString } })
-            return chains.compactMap { eip155URLCoder.decodeRPC(from: $0) }
+            return chains.compactMap { Eip155UrlCoder.decodeRpc(from: $0) }
         }
 
         var accounts: [AlphaWallet.Address] {

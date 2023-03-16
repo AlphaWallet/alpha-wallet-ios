@@ -80,7 +80,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
                 try? disconnect(each.topicOrUrl)
             } else {
                 let filteredAccounts = accounts.filter {
-                    guard let server = eip155URLCoder.decodeRPC(from: $0.blockchain.absoluteString) else { return false }
+                    guard let server = Eip155UrlCoder.decodeRpc(from: $0.blockchain.absoluteString) else { return false }
                     return each.servers.contains(server)
                 }
 
