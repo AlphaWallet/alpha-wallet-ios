@@ -66,5 +66,5 @@ extension AlphaWallet.WalletConnect.Session {
 typealias WalletConnectV2Request = WalletConnectSwiftV2.Request
 
 extension WalletConnectV2Request {
-    var rpcServer: RPCServer? { eip155URLCoder.decodeRPC(from: chainId.absoluteString) }
+    var rpcServer: RPCServer? { Eip155UrlCoder.decodeRpc(from: chainId.absoluteString) }
 }

@@ -72,7 +72,7 @@ class WalletConnectV1Provider: WalletConnectServer {
                         storage.value[index] = .init(session: session, namespaces: data.namespaces)
 
                         try client.updateSession(session, with: session.walletInfo!)
-                    } else if let account = accounts.first, let server = eip155URLCoder.decodeRPC(from: account.blockchain.absoluteString) {
+                    } else if let account = accounts.first, let server = Eip155UrlCoder.decodeRpc(from: account.blockchain.absoluteString) {
                         let data = try caip10AccountProvidable.namespaces(for: server)
                         let session = each.session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
 

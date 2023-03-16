@@ -70,8 +70,8 @@ extension AnyCAIP10AccountProvidable.CAIP10AccountProvidableError: LocalizedErro
         switch self {
         case .unavailableToBuildBlockchain:
             return "Unavailable To Build Blockchain"
-        case .chainNotSupported:
-            return "Accounts Not Found"
+        case .chainNotSupportedOrNotEnabled:
+            return "Chain Not Supported Or Not Enabled"
         case .emptyNamespaces:
             return "Empty Namespaces"
         case .eip155NotFound:
