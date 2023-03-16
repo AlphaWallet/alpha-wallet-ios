@@ -31,7 +31,12 @@ final class JsonFromTokenUri {
         self.networkService = networkService
         self.blockchainProvider = blockchainProvider
         self.tokensService = tokensService
-        self.getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
+        self.getTokenUri = NonFungibleContract(
+            blockchainProvider: blockchainProvider,
+            uriMapper: TokenUriMapper(hostMappers: [
+                HostBasedTokenUriMapper(host: "api.mintkudos.xyz"),
+                HostBasedTokenUriMapper(host: "api.walletads.io")
+            ]))
     }
 
     func clear() {
