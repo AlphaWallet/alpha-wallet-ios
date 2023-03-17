@@ -3,6 +3,7 @@
 import Foundation
 import LocalAuthentication
 import Combine
+import AlphaWalletTrustWalletCoreExtensions
 
 public protocol Keystore: AnyObject {
     var hasMigratedFromKeystoreFiles: Bool { get }

@@ -2,7 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
-import AlphaWalletFoundation
+import AlphaWalletTrustWalletCoreExtensions
 
 class HDWalletTest: XCTestCase {
     private func _testComputeSeedFromEnglishMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount) {

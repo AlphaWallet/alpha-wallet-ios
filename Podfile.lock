@@ -21,6 +21,7 @@ PODS:
     - AlphaWalletLogger
     - AlphaWalletOpenSea
     - AlphaWalletShareExtensionCore
+    - AlphaWalletTrustWalletCoreExtensions
     - AlphaWalletWeb3
     - AlphaWalletWeb3Provider
     - APIKit (= 5.1.0)
@@ -39,7 +40,6 @@ PODS:
     - SwiftyJSON (= 5.0.0)
     - TrezorCrypto
     - TrustKeystore
-    - TrustWalletCore (= 2.6.34)
   - AlphaWalletGoBack (1.0.0)
   - AlphaWalletLogger (1.0.0):
     - CocoaLumberjack (= 3.7.0)
@@ -50,6 +50,9 @@ PODS:
     - SwiftyJSON (= 5.0.0)
   - AlphaWalletShareExtensionCore (1.0.0)
   - AlphaWalletTrackAPICalls (1.0.0)
+  - AlphaWalletTrustWalletCoreExtensions (1.0.0):
+    - BigInt
+    - TrustWalletCore (= 2.6.34)
   - AlphaWalletWeb3 (0.0.1):
     - BigInt
     - CryptoSwift
@@ -217,6 +220,7 @@ DEPENDENCIES:
   - AlphaWalletOpenSea (from `.`)
   - AlphaWalletShareExtensionCore (from `.`)
   - AlphaWalletTrackAPICalls (from `.`)
+  - AlphaWalletTrustWalletCoreExtensions (from `.`)
   - AlphaWalletWeb3 (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `bdb38b06eeedeb4ca1e32d3ecd81783b5116ae68`)
   - BigInt (~> 3.1)
@@ -315,6 +319,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletTrackAPICalls:
     :path: "."
+  AlphaWalletTrustWalletCoreExtensions:
+    :path: "."
   AlphaWalletWeb3:
     :path: "."
   AlphaWalletWeb3Provider:
@@ -379,12 +385,13 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: ad96bd240255db44aaeaecc10928e82a24ef54c3
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: 23a54a359139bb67a49e6017fac35fb562dc90c0
+  AlphaWalletFoundation: b86d1d7cdd9dac45c85337383bd153f00f5c63ec
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
   AlphaWalletTrackAPICalls: 1e5d1f0a1858bd4d383aa412677a642be7d21e17
+  AlphaWalletTrustWalletCoreExtensions: 32d1e66e008bf65f053752d89de9f7c645f25d4e
   AlphaWalletWeb3: 86d0be33c612d75685a5797ef4492e42c295f1a5
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
@@ -441,6 +448,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: 52e67915f8d861ed3ba4eabb0f69fee0990f0a5f
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: ba2913918cee4456ab48a2a7a9ddd2a8db74ea79
+PODFILE CHECKSUM: 8a685e73e69e5d10dcc935bfe7ef503f4409fa4c
 
 COCOAPODS: 1.11.3

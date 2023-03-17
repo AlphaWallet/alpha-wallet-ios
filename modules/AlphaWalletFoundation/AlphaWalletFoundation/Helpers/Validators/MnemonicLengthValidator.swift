@@ -1,6 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletTrustWalletCoreExtensions
 
 public struct MnemonicLengthValidator {
 
