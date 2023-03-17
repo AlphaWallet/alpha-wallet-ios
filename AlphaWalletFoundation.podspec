@@ -42,6 +42,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'AlphaWalletCore'
   spec.dependency 'AlphaWalletGoBack'
   spec.dependency 'AlphaWalletENS'
+  spec.dependency 'AlphaWalletHardwareWallet'
   spec.dependency 'AlphaWalletOpenSea'
   spec.dependency 'AlphaWalletShareExtensionCore'
   spec.dependency 'AlphaWalletTrustWalletCoreExtensions'

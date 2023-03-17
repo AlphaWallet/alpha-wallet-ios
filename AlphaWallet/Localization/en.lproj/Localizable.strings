@@ -140,6 +140,7 @@
 "wallet.types.hdWallets" = "Connected Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watch-only Wallets";
+"wallet.types.hardwareWallets" = "Hardware Wallets";
 "wallet.create.button.title" = "Create Wallet";
 "wallet.watch.button.title" = "Watch Wallet";
 "wallet.create.inProgress" = "Creating wallet...";
@@ -880,3 +881,10 @@
 "accept.walletConnect.field.methods.title" = "Methods";
 "tokenscript.overrides.empty" = "There are no TokenScript overrides";
 "currency.navigationTitle" = "Change Fiat Currency";
+"hardwareWallet.failedToSign" = "Failed to sign message: %@";
+"hardwareWallet.failedToImportSeed" = "Failed to import seed: %@";
+"hardwareWallet.failedToWipe" = "Failed to wipe: %@";
+"hardwareWallet.failedToGetPublicKey" = "Failed to get public key: %@";
+"hardwareWallet.signatureObtained" = "Signature obtained";
+"hardwareWallet.publicKeyObtained" = "Public key obtained";
+"hardwareWallet.importedSeed" = "Imported seed";

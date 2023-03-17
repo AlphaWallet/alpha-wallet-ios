@@ -24,6 +24,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletCore', :path => '.'
   pod 'AlphaWalletGoBack', :path => '.'
   pod 'AlphaWalletENS', :path => '.'
+  pod 'AlphaWalletHardwareWallet', :path => '.'
   pod 'AlphaWalletLogger', :path => '.'
   pod 'AlphaWalletOpenSea', :path => '.'
   pod 'AlphaWalletFoundation', :path => '.'

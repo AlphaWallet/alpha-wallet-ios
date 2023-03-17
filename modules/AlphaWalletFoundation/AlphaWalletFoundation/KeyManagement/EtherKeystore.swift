@@ -3,6 +3,7 @@
 import Foundation
 import LocalAuthentication
 import BigInt
+import AlphaWalletHardwareWallet
 import AlphaWalletWeb3
 import AlphaWalletTrustWalletCoreExtensions
 import Combine
@@ -15,6 +16,7 @@ public enum ImportWalletEvent {
     case keystore
     case privateKey
     case mnemonic
+    case hardware
     case watch
     case new
 }
@@ -147,6 +149,7 @@ open class EtherKeystore: NSObject, Keystore {
     private let didAddWalletSubject = PassthroughSubject<(wallet: Wallet, event: ImportWalletEvent), Never>()
     private let didRemoveWalletSubject = PassthroughSubject<Wallet, Never>()
     private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never>
+    private let hardwareWalletFactory: HardwareWalletFactory
 
     public var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
         walletsSubject
@@ -165,13 +168,15 @@ open class EtherKeystore: NSObject, Keystore {
     public init(keychain: SecuredStorage,
                 walletAddressesStore: WalletAddressesStore,
                 analytics: AnalyticsLogger,
-                legacyFileBasedKeystore: LegacyFileBasedKeystore) {
+                legacyFileBasedKeystore: LegacyFileBasedKeystore,
+                hardwareWalletFactory: HardwareWalletFactory) {
 
         self.keychain = keychain
         self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore
         self.legacyFileBasedKeystore = legacyFileBasedKeystore
         self.walletsSubject = .init(Set(walletAddressesStore.wallets))
+        self.hardwareWalletFactory = hardwareWalletFactory
 
         super.init()
 
@@ -295,6 +300,20 @@ open class EtherKeystore: NSObject, Keystore {
                 }
             }.receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { self.add(wallet: $0, importType: .keystore) })
+            .eraseToAnyPublisher()
+    }
+
+    public func addHardwareWallet(address: AlphaWallet.Address) -> AnyPublisher<Wallet, KeystoreError> {
+        Just(address)
+            .receive(on: queue)
+            .setFailureType(to: KeystoreError.self)
+            .flatMap { address -> AnyPublisher<Wallet, KeystoreError> in
+                guard !self.isAddressAlreadyInWalletsList(address: address) else { return .fail(KeystoreError.duplicateAccount) }
+                let wallet = Wallet(address: address, origin: .hardware)
+
+                return .just(wallet)
+            }.receive(on: RunLoop.main)
+            .handleEvents(receiveOutput: { self.add(wallet: $0, importType: .hardware) })
             .eraseToAnyPublisher()
     }
 
@@ -433,6 +452,19 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func _signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
+        if let currentWallet = currentWallet, currentWallet.address == account {
+            switch currentWallet.type {
+            case .real, .watch:
+                return await _signHashWithPrivateKey(hash: hash, for: account, prompt: prompt)
+            case .hardware:
+                return await _signHashWithHardwareWallet(hash: hash, for: account, prompt: prompt)
+            }
+        } else {
+            return await _signHashWithPrivateKey(hash: hash, for: account, prompt: prompt)
+        }
+    }
+
+    private func _signHashWithPrivateKey(hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
         let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
         switch key {
         case .seed, .seedPhrase:
@@ -451,7 +483,35 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
+    private func _signHashWithHardwareWallet(hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
+        let hwWallet = hardwareWalletFactory.createWallet()
+        do {
+            let signature = try await hwWallet.signHash(hash)
+            return .success(signature)
+        } catch {
+            if error.isCancelledBChainRequest {
+                return .failure(.userCancelled)
+            } else {
+                //TODO can improve, might need to be more hardware wallet specific
+                return .failure(KeystoreError.failedToSignMessage)
+            }
+        }
+    }
+
     private func _signHashes(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) async -> Result<[Data], KeystoreError> {
+        if let currentWallet = currentWallet, currentWallet.address == account {
+            switch currentWallet.type {
+            case .real, .watch:
+                return await _signHashesWithPrivateKey(hashes, for: account, prompt: prompt)
+            case .hardware:
+                return await _signHashesWithHardwareWallet(hashes, for: account, prompt: prompt)
+            }
+        } else {
+            return await _signHashesWithPrivateKey(hashes, for: account, prompt: prompt)
+        }
+    }
+
+    private func _signHashesWithPrivateKey(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) async -> Result<[Data], KeystoreError> {
         let key = getPrivateKeyForSigning(forAccount: account, prompt: prompt)
         switch key {
         case .seed, .seedPhrase:
@@ -468,6 +528,22 @@ open class EtherKeystore: NSObject, Keystore {
         case .notFound, .otherFailure:
             return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
         }
+    }
+
+    //We can't do bulk signing with hardware wallets, so users will have to perform the necessary action multiple times, e.g tap their hardware wallet card to the phone + authenticate multiple times
+    private func _signHashesWithHardwareWallet(_ hashes: [Data], for account: AlphaWallet.Address, prompt: String) async -> Result<[Data], KeystoreError> {
+        let hwWallet = hardwareWalletFactory.createWallet()
+        var results: [Data] = []
+        for each in hashes {
+            let eachResult = await _signHashWithHardwareWallet(hash: each, for: account, prompt: prompt)
+            switch eachResult {
+            case .success(let data):
+                results.append(data)
+            case .failure(let error):
+                return .failure(error)
+            }
+        }
+        return .success(results)
     }
 
     public func signHash(_ hash: Data, for account: AlphaWallet.Address, prompt: String) async -> Result<Data, KeystoreError> {
@@ -816,6 +892,10 @@ open class EtherKeystore: NSObject, Keystore {
 
     private func createContext() -> LAContext {
         return .init()
+    }
+
+    public static func generate12WordMnemonic() -> String {
+        return EtherKeystore.functional.generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount.word12, passphrase: functional.emptyPassphrase)
     }
 }
 // swiftlint:enable type_body_length

@@ -92,6 +92,8 @@ public struct DefaultsWalletAddressesStore: WalletAddressesStore {
             addToListOfEthereumAddressesWithSeed(wallet.address)
         case .privateKey:
             addToListOfEthereumAddressesWithPrivateKeys(wallet.address)
+        case .hardware:
+            preconditionFailure("Since we only support hardware wallet *after* we stop using this form of persisting wallets, so hardware wallets never get added here")
         case .watch:
             addToListOfWatchEthereumAddresses(wallet.address)
         }

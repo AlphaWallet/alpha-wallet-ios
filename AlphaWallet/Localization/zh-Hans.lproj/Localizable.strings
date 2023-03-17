@@ -140,6 +140,7 @@
 "wallet.types.hdWallets" = "您的钱包";
 "wallet.types.keystoreWallets" = "密钥库钱包";
 "wallet.types.watchedWallets" = "只能查看的钱包";
+"wallet.types.hardwareWallets" = "Hardware Wallets";
 "wallet.create.button.title" = "创建钱包";
 "wallet.watch.button.title" = "查看钱包";
 "wallet.create.inProgress" = "正在创建钱包...";
@@ -880,3 +881,10 @@
 "accept.walletConnect.field.methods.title" = "Methods";
 "tokenscript.overrides.empty" = "There are no TokenScript overrides";
 "currency.navigationTitle" = "Change Fiat Currency";
+"hardwareWallet.failedToSign" = "Failed to sign message: %@";
+"hardwareWallet.failedToImportSeed" = "Failed to import seed: %@";
+"hardwareWallet.failedToWipe" = "Failed to wipe: %@";
+"hardwareWallet.failedToGetPublicKey" = "Failed to get public key: %@";
+"hardwareWallet.signatureObtained" = "Signature obtained";
+"hardwareWallet.publicKeyObtained" = "Public key obtained";
+"hardwareWallet.importedSeed" = "Imported seed";

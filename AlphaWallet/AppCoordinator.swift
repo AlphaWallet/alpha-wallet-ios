@@ -238,7 +238,8 @@ class AppCoordinator: NSObject, Coordinator {
             keychain: securedStorage,
             walletAddressesStore: walletAddressesStore,
             analytics: analytics,
-            legacyFileBasedKeystore: legacyFileBasedKeystore)
+            legacyFileBasedKeystore: legacyFileBasedKeystore,
+            hardwareWalletFactory: BCHardwareWalletCreator())
 
         let navigationController: UINavigationController = .withOverridenBarAppearence()
         navigationController.view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
@@ -304,7 +305,7 @@ class AppCoordinator: NSObject, Coordinator {
         keystore.didAddWallet
             .sink { [promptBackup] in
                 switch $0.event {
-                case .new, .watch:
+                case .new, .watch, .hardware:
                     break
                 case .keystore, .mnemonic, .privateKey:
                     promptBackup.markWalletAsImported(wallet: $0.wallet)
