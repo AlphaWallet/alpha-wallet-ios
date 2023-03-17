@@ -75,11 +75,13 @@ final class FakeContractDataFetcher: ContractDataFetchable {
         self.server = server
     }
 
-    func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        guard let contractData = contractData[.init(address: contract, server: server)] else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            completion(contractData)
-        }
+    func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never> {
+        guard let contractData = contractData[.init(address: contract, server: server)] else { return .empty() }
+
+        return Just(contract)
+            .delay(for: .seconds(2), scheduler: RunLoop.main)
+            .map { _ in contractData }
+            .eraseToAnyPublisher()
     }
 }
 
