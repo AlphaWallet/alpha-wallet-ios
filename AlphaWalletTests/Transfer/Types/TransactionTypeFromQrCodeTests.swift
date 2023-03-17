@@ -54,7 +54,8 @@ class ImportTokenTests: XCTestCase {
         expectation.isInverted = true
 
         importToken.importToken(for: address)
-            .sink(receiveCompletion: { _ in
+            .sink(receiveCompletion: { result in
+                guard case .failure = result else { return }
                 expectation.fulfill()
             }, receiveValue: { _ in
 
