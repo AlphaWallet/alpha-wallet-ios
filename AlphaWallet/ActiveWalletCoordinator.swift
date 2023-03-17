@@ -362,8 +362,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             networkService: networkService,
             assetDefinitionStore: assetDefinitionStore)
 
-        transactionsService.start()
-
         let coordinator = TransactionsCoordinator(
             analytics: analytics,
             sessionsProvider: sessionsProvider,

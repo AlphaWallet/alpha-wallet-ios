@@ -84,6 +84,8 @@ public class TransactionsService {
                     ercTokenDetector: ercTokenDetector,
                     networkService: networkService)
 
+                provider.start()
+
                 return provider
             case .covalent(let apiKey):
                 let transporter = BaseApiTransporter()
@@ -129,12 +131,6 @@ public class TransactionsService {
 
                 return provider
             }
-        }
-    }
-
-    public func start() {
-        for each in providers {
-            each.start()
         }
     }
 
