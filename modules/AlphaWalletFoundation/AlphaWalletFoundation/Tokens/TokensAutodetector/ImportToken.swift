@@ -37,7 +37,7 @@ extension TokenOrContractFetchable {
 
 //NOTE: actually its internal, public for tests
 public protocol ContractDataFetchable {
-    func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void)
+    func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never>
 }
 
 public final class ContractDataFetcher: ContractDataFetchable {
@@ -64,7 +64,7 @@ public final class ContractDataFetcher: ContractDataFetchable {
         self.reachability = reachability
     }
 
-    public func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
+    public func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never> {
         let detector = ContractDataDetector(
             contract: contract,
             wallet: wallet.address,
@@ -73,7 +73,17 @@ public final class ContractDataFetcher: ContractDataFetchable {
             analytics: analytics,
             reachability: reachability)
 
-        detector.fetch(completion: completion)
+        return detector.fetch()
+    }
+}
+
+extension ImportToken.ImportTokenError {
+    init(error: Error) {
+        if let e = error as? ImportToken.ImportTokenError {
+            self = e
+        } else {
+            self = .internal(error: error)
+        }
     }
 }
 
@@ -135,8 +145,8 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
         return tokens[0]
     }
 
-    public func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        contractDataFetcher.fetchContractData(for: contract, completion: completion)
+    public func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never> {
+        return contractDataFetcher.fetchContractData(for: contract)
     }
 
     public func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<TokenOrContract, ImportTokenError> {
@@ -154,46 +164,60 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
                 if let publisher = self?.inFlightPublishers[key] {
                     return publisher
                 } else {
-                    let publisher = Future<TokenOrContract, ImportTokenError> { seal in
-                        contractDataFetcher.fetchContractData(for: contract) { data in
+                    let publisher = contractDataFetcher.fetchContractData(for: contract)
+                        .tryCompactMap { data -> TokenOrContract? in
                             switch data {
                             case .name, .symbol, .balance, .decimals:
-                                break
+                                return nil
                             case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
                                 guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else {
-                                    seal(.failure(ImportTokenError.zeroBalanceDetected))
-                                    return
+                                    throw ImportTokenError.zeroBalanceDetected
                                 }
-                                let ercToken = ErcToken(contract: contract, server: server, name: name, symbol: symbol, decimals: 0, type: tokenType, value: "0", balance: balance)
+                                let ercToken = ErcToken(
+                                    contract: contract,
+                                    server: server,
+                                    name: name,
+                                    symbol: symbol,
+                                    decimals: 0,
+                                    type: tokenType,
+                                    value: "0",
+                                    balance: balance)
 
-                                seal(.success(.ercToken(ercToken)))
+                                return .ercToken(ercToken)
                             case .fungibleTokenComplete(let name, let symbol, let decimals, let value, let tokenType):
                                 //NOTE: we want to make get balance for fungible token, fetching for token from data source might be unusefull as token hasn't created yes (when we fetch for a new contract) so we fetch tokens balance sync on `getFungibleBalanceQueue` and return result on `.main` queue
                                 // one more additional network call, shouldn't be complex.
                                 guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && (value != .zero)) else {
-                                    seal(.failure(ImportTokenError.zeroBalanceDetected))
-                                    return
+                                    throw ImportTokenError.zeroBalanceDetected
                                 }
 
-                                let ercToken = ErcToken(contract: contract, server: server, name: name, symbol: symbol, decimals: decimals, type: tokenType, value: value, balance: .balance(["0"]))
+                                let ercToken = ErcToken(
+                                    contract: contract,
+                                    server: server,
+                                    name: name,
+                                    symbol: symbol,
+                                    decimals: decimals,
+                                    type: tokenType,
+                                    value: value,
+                                    balance: .balance(["0"]))
 
-                                seal(.success(.ercToken(ercToken)))
+                                return .ercToken(ercToken)
                             case .delegateTokenComplete:
-                                seal(.success(.delegateContracts([AddressAndRPCServer(address: contract, server: server)])))
+                                return .delegateContracts([AddressAndRPCServer(address: contract, server: server)])
                             case .failed(let networkReachable, let error):
                                 //Receives first received error, e.g name, symbol, token type, decimals
                                 //TODO: maybe its need to handle some cases of error here?
                                 if networkReachable {
-                                    seal(.success(.deletedContracts([AddressAndRPCServer(address: contract, server: server)])))
+                                    return .deletedContracts([AddressAndRPCServer(address: contract, server: server)])
                                 } else {
-                                    seal(.failure(ImportTokenError.internal(error: error)))
+                                    throw ImportTokenError.internal(error: error)
                                 }
                             }
-                        }
-                    }.receive(on: queue)
-                    .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = nil })
-                    .share()
-                    .eraseToAnyPublisher()
+                        }.mapError { ImportToken.ImportTokenError(error: $0) }
+                        .receive(on: queue)
+                        .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = nil })
+                        .share()
+                        .eraseToAnyPublisher()
 
                     self?.inFlightPublishers[key] = publisher
 
