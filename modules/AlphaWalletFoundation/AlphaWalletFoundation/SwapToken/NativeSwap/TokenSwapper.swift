@@ -228,9 +228,27 @@ extension TokenSwapper {
 }
 
 fileprivate extension TokenSwapper.functional {
-    static func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
-        let configuration: TransactionType.Configuration = .swapTransaction(fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
-        let transaction: UnconfirmedTransaction = .init(transactionType: .prebuilt(unsignedTransaction.server), value: unsignedTransaction.value, recipient: nil, contract: unsignedTransaction.to, data: unsignedTransaction.data, gasLimit: unsignedTransaction.gasLimit, gasPrice: unsignedTransaction.gasPrice)
+
+    static func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction,
+                                     fromToken: TokenToSwap,
+                                     fromAmount: BigUInt,
+                                     toToken: TokenToSwap,
+                                     toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
+
+        let configuration: TransactionType.Configuration = .swapTransaction(
+            fromToken: fromToken,
+            fromAmount: fromAmount,
+            toToken: toToken,
+            toAmount: toAmount)
+
+        let transaction: UnconfirmedTransaction = .init(
+            transactionType: .prebuilt(unsignedTransaction.server),
+            value: unsignedTransaction.value,
+            recipient: nil,
+            contract: unsignedTransaction.to,
+            data: unsignedTransaction.data,
+            gasLimit: unsignedTransaction.gasLimit,
+            gasPrice: unsignedTransaction.gasPrice)
 
         return (transaction, configuration)
     }
