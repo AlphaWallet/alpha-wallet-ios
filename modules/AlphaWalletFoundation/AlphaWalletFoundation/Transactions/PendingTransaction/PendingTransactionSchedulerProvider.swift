@@ -18,7 +18,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
     var interval: TimeInterval { return Constants.Covalent.pendingTransactionUpdateInterval }
     var name: String { "PendingTransactionSchedulerProvider" }
     var operation: AnyPublisher<Void, PromiseError> {
-        return fetchPendingTransactionPublisher()
+        return fetchPublisher()
     }
 
     let transaction: TransactionInstance
@@ -27,24 +27,27 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
         responseSubject.eraseToAnyPublisher()
     }
 
-    init(blockchainProvider: BlockchainProvider, transaction: TransactionInstance, fetchPendingTransactionsQueue: OperationQueue) {
+    init(blockchainProvider: BlockchainProvider,
+         transaction: TransactionInstance,
+         fetchPendingTransactionsQueue: OperationQueue) {
+
         self.blockchainProvider = blockchainProvider
         self.fetchPendingTransactionsQueue = fetchPendingTransactionsQueue
         self.transaction = transaction
     }
 
-    private func fetchPendingTransactionPublisher() -> AnyPublisher<Void, PromiseError> {
+    private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
         return blockchainProvider
             .pendingTransaction(hash: transaction.id)
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
                 //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
-                guard let pendingTransaction = pendingTransaction else { return }
-                guard let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0  else { return }
+                guard let tx = pendingTransaction, let blockNumber = Int(tx.blockNumber), blockNumber > 0  else { return }
 
-                self?.handle(response: .success(pendingTransaction))
+                self?.handle(response: .success(tx))
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let error) = result else { return }
+                
                 self?.handle(response: .failure(error))
             })
             .mapToVoid()

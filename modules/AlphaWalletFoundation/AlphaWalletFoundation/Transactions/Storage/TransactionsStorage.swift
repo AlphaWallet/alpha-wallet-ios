@@ -186,17 +186,15 @@ open class TransactionDataStore {
         }
     }
 
-    public func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: EthereumTransaction?) {
+    public func update(state: TransactionState, for primaryKey: String, pendingTransaction: EthereumTransaction) {
         store.performSync { realm in
             guard let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) else { return }
             try? realm.safeWrite {
-                if let pendingTransaction = pendingTransaction {
-                    value.gas = pendingTransaction.gas
-                    value.gasPrice = pendingTransaction.gasPrice
-                    value.nonce = pendingTransaction.nonce
-                    //We assume that by the time we get here, the block number is valid
-                    value.blockNumber = Int(pendingTransaction.blockNumber)!
-                }
+                value.gas = pendingTransaction.gas
+                value.gasPrice = pendingTransaction.gasPrice
+                value.nonce = pendingTransaction.nonce
+                //We assume that by the time we get here, the block number is valid
+                value.blockNumber = Int(pendingTransaction.blockNumber)!
                 value.internalState = state.rawValue
             }
         }

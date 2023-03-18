@@ -61,11 +61,26 @@ public final class TransactionBuilder {
             }.eraseToAnyPublisher()
     }
 
-    private func fetchLocalizedOperation(value: BigUInt, from: String, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
+    private func fetchLocalizedOperation(value: BigUInt,
+                                         from: String,
+                                         contract: AlphaWallet.Address,
+                                         to recipient: AlphaWallet.Address,
+                                         functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
+
         fetchLocalizedOperation(contract: contract)
             .map { token -> [LocalizedOperationObjectInstance] in
                 let operationType = self.mapTokenTypeToTransferOperationType(token.tokenType, functionCall: functionCall)
-                let result = LocalizedOperationObjectInstance(from: from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
+                let result = LocalizedOperationObjectInstance(
+                    from: from,
+                    to: recipient.eip55String,
+                    contract: contract,
+                    type: operationType.rawValue,
+                    value: String(value),
+                    tokenId: "",
+                    symbol: token.symbol,
+                    name: token.name,
+                    decimals: token.decimals)
+
                 return [result]
             }.replaceError(with: [])
             .eraseToAnyPublisher()
