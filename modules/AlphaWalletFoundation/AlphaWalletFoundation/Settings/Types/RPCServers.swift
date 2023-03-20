@@ -229,7 +229,7 @@ public enum RPCServer: Hashable, CaseIterable {
             case .ioTeXTestnet: return "https://testnet.iotexscan.io"
             case .optimismGoerli: return "https://blockscout.com/optimism/goerli"
             case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io"
-            case .okx: return ""
+            case .okx: return "https://www.oklink.com/okc"
             case .sepolia: return "https://sepolia.etherscan.io"
             }
         }()
