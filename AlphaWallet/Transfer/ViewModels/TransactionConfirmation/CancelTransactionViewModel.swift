@@ -167,8 +167,8 @@ extension ConfigureTransactionError: LocalizedError {
     }
 }
 
-extension AddCustomChainError {
-    var errorDescription: String? {
+extension AddCustomChainError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .cancelled:
             //This is the default behavior, just keep it

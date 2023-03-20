@@ -94,7 +94,7 @@ public enum TokenLevelTokenScriptDisplayStatus {
         case invalidSignature
     }
 
-    public enum SignatureValidationError: LocalizedError {
+    public enum SignatureValidationError: Error {
         case tokenScriptType1SupportedNotCanonicalizedAndUnsigned
         case tokenScriptType1SupportedAndSigned
         case tokenScriptType2InvalidSignature

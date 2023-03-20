@@ -443,7 +443,7 @@ extension String {
     }
 }
 
-extension SendInputErrors {
+extension SendInputErrors: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .emptyClipBoard:
