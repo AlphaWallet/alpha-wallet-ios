@@ -125,8 +125,8 @@ public final class RpcBlockchainProvider: BlockchainProvider {
                     // Guard against really high prices
                     return GasEstimates(standard: params.maxPrice)
                 } else {
-                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice {
-                        //Add an extra gwei because the estimate is sometimes too low
+                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > GasPriceConfiguration.oneGwei {
+                        //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
                         return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
                     } else {
                         return GasEstimates(standard: gasPrice)
