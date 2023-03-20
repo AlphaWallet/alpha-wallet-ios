@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import AlphaWalletFoundation
 
 public enum UrlSource {
     case deeplink

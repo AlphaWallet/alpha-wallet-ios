@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import AlphaWalletFoundation
 
 public protocol UniversalLinkInPasteboardServiceDelegate: AnyObject {
     func importUniversalLink(url: DeepLink, for service: UniversalLinkInPasteboardService)
