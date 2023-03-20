@@ -35,7 +35,8 @@ final class JsonFromTokenUri {
             blockchainProvider: blockchainProvider,
             uriMapper: TokenUriMapper(hostMappers: [
                 HostBasedTokenUriMapper(host: "api.mintkudos.xyz"),
-                HostBasedTokenUriMapper(host: "api.walletads.io")
+                HostBasedTokenUriMapper(host: "api.walletads.io"),
+                HostBasedTokenUriMapper(host: "gateway.pinata.cloud")
             ]))
     }
 
