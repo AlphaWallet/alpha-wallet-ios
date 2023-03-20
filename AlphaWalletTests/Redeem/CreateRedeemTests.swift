@@ -29,7 +29,7 @@ class CreateRedeemTests: XCTestCase {
 
                 expectation.fulfill()
             }, receiveValue: { [keyStore] account in
-                Task.init {
+                Task {
                     do {
                         let signature = await keyStore.signMessageData(data!, for: account.address, prompt: R.string.localizable.keystoreAccessKeySign())
                         //message and signature is to go in qr code

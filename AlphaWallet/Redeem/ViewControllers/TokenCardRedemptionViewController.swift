@@ -103,7 +103,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         navigationItem.title = viewModel.headerTitle
 
         //TODO async-await: This could cause timing issues since we might finish the async call later
-        Task.init {
+        Task {
             imageView.image = await viewModel.redeemQrCode()
         }
 

@@ -142,7 +142,7 @@ extension Keystore {
     //TODO async/await replace Promise with async/await and up the chain
     public func signTransactionPromise(_ transaction: UnsignedTransaction, prompt: String) -> Promise<Data> {
         return Promise { seal in
-            Task.init {
+            Task {
                 switch await signTransaction(transaction, prompt: prompt) {
                 case .success(let data):
                     seal.fulfill(data)
