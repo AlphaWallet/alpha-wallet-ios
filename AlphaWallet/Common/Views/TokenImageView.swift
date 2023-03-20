@@ -44,6 +44,9 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupporta
     var rounding: ViewRounding = .circle {
         didSet { imageView.rounding = rounding }
     }
+    var placeholderRounding: ViewRounding = .none {
+        didSet { imageView.placeholderRounding = placeholderRounding }
+    }
 
     var loading: ViewLoading = .enabled {
         didSet { imageView.loading = loading }

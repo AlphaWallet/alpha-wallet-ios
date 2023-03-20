@@ -29,6 +29,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
 
     var rounding: ViewRounding = .none
     var loading: ViewLoading = .disabled
+    var placeholderRounding: ViewRounding = .none
     
     var isStandalone: Bool {
         get { return tokenScriptRendererView.isStandalone }

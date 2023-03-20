@@ -22,7 +22,9 @@ class ActivityViewController: UIViewController {
     private let tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.contentMode = .scaleAspectFit
-
+        imageView.rounding = .circle
+        imageView.placeholderRounding = .circle
+        
         return imageView
     }()
 

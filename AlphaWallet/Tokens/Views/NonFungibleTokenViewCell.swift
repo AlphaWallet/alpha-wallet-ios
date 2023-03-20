@@ -16,6 +16,8 @@ class NonFungibleTokenViewCell: UITableViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.loading = .disabled
         imageView.contentMode = .scaleAspectFit
+        imageView.rounding = .circle
+        imageView.placeholderRounding = .circle
         
         return imageView
     }()

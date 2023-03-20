@@ -14,6 +14,7 @@ protocol ContentBackgroundSupportable {
 
 protocol ViewRoundingSupportable {
     var rounding: ViewRounding { get set }
+    var placeholderRounding: ViewRounding { get set }
 }
 
 enum ViewLoading {

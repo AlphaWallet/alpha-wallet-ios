@@ -43,6 +43,8 @@ class AVPlayerView: UIView, ViewRoundingSupportable {
         didSet { layoutSubviews() }
     }
 
+    var placeholderRounding: ViewRounding = .none
+
     init(edgeInsets: UIEdgeInsets = .zero,
          playButtonPositioning: PlayButtonPositioning,
          viewModel: AVPlayerViewModel) {

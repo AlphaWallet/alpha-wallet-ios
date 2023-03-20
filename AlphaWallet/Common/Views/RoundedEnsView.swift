@@ -41,6 +41,7 @@ class RoundedEnsView: UIView, ViewRoundingSupportable {
     var rounding: ViewRounding = .none {
         didSet { layoutSubviews() }
     }
+    var placeholderRounding: ViewRounding = .none
 
     init(viewModel: RoundedEnsViewModel) {
         super.init(frame: .zero)

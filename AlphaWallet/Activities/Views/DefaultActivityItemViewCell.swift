@@ -8,7 +8,9 @@ class DefaultActivityItemViewCell: UITableViewCell {
         let imageView = TokenImageView()
         imageView.loading = .disabled
         imageView.contentMode = .scaleAspectFit
-        
+        imageView.rounding = .circle
+        imageView.placeholderRounding = .circle
+
         return imageView
     }()
     private let stateView: ActivityStateView = {
