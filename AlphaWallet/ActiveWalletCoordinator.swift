@@ -1170,7 +1170,9 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
             guard shouldSend else { return .init(error: JsonRpcError.requestRejected) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
             let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
-            return sender.send(rawTransaction: transaction)
+            return Promise {
+                try await sender.send(rawTransaction: transaction)
+            }
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
@@ -1229,8 +1231,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
     func requestGetTransactionCount(session: WalletSession, source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError> {
         infoLog("[\(source)] getTransactionCount")
-        return session.blockchainProvider
-            .nextNonce(wallet: session.account.address)
+        return Future { try await session.blockchainProvider.nextNonce(wallet: session.account.address) }
             .mapError { PromiseError(error: $0) }
             .flatMap { nonce -> AnyPublisher<Data, PromiseError> in
                 if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {
@@ -1250,10 +1251,10 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                         session: WalletSession) -> AnyPublisher<String, PromiseError> {
 
         infoLog("[\(source)] ethCall")
-        return session.blockchainProvider
-            .call(from: from, to: to, value: value, data: data)
+        let provider = session.blockchainProvider
+        return Future { try await provider.call(from: from, to: to, value: value, data: data) }
             .receive(on: RunLoop.main)
-            .mapError { PromiseError(error: $0.unwrapped) }
+            .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
 

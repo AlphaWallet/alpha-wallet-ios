@@ -48,24 +48,11 @@ class PingInfuraCoordinator: Coordinator {
     private func pingInfura() {
         viewController.displayLoading()
 
-        sessionsProvider
-            .activeSessions
-            .anyValue
-            .blockchainProvider
-            .blockNumber()
-            .sink(receiveCompletion: { result in
-                if case .failure(let error) = result {
-                    UIAlertController.alert(
-                        title: R.string.localizable.settingsPingInfuraFail(),
-                        message: "\(error.localizedDescription)",
-                        alertButtonTitles: [R.string.localizable.oK()],
-                        alertButtonStyles: [.cancel],
-                        viewController: self.viewController,
-                        style: .alert)
-                }
-                self.viewController.hideLoading()
-                self.delegate?.didPing(in: self)
-            }, receiveValue: { _ in
+        let session = sessionsProvider.activeSessions.anyValue
+        Task { @MainActor in
+            do {
+                let _ = try await session.blockchainProvider.blockNumber()
+                
                 UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),
                     message: nil,
@@ -73,7 +60,18 @@ class PingInfuraCoordinator: Coordinator {
                     alertButtonStyles: [.cancel],
                     viewController: self.viewController,
                     style: .alert)
-            }).store(in: &cancellable)
+            } catch {
+                UIAlertController.alert(
+                    title: R.string.localizable.settingsPingInfuraFail(),
+                    message: "\(error.localizedDescription)",
+                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonStyles: [.cancel],
+                    viewController: self.viewController,
+                    style: .alert)
+            }
+            self.viewController.hideLoading()
+            self.delegate?.didPing(in: self)
+        }.store(in: &cancellable)
     }
 }
 

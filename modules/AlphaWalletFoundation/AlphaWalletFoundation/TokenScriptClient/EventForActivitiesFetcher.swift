@@ -67,18 +67,15 @@ final class EventForActivitiesFetcher {
                             guard let blockNumber = event.eventLog?.blockNumber else {
                                 return .just(nil)
                             }
-
-                            return session.blockchainProvider
-                                .block(by: blockNumber)
+                            return Future { try await session.blockchainProvider.block(by: blockNumber) }
                                 .map { block in
                                     EventSourceForActivities.functional.convertEventToDatabaseObject(
                                         event,
-                                        date: block,
+                                        date: block.timestamp,
                                         filterParam: filterParam,
                                         eventOrigin: eventOrigin,
                                         tokenContract: token.contractAddress,
                                         server: token.server)
-
                                 }.replaceError(with: nil)
                                 .eraseToAnyPublisher()
                         }

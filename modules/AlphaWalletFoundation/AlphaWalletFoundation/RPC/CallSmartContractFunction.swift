@@ -152,7 +152,7 @@ final class GetEventLogs {
                 let promise = contract
                     .getIndexedEventsPromise(eventName: eventName, filter: filter)
                     .ensure(on: queue, { self?.inFlightPromises[key] = .none })
-
+                    
                 self?.inFlightPromises[key] = promise
 
                 return promise

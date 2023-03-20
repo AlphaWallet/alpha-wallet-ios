@@ -102,13 +102,15 @@ public class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        session.blockchainProvider
-            .gasLimit(wallet: session.account.address, value: value, toAddress: toAddress, data: currentConfiguration.data)
-            .sink(receiveCompletion: { result in
-                guard case .failure(let e) = result else { return }
-                infoLog("[Transaction Confirmation] Error estimating gas limit: \(e)")
-                logError(e, rpcServer: self.session.server)
-            }, receiveValue: { gasLimit in
+        let provider = session.blockchainProvider
+        Task { @MainActor in
+            do {
+                let gasLimit = try await provider.gasLimit(
+                    wallet: session.account.address,
+                    value: value,
+                    toAddress: toAddress,
+                    data: currentConfiguration.data)
+
                 infoLog("[Transaction Confirmation] Using gas limit: \(gasLimit)")
                 var customConfig = self.configurations.custom
                 customConfig.setEstimated(gasLimit: gasLimit)
@@ -125,7 +127,11 @@ public class TransactionConfigurator {
                 }
 
                 self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-            }).store(in: &cancelable)
+            } catch {
+                infoLog("[Transaction Confirmation] Error estimating gas limit: \(error)")
+                logError(error, rpcServer: self.session.server)
+            }
+        }.store(in: &cancelable)
     }
 
     private func estimateGasPrice() {
@@ -249,14 +255,14 @@ public class TransactionConfigurator {
         if let nonce = transaction.nonce, nonce > 0 {
             useNonce(Int(nonce))
         } else {
-            session.blockchainProvider
-                .nextNonce(wallet: session.account.address)
-                .sink(receiveCompletion: { [session] result in
-                    guard case .failure(let e) = result else { return }
-                    logError(e, rpcServer: session.server)
-                }, receiveValue: {
-                    self.useNonce($0)
-                }).store(in: &cancelable)
+            Task { @MainActor in
+                do {
+                    let nonce = try await session.blockchainProvider.nextNonce(wallet: session.account.address)
+                    self.useNonce(nonce)
+                } catch {
+                    logError(error, rpcServer: session.server)
+                }
+            }.store(in: &cancelable)
         }
     }
 

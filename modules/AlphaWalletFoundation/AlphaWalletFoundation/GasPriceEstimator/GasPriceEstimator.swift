@@ -50,23 +50,19 @@ public final class LegacyGasPriceEstimator: GasPriceEstimator {
     public func estimateGasPrice() async throws -> GasEstimates {
         if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
             do {
-                return try await estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
+                let estimates = try await etherscanGasPriceEstimator.gasPriceEstimates(server: blockchainProvider.server)
+                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(blockchainProvider.server) estimate: \(estimates)")
+                return estimates
             } catch {
-                return try await blockchainProvider.gasEstimates().async()
+                return try await blockchainProvider.gasEstimates()
             }
         } else {
             switch blockchainProvider.server.serverWithEnhancedSupport {
             case .xDai:
                 return .init(standard: GasPriceConfiguration.xDaiGasPrice)
             case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-                return try await blockchainProvider.gasEstimates().async()
+                return try await blockchainProvider.gasEstimates()
             }
         }
-    }
-
-    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) async throws -> GasEstimates {
-        let estimates = try await etherscanGasPriceEstimator.gasPriceEstimates(server: server)
-        infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
-        return estimates
     }
 }

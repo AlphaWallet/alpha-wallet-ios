@@ -36,24 +36,3 @@ extension SessionTaskError {
         }
     }
 }
-
-final class GetGasPrice {
-    private let analytics: AnalyticsLogger
-    private let server: RPCServer
-    private let params: BlockchainParams
-
-    init(server: RPCServer, params: BlockchainParams, analytics: AnalyticsLogger) {
-        self.server = server
-        self.params = params
-        self.analytics = analytics
-    }
-
-    func getGasEstimates() -> AnyPublisher<BigUInt, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-        let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
-        let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
-
-        return APIKitSession
-            .sendPublisher(request, server: server, analytics: analytics)
-    }
-}
