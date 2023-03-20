@@ -26,7 +26,6 @@ class AcceptProposalCoordinator: Coordinator {
 
         return viewController
     }()
-    private weak var serversViewController: UIViewController?
     private lazy var hostViewController: FloatingPanelController = {
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
@@ -69,7 +68,6 @@ extension AcceptProposalCoordinator: ServersCoordinatorDelegate {
 
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
-        serversViewController?.navigationController?.dismiss(animated: true)
 
         viewModel.logServerSelected()
 
@@ -84,7 +82,6 @@ extension AcceptProposalCoordinator: ServersCoordinatorDelegate {
 
     func didClose(in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
-        serversViewController?.navigationController?.dismiss(animated: true)
         viewModel.logCancelServerSelection()
     }
 }
@@ -100,15 +97,14 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
 
         switch viewModel.proposalType {
         case .walletConnect(let viewModel):
+            let navigationController = NavigationController()
+            navigationController.makePresentationFullScreenForiOS13Migration()
             let coordinator = ServersCoordinator(viewModel: viewModel.serversViewModel, navigationController: navigationController)
-            addCoordinator(coordinator)
+            coordinator.serversViewController.navigationItem.rightBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
+            coordinator.start(animated: false)
             coordinator.delegate = self
 
-            let navigationController = NavigationController(rootViewController: coordinator.serversViewController)
-            navigationController.makePresentationFullScreenForiOS13Migration()
-            coordinator.serversViewController.navigationItem.rightBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
-
-            self.serversViewController = coordinator.serversViewController
+            addCoordinator(coordinator)
 
             hostViewController.present(navigationController, animated: true)
         case .deepLink:
@@ -116,8 +112,10 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
         }
     }
 
-    @objc func changeServersDidDismiss() {
-        serversViewController?.navigationController?.dismiss(animated: true)
+    @objc private func changeServersDidDismiss() {
+        guard let coordinator = coordinatorOfType(type: ServersCoordinator.self) else { return }
+        coordinator.navigationController.dismiss(animated: true)
+        coordinator.serversViewController.didPopViewController(animated: true)
     }
 
     func controller(_ controller: AcceptProposalViewController, continueButtonTapped sender: UIButton) {

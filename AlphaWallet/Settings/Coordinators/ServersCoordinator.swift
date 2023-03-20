@@ -90,8 +90,8 @@ class ServersCoordinator: Coordinator {
         }
     }
 
-    func start() {
-        navigationController.pushViewController(serversViewController, animated: true)
+    func start(animated: Bool = true) {
+        navigationController.pushViewController(serversViewController, animated: animated)
     }
 }
 
