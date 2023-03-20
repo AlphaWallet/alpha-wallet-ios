@@ -30,86 +30,40 @@ public class SendTransaction {
         self.analytics = analytics
     }
 
-    public func send(rawTransaction: String) -> Promise<ConfirmResult> {
-        let rawRequest = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
-
-        return firstly {
-            APIKitSession.send(request, server: session.server, analytics: analytics)
-        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
+    public func send(rawTransaction: String) async throws -> ConfirmResult {
+        do {
+            let transactionId = await try session.blockchainProvider.send(rawTransaction: rawTransaction.add0x)
+            infoLog("Sent rawTransaction with transactionId: \(transactionId)")
+            return .sentRawTransaction(id: transactionId, original: rawTransaction)
+        } catch {
             self.logSelectSendError(error)
             throw error
-        }.map { transactionID in
-            .sentRawTransaction(id: transactionID, original: rawTransaction)
-        }.get {
-            infoLog("Sent rawTransaction with transactionId: \($0)")
         }
     }
 
-    private func appendNonce(to: UnsignedTransaction, currentNonce: Int) -> UnsignedTransaction {
-        return UnsignedTransaction(
-            value: to.value,
-            account: to.account,
-            to: to.to,
-            nonce: currentNonce,
-            data: to.data,
-            gasPrice: to.gasPrice,
-            gasLimit: to.gasLimit,
-            server: to.server,
-            transactionType: to.transactionType
-        )
-    }
-
-    public func send(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+    public func send(transaction: UnsignedTransaction) async throws -> ConfirmResult {
         if transaction.nonce >= 0 {
-            return signAndSend(transaction: transaction)
+            return try await signAndSend(transaction: transaction)
         } else {
-            return firstly {
-                resolveNextNonce(for: transaction)
-            }.then { transaction -> Promise<ConfirmResult> in
-                return self.signAndSend(transaction: transaction)
+            let nonce = await try session.blockchainProvider.nonce(wallet: session.account.address)
+            let transaction = transaction.updating(nonce: nonce)
+            return try await signAndSend(transaction: transaction)
+        }
+    }
+
+    private func signAndSend(transaction: UnsignedTransaction) async throws -> ConfirmResult {
+        do {
+            switch await try keystore.signTransaction(transaction, prompt: prompt) {
+            case .failure(let error):
+                throw error
+            case .success(let data):
+                let transactionId = await try session.blockchainProvider.send(rawTransaction: data.hexEncoded)
+                infoLog("Sent transaction with transactionId: \(transactionId)")
+                return .sentTransaction(SentTransaction(id: transactionId, original: transaction))
             }
-        }
-    }
-
-    private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        return firstly {
-            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, analytics: analytics).getNextNonce(wallet: session.account.address)
-        }.map { nonce -> UnsignedTransaction in
-            let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
-            return transaction
-        }
-    }
-
-    private func signAndSend(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
-        firstly {
-            keystore.signTransactionPromise(transaction, prompt: prompt)
-        }.then { data -> Promise<ConfirmResult> in
-            switch self.confirmType {
-            case .sign:
-                return .value(.signedTransaction(data))
-            case .signThenSend:
-                return self.sendTransactionRequest(transaction: transaction, data: data)
-            }
-        }
-    }
-
-    private func sendTransactionRequest(transaction: UnsignedTransaction, data: Data) -> Promise<ConfirmResult> {
-        let rawTransaction = SendRawTransactionRequest(signedTransaction: data.hexEncoded)
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawTransaction))
-
-        return firstly {
-            APIKitSession.send(request, server: session.server, analytics: analytics)
-        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
-            self.logSelectSendError(error)
+        } catch {
+            logSelectSendError(error)
             throw error
-        }.map { transactionID in
-            .sentTransaction(SentTransaction(id: transactionID, original: transaction))
-        }.get {
-            infoLog("Sent transaction with transactionId: \($0)")
         }
     }
 
@@ -121,10 +75,6 @@ public class SendTransaction {
         case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
             break
         }
-    }
-
-    private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
-        session.server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
     }
 }
 
@@ -138,18 +88,14 @@ extension RPCServer {
     }
 }
 
-extension Keystore {
-    //TODO async/await replace Promise with async/await and up the chain
-    public func signTransactionPromise(_ transaction: UnsignedTransaction, prompt: String) -> Promise<Data> {
-        return Promise { seal in
-            Task {
-                switch await signTransaction(transaction, prompt: prompt) {
-                case .success(let data):
-                    seal.fulfill(data)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
+import Combine
+
+extension Task {
+    public func store(in cancellables: inout Set<AnyCancellable>) {
+        asCancellable().store(in: &cancellables)
+    }
+
+    func asCancellable() -> AnyCancellable {
+        .init { self.cancel() }
     }
 }

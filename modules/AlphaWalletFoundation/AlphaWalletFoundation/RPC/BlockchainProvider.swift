@@ -11,6 +11,8 @@ import AlphaWalletLogger
 import AlphaWalletWeb3
 import BigInt
 import AlphaWalletCore
+import APIKit
+import JSONRPCKit
 
 public protocol BlockchainProvider {
     var server: RPCServer { get }
@@ -21,11 +23,12 @@ public protocol BlockchainProvider {
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
     func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
     func pendingTransaction(hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError>
-    func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
+    func nonce(wallet: AlphaWallet.Address) async throws -> Int
     func block(by blockNumber: BigUInt) -> AnyPublisher<Date, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
     func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError>
     func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
+    func send(rawTransaction: String) async throws -> String
 }
 
 extension BlockchainProvider {
@@ -46,6 +49,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     private lazy var getGasPrice = GetGasPrice(server: server, params: params, analytics: analytics)
     private lazy var getGaslimit = GetGasLimit(server: server, analytics: analytics)
 
+    private let config: Config = Config()
     private let params: BlockchainParams
     public let server: RPCServer
 
@@ -58,6 +62,24 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         self.server = server
         self.getEventLogs = GetEventLogs()
         self.getPendingTransaction = GetPendingTransaction(server: server, analytics: analytics)
+    }
+
+    private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
+        server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
+    }
+
+    public func send(rawTransaction: String) async throws -> String {
+        let rawRequest = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
+        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
+        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
+        
+        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).async()
+    }
+
+    public func nonce(wallet: AlphaWallet.Address) async throws -> Int {
+        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
+        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
+        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).async()
     }
 
     public func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {

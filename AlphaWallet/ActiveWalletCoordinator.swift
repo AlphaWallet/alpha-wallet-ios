@@ -1175,7 +1175,9 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
             guard shouldSend else { return .init(error: JsonRpcError.requestRejected) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
             let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
-            return sender.send(rawTransaction: transaction)
+            return Promise {
+                try await sender.send(rawTransaction: transaction)
+            }
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
@@ -1234,8 +1236,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
     func requestGetTransactionCount(session: WalletSession, source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError> {
         infoLog("[\(source)] getTransactionCount")
-        return session.blockchainProvider
-            .nextNonce(wallet: session.account.address)
+        return Future { return try await session.blockchainProvider.nonce(wallet: session.account.address) }
             .mapError { PromiseError(error: $0) }
             .flatMap { nonce -> AnyPublisher<Data, PromiseError> in
                 if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {

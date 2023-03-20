@@ -248,14 +248,14 @@ public class TransactionConfigurator {
         if let nonce = transaction.nonce, nonce > 0 {
             useNonce(Int(nonce))
         } else {
-            session.blockchainProvider
-                .nextNonce(wallet: session.account.address)
-                .sink(receiveCompletion: { [session] result in
-                    guard case .failure(let e) = result else { return }
-                    logError(e, rpcServer: session.server)
-                }, receiveValue: {
-                    self.useNonce($0)
-                }).store(in: &cancelable)
+            Task { @MainActor in
+                do {
+                    let nonce = await try session.blockchainProvider.nonce(wallet: session.account.address)
+                    self.useNonce(nonce)
+                } catch {
+                    logError(error, rpcServer: session.server)
+                }
+            }.store(in: &cancelable)
         }
     }
 

@@ -100,3 +100,33 @@ extension Publisher {
         }
     }
 }
+
+public extension Promise {
+    convenience init(operation: @escaping () async throws -> T) {
+        self.init { seal in
+            Task {
+                do {
+                    let output = try await operation()
+                    seal.fulfill(output)
+                } catch {
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+}
+
+public extension Future where Failure == Error {
+    convenience init(operation: @escaping () async throws -> Output) {
+        self.init { promise in
+            Task {
+                do {
+                    let output = try await operation()
+                    promise(.success(output))
+                } catch {
+                    promise(.failure(error))
+                }
+            }
+        }
+    }
+}
