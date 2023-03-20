@@ -132,7 +132,7 @@ class WalletCoordinator: Coordinator {
 
     private func addHardwareWallet() {
         let hwWallet = BCHardwareWalletCreator().createWallet()
-        Task.init { @MainActor in
+        Task { @MainActor in
             do {
                 let address = try await hwWallet.getAddress()
                 keystore

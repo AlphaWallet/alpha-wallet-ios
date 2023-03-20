@@ -482,7 +482,7 @@ extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDel
 extension NFTCollectionCoordinator: GenerateSellMagicLinkViewControllerDelegate {
 
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
-        Task.init { @MainActor in
+        Task { @MainActor in
             do {
                 let url = try await viewController.viewModel.generateSellLink()
                 displayShareUrlView(url: url, from: viewController, sender: sender)
@@ -557,7 +557,7 @@ extension NFTCollectionCoordinator: SetTransferTokensCardExpiryDateViewControlle
 
 extension NFTCollectionCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView) {
-        Task.init { @MainActor in
+        Task { @MainActor in
             do {
                 let url = try await viewController.viewModel.generateTransferLink()
                 displayShareUrlView(url: url, from: viewController, sender: sender)

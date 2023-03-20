@@ -24,7 +24,7 @@ extension SignMessageValidatorError: LocalizedError {
         case .notMatchesToAnyOfChainIds(_, let requested, _):
             return R.string.localizable.signMessageValidationWalletConnectV2RequestedChainUnavailable(requested.name, requested.name)
         }
-        
+
     }
 }
 
@@ -127,7 +127,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
     func controller(_ controller: SignatureConfirmationViewController, continueButtonTapped sender: UIButton) {
         analytics.log(action: Analytics.Action.signMessageRequest)
 
-        Task.init { @MainActor in
+        Task { @MainActor in
             do {
                 let data = try await sign(message: message)
 

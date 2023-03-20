@@ -223,7 +223,7 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                Task.init {
+                Task {
                     let signResult = await keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
                     guard let data = try? signResult.get() else {
                         XCTFail("Failure to import wallet")
@@ -258,7 +258,7 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                Task.init {
+                Task {
                     let signResult = await keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
                     guard let data = try? signResult.get() else {
                         XCTFail("Failure to import wallet")
@@ -284,7 +284,7 @@ class EtherKeystoreTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { wallet in
-                Task.init {
+                Task {
                     let signResult = await keystore.signPersonalMessage("0x3f44c2dfea365f01c1ada3b7600db9e2999dfea9fe6c6017441eafcfbc06a543".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
                     guard let data = try? signResult.get() else {
                         XCTFail("Failure to import wallet")

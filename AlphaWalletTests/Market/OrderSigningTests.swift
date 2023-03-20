@@ -42,7 +42,7 @@ class OrderSigningTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { account in
                 let account = account.address
-                Task.init { [testOrdersList] in
+                Task { [testOrdersList] in
                     guard let signedOrders = try? await signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
                         XCTFail("Failure to sign an order")
                         return
