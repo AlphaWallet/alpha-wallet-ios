@@ -129,11 +129,9 @@ public class TransactionConfigurator {
     }
 
     private func estimateGasPrice() {
-        gasPriceEstimator.estimateGasPrice()
-            .sink(receiveCompletion: { [session] result in
-                guard case .failure(let e) = result else { return }
-                logError(e, rpcServer: session.server)
-            }, receiveValue: { estimates in
+        Task { @MainActor in
+            do {
+                let estimates = try await gasPriceEstimator.estimateGasPrice()
                 let standard = estimates.standard
                 var customConfig = self.configurations.custom
                 customConfig.setEstimated(gasPrice: standard)
@@ -154,7 +152,10 @@ public class TransactionConfigurator {
                 }
 
                 self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
-            }).store(in: &cancelable)
+            } catch {
+                logError(error, rpcServer: session.server)
+            }
+        }.store(in: &cancelable)
     }
 
     public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt) -> Bool {

@@ -17,21 +17,19 @@ class EtherscanGasPriceEstimator {
         return server.etherscanGasPriceEstimatesURL != nil
     }
 
-    func gasPriceEstimates(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
-        return networkService
-            .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
-            .receive(on: DispatchQueue.global())
-            .tryMap { [decoder] in try decoder.decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }
-            .compactMap { EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: $0.result) }
-            .map { estimates in
-                GasEstimates(standard: BigUInt(estimates.standard), others: [
-                    TransactionConfigurationType.slow: BigUInt(estimates.slow),
-                    TransactionConfigurationType.fast: BigUInt(estimates.fast),
-                    TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
-                ])
-            }.mapError { PromiseError.some(error: $0) }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+    func gasPriceEstimates(server: RPCServer) async throws -> GasEstimates {
+        let response = try await networkService.dataTask(GetGasPriceEstimatesRequest(server: server))
+        let result = try decoder.decode(EtherscanPriceEstimatesResponse.self, from: response.data)
+
+        guard let estimates = EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: result.result) else {
+            throw CastError(actualValue: result.result, expectedType: GasPriceEstimates.self)
+        }
+
+        return GasEstimates(standard: BigUInt(estimates.standard), others: [
+            TransactionConfigurationType.slow: BigUInt(estimates.slow),
+            TransactionConfigurationType.fast: BigUInt(estimates.fast),
+            TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
+        ])
     }
 }
 
