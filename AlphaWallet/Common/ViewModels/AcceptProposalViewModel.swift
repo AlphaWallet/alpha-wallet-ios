@@ -51,9 +51,6 @@ class AcceptProposalViewModel: NSObject {
         }
     }
 
-    var backgroundColor: UIColor = Configuration.Color.Semantic.backgroundClear
-    var footerBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-
     var connectionIconUrl: URL? {
         switch proposalType {
         case .walletConnect(let viewModel):
@@ -140,11 +137,11 @@ class AcceptProposalViewModel: NSObject {
         }
     }
 
-    func logConnectToServersDisabled() {
+    func logConnectToServersDisabled(servers: [RPCServer]) {
         switch proposalType {
-        case .walletConnect(let viewModel):
+        case .walletConnect:
             analytics.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
-                Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID }),
+                Analytics.Properties.chains.rawValue: servers.map { $0.chainID },
                 Analytics.Properties.reason.rawValue: "Chain Disabled"
             ])
         case .deepLink:

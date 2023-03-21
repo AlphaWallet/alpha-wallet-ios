@@ -21,13 +21,15 @@ class WalletConnectSessionCoordinator: Coordinator {
         let viewModel = WalletConnectSessionDetailsViewModel(
             walletConnectProvider: walletConnectProvider,
             session: session,
-            analytics: analytics)
+            analytics: analytics,
+            serversProvider: serversProvider)
 
         let viewController = WalletConnectSessionViewController(viewModel: viewModel)
         viewController.delegate = self
 
         return viewController
     }()
+    private let serversProvider: ServersProvidable
     private let session: AlphaWallet.WalletConnect.Session
     
     var coordinators: [Coordinator] = []
@@ -36,8 +38,10 @@ class WalletConnectSessionCoordinator: Coordinator {
     init(analytics: AnalyticsLogger,
          navigationController: UINavigationController,
          walletConnectProvider: WalletConnectProvider,
-         session: AlphaWallet.WalletConnect.Session) {
+         session: AlphaWallet.WalletConnect.Session,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.analytics = analytics
         self.navigationController = navigationController
         self.walletConnectProvider = walletConnectProvider

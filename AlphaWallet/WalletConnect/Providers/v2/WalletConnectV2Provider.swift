@@ -21,7 +21,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
     private var currentProposal: WalletConnectSwiftV2.Session.Proposal?
     private var pendingProposals: [WalletConnectSwiftV2.Session.Proposal] = []
     private let storage: WalletConnectV2Storage
-    private let config: Config
+    private let serversProvider: ServersProvidable
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
     private let caip10AccountProvidable: CAIP10AccountProvidable
@@ -39,14 +39,14 @@ final class WalletConnectV2Provider: WalletConnectServer {
     //NOTE: we support only single account session as WalletConnects request doesn't provide a wallets address to sign transaction or some other method, so we cant figure out wallet address to sign, so for now we use only active wallet session address
     init(caip10AccountProvidable: CAIP10AccountProvidable,
          storage: WalletConnectV2Storage = WalletConnectV2Storage(),
-         config: Config = Config(),
+         serversProvider: ServersProvidable,
          decoder: WalletConnectRequestDecoder = WalletConnectRequestDecoder(),
          client: WalletConnectV2Client) {
 
         self.client = client
         self.decoder = decoder
         self.storage = storage
-        self.config = config
+        self.serversProvider = serversProvider
         self.caip10AccountProvidable = caip10AccountProvidable
 
         caip10AccountProvidable.accounts
@@ -157,7 +157,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
 
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
         //FIXME: update with ability ask user for enabled disaled server
-        guard let server = request.rpcServer, config.enabledServers.contains(server) else {
+        guard let server = request.rpcServer, serversProvider.enabledServers.contains(server) else {
             return reject(request: request, error: .internalError)
         }
 

@@ -28,23 +28,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private var urlParser: BrowserURLParser {
         return BrowserURLParser()
     }
-
+    private let serversProvider: ServersProvidable
     private var cancellable = Set<AnyCancellable>()
     private var server: RPCServer {
-        get {
-            let selected = RPCServer(chainID: Config.getChainId())
-            let enabled = config.enabledServers
-            if enabled.contains(selected) {
-                return selected
-            } else {
-                let fallback = enabled[0]
-                Config.setChainId(fallback.chainID)
-                return fallback
-            }
-        }
-        set {
-            Config.setChainId(newValue.chainID)
-        }
+        get { return serversProvider.browserRpcServer }
+        set { serversProvider.browserRpcServer = newValue }
     }
     private let networkService: NetworkService
     private var enableToolbar: Bool = true {
@@ -75,8 +63,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
          bookmarksStore: BookmarksStore,
          browserHistoryStorage: BrowserHistoryStorage,
          wallet: Wallet,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.networkService = networkService
         self.wallet = wallet
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
@@ -366,7 +356,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func scanQrCode() {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
+        let coordinator = ScanQRCodeCoordinator(
+            analytics: analytics,
+            navigationController: navigationController,
+            account: wallet,
+            domainResolutionService: domainResolutionService)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .browserScreen)
@@ -374,7 +369,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func showServers() {
         logSwitchServer()
-        let coordinator = ServersCoordinator(defaultServer: server, config: config, navigationController: navigationController)
+
+        let coordinator = ServersCoordinator(
+            defaultServer: server,
+            serversProvider: serversProvider,
+            navigationController: navigationController)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -420,7 +420,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 case .restartToEnableAndSwitchBrowserToServer:
                     break
                 case .restartToAddEnableAndSwitchBrowserToServer:
-                    break
+                    guard let server = customChain.server else { return }
+                    self?.switch(toServer: server)
                 }
             }).store(in: &cancellable)
     }

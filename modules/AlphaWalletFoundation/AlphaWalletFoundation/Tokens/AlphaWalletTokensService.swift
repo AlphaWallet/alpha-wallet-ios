@@ -124,18 +124,17 @@ public class AlphaWalletTokensService: TokensService {
                     providers[session.key] = provider
                 }
             }
-
+            
             return providers
         }.assign(to: \.value, on: providers, ownership: .weak)
         .store(in: &cancelable)
     }
 
     private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
-        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         let balanceFetcher = TokenBalanceFetcher(
             session: session,
             tokensService: self,
-            etherToken: etherToken,
+            etherToken: MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server),
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             networkService: networkService)

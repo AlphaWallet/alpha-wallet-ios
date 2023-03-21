@@ -17,7 +17,6 @@ protocol SettingsCoordinatorDelegate: AnyObject, CanOpenURL {
     func didCancel(in coordinator: SettingsCoordinator)
     func didPressShowWallet(in coordinator: SettingsCoordinator)
     func showConsole(in coordinator: SettingsCoordinator)
-    func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
@@ -215,7 +214,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func activeNetworksSelected(in controller: SettingsViewController) {
         let coordinator = EnabledServersCoordinator(
             navigationController: navigationController,
-            selectedServers: config.enabledServers,
+            selectedServers: serversProvider.enabledServers,
             restartHandler: restartHandler,
             analytics: analytics,
             config: config,
@@ -302,11 +301,9 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
 
 extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 
-    func restartToReloadServersQueued(in coordinator: EnabledServersCoordinator) {
-        delegate?.restartToReloadServersQueued(in: self)
+    func didClose(in coordinator: EnabledServersCoordinator) {
         removeCoordinator(coordinator)
     }
-
 }
 
 extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {

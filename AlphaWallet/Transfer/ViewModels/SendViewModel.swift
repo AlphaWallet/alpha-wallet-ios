@@ -413,7 +413,6 @@ extension TransactionTypeSupportable {
 
 final class TransactionTypeFromQrCode {
     private lazy var eip681UrlResolver = Eip681UrlResolver(
-        config: session.config,
         sessionsProvider: sessionsProvider,
         missingRPCServerStrategy: .fallbackToPreffered(session.server))
     private let session: WalletSession

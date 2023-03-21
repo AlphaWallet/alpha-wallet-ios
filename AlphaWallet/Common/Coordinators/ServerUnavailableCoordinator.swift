@@ -10,19 +10,25 @@ import PromiseKit
 import AlphaWalletFoundation
 
 protocol ServerUnavailableCoordinatorDelegate: AnyObject {
-    func didDismiss(in coordinator: ServerUnavailableCoordinator)
+    func didDismiss(in coordinator: ServerUnavailableCoordinator, result: Swift.Result<Void, Error>)
+}
+
+enum ServerUnavailableError: Error {
+    case messageIsEmpty
+    case cancelled
 }
 
 class ServerUnavailableCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    private let servers: [RPCServer]
+    private let disabledServers: [RPCServer]
+    private let restartHandler: RestartQueueHandler
     private lazy var message: String? = {
-        guard !servers.isEmpty else { return nil }
+        guard !disabledServers.isEmpty else { return nil }
 
-        if servers.count == 1 {
-            return R.string.localizable.serverWarningServerIsDisabled(servers[0].name)
+        if disabledServers.count == 1 {
+            return R.string.localizable.serverWarningServerIsDisabled(disabledServers[0].name)
         } else {
-            let value = servers.map { $0.name }.joined(separator: ", ")
+            let value = disabledServers.map { $0.name }.joined(separator: ", ")
             return R.string.localizable.serverWarningServersAreDisabled(value)
         }
     }()
@@ -30,21 +36,38 @@ class ServerUnavailableCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ServerUnavailableCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, servers: [RPCServer]) {
+    init(navigationController: UINavigationController,
+         disabledServers: [RPCServer],
+         restartHandler: RestartQueueHandler) {
+
+        self.restartHandler = restartHandler
         self.navigationController = navigationController
-        self.servers = servers
+        self.disabledServers = disabledServers
     }
 
     func start() {
         guard let message = message else {
-            delegate?.didDismiss(in: self)
+            delegate?.didDismiss(in: self, result: .failure(ServerUnavailableError.messageIsEmpty))
             return
         }
 
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: message, completion: {
-                self.delegate?.didDismiss(in: self)
+            .confirm(message: message, okTitle: "Enable and Connect", completion: { result in
+                switch result {
+                case .success:
+                    self.enabledDisabledServers()
+                    self.delegate?.didDismiss(in: self, result: .success(()))
+                case .failure:
+                    self.delegate?.didDismiss(in: self, result: .failure(ServerUnavailableError.cancelled))
+                }
             })
-    } 
+    }
+
+    private func enabledDisabledServers() {
+        let tasks = disabledServers.map { RestartTaskQueue.Task.enableServer($0) }
+        tasks.forEach { restartHandler.add($0) }
+
+        restartHandler.processTasks()
+    }
 }

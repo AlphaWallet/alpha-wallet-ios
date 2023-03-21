@@ -34,7 +34,6 @@ final class QRCodeResolutionCoordinator: Coordinator {
         case importWalletOnly
     }
 
-    private let config: Config
     private let usage: Usage
     private var skipResolvedCodes: Bool = false
     private var navigationController: UINavigationController {
@@ -47,8 +46,7 @@ final class QRCodeResolutionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
-        self.config = config
+    init(coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
         self.account = account
@@ -112,7 +110,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 switch usage {
                 case .all(_, let sessionsProvider):
                     let resolver = Eip681UrlResolver(
-                        config: config,
                         sessionsProvider: sessionsProvider,
                         missingRPCServerStrategy: .fallbackToFirstMatching)
 

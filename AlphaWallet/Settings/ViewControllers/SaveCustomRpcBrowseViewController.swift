@@ -104,6 +104,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         tableViewTopToTopLayout = tableViewController.tableView.topAnchor.constraint(equalTo: browseView.topAnchor)
         tableViewTopToSearchBarLayout = tableViewController.tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
         showSearchBar()
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     private func configureTableViewController() {

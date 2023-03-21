@@ -12,7 +12,6 @@ import Combine
 
 protocol SaveCustomRpcCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: SaveCustomRpcCoordinator)
-    func restartToEdit(in coordinator: SaveCustomRpcCoordinator)
 }
 
 typealias OverallProtocol = SaveCustomRpcHandleUrlFailure & HandleAddMultipleCustomRpcViewControllerResponse
@@ -160,7 +159,7 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
         case .edit:
             analytics.log(action: Analytics.Action.editCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         }
-        delegate?.restartToEdit(in: self)
+        restartHandler.processTasks()
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
@@ -180,7 +179,7 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
 extension SaveCustomRpcCoordinator: AddMultipleCustomRpcViewControllerResponse {
 
     func addMultipleCustomRpcCompleted() {
-        delegate?.restartToEdit(in: self)
+        restartHandler.processTasks()
     }
 
     func addMultipleCustomRpcFailed(added: NSArray, failed: NSArray, duplicates: NSArray, remaining: NSArray) {

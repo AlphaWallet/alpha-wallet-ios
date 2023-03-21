@@ -7,6 +7,8 @@ import Combine
 struct EnabledServersViewModelInput {
     let selection: AnyPublisher<RPCServer, Never>
     let enableTestnet: AnyPublisher<Bool, Never>
+    let deleteCustomRpc: AnyPublisher<CustomRPC, Never>
+    let reload: AnyPublisher<Void, Never>
 }
 
 struct EnabledServersViewModelOutput {
@@ -31,14 +33,22 @@ class EnabledServersViewModel {
 
     func transform(input: EnabledServersViewModelInput) -> EnabledServersViewModelOutput {
         input.selection
-            .sink { [weak self] in self?.select(server: $0) }
+            .sink { [weak self] in self?.toggleSelection(server: $0) }
+            .store(in: &cancellable)
+
+        input.reload
+            .sink { [weak self] _ in self?.reloadServers() }
+            .store(in: &cancellable)
+
+        input.deleteCustomRpc
+            .sink { [weak self] in self?.delete(customRpc: $0) }
             .store(in: &cancellable)
 
         let testnetEnabled = testnetEnabled(input: input.enableTestnet)
         let servers = serversProvider.enabledServersPublisher
             .map { _ in EnabledServersCoordinator.serversOrdered }
             .map { servers -> [RPCServer] in servers.uniqued() }
-
+            
         let sections = Publishers.CombineLatest3(testnetEnabled, servers, selectedServers)
             .map { testnetsEnabled, servers, _ -> (mainnets: [RPCServer], testnets: [RPCServer]) in
                 let mainnets = Array(servers.filter { !$0.isTestnet })
@@ -101,7 +111,7 @@ class EnabledServersViewModel {
         }
     }
 
-    private func select(server: RPCServer) {
+    private func toggleSelection(server: RPCServer) {
         let servers: [RPCServer]
         if selectedServers.value.contains(server) {
             servers = selectedServers.value - [server]
@@ -111,10 +121,10 @@ class EnabledServersViewModel {
         selectedServers.value = servers
     }
 
-    @discardableResult func pushReloadServersIfNeeded() -> Bool {
+    func reloadServers() {
         let servers = selectedServers.value
         //Defensive. Shouldn't allow no server to be selected
-        guard !servers.isEmpty else { return false }
+        guard !servers.isEmpty else { return }
         
         let isUnchanged = Set(serversProvider.enabledServers) == Set(servers)
         if isUnchanged {
@@ -122,12 +132,14 @@ class EnabledServersViewModel {
         } else {
             restartHandler.add(.reloadServers(servers))
         }
-        return !isUnchanged
+
+        restartHandler.processTasks()
     }
 
-    func markForDeletion(customRpc: CustomRPC) {
-        pushReloadServersIfNeeded()
+    private func delete(customRpc: CustomRPC) {
         restartHandler.add(.removeServer(customRpc))
+
+        restartHandler.processTasks()
     }
 
     private func buildSnapshot(for viewModels: [EnabledServersViewModel.SectionViewModel]) -> EnabledServersViewModel.Snapshot {

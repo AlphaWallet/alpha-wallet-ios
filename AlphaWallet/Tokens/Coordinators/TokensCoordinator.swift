@@ -45,7 +45,8 @@ class TokensCoordinator: Coordinator {
             domainResolutionService: domainResolutionService,
             blockiesGenerator: blockiesGenerator,
             assetDefinitionStore: assetDefinitionStore,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            serversProvider: serversProvider)
 
         let controller = TokensViewController(viewModel: viewModel)
 
@@ -58,14 +59,8 @@ class TokensCoordinator: Coordinator {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
     private let walletConnectCoordinator: WalletConnectCoordinator
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    weak var delegate: TokensCoordinatorDelegate?
-
     private let coinTickersFetcher: CoinTickersFetcher
-    lazy var rootViewController: TokensViewController = {
-        return tokensViewController
-    }()
+
     private let walletBalanceService: WalletBalanceService
     private lazy var alertService: PriceAlertServiceType = {
         PriceAlertService(datastore: PriceAlertDataStore(wallet: wallet), wallet: wallet)
@@ -76,6 +71,15 @@ class TokensCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let wallet: Wallet
     private let currencyService: CurrencyService
+    private var cancellable = Set<AnyCancellable>()
+    private let serversProvider: ServersProvidable
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    weak var delegate: TokensCoordinatorDelegate?
+    lazy var rootViewController: TokensViewController = {
+        return tokensViewController
+    }()
 
     init(navigationController: UINavigationController = .withOverridenBarAppearence(),
          sessionsProvider: SessionsProvider,
@@ -94,8 +98,10 @@ class TokensCoordinator: Coordinator {
          domainResolutionService: DomainResolutionServiceType,
          tokensFilter: TokensFilter,
          currencyService: CurrencyService,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.wallet = sessionsProvider.activeSessions.anyValue.account
@@ -158,25 +164,44 @@ class TokensCoordinator: Coordinator {
     }
 
     private func setupSingleChainTokenCoordinators() {
-        for session in sessionsProvider.activeSessions.values {
-            let coordinator = SingleChainTokenCoordinator(
-                session: session,
-                keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
-                analytics: analytics,
-                nftProvider: session.nftProvider,
-                tokenActionsProvider: tokenActionsService,
-                coinTickersFetcher: coinTickersFetcher,
-                activitiesService: activitiesService,
-                alertService: alertService,
-                tokensService: tokenCollection,
-                sessionsProvider: sessionsProvider,
-                currencyService: currencyService,
-                tokenImageFetcher: tokenImageFetcher)
+        sessionsProvider.sessions
+            .sink { [weak self] sessions in
+                guard let strongSelf = self else { return }
 
-            coordinator.delegate = self
-            addCoordinator(coordinator)
-        }
+                var coordinators: [SingleChainTokenCoordinator] = []
+                for session in sessions {
+                    if let coordinator = strongSelf.singleChainTokenCoordinator(forServer: session.key) {
+                        coordinators += [coordinator]
+                    } else {
+                        coordinators += [strongSelf.buildSingleChainTokenCoordinator(for: session.value)]
+                    }
+                }
+
+                let coordinatorsToDelete = strongSelf.singleChainTokenCoordinators.filter { c in !coordinators.contains(where: { $0.server == c.server }) }
+                coordinatorsToDelete.forEach { strongSelf.removeCoordinator($0) }
+            }.store(in: &cancellable)
+    }
+
+    private func buildSingleChainTokenCoordinator(for session: WalletSession) -> SingleChainTokenCoordinator {
+        let coordinator = SingleChainTokenCoordinator(
+            session: session,
+            keystore: keystore,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            nftProvider: session.nftProvider,
+            tokenActionsProvider: tokenActionsService,
+            coinTickersFetcher: coinTickersFetcher,
+            activitiesService: activitiesService,
+            alertService: alertService,
+            tokensService: tokenCollection,
+            sessionsProvider: sessionsProvider,
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
+
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+
+        return coordinator
     }
 
     private func showTokens() {
@@ -195,7 +220,6 @@ class TokensCoordinator: Coordinator {
             domainResolutionService: domainResolutionService)
 
         let coordinator = QRCodeResolutionCoordinator(
-            config: config,
             coordinator: scanQRCodeCoordinator,
             usage: .all(tokensService: tokenCollection, sessionsProvider: sessionsProvider),
             account: wallet)
@@ -247,7 +271,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(showMyWalletAddressAction)
 
-        if config.enabledServers.contains(.main) {
+        if sessionsProvider.session(for: .main) != nil {
             let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.buyCrypto(wallet: strongSelf.wallet, server: .main, viewController: strongSelf.tokensViewController, source: .walletTab)
@@ -307,7 +331,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             navigationController: navigationController,
-            config: config,
+            serversProvider: serversProvider,
             sessionsProvider: sessionsProvider,
             tokenImageFetcher: tokenImageFetcher)
 
@@ -384,7 +408,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             analytics: analytics,
             wallet: wallet,
             navigationController: navigationController,
-            config: config,
+            serversProvider: serversProvider,
             sessionsProvider: sessionsProvider,
             initialState: .address(address),
             domainResolutionService: domainResolutionService)

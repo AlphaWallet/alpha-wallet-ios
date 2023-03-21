@@ -55,6 +55,8 @@ final class TokensViewModel {
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenImageFetcher: TokenImageFetcher
+    private let serversProvider: ServersProvidable
+
     let config: Config
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
@@ -153,7 +155,8 @@ final class TokensViewModel {
          domainResolutionService: DomainResolutionServiceType,
          blockiesGenerator: BlockiesGenerator,
          assetDefinitionStore: AssetDefinitionStore,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         serversProvider: ServersProvidable) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
@@ -165,6 +168,7 @@ final class TokensViewModel {
         self.domainResolutionService = domainResolutionService
         self.blockiesGenerator = blockiesGenerator
         self.assetDefinitionStore = assetDefinitionStore
+        self.serversProvider = serversProvider
     }
 
     func transform(input: TokensViewModelInput) -> TokensViewModelOutput {
@@ -286,7 +290,7 @@ final class TokensViewModel {
                 let tokenOrServer = self.tokenOrServer(at: indexPath)
                 switch (self.sections[indexPath.section], tokenOrServer) {
                 case (.tokens, .token(let viewModel)):
-                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)
+                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)!
                 case (_, _):
                     return nil
                 }
@@ -295,7 +299,7 @@ final class TokensViewModel {
     }
 
     private var isFooterHidden: Bool {
-        !config.enabledServers.contains(.main)
+        !serversProvider.enabledServers.contains(.main)
     }
 
     func set(isSearchActive: Bool) {

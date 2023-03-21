@@ -62,26 +62,34 @@ class ServersCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ServersCoordinatorDelegate?
 
-    init(defaultServer: RPCServerOrAuto, config: Config, navigationController: UINavigationController) {
+    init(defaultServer: RPCServerOrAuto,
+         serversProvider: ServersProvidable,
+         navigationController: UINavigationController) {
+
         self.navigationController = navigationController
-        let serverChoices = ServersCoordinator.serverChoices(includeAny: true, config: config)
+        let serverChoices = ServersCoordinator.serverChoices(includeAny: true, serversProvider: serversProvider)
 
         self.viewModel = ServersViewModel(servers: serverChoices, selectedServers: [defaultServer])
     }
 
-    init(defaultServer: RPCServer, config: Config, navigationController: UINavigationController) {
+    init(defaultServer: RPCServer,
+         serversProvider: ServersProvidable,
+         navigationController: UINavigationController) {
+
         self.navigationController = navigationController
-        let serverChoices = ServersCoordinator.serverChoices(includeAny: false, config: config)
+        let serverChoices = ServersCoordinator.serverChoices(includeAny: false, serversProvider: serversProvider)
         self.viewModel = ServersViewModel(servers: serverChoices, selectedServers: [.server(defaultServer)])
     }
 
-    init(viewModel: ServersViewModel, navigationController: UINavigationController) {
+    init(viewModel: ServersViewModel,
+         navigationController: UINavigationController) {
+        
         self.navigationController = navigationController
         self.viewModel = viewModel
     }
 
-    static func serverChoices(includeAny: Bool, config: Config) -> [RPCServerOrAuto] {
-        let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+    static func serverChoices(includeAny: Bool, serversProvider: ServersProvidable) -> [RPCServerOrAuto] {
+        let enabledServers = ServersCoordinator.serversOrdered.filter { serversProvider.enabledServers.contains($0) }
         let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
         if includeAny {
             return [.auto] + servers

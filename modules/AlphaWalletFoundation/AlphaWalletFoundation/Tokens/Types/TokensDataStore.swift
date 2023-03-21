@@ -190,13 +190,9 @@ public enum TokenFieldUpdate {
 open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let store: RealmStore
 
-    public init(store: RealmStore, servers: [RPCServer]) {
+    public init(store: RealmStore) {
         self.store = store
         super.init()
-
-        for each in servers {
-            addEthToken(forServer: each)
-        }
 
         MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
     }

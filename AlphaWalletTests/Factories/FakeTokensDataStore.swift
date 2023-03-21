@@ -6,6 +6,7 @@ import AlphaWalletFoundation
 
 class FakeTokensDataStore: MultipleChainsTokensDataStore {
     convenience init(account: Wallet = .make(), servers: [RPCServer] = [.main]) {
-        self.init(store: .fake(for: account), servers: servers)
+        self.init(store: .fake(for: account))
+        servers.map { addEthToken(forServer: $0) }
     }
 }

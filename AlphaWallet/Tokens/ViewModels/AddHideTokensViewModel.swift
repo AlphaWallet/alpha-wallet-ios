@@ -22,8 +22,7 @@ final class AddHideTokensViewModel {
     private var hiddenTokens: [TokenViewModel] = []
     private var popularTokens: [PopularToken] = []
     private let sessionsProvider: SessionsProvider
-    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
-    private let config: Config
+    private let popularTokensCollection: PopularTokensCollectionType
     private var cancelable = Set<AnyCancellable>()
     private let tokenCollection: TokenViewModelState & TokenHidable
     private let addToken = PassthroughSubject<Void, Never>()
@@ -43,14 +42,15 @@ final class AddHideTokensViewModel {
     init(tokenCollection: TokenViewModelState & TokenHidable,
          tokensFilter: TokensFilter,
          sessionsProvider: SessionsProvider,
-         config: Config,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.tokenCollection = tokenCollection
         self.sessionsProvider = sessionsProvider
-        self.config = config
         self.tokensFilter = tokensFilter
+        self.popularTokensCollection = PopularTokensCollection(
+            servers: sessionsProvider.sessions.map { Array($0.keys) }.eraseToAnyPublisher(),
+            tokensUrl: PopularTokensCollection.bundleLocatedTokensUrl)
     }
 
     func transform(input: AddHideTokensViewModelInput) -> AddHideTokensViewModelOutput {
@@ -66,11 +66,13 @@ final class AddHideTokensViewModel {
                 whenTokensHasChanged.send(())
             }.store(in: &cancelable)
 
-        popularTokensCollection.fetchTokens(for: config.enabledServers)
-            .done { [weak self] tokens in
+        popularTokensCollection.fetchTokens()
+            .sink(receiveCompletion: { _ in
+
+            }, receiveValue: { [weak self] tokens in
                 self?.allPopularTokens = tokens
                 whenTokensHasChanged.send(())
-            }.cauterize()
+            }).store(in: &cancelable)
 
         let searchText = input.searchText
             .handleEvents(receiveOutput: { [weak self] in self?.searchText = $0 })

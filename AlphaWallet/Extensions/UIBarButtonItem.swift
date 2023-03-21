@@ -78,7 +78,7 @@ extension UIBarButtonItem {
         return .init(title: R.string.localizable.done(), style: .done, target: target, action: selector)
     }
 
-    static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+    static func closeBarButton(_ target: AnyObject? = nil, selector: Selector? = nil) -> UIBarButtonItem {
         return .init(image: R.image.close(), style: .plain, target: target, action: selector)
     }
 

@@ -2,9 +2,10 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol EnabledServersCoordinatorDelegate: AnyObject {
-    func restartToReloadServersQueued(in coordinator: EnabledServersCoordinator)
+    func didClose(in coordinator: EnabledServersCoordinator)
 }
 
 class EnabledServersCoordinator: Coordinator {
@@ -13,25 +14,27 @@ class EnabledServersCoordinator: Coordinator {
         ServersCoordinator.serversOrdered
     }
 
-    private let navigationController: UINavigationController
+    let navigationController: UINavigationController
+
     private let selectedServers: [RPCServer]
     private let restartHandler: RestartQueueHandler
     private let analytics: AnalyticsLogger
     private let config: Config
     private let networkService: NetworkService
     private let serversProvider: ServersProvidable
-    private lazy var viewModel: EnabledServersViewModel = {
+
+    private (set) lazy var viewModel: EnabledServersViewModel = {
         return EnabledServersViewModel(
             selectedServers: selectedServers,
             restartHandler: restartHandler,
             serversProvider: serversProvider)
     }()
 
-    private lazy var enabledServersViewController: EnabledServersViewController = {
+    private (set) lazy var enabledServersViewController: EnabledServersViewController = {
         let controller = EnabledServersViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
-        controller.navigationItem.rightBarButtonItem = .addBarButton(self, selector: #selector(addRPCSelected))
+        controller.navigationItem.rightBarButtonItem = .addBarButton(self, selector: #selector(addRpcServerSelected))
 
         return controller
     }()
@@ -56,12 +59,12 @@ class EnabledServersCoordinator: Coordinator {
         self.config = config
     }
 
-    func start() {
+    func start(animated: Bool = true) {
         enabledServersViewController.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(enabledServersViewController, animated: true)
+        navigationController.pushViewController(enabledServersViewController, animated: animated)
     }
 
-    @objc private func addRPCSelected() {
+    @objc private func addRpcServerSelected(_ sender: UIBarButtonItem) {
         let coordinator = SaveCustomRpcCoordinator(
             navigationController: navigationController,
             config: config,
@@ -74,8 +77,15 @@ class EnabledServersCoordinator: Coordinator {
 
         coordinator.start()
     }
-    
-    private func edit(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
+}
+
+extension EnabledServersCoordinator: EnabledServersViewControllerDelegate {
+
+    func didClose(in viewController: EnabledServersViewController) {
+        delegate?.didClose(in: self)
+    }
+
+    func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
         let coordinator = SaveCustomRpcCoordinator(
             navigationController: navigationController,
             config: config,
@@ -91,24 +101,8 @@ class EnabledServersCoordinator: Coordinator {
     }
 }
 
-extension EnabledServersCoordinator: EnabledServersViewControllerDelegate {
-
-    func notifyReloadServersQueued(in viewController: EnabledServersViewController) {
-        delegate?.restartToReloadServersQueued(in: self)
-    }
-
-    func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
-        self.edit(customRpc: customRpc, in: viewController)
-    }
-}
-
 extension EnabledServersCoordinator: SaveCustomRpcCoordinatorDelegate {
     func didDismiss(in coordinator: SaveCustomRpcCoordinator) {
         removeCoordinator(coordinator)
-    }
-
-    func restartToEdit(in coordinator: SaveCustomRpcCoordinator) {
-        enabledServersViewController.pushReloadServersIfNeeded()
-        delegate?.restartToReloadServersQueued(in: self)
     }
 }
