@@ -39,7 +39,9 @@ class SelectCurrencyButton: UIControl {
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         imageView.loading = .disabled
         imageView.contentMode = .scaleAspectFit
-        
+        imageView.rounding = .circle
+        imageView.placeholderRounding = .circle
+
         return imageView
     }()
 

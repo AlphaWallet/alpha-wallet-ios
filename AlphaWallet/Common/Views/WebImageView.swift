@@ -94,6 +94,10 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding; }
     }
 
+    var placeholderRounding: ViewRounding = .none {
+        didSet { placeholderImageView.rounding = placeholderRounding }
+    }
+
     @Published var loading: ViewLoading = .enabled
 
     var contentBackgroundColor: UIColor? {

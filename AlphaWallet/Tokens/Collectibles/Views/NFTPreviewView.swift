@@ -31,6 +31,9 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
     var rounding: ViewRounding = .none {
         didSet { previewView.rounding = rounding }
     }
+    var placeholderRounding: ViewRounding = .none {
+        didSet { previewView.placeholderRounding = placeholderRounding }
+    }
     
     override var contentMode: UIView.ContentMode {
         didSet { previewView.contentMode = contentMode }
