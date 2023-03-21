@@ -2,7 +2,7 @@
 
 import Foundation
 
-public enum SendInputErrors: LocalizedError {
+public enum SendInputErrors: Error {
     case emptyClipBoard
     case wrongInput
 }

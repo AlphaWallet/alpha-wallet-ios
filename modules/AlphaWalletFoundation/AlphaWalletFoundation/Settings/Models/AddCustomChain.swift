@@ -3,7 +3,7 @@
 import Foundation
 import Combine
 
-public enum AddCustomChainError: LocalizedError {
+public enum AddCustomChainError: Error {
     case cancelled
     case missingBlockchainExplorerUrl
     case invalidBlockchainExplorerUrl
