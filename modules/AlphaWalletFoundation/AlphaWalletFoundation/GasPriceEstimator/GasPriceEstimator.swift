@@ -12,7 +12,7 @@ import AlphaWalletCore
 import AlphaWalletLogger
 
 public protocol GasPriceEstimator {
-    func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError>
+    func estimateGasPrice() async throws -> GasEstimates
 }
 
 extension RPCServer {
@@ -47,26 +47,26 @@ public final class LegacyGasPriceEstimator: GasPriceEstimator {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError> {
+    public func estimateGasPrice() async throws -> GasEstimates {
         if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
-            return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
-                .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
-                .eraseToAnyPublisher()
+            do {
+                return try await estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
+            } catch {
+                return try await blockchainProvider.gasEstimates().async()
+            }
         } else {
             switch blockchainProvider.server.serverWithEnhancedSupport {
             case .xDai:
-                return .just(.init(standard: GasPriceConfiguration.xDaiGasPrice))
+                return .init(standard: GasPriceConfiguration.xDaiGasPrice)
             case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-                return blockchainProvider.gasEstimates()
+                return try await blockchainProvider.gasEstimates().async()
             }
         }
     }
 
-    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
-        return etherscanGasPriceEstimator
-            .gasPriceEstimates(server: server)
-            .handleEvents(receiveOutput: { estimates in
-                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
-            }).eraseToAnyPublisher()
+    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) async throws -> GasEstimates {
+        let estimates = try await etherscanGasPriceEstimator.gasPriceEstimates(server: server)
+        infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
+        return estimates
     }
 }
