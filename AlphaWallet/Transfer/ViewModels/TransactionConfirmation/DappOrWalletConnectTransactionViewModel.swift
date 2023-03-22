@@ -10,52 +10,11 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    //TODO: pretty all of `TransactionViewModels` have balance, newBalance and so on, maybe move to base class or protocol definition
     class DappOrWalletConnectTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-        enum Section {
-            case balance
-            case gas
-            case network
-            case amount
-            case recipient
-            case function(DecodedFunctionCall)
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
-                case .balance:
-                    return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
-                case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
-                }
-            }
-
-            var isExpandable: Bool {
-                switch self {
-                case .gas, .amount, .network, .balance:
-                    return false
-                case .function, .recipient:
-                    return true
-                }
-            }
-        }
-
         private var balance: Double = .zero
         private var newBalance: Double = .zero
-
         private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
         private var requester: RequesterViewModel?
-        private let assetDefinitionStore: AssetDefinitionStore
         private var formattedAmountValue: String {
             let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
             //NOTE: previously it was full, make it full
@@ -69,7 +28,9 @@ extension TransactionConfirmationViewModel {
             }
         }
         private let recipientResolver: RecipientResolver
-        let session: WalletSession
+        private let session: WalletSession
+        private let transactionType: TransactionType
+
         let functionCallMetaData: DecodedFunctionCall?
         var rate: CurrencyRate?
         var openedSections = Set<Int>()
@@ -85,14 +46,15 @@ extension TransactionConfirmationViewModel {
         var placeholderIcon: UIImage? {
             return requester == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
         }
-        private let transactionType: TransactionType
         var dappIconUrl: URL? { requester?.iconUrl }
         var ensName: String? { recipientResolver.ensName }
         var addressString: String? { recipientResolver.address?.eip55String }
 
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, requester: RequesterViewModel?) {
+        init(configurator: TransactionConfigurator,
+             recipientResolver: RecipientResolver,
+             requester: RequesterViewModel?) {
+
             self.recipientResolver = recipientResolver
-            self.assetDefinitionStore = assetDefinitionStore
             self.configurator = configurator
             self.functionCallMetaData = DecodedFunctionCall(data: configurator.transaction.data)
             self.session = configurator.session
@@ -170,7 +132,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
@@ -197,6 +159,43 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return true
                 }
+            }
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.DappOrWalletConnectTransactionViewModel {
+    enum Section {
+        case balance
+        case gas
+        case network
+        case amount
+        case recipient
+        case function(DecodedFunctionCall)
+
+        var title: String {
+            switch self {
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .amount:
+                return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+            case .function:
+                return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+            case .balance:
+                return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
+            case .recipient:
+                return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
+            }
+        }
+
+        var isExpandable: Bool {
+            switch self {
+            case .gas, .amount, .network, .balance:
+                return false
+            case .function, .recipient:
+                return true
             }
         }
     }

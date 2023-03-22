@@ -11,54 +11,28 @@ import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class SendFungiblesTransactionViewModel: ExpandableSection, RateUpdatable {
-        enum Section: Int, CaseIterable {
-            case balance
-            case network
-            case gas
-            case recipient
-            case amount
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .balance:
-                    return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
-                }
-            }
-        }
-
         private var balance: Double = .zero
         private var newBalance: Double = .zero
         private let configurator: TransactionConfigurator
-        private let assetDefinitionStore: AssetDefinitionStore
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
         private let recipientResolver: RecipientResolver
-
+        private let session: WalletSession
+        
         var rate: CurrencyRate?
         var ensName: String? { recipientResolver.ensName }
         var addressString: String? { recipientResolver.address?.eip55String }
         var openedSections = Set<Int>()
         let transactionType: TransactionType
-        let session: WalletSession
 
         var sections: [Section] {
             Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver) {
+        init(configurator: TransactionConfigurator,
+             recipientResolver: RecipientResolver) {
+            
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
-            self.assetDefinitionStore = assetDefinitionStore
             self.recipientResolver = recipientResolver
         }
 
@@ -231,12 +205,37 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .recipient:
                 return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
+            }
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.SendFungiblesTransactionViewModel {
+    enum Section: Int, CaseIterable {
+        case balance
+        case network
+        case gas
+        case recipient
+        case amount
+
+        var title: String {
+            switch self {
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .balance:
+                return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
+            case .amount:
+                return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+            case .recipient:
+                return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
             }
         }
     }
