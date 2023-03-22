@@ -31,7 +31,27 @@ extension TransactionConfirmationViewModel {
             self.session = configurator.session
         }
 
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+        func shouldShowChildren(for section: Int, index: Int) -> Bool {
+            return true
+        }
+
+        func generateViews() -> [ViewType] {
+            var views: [ViewType] = []
+            for (sectionIndex, section) in sections.enumerated() {
+                switch section {
+                case .gas:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: configurator.session.server.canUserChangeGas)]
+                case .description:
+                    let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
+                    views += [.details(viewModel: vm)]
+                case .network:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+            return views
+        }
+
+        private func buildHeaderViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
             let headerName = sections[section].title
             switch sections[section] {

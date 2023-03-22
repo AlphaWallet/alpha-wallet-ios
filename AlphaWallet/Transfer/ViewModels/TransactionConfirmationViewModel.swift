@@ -105,10 +105,6 @@ class TransactionConfirmationViewModel {
             }).eraseToAnyPublisher()
     }()
 
-    var canUserChangeGas: Bool {
-        configurator.session.server.canUserChangeGas
-    }
-
     /// Method called when configuration has changes and we need to recalculate new balance value
     func updateBalance() {
         configurationHasChangedSubject.send(())
@@ -125,7 +121,7 @@ class TransactionConfirmationViewModel {
 
     func transform(input: TransactionConfirmationViewModelInput) -> TransactionConfirmationViewModelOutput {
         let views = Publishers.Merge4(Just<Void>(()), tokenBalance.mapToVoid(), resolvedRecipient, reloadViewSubject)
-            .map { _ in self.generateViews(for: self) }
+            .map { _ in self.generateViews() }
 
         let viewState = views.map { TransactionConfirmationViewModel.ViewState(title: self.title, views: $0) }
             .eraseToAnyPublisher()
@@ -135,23 +131,22 @@ class TransactionConfirmationViewModel {
 
     func shouldShowChildren(for section: Int, index: Int) -> Bool {
         switch type {
-        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
-            return true
+        case .dappOrWalletConnectTransaction(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
+        case .tokenScriptTransaction(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
         case .sendFungiblesTransaction(let viewModel):
-            switch viewModel.sections[section] {
-            case .recipient, .network:
-                return !viewModel.isSubviewsHidden(section: section, row: index)
-            case .gas, .amount, .balance:
-                return true
-            }
+            return viewModel.shouldShowChildren(for: section, index: index)
         case .sendNftTransaction(let viewModel):
-            switch viewModel.sections[section] {
-            case .recipient, .network:
-                //NOTE: Here we need to make sure that this view is available to display
-                return !viewModel.isSubviewsHidden(section: section, row: index)
-            case .gas, .tokenId:
-                return true
-            }
+            return viewModel.shouldShowChildren(for: section, index: index)
+        case .claimPaidErc875MagicLink(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
+        case .speedupTransaction(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
+        case .cancelTransaction(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
+        case .swapTransaction(let viewModel):
+            return viewModel.shouldShowChildren(for: section, index: index)
         }
     }
 
@@ -316,167 +311,28 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    // swiftlint:disable function_body_length
-    private func generateViews(for _viewModel: TransactionConfirmationViewModel) -> [ViewType] {
+    private func generateViews() -> [ViewType] {
         var views: [ViewType] = []
 
-        switch _viewModel.type {
+        switch type {
         case .dappOrWalletConnectTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .amount, .network, .balance:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                case .recipient:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
-                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                        switch row {
-                        case .ens:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
-
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        case .address:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
-
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        }
-                    }
-                case .function(let functionCallMetaData):
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-
-                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: 0)
-                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(functionCallMetaData.name)()", subtitle: "")
-                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                    for arg in functionCallMetaData.arguments {
-                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
-                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                    }
-                }
-            }
+            views = viewModel.generateViews()
         case .tokenScriptTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .function:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-
-                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
-                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(viewModel.functionCallMetaData.name)()", subtitle: "")
-
-                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-
-                    for arg in viewModel.functionCallMetaData.arguments {
-                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
-                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                    }
-                case .contract, .amount, .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .sendFungiblesTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .recipient:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-
-                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
-                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                        switch row {
-                        case .ens:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        case .address:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
-
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        }
-                    }
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .amount, .balance, .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .sendNftTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .recipient:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-
-                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
-                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                        switch row {
-                        case .ens:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        case .address:
-                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
-                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
-                        }
-                    }
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .tokenId:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                    //NOTE: Maybe its needed to update with something else
-                    let tokenIdsAndValuesViews = viewModel.tokenIdAndValueViewModels().enumerated().map { (index, value) -> ViewType in
-                        let vm = TransactionConfirmationRowInfoViewModel(title: value, subtitle: "")
-                        let isSubviewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: index)
-                        return .view(viewModel: vm, isHidden: isSubviewsHidden)
-                    }
-                    views += tokenIdsAndValuesViews
-                case .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .claimPaidErc875MagicLink(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .amount, .numberOfTokens, .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .speedupTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .description:
-                    let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
-                    views += [.details(viewModel: vm)]
-                case .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .cancelTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .description:
-                    let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
-                    views += [.details(viewModel: vm)]
-                case .network:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         case .swapTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                switch section {
-                case .gas:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .network, .from, .to:
-                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
-                }
-            }
+            views = viewModel.generateViews()
         }
 
         return views
     }
-    // swiftlint:enable function_body_length
 }
