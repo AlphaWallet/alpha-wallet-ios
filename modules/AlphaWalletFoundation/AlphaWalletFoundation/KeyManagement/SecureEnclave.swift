@@ -15,7 +15,7 @@ class SecureEnclave {
         case cannotDecrypt
         case unexpected(description: String)
 
-        var errorDescription: String {
+        var errorDescription: String? {
             switch self {
             case .keyAlreadyExists(let name):
                 return "Encryption key already exist for: \(name)"
