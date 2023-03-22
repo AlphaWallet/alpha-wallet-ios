@@ -73,23 +73,21 @@ public class TransactionsService {
 
     private func setupSingleChainTransactionProviders() {
         sessionsProvider.sessions
-            .sink { [weak self] sessions in
-                guard let strongSelf = self else { return }
+            .map { [weak self] sessions -> [RPCServer: SingleChainTransactionProvider] in
+                guard let strongSelf = self else { return [:] }
 
                 let servers = sessions.map { $0.key }
 
-                var providers: [SingleChainTransactionProvider] = []
+                var providers: [RPCServer: SingleChainTransactionProvider] = [:]
                 for session in sessions {
                     if let provider = strongSelf.providers[session.key] {
-                        providers += [provider]
+                        providers[session.key] = provider
                     } else {
-                        providers += [strongSelf.buildTransactionProvider(for: session.value)]
+                        providers[session.key] = strongSelf.buildTransactionProvider(for: session.value)
                     }
                 }
-
-                let providersToDelete = strongSelf.providers.keys.filter { k in sessions.contains(where: { $0.key == k }) }
-                providersToDelete.forEach { strongSelf.providers[$0] = .none }
-            }.store(in: &cancelable)
+            }.assign(to: \.providers, on: self)
+            .store(in: &cancelable)
     }
 
     private func buildTransactionProvider(for session: WalletSession) -> SingleChainTransactionProvider {
