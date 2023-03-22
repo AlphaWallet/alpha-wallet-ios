@@ -11,39 +11,13 @@ import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class SwapTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-        enum Section {
-            case gas
-            case network
-            case from
-            case to
-
-            var title: String {
-                switch self {
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .from:
-                    return R.string.localizable.transactionFromLabelTitle()
-                case .to:
-                    return R.string.localizable.transactionToLabelTitle()
-                }
-            }
-
-            var isExpandable: Bool {
-                return false
-            }
-        }
         private let configurator: TransactionConfigurator
         private let fromToken: TokenToSwap
         private let fromAmount: BigUInt
         private let toToken: TokenToSwap
         private let toAmount: BigUInt
+        private let session: WalletSession
 
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
         var rate: CurrencyRate?
         var openedSections = Set<Int>()
 
@@ -51,7 +25,12 @@ extension TransactionConfirmationViewModel {
             [.network, .gas, .from, .to]
         }
 
-        init(configurator: TransactionConfigurator, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) {
+        init(configurator: TransactionConfigurator,
+             fromToken: TokenToSwap,
+             fromAmount: BigUInt,
+             toToken: TokenToSwap,
+             toAmount: BigUInt) {
+            
             self.configurator = configurator
             self.fromToken = fromToken
             self.fromAmount = fromAmount
@@ -69,7 +48,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .from:
                 let doubleAmount = (Decimal(bigInt: BigInt(fromAmount), decimals: fromToken.decimals) ?? .zero).doubleValue
@@ -88,6 +67,32 @@ extension TransactionConfirmationViewModel {
 
         func updateBalance(_ balanceViewModel: BalanceViewModel?) {
             //no-op
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.SwapTransactionViewModel {
+    enum Section {
+        case gas
+        case network
+        case from
+        case to
+
+        var title: String {
+            switch self {
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .from:
+                return R.string.localizable.transactionFromLabelTitle()
+            case .to:
+                return R.string.localizable.transactionToLabelTitle()
+            }
+        }
+
+        var isExpandable: Bool {
+            return false
         }
     }
 }

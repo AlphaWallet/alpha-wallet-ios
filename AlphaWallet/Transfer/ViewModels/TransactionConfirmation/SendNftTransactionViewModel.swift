@@ -11,32 +11,9 @@ import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class SendNftTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case recipient
-            case tokenId
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
-                case .tokenId:
-                    return R.string.localizable.transactionConfirmationSendSectionTokenIdTitle()
-                }
-            }
-        }
-
         private let configurator: TransactionConfigurator
         private let transactionType: TransactionType
         private let recipientResolver: RecipientResolver
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
 
         var ensName: String? { recipientResolver.ensName }
         var addressString: String? { recipientResolver.address?.eip55String }
@@ -47,7 +24,9 @@ extension TransactionConfirmationViewModel {
         }
         let session: WalletSession
 
-        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver) {
+        init(configurator: TransactionConfigurator,
+             recipientResolver: RecipientResolver) {
+            
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
@@ -127,7 +106,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .tokenId:
                 switch transactionType {
@@ -158,6 +137,28 @@ extension TransactionConfirmationViewModel {
                 }
             case .recipient:
                 return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
+            }
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.SendNftTransactionViewModel {
+    enum Section: Int, CaseIterable {
+        case gas
+        case network
+        case recipient
+        case tokenId
+
+        var title: String {
+            switch self {
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .recipient:
+                return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
+            case .tokenId:
+                return R.string.localizable.transactionConfirmationSendSectionTokenIdTitle()
             }
         }
     }

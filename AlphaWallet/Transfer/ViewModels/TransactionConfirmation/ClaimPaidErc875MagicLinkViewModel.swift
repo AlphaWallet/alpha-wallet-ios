@@ -11,35 +11,10 @@ import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class ClaimPaidErc875MagicLinkViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case amount
-            case numberOfTokens
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                case .numberOfTokens:
-                    return R.string.localizable.tokensTitlecase()
-                }
-            }
-        }
         private let configurator: TransactionConfigurator
         private let price: BigUInt
         private let numberOfTokens: UInt
-        let session: WalletSession
-        private var defaultTitle: String {
-            return R.string.localizable.tokenTransactionConfirmationDefault()
-        }
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
+        private let session: WalletSession
 
         private var formattedAmountValue: String {
             //NOTE: what actual token can be here? or its always native crypto, need to firegu out right `decimals` value, better to pass here actual NSDecimalNumber value
@@ -62,7 +37,10 @@ extension TransactionConfirmationViewModel {
             return Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, price: BigUInt, numberOfTokens: UInt) {
+        init(configurator: TransactionConfigurator,
+             price: BigUInt,
+             numberOfTokens: UInt) {
+            
             self.configurator = configurator
             self.price = price
             self.numberOfTokens = numberOfTokens
@@ -87,12 +65,34 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, configuration: configuration)
                 }
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .numberOfTokens:
                 return .init(title: .normal(String(numberOfTokens)), headerName: headerName, configuration: configuration)
+            }
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.ClaimPaidErc875MagicLinkViewModel {
+    enum Section: Int, CaseIterable {
+        case gas
+        case network
+        case amount
+        case numberOfTokens
+
+        var title: String {
+            switch self {
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .amount:
+                return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+            case .numberOfTokens:
+                return R.string.localizable.tokensTitlecase()
             }
         }
     }

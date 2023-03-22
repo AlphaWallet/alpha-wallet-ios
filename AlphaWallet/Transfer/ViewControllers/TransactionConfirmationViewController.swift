@@ -26,7 +26,7 @@ class TransactionConfirmationViewController: UIViewController {
     private lazy var footerBar: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = viewModel.footerBackgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.addSubview(buttonsBar)
         view.addSubview(loadingIndicatorView)
 
@@ -106,6 +106,17 @@ class TransactionConfirmationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        separatorLine.isHidden = !viewModel.hasSeparatorAboveConfirmButton
+
+        buttonsBar.configure()
+        let button = buttonsBar.buttons[0]
+        button.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
+        button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
+        button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
+
+        containerView.scrollView.backgroundColor = Configuration.Color.Semantic.backgroundClear
+        view.backgroundColor = Configuration.Color.Semantic.backgroundClear
+
         set(state: .ready)
         bind(viewModel: viewModel)
     }
@@ -145,16 +156,6 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     private func bind(viewModel: TransactionConfirmationViewModel) {
-        containerView.scrollView.backgroundColor = viewModel.backgroundColor
-        view.backgroundColor = viewModel.backgroundColor
-        separatorLine.isHidden = !viewModel.hasSeparatorAboveConfirmButton
-
-        buttonsBar.configure()
-        let button = buttonsBar.buttons[0]
-        button.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
-        button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
-        button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
-
         let input = TransactionConfirmationViewModelInput()
         let output = viewModel.transform(input: input)
         output.viewState

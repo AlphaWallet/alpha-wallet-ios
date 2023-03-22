@@ -22,9 +22,15 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionType.Configuration
 
     private lazy var rootViewController: TransactionConfirmationViewController = {
-        let viewModel = TransactionConfirmationViewModel(configurator: configurator, configuration: configuration, assetDefinitionStore: assetDefinitionStore, domainResolutionService: domainResolutionService, tokensService: tokensService)
+        let viewModel = TransactionConfirmationViewModel(
+            configurator: configurator,
+            configuration: configuration,
+            domainResolutionService: domainResolutionService,
+            tokensService: tokensService)
+
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
+        
         return controller
     }()
     private lazy var hostViewController: FloatingPanelController = {

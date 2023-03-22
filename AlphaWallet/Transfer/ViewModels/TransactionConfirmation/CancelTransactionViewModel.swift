@@ -16,29 +16,9 @@ struct CurrencyRate {
 
 extension TransactionConfirmationViewModel {
     class CancelTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-        enum Section {
-            case gas
-            case network
-            case description
-
-            var title: String {
-                switch self {
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .description:
-                    return R.string.localizable.activityCancelDescription()
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                }
-            }
-
-            var isExpandable: Bool { return false }
-        }
         private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
+        private let session: WalletSession
+        
         var rate: CurrencyRate?
         var openedSections = Set<Int>()
 
@@ -60,7 +40,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .description:
                 return .init(title: .normal(sections[section].title), headerName: nil, configuration: configuration)
@@ -72,6 +52,27 @@ extension TransactionConfirmationViewModel {
         func updateBalance(_ balanceViewModel: BalanceViewModel?) {
             //no-op
         }
+    }
+}
+
+extension TransactionConfirmationViewModel.CancelTransactionViewModel {
+    enum Section {
+        case gas
+        case network
+        case description
+
+        var title: String {
+            switch self {
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .description:
+                return R.string.localizable.activityCancelDescription()
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            }
+        }
+
+        var isExpandable: Bool { return false }
     }
 }
 

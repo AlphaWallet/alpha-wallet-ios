@@ -11,35 +11,8 @@ import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class TokenScriptTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
-
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case contract
-            case function
-            case amount
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .contract:
-                    return R.string.localizable.tokenTransactionConfirmationContractTitle()
-                case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                }
-            }
-        }
-
         private let address: AlphaWallet.Address
         private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
         private let session: WalletSession
         private var formattedAmountValue: String {
             //FIXME: is here ether token?
@@ -62,7 +35,10 @@ extension TransactionConfirmationViewModel {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall) {
+        init(address: AlphaWallet.Address,
+             configurator: TransactionConfigurator,
+             functionCallMetaData: DecodedFunctionCall) {
+            
             self.address = address
             self.configurator = configurator
             self.functionCallMetaData = functionCallMetaData
@@ -82,7 +58,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .contract:
                 return .init(title: .normal(address.truncateMiddle), headerName: headerName, configuration: configuration)
@@ -97,6 +73,31 @@ extension TransactionConfirmationViewModel {
 
         func isSubviewsHidden(section: Int) -> Bool {
             !openedSections.contains(section)
+        }
+    }
+}
+
+extension TransactionConfirmationViewModel.TokenScriptTransactionViewModel {
+    enum Section: Int, CaseIterable {
+        case gas
+        case network
+        case contract
+        case function
+        case amount
+
+        var title: String {
+            switch self {
+            case .network:
+                return R.string.localizable.tokenTransactionConfirmationNetwork()
+            case .gas:
+                return R.string.localizable.tokenTransactionConfirmationGasTitle()
+            case .contract:
+                return R.string.localizable.tokenTransactionConfirmationContractTitle()
+            case .function:
+                return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+            case .amount:
+                return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+            }
         }
     }
 }

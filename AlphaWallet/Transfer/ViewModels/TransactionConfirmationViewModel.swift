@@ -31,10 +31,11 @@ class TransactionConfirmationViewModel {
     private let type: ViewModelType
     private let tokensService: TokenViewModelState
 
-    var backgroundColor: UIColor = Configuration.Color.Semantic.backgroundClear
-    var footerBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
+    init(configurator: TransactionConfigurator,
+         configuration: TransactionType.Configuration,
+         domainResolutionService: DomainResolutionServiceType,
+         tokensService: TokenViewModelState) {
 
-    init(configurator: TransactionConfigurator, configuration: TransactionType.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
         self.tokensService = tokensService
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
         recipientResolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
@@ -44,11 +45,11 @@ class TransactionConfirmationViewModel {
         case .tokenScriptTransaction(_, let contract, let functionCallMetaData):
             type = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
         case .dappTransaction:
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: nil))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, recipientResolver: recipientResolver, requester: nil))
         case .walletConnect(_, let requester):
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: requester))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, recipientResolver: recipientResolver, requester: requester))
         case .sendFungiblesTransaction:
-            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver))
+            type = .sendFungiblesTransaction(.init(configurator: configurator, recipientResolver: recipientResolver))
         case .sendNftTransaction:
             type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: recipientResolver))
         case .claimPaidErc875MagicLink(_, let price, let numberOfTokens):
@@ -61,7 +62,7 @@ class TransactionConfirmationViewModel {
             type = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
         case .approve:
             //TODO rename `.dappOrWalletConnectTransaction` so it's more general?
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: nil))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, recipientResolver: recipientResolver, requester: nil))
         }
     }
 
@@ -259,6 +260,7 @@ class TransactionConfirmationViewModel {
 }
 
 extension TransactionConfirmationViewModel {
+    
     struct ViewState {
         let title: String
         let views: [ViewType]
