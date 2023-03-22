@@ -53,8 +53,6 @@ public class TransactionsService {
         self.networkService = networkService
         self.assetDefinitionStore = assetDefinitionStore
 
-        setupSingleChainTransactionProviders()
-
         NotificationCenter.default.applicationState
             .receive(on: RunLoop.main)
             .sink { [weak self] state in
@@ -65,13 +63,7 @@ public class TransactionsService {
                     self?.restartTimers()
                 }
             }.store(in: &cancelable)
-    }
 
-    deinit {
-        fetchLatestTransactionsQueue.cancelAllOperations()
-    }
-
-    private func setupSingleChainTransactionProviders() {
         sessionsProvider.sessions
             .map { [weak self] sessions -> [RPCServer: SingleChainTransactionProvider] in
                 guard let strongSelf = self else { return [:] }
@@ -86,8 +78,19 @@ public class TransactionsService {
                         providers[session.key] = strongSelf.buildTransactionProvider(for: session.value)
                     }
                 }
-            }.assign(to: \.providers, on: self)
+                return providers
+            }.handleEvents(receiveOutput: { [weak self] in self?.stopDeleted(except: $0) })
+            .assign(to: \.providers, on: self)
             .store(in: &cancelable)
+    }
+
+    private func stopDeleted(except providers: [RPCServer: SingleChainTransactionProvider]) {
+        let providersToStop = self.providers.keys.filter { !providers.keys.contains($0) }.compactMap { self.providers[$0] }
+        providersToStop.forEach { $0.stop() }
+    }
+
+    deinit {
+        fetchLatestTransactionsQueue.cancelAllOperations()
     }
 
     private func buildTransactionProvider(for session: WalletSession) -> SingleChainTransactionProvider {
@@ -171,14 +174,6 @@ public class TransactionsService {
         }
     }
 
-    public func fetch() {
-        guard !config.development.isAutoFetchingDisabled else { return }
-
-        for each in providers {
-            each.value.fetch()
-        }
-    }
-
     public func transactionPublisher(for transactionId: String, server: RPCServer) -> AnyPublisher<TransactionInstance?, Never> {
         transactionDataStore.transactionPublisher(for: transactionId, server: server)
             .replaceError(with: nil)
@@ -197,12 +192,6 @@ public class TransactionsService {
         let transaction = TransactionInstance.from(from: session.account.address, transaction: transaction, token: token)
         
         transactionDataStore.add(transactions: [transaction])
-    }
-
-    public func stop() {
-        for each in providers {
-            each.value.stop()
-        }
     }
 }
 

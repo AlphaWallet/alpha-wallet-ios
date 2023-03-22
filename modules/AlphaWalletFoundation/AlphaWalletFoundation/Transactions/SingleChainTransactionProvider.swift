@@ -12,7 +12,6 @@ public protocol SingleChainTransactionProvider: AnyObject {
     func start()
     func stopTimers()
     func runScheduledTimers()
-    func fetch()
     func stop()
     func isServer(_ server: RPCServer) -> Bool
 }

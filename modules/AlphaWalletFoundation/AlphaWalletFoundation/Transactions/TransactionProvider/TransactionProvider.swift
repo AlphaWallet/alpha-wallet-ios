@@ -147,10 +147,6 @@ public class TransactionProvider: SingleChainTransactionProvider {
         erc1155TransferTransactionProvider.resumeScheduler()
     }
 
-    public func fetch() {
-        //no-op
-    }
-
     public func stop() {
         stopTimers()
     }

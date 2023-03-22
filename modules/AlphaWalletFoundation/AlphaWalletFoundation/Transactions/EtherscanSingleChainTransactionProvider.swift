@@ -59,6 +59,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     func start() {
         pendingTransactionProvider.start()
 
+        fetchLatestTransactions()
         runScheduledTimers()
         if transactionsTracker.fetchingState != .done {
             fetchOlderTransactions()
@@ -145,10 +146,6 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 }
                 strongSelf.addOrUpdate(transactions: transactions)
             })
-    }
-
-    func fetch() {
-        fetchLatestTransactions()
     }
 
     private func addOrUpdate(transactions: [TransactionInstance]) {
