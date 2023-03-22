@@ -10,6 +10,7 @@ import BigInt
 import PromiseKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
 
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
@@ -45,6 +46,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState
+    private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
@@ -127,34 +129,35 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         canBeDismissed = false
         rootViewController.set(state: .pending)
 
-        firstly { () -> Promise<ConfirmResult> in
-            return sendTransaction()
-        }.done { result in
-            self.handleSendTransactionSuccessfully(result: result)
-            self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-        }.catch { error in
-            self.logActionSheetForTransactionConfirmationFailed()
-            //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.rootViewController.set(state: .done(withError: true)) {
-                    self.handleSendTransactionError(error)
+        Task { @MainActor in
+            do {
+                let result = try await sendTransaction()
+                handleSendTransactionSuccessfully(result: result)
+                logCompleteActionSheetForTransactionConfirmationSuccessfully()
+            } catch {
+                logActionSheetForTransactionConfirmationFailed()
+                //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    self.rootViewController.set(state: .done(withError: true)) {
+                        self.handleSendTransactionError(error)
+                    }
                 }
             }
-        }.finally {
+
             sender.isEnabled = true
             self.canBeDismissed = true
-        }
+        }.store(in: &cancellable)
     }
 
-    private func sendTransaction() -> Promise<ConfirmResult> {
+    private func sendTransaction() async throws -> ConfirmResult {
         let prompt = R.string.localizable.keystoreAccessKeySign()
         let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
         let transaction = configurator.formUnsignedTransaction()
         infoLog("[TransactionConfirmation] form unsigned transaction: \(transaction)")
         if configurator.session.config.development.shouldNotSendTransactions {
-            return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
+            throw DevelopmentForcedError(message: "Did not send transaction because of development flag")
         } else {
-            return sender.send(transaction: transaction)
+            return try await sender.send(transaction: transaction)
         }
     }
 

@@ -37,8 +37,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
     }
 
     private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
-        return blockchainProvider
-            .pendingTransaction(hash: transaction.id)
+        return Future { [blockchainProvider, transaction] in try await blockchainProvider.transaction(byHash: transaction.id) }
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
                 //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
@@ -46,9 +45,9 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
 
                 self?.handle(response: .success(tx))
             }, receiveCompletion: { [weak self] result in
-                guard case .failure(let error) = result else { return }
+                guard case .failure(let error) = result, let e = error as? SessionTaskError else { return }
                 
-                self?.handle(response: .failure(error))
+                self?.handle(response: .failure(e))
             })
             .mapToVoid()
             .mapError { PromiseError(error: $0) }

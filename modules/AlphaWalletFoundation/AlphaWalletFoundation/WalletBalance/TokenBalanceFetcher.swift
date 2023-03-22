@@ -136,16 +136,15 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             let randomUuid = "eth-BalanceUpdate-" + wallet.eip55String
             guard cancellable[randomUuid] == nil else { return }
 
-            cancellable[randomUuid] = session.blockchainProvider
-                .balance(for: wallet)
-                .sink(receiveCompletion: { [weak self] result in
-                    self?.cancellable[randomUuid] = nil
-                    guard case .failure(let error) = result else { return }
-
-                    verboseLog("[Balance Fetcher] failure to fetch balance for wallet: \(wallet)")
-                }, receiveValue: { [weak self] balance in
+            let provider = session.blockchainProvider
+            cancellable[randomUuid] = Task { [weak self] in
+                do {
+                    let balance = try await provider.balance(for: wallet)
                     self?.notifyUpdateBalance([.update(token: etherToken, field: .value(balance.value))])
-                })
+                } catch {
+                    verboseLog("[Balance Fetcher] failure to fetch balance for wallet: \(wallet)")
+                }
+            }.asCancellable()
         }
     }
 
