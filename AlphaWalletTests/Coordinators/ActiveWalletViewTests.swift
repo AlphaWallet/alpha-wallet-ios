@@ -8,6 +8,11 @@ import AlphaWalletCore
 import PromiseKit
 
 final class FakeNetworkService: NetworkService {
+    func dataTask(_ request: AlphaWalletFoundation.URLRequestConvertible) async throws -> URLRequest.Response {
+        let url = URL(string: "https://github.com/AlphaWallet/alpha-wallet-ios")!
+        let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)!
+        return (data: Data(), response: response)
+    }
 
     var response: Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>?
     var callbackQueue: DispatchQueue = .main
