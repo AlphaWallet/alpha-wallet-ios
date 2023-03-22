@@ -47,8 +47,6 @@ extension TransactionConfirmationViewModel {
             return requester == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
         }
         var dappIconUrl: URL? { requester?.iconUrl }
-        var ensName: String? { recipientResolver.ensName }
-        var addressString: String? { recipientResolver.address?.eip55String }
 
         init(configurator: TransactionConfigurator,
              recipientResolver: RecipientResolver,
@@ -80,6 +78,10 @@ extension TransactionConfirmationViewModel {
             }
         }
 
+        func shouldShowChildren(for section: Int, index: Int) -> Bool {
+            return true
+        }
+
         private var formattedNewBalanceString: String {
             let symbol: String
             switch transactionType.tokenObject.type {
@@ -108,7 +110,50 @@ extension TransactionConfirmationViewModel {
             return balance.flatMap { "\($0) \(symbol)" } ?? title
         }
 
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+        func generateViews() -> [ViewType] {
+            var views: [ViewType] = []
+            for (sectionIndex, section) in sections.enumerated() {
+                switch section {
+                case .gas:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: configurator.session.server.canUserChangeGas)]
+                case .amount, .network, .balance:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+                case .recipient:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
+                        let isSubViewsHidden = isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                        switch row {
+                        case .ens:
+                            let vm = TransactionConfirmationRowInfoViewModel(
+                                title: R.string.localizable.transactionConfirmationRowTitleEns(),
+                                subtitle: recipientResolver.ensName)
+
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        case .address:
+                            let vm = TransactionConfirmationRowInfoViewModel(
+                                title: R.string.localizable.transactionConfirmationRowTitleWallet(),
+                                subtitle: recipientResolver.address?.eip55String)
+
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        }
+                    }
+                case .function(let functionCallMetaData):
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    let isSubViewsHidden = isSubviewsHidden(section: sectionIndex, row: 0)
+                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(functionCallMetaData.name)()", subtitle: "")
+                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    for arg in functionCallMetaData.arguments {
+                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
+                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    }
+                }
+            }
+
+            return views
+        }
+
+        private func buildHeaderViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             func shouldHideChevron(for section: Int) -> Bool {
                 switch sections[section] {
                 case .recipient: return false

@@ -36,6 +36,15 @@ extension TransactionConfirmationViewModel {
             self.recipientResolver = recipientResolver
         }
 
+        func shouldShowChildren(for section: Int, index: Int) -> Bool {
+            switch sections[section] {
+            case .recipient, .network:
+                return !isSubviewsHidden(section: section, row: index)
+            case .gas, .amount, .balance:
+                return true
+            }
+        }
+
         func updateBalance(_ balanceViewModel: BalanceViewModel?) {
             if let balanceViewModel = balanceViewModel {
                 let token = transactionType.tokenObject
@@ -187,7 +196,35 @@ extension TransactionConfirmationViewModel {
             return balance.flatMap { "\($0) \(symbol)" } ?? title
         }
 
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+        func generateViews() -> [ViewType] {
+            var views: [ViewType] = []
+            for (sectionIndex, section) in sections.enumerated() {
+                switch section {
+                case .recipient:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
+                        let isSubViewsHidden = isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                        switch row {
+                        case .ens:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: ensName)
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        case .address:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: addressString)
+
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        }
+                    }
+                case .gas:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: configurator.session.server.canUserChangeGas)]
+                case .amount, .balance, .network:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+            return views
+        }
+
+        private func buildHeaderViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                 isOpened: openedSections.contains(section),
                 section: section,

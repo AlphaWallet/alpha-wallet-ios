@@ -49,7 +49,36 @@ extension TransactionConfirmationViewModel {
             //no-op
         }
 
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+        func shouldShowChildren(for section: Int, index: Int) -> Bool {
+            return true
+        }
+
+        func generateViews() -> [ViewType] {
+            var views: [ViewType] = []
+            for (sectionIndex, section) in sections.enumerated() {
+                switch section {
+                case .gas:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: configurator.session.server.canUserChangeGas)]
+                case .function:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    let isSubViewsHidden = isSubviewsHidden(section: sectionIndex)
+                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(functionCallMetaData.name)()", subtitle: "")
+
+                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+
+                    for arg in functionCallMetaData.arguments {
+                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
+                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    }
+                case .contract, .amount, .network:
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+            return views
+        }
+
+        private func buildHeaderViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section, shouldHideChevron: sections[section] != .function)
             let headerName = sections[section].title
             switch sections[section] {
