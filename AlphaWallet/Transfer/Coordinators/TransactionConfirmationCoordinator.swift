@@ -50,17 +50,24 @@ class TransactionConfirmationCoordinator: Coordinator {
     private var server: RPCServer { configurator.session.server }
     private let navigationController: UIViewController
     private let keystore: Keystore
-    private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState
     private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState, networkService: NetworkService) {
+    init(presentingViewController: UIViewController,
+         session: WalletSession,
+         transaction: UnconfirmedTransaction,
+         configuration: TransactionType.Configuration,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         keystore: Keystore,
+         tokensService: TokenViewModelState,
+         networkService: NetworkService) {
+        
         configurator = TransactionConfigurator(session: session, analytics: analytics, transaction: transaction, networkService: networkService)
         self.keystore = keystore
-        self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService

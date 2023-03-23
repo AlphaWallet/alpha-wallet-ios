@@ -26,7 +26,6 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let transaction: TransactionInstance
     private let mode: Mode
     private var transactionConfirmationResult: ConfirmResult? = .none
-    private let assetDefinitionStore: AssetDefinitionStore
     private let networkService: NetworkService
     private var recipient: AlphaWallet.Address? {
         switch transactionType {
@@ -88,9 +87,9 @@ class ReplaceTransactionCoordinator: Coordinator {
           session: WalletSession,
           transaction: TransactionInstance,
           mode: Mode,
-          assetDefinitionStore: AssetDefinitionStore,
           tokensService: TokenViewModelState,
           networkService: NetworkService) {
+        
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigUInt(transaction.nonce) else { return nil }
         self.networkService = networkService
@@ -104,7 +103,6 @@ class ReplaceTransactionCoordinator: Coordinator {
         self.transaction = transaction
         self.mode = mode
         self.nonce = nonce
-        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
@@ -125,7 +123,6 @@ class ReplaceTransactionCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             keystore: keystore,
-            assetDefinitionStore: assetDefinitionStore,
             tokensService: tokensService,
             networkService: networkService)
         

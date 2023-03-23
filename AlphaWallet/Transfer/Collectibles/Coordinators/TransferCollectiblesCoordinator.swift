@@ -115,7 +115,6 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
                 analytics: analytics,
                 domainResolutionService: domainResolutionService,
                 keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
                 tokensService: tokensService,
                 networkService: networkService)
 
