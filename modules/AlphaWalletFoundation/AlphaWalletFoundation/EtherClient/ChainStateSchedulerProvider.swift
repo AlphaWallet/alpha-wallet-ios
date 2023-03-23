@@ -24,6 +24,7 @@ public final class BlockNumberSchedulerProvider: SchedulerProvider {
 
     var operation: AnyPublisher<Void, PromiseError> {
         Future { [blockchainProvider] in try await blockchainProvider.blockNumber() }
+            .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response: response)
             }, receiveCompletion: { [weak self] result in
