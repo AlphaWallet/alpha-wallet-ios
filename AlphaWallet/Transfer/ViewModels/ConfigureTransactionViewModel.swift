@@ -11,7 +11,7 @@ struct ConfigureTransactionViewModel {
     }
     private let service: TokenViewModelState
     private let transactionType: TransactionType
-    private let configurator: TransactionConfigurator
+    let configurator: TransactionConfigurator
     private let fullFormatter = EtherNumberFormatter.full
     private var totalFee: BigUInt {
         return configurationToEdit.gasPrice * configurationToEdit.gasLimit
@@ -135,7 +135,10 @@ struct ConfigureTransactionViewModel {
         return R.string.localizable.configureTransactionHeaderGasLimit()
     }
 
-    init(configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode, service: TokenViewModelState) {
+    init(configurator: TransactionConfigurator,
+         recoveryMode: ConfigureTransactionViewModel.RecoveryMode,
+         service: TokenViewModelState) {
+        
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator

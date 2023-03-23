@@ -57,15 +57,26 @@ final class AcceptDeepLinkViewModel: ExpandableSection {
         for section in sections.indices {
             switch sections[section] {
             case .name:
-                let viewModel = TransactionConfirmationHeaderViewModel(title: .normal(metadata.name), headerName: sections[section].title, configuration: .init(section: section))
+                let viewModel = TransactionConfirmationHeaderViewModel(
+                    title: .normal(metadata.name),
+                    headerName: sections[section].title,
+                    viewState: .init(section: section))
+
                 viewModels += [.header(viewModel: viewModel, editButtonEnabled: false)]
             case .url:
                 let appUrl = metadata.appUrl?.absoluteString ?? ""
-                let viewModel = TransactionConfirmationHeaderViewModel(title: .normal(appUrl), headerName: sections[section].title, configuration: .init(section: section))
+                let viewModel = TransactionConfirmationHeaderViewModel(
+                    title: .normal(appUrl),
+                    headerName: sections[section].title,
+                    viewState: .init(section: section))
+
                 viewModels += [.header(viewModel: viewModel, editButtonEnabled: false)]
             case .note:
                 let note = R.string.localizable.acceptDeepLinkFieldNote(address.eip55String)
-                let viewModel = TransactionConfirmationHeaderViewModel(title: .normal(note), headerName: sections[section].title, configuration: .init(section: section))
+                let viewModel = TransactionConfirmationHeaderViewModel(
+                    title: .normal(note),
+                    headerName: sections[section].title,
+                    viewState: .init(section: section))
 
                 viewModels += [.header(viewModel: viewModel, editButtonEnabled: false)]
             }

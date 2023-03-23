@@ -7,9 +7,9 @@
 
 import UIKit
 
-public enum ImageOrWebImageUrl {
+public enum ImageOrWebImageUrl<T> {
     case url(WebImageURL)
-    case image(RawImage)
+    case image(T)
 }
 
 public enum RawImage {

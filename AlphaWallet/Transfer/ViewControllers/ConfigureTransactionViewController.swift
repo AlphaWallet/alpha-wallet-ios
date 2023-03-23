@@ -3,6 +3,7 @@
 import UIKit
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 protocol ConfigureTransactionViewControllerDelegate: AnyObject {
     func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)
@@ -52,7 +53,7 @@ class ConfigureTransactionViewController: UIViewController {
 
         return editGasPriceView
     }()
-
+    private var cancellable = Set<AnyCancellable>()
     private var viewModel: ConfigureTransactionViewModel
     private var lastSavedConfiguration: TransactionConfiguration
     weak var delegate: ConfigureTransactionViewControllerDelegate?
@@ -103,6 +104,21 @@ class ConfigureTransactionViewController: UIViewController {
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         recalculateTotalFeeForCustomGas()
+        bind(viewModel: viewModel)
+    }
+
+    private func bind(viewModel: ConfigureTransactionViewModel) {
+        viewModel.configurator.gasPrice
+            .sink { [weak self] in self?.configure(withEstimatedGasPrice: $0, configurator: viewModel.configurator) }
+            .store(in: &cancellable)
+
+        viewModel.configurator.gasLimit
+            .sink { [weak self] in self?.configure(withEstimatedGasLimit: $0, configurator: viewModel.configurator) }
+            .store(in: &cancellable)
+
+        viewModel.configurator.nonce
+            .sink { [weak self] in self?.configure(nonce: $0, configurator: viewModel.configurator) }
+            .store(in: &cancellable)
     }
 
     private func handleRecovery() {

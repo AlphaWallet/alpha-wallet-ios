@@ -13,9 +13,9 @@ protocol TransactionConfirmationViewControllerDelegate: AnyObject {
 }
 
 class TransactionConfirmationViewController: UIViewController {
-    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
+    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: ""))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    let viewModel: TransactionConfirmationViewModel
+    let viewModel: TransactionConfirmationViewModelType
     private let separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -37,11 +37,11 @@ class TransactionConfirmationViewController: UIViewController {
         return view.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
     }()
 
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: TransactionConfirmationViewControllerDelegate?
 
-    init(viewModel: TransactionConfirmationViewModel) {
+    init(viewModel: TransactionConfirmationViewModelType) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
@@ -100,19 +100,15 @@ class TransactionConfirmationViewController: UIViewController {
                 } else {
                     strongSelf.heightConstraint.constant = newHeight
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     } 
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        separatorLine.isHidden = !viewModel.hasSeparatorAboveConfirmButton
-
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         button.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
-        button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
-        button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
 
         containerView.scrollView.backgroundColor = Configuration.Color.Semantic.backgroundClear
         view.backgroundColor = Configuration.Color.Semantic.backgroundClear
@@ -155,19 +151,33 @@ class TransactionConfirmationViewController: UIViewController {
         delegate?.didClose(in: self)
     }
 
-    private func bind(viewModel: TransactionConfirmationViewModel) {
+    private func bind(viewModel: TransactionConfirmationViewModelType) {
         let input = TransactionConfirmationViewModelInput()
+
         let output = viewModel.transform(input: input)
         output.viewState
             .sink { [weak self, headerView] viewState in
                 headerView.configure(viewModel: .init(title: viewState.title))
                 self?.generateSubviews(for: viewState.views)
-            }.store(in: &cancelable)
-    }
+                self?.separatorLine.isHidden = viewState.isSeparatorHidden
+            }.store(in: &cancellable)
 
-    @objc func confirmButtonSelected(_ sender: UIButton) {
-        guard viewModel.canBeConfirmed else { return }
-        delegate?.controller(self, continueButtonTapped: sender)
+        let continueButton = buttonsBar.buttons[0]
+        let confirmButtonViewModelInput = ConfirmButtonViewModelInput(
+            trigger: continueButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
+
+        let confirmButtonViewModelOutput = viewModel.confirmButtonViewModel.transform(input: confirmButtonViewModelInput)
+        confirmButtonViewModelOutput.viewState
+            .sink { viewState in
+                continueButton.setTitle(viewState.title, for: .normal)
+                continueButton.isEnabled = viewState.isEnabled
+            }.store(in: &cancellable)
+
+        confirmButtonViewModelOutput.confirmSelected
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.controller(strongSelf, continueButtonTapped: strongSelf.buttonsBar.buttons[0])
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -186,6 +196,11 @@ extension TransactionConfirmationViewController {
             switch each {
             case .view(let viewModel, let isHidden):
                 let view = TransactionConfirmationRowInfoView(viewModel: viewModel)
+                view.isHidden = isHidden
+
+                activeHeaderView?.childrenStackView.addArrangedSubview(view)
+            case .recipient(let viewModel, let isHidden):
+                let view = TransactionConfirmationRecipientRowInfoView(viewModel: viewModel)
                 view.isHidden = isHidden
 
                 activeHeaderView?.childrenStackView.addArrangedSubview(view)

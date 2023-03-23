@@ -12,12 +12,12 @@ import AlphaWalletWeb3
 
 struct CheckTransactionStateViewModel {
     private let serverSelection: ServerSelection
-    private let configuration = TransactionConfirmationHeaderView.Configuration(section: 0)
+    private let viewState = TransactionConfirmationHeaderViewModel.ViewState(section: 0)
 
     let textFieldPlaceholder: String = R.string.localizable.checkTransactionStateFieldHashPlaceholder()
 
     var serverSelectionViewModel: TransactionConfirmationHeaderViewModel {
-        return .init(title: .normal(selectedServerString), headerName: serverViewTitle, configuration: configuration)
+        return .init(title: .normal(selectedServerString), headerName: serverViewTitle, viewState: viewState)
     }
 
     let title: String = R.string.localizable.checkTransactionStateTitle()

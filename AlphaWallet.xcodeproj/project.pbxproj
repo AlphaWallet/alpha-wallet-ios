@@ -626,6 +626,7 @@
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C25E429CAF91A009A5396 /* PublisherToAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C25E329CAF91A009A5396 /* PublisherToAsyncTests.swift */; };
+		876C25E629CC92AF009A5396 /* ConfirmButtonViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C25E529CC92AF009A5396 /* ConfirmButtonViewModel.swift */; };
 		876C80CD2673940B00B16595 /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CC2673940B00B16595 /* SwitchView.swift */; };
 		87713EB0264BAB2500B1B9CB /* TokenPagesContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */; };
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
@@ -1518,6 +1519,7 @@
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C25E329CAF91A009A5396 /* PublisherToAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherToAsyncTests.swift; sourceTree = "<group>"; };
+		876C25E529CC92AF009A5396 /* ConfirmButtonViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmButtonViewModel.swift; sourceTree = "<group>"; };
 		876C80CC2673940B00B16595 /* SwitchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchView.swift; sourceTree = "<group>"; };
 		87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPagesContainerView.swift; sourceTree = "<group>"; };
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
@@ -2486,6 +2488,7 @@
 				874D098F25EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift */,
 				874D099125EE336E00A58EF2 /* TypedDataViewModel.swift */,
 				5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */,
+				876C25E529CC92AF009A5396 /* ConfirmButtonViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5199,6 +5202,7 @@
 				73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */,
 				022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */,
 				87E2555224F52E5700F025F7 /* SlidableTextFieldViewModel.swift in Sources */,
+				876C25E629CC92AF009A5396 /* ConfirmButtonViewModel.swift in Sources */,
 				73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */,
 				87AA49E629ACEF89007C5D63 /* EnterAssetAmountView.swift in Sources */,
 				02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */,

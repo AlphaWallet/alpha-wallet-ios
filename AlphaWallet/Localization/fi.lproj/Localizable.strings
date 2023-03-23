@@ -642,6 +642,7 @@
 "transactionConfirmation.Send.Section.Amount.title" = "Summa";
 "transactionConfirmation.Send.Section.Recipient.title" = "Vastaanottaja";
 "transactionConfirmation.Send.Section.TokenId.title" = "Rahake";
+"transactionConfirmation.Send.Section.Requester.title" = "Dapp";
 "transactionConfirmation.authorisation.reason" = "Aktorisoi vahvistaaksesi tilitapahtuman";
 "transactionConfirmation.keystore.accessKey.sign" = "Salaista avainta käsitellään siirron suorittamiseksi";
 "transactionConfirmation.fee.footerText" = "Mitä korkeampi kulujen yksikköhinta (Gas Fee) on, sitä suuremmalla todennäköisyydellä tilitapahtumasi vahvistetaan nopeasti. Sovelluksen arvioimat yksikköhinnat perustuvat lohkoketjun ajantasaiseen kuormitustietoon.";

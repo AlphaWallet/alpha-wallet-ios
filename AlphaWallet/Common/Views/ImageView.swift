@@ -8,6 +8,7 @@
 import Foundation
 import AlphaWalletFoundation
 import Combine
+import Kingfisher
 
 class ImageView: UIImageView {
     private let subject: PassthroughSubject<ImagePublisher, Never> = .init()
@@ -28,7 +29,15 @@ class ImageView: UIImageView {
     private func bind() {
         subject.flatMapLatest { $0 }
             .sink { [weak self] image in
-                self?.image = image
+                switch image {
+                case .url(let url):
+                    self?.setImage(url: url.url, placeholder: R.image.iconsTokensPlaceholder())
+                case .image(let image):
+                    self?.image = image
+                case .none:
+                    break
+                }
+
                 if self?.hideWhenImageIsNil ?? false {
                     self?.isHidden = image == nil
                 }

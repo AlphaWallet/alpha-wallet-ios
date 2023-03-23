@@ -8,57 +8,82 @@
 import UIKit
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 extension TransactionConfirmationViewModel {
-    class TokenScriptTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
+    class TokenScriptTransactionViewModel: TransactionConfirmationViewModelType {
+        @Published private var etherCurrencyRate: Loadable<CurrencyRate, Error> = .loading
+
+        private let tokensService: TokenViewModelState
         private let address: AlphaWallet.Address
         private let configurator: TransactionConfigurator
         private let session: WalletSession
-        private var formattedAmountValue: String {
-            //FIXME: is here ether token?
-            let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
-            let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
+        private var cancellable = Set<AnyCancellable>()
+        private let functionCallMetaData: DecodedFunctionCall
+        private var sections: [Section] { Section.allCases }
 
-            if let rate = rate {
-                let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value) ?? "-"
-
-                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
-            } else {
-                return "\(amount) \(configurator.session.server.symbol)"
-            }
-        }
-
-        var rate: CurrencyRate?
-        let functionCallMetaData: DecodedFunctionCall
         var openedSections = Set<Int>()
-        var sections: [Section] {
-            return Section.allCases
-        }
+        let confirmButtonViewModel: ConfirmButtonViewModel
 
         init(address: AlphaWallet.Address,
              configurator: TransactionConfigurator,
-             functionCallMetaData: DecodedFunctionCall) {
-            
+             functionCallMetaData: DecodedFunctionCall,
+             tokensService: TokenViewModelState) {
+
+            self.tokensService = tokensService
             self.address = address
             self.configurator = configurator
             self.functionCallMetaData = functionCallMetaData
             self.session = configurator.session
-        }
-
-        func updateBalance(_ balanceViewModel: BalanceViewModel?) {
-            //no-op
+            self.confirmButtonViewModel = ConfirmButtonViewModel(
+                configurator: configurator,
+                title: R.string.localizable.confirmPaymentConfirmButtonTitle())
         }
 
         func shouldShowChildren(for section: Int, index: Int) -> Bool {
             return true
         }
 
-        func generateViews() -> [ViewType] {
+        func transform(input: TransactionConfirmationViewModelInput) -> TransactionConfirmationViewModelOutput {
+            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
+            tokensService.tokenViewModelPublisher(for: etherToken)
+                .map { $0?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } }
+                .map { $0.flatMap { Loadable<CurrencyRate, Error>.done($0) } ?? .failure(SendFungiblesTransactionViewModel.NoCurrencyRateError()) }
+                .assign(to: \.etherCurrencyRate, on: self)
+                .store(in: &cancellable)
+
+            let viewState = Publishers.Merge($etherCurrencyRate.mapToVoid(), configurator.objectChanges)
+                .map { _ in
+                    TransactionConfirmationViewModel.ViewState(
+                        title: R.string.localizable.tokenTransactionConfirmationTitle(),
+                        views: self.buildTypedViews(),
+                        isSeparatorHidden: false)
+                }
+
+            return TransactionConfirmationViewModelOutput(
+                viewState: viewState.eraseToAnyPublisher())
+        }
+
+        private var formattedAmountValue: String {
+            //FIXME: is here ether token?
+            let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: session.server.decimals) ?? .zero).doubleValue
+            let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
+
+            if let rate = etherCurrencyRate.value {
+                let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value) ?? "-"
+
+                return "\(amount) \(session.server.symbol) ≈ \(amountInFiat)"
+            } else {
+                return "\(amount) \(session.server.symbol)"
+            }
+        }
+
+        private func buildTypedViews() -> [ViewType] {
             var views: [ViewType] = []
             for (sectionIndex, section) in sections.enumerated() {
                 switch section {
                 case .gas:
-                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: configurator.session.server.canUserChangeGas)]
+                    views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: session.server.canUserChangeGas)]
                 case .function:
                     views += [.header(viewModel: buildHeaderViewModel(section: sectionIndex), isEditEnabled: false)]
 
@@ -79,24 +104,29 @@ extension TransactionConfirmationViewModel {
         }
 
         private func buildHeaderViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section, shouldHideChevron: sections[section] != .function)
+            let viewState = TransactionConfirmationHeaderViewModel.ViewState(
+                isOpened: openedSections.contains(section),
+                section: section,
+                shouldHideChevron: sections[section] != .function)
+
             let headerName = sections[section].title
+
             switch sections[section] {
             case .gas:
-                let gasFee = gasFeeString(for: configurator, rate: rate)
+                let gasFee = gasFeeString(for: configurator, rate: etherCurrencyRate.value)
                 if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, viewState: viewState)
                 } else {
-                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, configuration: configuration)
+                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, details: gasFee, viewState: viewState)
                 }
             case .contract:
-                return .init(title: .normal(address.truncateMiddle), headerName: headerName, configuration: configuration)
+                return .init(title: .normal(address.truncateMiddle), headerName: headerName, viewState: viewState)
             case .function:
-                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
+                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, viewState: viewState)
             case .amount:
-                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
+                return .init(title: .normal(formattedAmountValue), headerName: headerName, viewState: viewState)
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, viewState: viewState)
             }
         }
 

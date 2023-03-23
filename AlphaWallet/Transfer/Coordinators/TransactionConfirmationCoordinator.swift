@@ -22,7 +22,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionType.Configuration
 
     private lazy var rootViewController: TransactionConfirmationViewController = {
-        let viewModel = TransactionConfirmationViewModel(
+        let viewModel = TransactionConfirmationViewModel.buildViewModel(
             configurator: configurator,
             configuration: configuration,
             domainResolutionService: domainResolutionService,
@@ -65,8 +65,15 @@ class TransactionConfirmationCoordinator: Coordinator {
          keystore: Keystore,
          tokensService: TokenViewModelState,
          networkService: NetworkService) {
-        
-        configurator = TransactionConfigurator(session: session, analytics: analytics, transaction: transaction, networkService: networkService)
+
+        configurator = TransactionConfigurator(
+            session: session,
+            analytics: analytics,
+            transaction: transaction,
+            networkService: networkService,
+            tokensService: tokensService,
+            configuration: configuration)
+
         self.keystore = keystore
         self.configuration = configuration
         self.analytics = analytics
@@ -79,7 +86,6 @@ class TransactionConfirmationCoordinator: Coordinator {
         let presenter = UIApplication.shared.presentedViewController(or: navigationController)
         presenter.present(hostViewController, animated: true)
 
-        configurator.delegate = self
         configurator.start()
 
         logStartActionSheetForTransactionConfirmation(source: source)
@@ -213,8 +219,14 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         showConfigureTransactionViewController(configurator)
     }
 
-    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode, service: tokensService))
+    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator,
+                                                        recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
+        let viewModel = ConfigureTransactionViewModel(
+            configurator: configurator,
+            recoveryMode: recoveryMode,
+            service: tokensService)
+
+        let controller = ConfigureTransactionViewController(viewModel: viewModel)
         controller.delegate = self
 
         let navigationController = NavigationController(rootViewController: controller)
@@ -240,34 +252,6 @@ extension TransactionConfirmationCoordinator: ConfigureTransactionViewController
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController) {
         configurator.chooseCustomConfiguration(customConfiguration)
         viewController.navigationController?.dismiss(animated: true)
-    }
-}
-
-extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
-    func configurationChanged(in configurator: TransactionConfigurator) {
-        //TODO: improve these few time view updates
-        rootViewController.viewModel.reloadView()
-        rootViewController.viewModel.updateBalance()
-    }
-
-    func gasLimitEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
-
-        //TODO: improve these few time view updates
-        rootViewController.viewModel.reloadViewWithGasChanges()
-        rootViewController.viewModel.updateBalance()
-    }
-
-    func gasPriceEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
-
-        //TODO: improve these few time view updates
-        rootViewController.viewModel.reloadViewWithGasChanges()
-        rootViewController.viewModel.updateBalance()
-    }
-
-    func updateNonce(to nonce: Int, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(nonce: nonce, configurator: configurator)
     }
 }
 

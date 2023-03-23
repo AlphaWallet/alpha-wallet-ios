@@ -10,26 +10,21 @@ import AlphaWalletFoundation
 import Combine
 
 struct TransactionConfirmationHeaderViewModel {
-    enum Title {
-        case normal(String?)
-        case warning(String)
-    }
-
     let title: String?
     let headerName: String?
     let details: String?
-    var configuration: TransactionConfirmationHeaderView.Configuration
+    var viewState: ViewState
     let titleIcon: ImagePublisher
     var chevronImage: UIImage? {
-        let image = configuration.isOpened ? R.image.expand() : R.image.not_expand()
+        let image = viewState.isOpened ? R.image.expand() : R.image.not_expand()
         return image?.withRenderingMode(.alwaysTemplate)
     }
 
     var titleAlpha: CGFloat {
-        if configuration.shouldHideChevron {
+        if viewState.shouldHideChevron {
             return 1.0
         } else {
-            return configuration.isOpened ? 0.0 : 1.0
+            return viewState.isOpened ? 0.0 : 1.0
         }
     }
 
@@ -60,26 +55,35 @@ struct TransactionConfirmationHeaderViewModel {
         ])
     }
 
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
-    }
-
     init(title: Title,
          headerName: String?,
          details: String? = nil,
          titleIcon: ImagePublisher = .just(nil),
-         configuration: TransactionConfirmationHeaderView.Configuration) {
-        
+         viewState: TransactionConfirmationHeaderViewModel.ViewState) {
+
         switch title {
         case .normal(let title):
             self.title = title
             self.titleIcon = titleIcon
         case .warning(let title):
             self.title = title
-            self.titleIcon = .just(R.image.gasWarning())
+            self.titleIcon = .just(R.image.gasWarning().flatMap { ImageOrWebImageUrl<Image>.image($0) })
         }
         self.headerName = headerName
         self.details = details
-        self.configuration = configuration
+        self.viewState = viewState
+    }
+}
+
+extension TransactionConfirmationHeaderViewModel {
+    struct ViewState {
+        var isOpened: Bool = false
+        let section: Int
+        var shouldHideChevron: Bool = true
+    }
+
+    enum Title {
+        case normal(String?)
+        case warning(String)
     }
 }

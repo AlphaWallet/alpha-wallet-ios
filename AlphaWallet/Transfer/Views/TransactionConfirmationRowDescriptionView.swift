@@ -19,7 +19,11 @@ class TransactionConfirmationRowDescriptionView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
 
         let separatorLine = UIView.separator()
-        let row1 = [.spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.left), titleLabel, .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.right)].asStackView(axis: .horizontal)
+        let row1 = [
+            .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.left),
+            titleLabel,
+            .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.right)
+        ].asStackView(axis: .horizontal)
 
         let stackView = [
             separatorLine,

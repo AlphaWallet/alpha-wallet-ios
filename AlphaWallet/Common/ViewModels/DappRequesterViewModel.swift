@@ -16,20 +16,20 @@ struct DappRequesterViewModel: RequesterViewModel {
 
         var dappNameHeader: String { R.string.localizable.walletConnectDappName() }
         viewModels += [
-            .header(.init(title: .normal(requester.shortName), headerName: dappNameHeader, configuration: .init(section: 0)))
+            .header(.init(title: .normal(requester.shortName), headerName: dappNameHeader, viewState: .init(section: 0)))
         ]
 
         if let dappUrl = requester.url {
             var dappWebsiteHeader: String { R.string.localizable.walletConnectDappWebsite() }
             viewModels += [
-                .header(.init(title: .normal(dappUrl.absoluteString), headerName: dappWebsiteHeader, configuration: .init(section: 0))),
+                .header(.init(title: .normal(dappUrl.absoluteString), headerName: dappWebsiteHeader, viewState: .init(section: 0))),
             ]
         }
 
         if let server = requester.server {
             var dappServerHeader: String { R.string.localizable.settingsNetworkButtonTitle() }
             viewModels += [
-                .header(.init(title: .normal(server.name), headerName: dappServerHeader, configuration: .init(section: 0)))
+                .header(.init(title: .normal(server.name), headerName: dappServerHeader, viewState: .init(section: 0)))
             ]
         }
 
