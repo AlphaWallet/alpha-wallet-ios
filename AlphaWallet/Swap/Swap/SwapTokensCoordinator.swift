@@ -226,7 +226,6 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             keystore: keystore,
-            assetDefinitionStore: assetDefinitionStore,
             tokensService: tokenCollection,
             networkService: networkService)
 
@@ -245,7 +244,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
                 owner: owner,
                 spender: spender,
                 amount: amount)
-        }.then { [navigationController, keystore, analytics, assetDefinitionStore, configurator, tokenCollection, domainResolutionService, networkService] (transaction, configuration) in
+        }.then { [navigationController, keystore, analytics, configurator, tokenCollection, domainResolutionService, networkService] (transaction, configuration) in
             TransactionConfirmationCoordinator.promise(
                 navigationController,
                 session: configurator.session,
@@ -257,7 +256,6 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
                 source: .swapApproval,
                 delegate: self,
                 keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
                 tokensService: tokenCollection,
                 networkService: networkService)
 

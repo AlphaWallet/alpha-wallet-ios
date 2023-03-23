@@ -819,7 +819,6 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             session: session,
             transaction: transaction,
             mode: .speedup,
-            assetDefinitionStore: assetDefinitionStore,
             tokensService: tokenCollection,
             networkService: networkService) else { return }
 
@@ -839,7 +838,6 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             session: session,
             transaction: transaction,
             mode: .cancel,
-            assetDefinitionStore: assetDefinitionStore,
             tokensService: tokenCollection,
             networkService: networkService) else { return }
 
@@ -1147,7 +1145,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         infoLog("[\(source)] signTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, tokensService: tokenCollection, networkService: networkService)
         }.map { data -> Data in
             switch data {
             case .signedTransaction(let data):
@@ -1216,7 +1214,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         infoLog("[\(source)] sendTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self, keystore: keystore, tokensService: tokenCollection, networkService: networkService)
         }.map { data -> SentTransaction in
             switch data {
             case .sentTransaction(let transaction):
