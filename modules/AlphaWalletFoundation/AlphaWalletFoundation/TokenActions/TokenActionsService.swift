@@ -25,7 +25,7 @@ public protocol SupportedTokenActionsProvider {
     func isSupport(token: TokenActionsIdentifiable) -> Bool
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction]
     func start()
-} 
+}
 
 public protocol TokenActionProvider {
     var action: String { get }
@@ -65,18 +65,5 @@ open class TokenActionsService: SupportedTokenActionsProvider, TokenActionServic
 
     public func start() {
         services.forEach { $0.start() }
-    }
-}
-
-extension TransactionType {
-    public var swapServiceInputToken: TokenActionsIdentifiable? {
-        switch self {
-        case .nativeCryptocurrency(let token, _, _):
-            return token
-        case .erc20Token(let token, _, _):
-            return token
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-            return nil
-        }
     }
 }
