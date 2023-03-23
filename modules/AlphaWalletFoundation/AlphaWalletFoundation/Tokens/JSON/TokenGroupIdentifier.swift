@@ -18,8 +18,7 @@ extension TokenEntry {
         let chainId: Int
 
         var key: String {
-            let returnKey = address + ":" + String(chainId)
-            return returnKey.trimmed.lowercased()
+            return TokenGroupIdentifier.functional.encodePrimaryKeyWith(addressString: address, chainID: chainId)
         }
     }
 }
@@ -76,7 +75,7 @@ public class TokenJsonReader {
                     // We ignore the current key if it's already used
                     continue
                 }
-                returnedDictionary[contract.key] = group
+                returnedDictionary[key] = group
             }
         }
         return returnedDictionary
@@ -92,8 +91,7 @@ public class TokenJsonReader {
 
 extension Token: TokenGroupIdentifiable {
     public var tokenGroupKey: String {
-        let key = self.contractAddress.eip55String + ":" + String(self.server.chainID)
-        return key.trimmed.lowercased()
+        return TokenGroupIdentifier.functional.encodePrimaryKeyWith(walletAddress: contractAddress, server: server)
     }
     public var isCollectibles: Bool {
         return self.type == .erc721 || self.type == .erc1155
@@ -102,8 +100,7 @@ extension Token: TokenGroupIdentifiable {
 
 extension TokenViewModel: TokenGroupIdentifiable {
     public var tokenGroupKey: String {
-        let key = self.contractAddress.eip55String + ":" + String(self.server.chainID)
-        return key.trimmed.lowercased()
+        return TokenGroupIdentifier.functional.encodePrimaryKeyWith(walletAddress: contractAddress, server: server)
     }
 
     public var isCollectibles: Bool {
@@ -130,26 +127,38 @@ public protocol TokenGroupIdentifierProtocol {
     static func identifier(fromFileName: String) -> TokenGroupIdentifierProtocol?
     func identify(token: TokenGroupIdentifiable) -> TokenGroup
     func hasContract(address: String, chainID: Int) -> Bool
+    func isSpam(address: String, chainID: Int) -> Bool
 }
 
 public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
 
     private var decodedTokenEntries: TokenGroupDictionary = TokenGroupDictionary()
+    private var spamTokenEntries: Set<String> = Set<String>()
 
     public static func identifier(fromFileName fileName: String) -> TokenGroupIdentifierProtocol? {
         guard let reader = TokenJsonReader(fromLocalFileNameWithoutSuffix: fileName) else { return nil }
         do {
-            let identifier = TokenGroupIdentifier(decodedTokenEntries: try reader.tokenGroupDictionary())
+            let decodedTokenEntries = try reader.tokenGroupDictionary()
+            var spamTokenEntries: Set<String> = Set<String>()
+            var groupEntries: TokenGroupDictionary = TokenGroupDictionary()
+            decodedTokenEntries.forEach { key, value in
+                if value == TokenGroup.spam {
+                    spamTokenEntries.insert(key)
+                } else {
+                    groupEntries[key] = value
+                }
+            }
+
+            let identifier = TokenGroupIdentifier(groupEntries: groupEntries, spamEntries: spamTokenEntries)
             return identifier
         } catch {
             return nil
         }
     }
 
-    private init(decodedTokenEntries: TokenGroupDictionary) {
-        self.decodedTokenEntries = decodedTokenEntries.filter { _, group in
-            return group != TokenGroup.spam
-        }
+    private init(groupEntries: TokenGroupDictionary, spamEntries: Set<String>) {
+        self.decodedTokenEntries = groupEntries
+        self.spamTokenEntries = spamEntries
     }
 
     public func identify(token: TokenGroupIdentifiable) -> TokenGroup {
@@ -160,11 +169,31 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
     }
 
     public func hasContract(address: String, chainID: Int) -> Bool {
-        return decodedTokenEntries["\(address):\(chainID)"] != nil
+        let key = TokenGroupIdentifier.functional.encodePrimaryKeyWith(addressString: address, chainID: chainID)
+        return decodedTokenEntries[key] != nil
+    }
+
+    public func isSpam(address: String, chainID: Int) -> Bool {
+        let key = TokenGroupIdentifier.functional.encodePrimaryKeyWith(addressString: address, chainID: chainID)
+        return spamTokenEntries.contains(key)
     }
 }
 
 public protocol TokenGroupIdentifieble {
     var isCollectibles: Bool { get }
     var tokenGroupKey: String { get }
+}
+
+extension TokenGroupIdentifier {
+    enum functional {}
+}
+
+extension TokenGroupIdentifier.functional {
+    static func encodePrimaryKeyWith(addressString: String, chainID: Int) -> String {
+        return "\(addressString)-\(chainID)".trimmed.lowercased()
+    }
+
+    static func encodePrimaryKeyWith(walletAddress: AlphaWallet.Address, server: RPCServer) -> String {
+        return encodePrimaryKeyWith(addressString: walletAddress.eip55String, chainID: server.chainID)
+    }
 }

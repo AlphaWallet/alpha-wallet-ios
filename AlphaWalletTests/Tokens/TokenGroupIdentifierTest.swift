@@ -95,5 +95,13 @@ class TokenGroupIdentifierTest: XCTestCase {
         XCTAssert(tokenGroupIdentifier != nil)
         XCTAssertFalse(tokenGroupIdentifier!.hasContract(address: "0xD7f1d4F5A1B44D827a7C3cC5dd46a80fADe55558", chainID: 137))
         XCTAssertTrue(tokenGroupIdentifier!.hasContract(address: "0x596fa47043f99a4e0f122243b841e55375cde0d2", chainID: 43114))
+        // Match address and chain
+        XCTAssertTrue(tokenGroupIdentifier!.isSpam(address: "0xD7f1d4F5A1B44D827a7C3cC5dd46a80fADe55558", chainID: 137))
+        // Match address but not chain
+        XCTAssertFalse(tokenGroupIdentifier!.isSpam(address: "0xD7f1d4F5A1B44D827a7C3cC5dd46a80fADe55558", chainID: 2137))
+        // match chain but not address
+        XCTAssertFalse(tokenGroupIdentifier!.isSpam(address: "0x89E642e9BDB2c3d2fA03B600d8922cFc0800fdDB", chainID: 137))
+        // Nonsensical string inputs
+        XCTAssertFalse(tokenGroupIdentifier!.isSpam(address: "Not A Spam Address", chainID: 1))
     }
 }

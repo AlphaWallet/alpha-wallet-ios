@@ -21,4 +21,8 @@ final class FakeTokenGroupIdentifier: TokenGroupIdentifierProtocol {
     func hasContract(address: String, chainID: Int) -> Bool {
         return false
     }
+
+    func isSpam(address: String, chainID: Int) -> Bool {
+        return false
+    }
 }
