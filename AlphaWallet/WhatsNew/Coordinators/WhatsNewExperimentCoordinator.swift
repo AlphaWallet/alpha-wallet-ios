@@ -55,11 +55,10 @@ class WhatsNewExperimentCoordinator: Coordinator {
         let listings = WhatsNewListing(listing: [
             WhatsNew(
                     //TODO localize later. Might not keep this longer term
-                    title: "You can get to your wallet address QR code from Siri/Spotlight",
+                    title: "",
                     changes: [
-                        "1. Go to homescreen",
-                        "2. Pull down to reveal search bar",
-                        "3. Type: wallet QR",
+                        "* Dark Mode",
+                        "* Mainnet and testnets can now be enabled at the same time",
                     ])
         ])
         coordinator.start(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(), shouldShowCheckmarks: false))
