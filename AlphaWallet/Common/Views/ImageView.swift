@@ -30,7 +30,7 @@ class ImageView: UIImageView {
             .sink { [weak self] image in
                 self?.image = image
                 if self?.hideWhenImageIsNil ?? false {
-                    self?.isHidden = self?.hideWhenImageIsNil ?? false
+                    self?.isHidden = image == nil
                 }
             }.store(in: &cancellable)
     }
