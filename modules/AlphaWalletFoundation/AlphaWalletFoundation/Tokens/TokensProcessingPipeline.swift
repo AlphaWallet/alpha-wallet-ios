@@ -72,6 +72,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
 
         return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
+            .share(replay: 1)
             .eraseToAnyPublisher()
     }()
 
