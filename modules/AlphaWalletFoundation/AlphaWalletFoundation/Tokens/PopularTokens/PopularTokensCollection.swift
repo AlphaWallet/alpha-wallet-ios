@@ -86,6 +86,7 @@ public class PopularTokensCollection: NSObject, PopularTokensCollectionType {
                     return PopularTokensCollection.filterTokens(with: servers, in: response.tokens)
                 }
             }.mapError { PromiseError(error: $0) }
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
