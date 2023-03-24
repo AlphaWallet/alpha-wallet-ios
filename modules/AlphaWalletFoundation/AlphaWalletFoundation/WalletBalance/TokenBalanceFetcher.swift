@@ -103,9 +103,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     deinit {
         cancellable.values.forEach { $0.value.cancel() }
         cancellable.removeAll()
-        jsonFromTokenUri.clear()
         erc1155TokenIdsFetcher.clear()
-        erc1155BalanceFetcher.clear()
     }
 
     public func cancel() {
@@ -144,6 +142,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 } catch {
                     verboseLog("[Balance Fetcher] failure to fetch balance for wallet: \(wallet)")
                 }
+                cancellable[randomUuid] = nil
             }.asCancellable()
         }
     }
@@ -156,33 +155,39 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         case .erc20:
             guard cancellable[randomUuid] == nil else { return }
 
-            cancellable[randomUuid] = nonErc1155BalanceFetcher
-                .getErc20Balance(for: token.contractAddress)
-                .sink(receiveCompletion: { [weak self] _ in
-                    self?.cancellable[randomUuid] = .none
-                }, receiveValue: { [weak self] value in
+            cancellable[randomUuid] = Task { [weak self] in
+                do {
+                    let value = try await nonErc1155BalanceFetcher.getErc20Balance(for: token.contractAddress)
                     self?.notifyUpdateBalance([.update(token: token, field: .value(value))])
-                })
+                } catch {
+                    //no-op
+                }
+                cancellable[randomUuid] = nil
+            }.asCancellable()
         case .erc875:
             guard cancellable[randomUuid] == nil else { return }
 
-            cancellable[randomUuid] = nonErc1155BalanceFetcher
-                .getErc875TokenBalance(for: session.account.address, contract: token.contractAddress)
-                .sink(receiveCompletion: { [weak self] _ in
-                    self?.cancellable[randomUuid] = .none
-                }, receiveValue: { [weak self] balance in
+            cancellable[randomUuid] = Task { [weak self] in
+                do {
+                    let balance = try await nonErc1155BalanceFetcher.getErc875TokenBalance(for: session.account.address, contract: token.contractAddress)
                     self?.notifyUpdateBalance([.update(token: token, field: .nonFungibleBalance(.erc875(balance)))])
-                })
+                } catch {
+                    //no-op
+                }
+                cancellable[randomUuid] = nil
+            }.asCancellable()
         case .erc721ForTickets:
             guard cancellable[randomUuid] == nil else { return }
 
-            cancellable[randomUuid] = nonErc1155BalanceFetcher
-                .getErc721ForTicketsBalance(for: token.contractAddress)
-                .sink(receiveCompletion: { [weak self] _ in
-                    self?.cancellable[randomUuid] = .none
-                }, receiveValue: { [weak self] balance in
+            cancellable[randomUuid] = Task { [weak self] in
+                do {
+                    let balance = try await nonErc1155BalanceFetcher.getErc721ForTicketsBalance(for: token.contractAddress)
                     self?.notifyUpdateBalance([.update(token: token, field: .nonFungibleBalance(.erc721ForTickets(balance)))])
-                })
+                } catch {
+                    //no-op
+                }
+                cancellable[randomUuid] = nil
+            }.asCancellable()
         }
     }
 
@@ -229,29 +234,33 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     }
 
     private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address) {
+        typealias NftAssetJson = NonFungibleBalanceAndItsSource<JsonString>
+        
         let randomUuid = "updateNonOpenSeaErc721Balance-" + contract.eip55String
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher, cancellable[randomUuid] == nil else { return }
 
-        cancellable[randomUuid] = erc721TokenIdsFetcher
-            .tokenIdsForErc721Token(contract: contract, forServer: session.server, inAccount: session.account.address)
-            .flatMap { [jsonFromTokenUri] tokenIds -> AnyPublisher<[NonFungibleBalanceAndItsSource<JsonString>], Never> in
-                let guarantees = tokenIds.map { jsonFromTokenUri.fetchJsonFromTokenUri(for: $0, tokenType: .erc721, address: contract).mapToResult() }
+        cancellable[randomUuid] = Task { [jsonFromTokenUri, session] in
+            let tokenIds = try await erc721TokenIdsFetcher.tokenIdsForErc721Token(
+                contract: contract,
+                forServer: session.server,
+                inAccount: session.account.address)
 
-                return Publishers.MergeMany(guarantees).collect()
-                    .map { $0.compactMap { try? $0.get() } }
-                    .eraseToAnyPublisher()
-            }.sink(receiveCompletion: { [weak self] _ in
-                self?.cancellable[randomUuid] = nil
-            }, receiveValue: { [weak self, tokensService] jsons in
-                guard let strongSelf = self else { return }
+            let jsons = try await tokenIds.asyncCompactMap {
+                try? await jsonFromTokenUri.fetchJsonFromTokenUri(for: $0, tokenType: .erc721, address: contract)
+            }
 
-                guard let token = tokensService.token(for: contract, server: strongSelf.session.server) else { return }
+            guard let token = tokensService.token(for: contract, server: session.server) else {
+                self.cancellable[randomUuid] = nil
+                return
+            }
 
-                let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
-                strongSelf.notifyUpdateBalance([
-                    .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
-                ])
-            })
+            let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
+            self.notifyUpdateBalance([
+                .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
+            ])
+
+            self.cancellable[randomUuid] = nil
+        }.asCancellable()
     }
 
     private func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]]) -> [AddOrUpdateTokenAction] {
@@ -313,8 +322,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { $0.compactMap { BigInt($0.tokenId) } }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
             let promises = contractsToTokenIds.map { contract, tokenIds in
-                erc1155BalanceFetcher
-                    .getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))
+                Future { [erc1155BalanceFetcher] in try await erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds)) }
                     .map { (contract: contract, balances: $0) }
                     .replaceError(with: (contract: contract, balances: [:]))
                     .eraseToAnyPublisher()

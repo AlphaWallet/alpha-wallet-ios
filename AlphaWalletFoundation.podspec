@@ -49,5 +49,5 @@ Pod::Spec.new do |spec|
   spec.dependency 'Apollo', '0.53.0'
   spec.dependency 'CombineExt', '1.8.0'
   spec.dependency 'SwiftProtobuf', '~> 1.18.0'
-
+  spec.dependency 'Task_retrying'
 end

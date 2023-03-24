@@ -21,19 +21,19 @@ public protocol BlockchainProvider {
     func blockNumber() async throws -> Int
     func transactionReceipt(hash: String) async throws -> TransactionReceipt
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) async throws -> String
-    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
+    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) async throws -> R.Response
     func transaction(byHash hash: String) async throws -> EthereumTransaction?
     func nextNonce(wallet: AlphaWallet.Address) async throws -> Int
     func block(by blockNumber: BigUInt) async throws -> Block
-    func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
+    func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) async throws -> [EventParserResultProtocol]
     func gasEstimates() async throws -> GasEstimates
     func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) async throws -> BigUInt
     func send(rawTransaction: String) async throws -> String
 }
 
 extension BlockchainProvider {
-    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter = .latest) -> AnyPublisher<R.Response, SessionTaskError> {
-        call(method, block: block)
+    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter = .latest) async throws -> R.Response {
+        try await call(method, block: block)
     }
 }
 
@@ -86,12 +86,12 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
     }
 
-    public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
-        callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
+    public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) async throws -> R.Response {
+        try await callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
             .map { try method.response(from: $0) }
             .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
-            .eraseToAnyPublisher()
+            .first
     }
 
     public func blockNumber() async throws -> Int {
@@ -118,11 +118,12 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
     }
 
-    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
-        getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
+    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) async throws -> [EventParserResultProtocol] {
+        try await getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
             .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
+            .first
     }
 
     public func gasEstimates() async throws -> GasEstimates {

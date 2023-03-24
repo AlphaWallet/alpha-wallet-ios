@@ -207,23 +207,24 @@ final class ImportMagicLinkController {
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
-        session.tokenProvider
-            .getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress)
-            .sinkAsync(receiveCompletion: { [weak self, reachability] _ in
-                if !reachability.isReachable {
-                    self?.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
-                } else {
-                    self?.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                }
-            }, receiveValue: { [weak self] balance in
+        Task { @MainActor in
+            do {
+                let balance = try await session.tokenProvider.getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress)
                 let filteredTokens = ImportMagicLinkController.functional.checkErc875TokensAreAvailable(indices: signedOrder.order.indices, balance: balance)
                 if filteredTokens.isEmpty {
-                    self?.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
                 } else {
-                    self?.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
-                    self?.completeOrderHandling(signedOrder: signedOrder)
+                    self.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
+                    self.completeOrderHandling(signedOrder: signedOrder)
                 }
-            })
+            } catch {
+                if !reachability.isReachable {
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+                } else {
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                }
+            }
+        }
     }
 
     private func handleMagicLink(url: URL) -> Bool {
@@ -309,7 +310,7 @@ final class ImportMagicLinkController {
         assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true) { [weak self, session] _ in
             guard let strongSelf = self else { return }
 
-            func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
+            @Sendable func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
                 strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, type: type, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
                 strongSelf.updateTokenFields()
             }
@@ -321,16 +322,17 @@ final class ImportMagicLinkController {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                let getContractName = session.tokenProvider.getContractName(for: contractAddress)
-                let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
-                let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
+                Task { @MainActor in
+                    do {
+                        let name = try await session.tokenProvider.getContractName(for: contractAddress)
+                        let symbol = try await session.tokenProvider.getContractSymbol(for: contractAddress)
+                        let tokenType = try await session.tokenProvider.getTokenType(for: contractAddress)
 
-                Publishers.CombineLatest3(getContractName, getContractSymbol, getTokenType)
-                    .sinkAsync(receiveCompletion: { _ in
+                        makeTokenHolder(name: name, symbol: symbol, type: tokenType)
+                    } catch {
                         //no-op
-                    }, receiveValue: { name, symbol, type in
-                        makeTokenHolder(name: name, symbol: symbol, type: type)
-                    })
+                    }
+                }
             }
         }
     }

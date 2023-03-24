@@ -18,7 +18,7 @@ public class IsErc1155Contract {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func getIsErc1155Contract(for contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
-        return resolver.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
+    public func getIsErc1155Contract(for contract: AlphaWallet.Address) async throws -> Bool {
+        try await resolver.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
     }
 }

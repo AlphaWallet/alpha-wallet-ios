@@ -6,36 +6,33 @@ import Combine
 import AlphaWalletWeb3
 import AlphaWalletCore
 
-final class GetErc20Balance {
-    private var inFlightPublishers: [String: AnyPublisher<BigUInt, SessionTaskError>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc20Balance")
+final actor GetErc20Balance {
     private let blockchainProvider: BlockchainProvider
+    private var inFlightTasks: [String: LoaderTask<BigUInt>] = [:]
 
     init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getErc20Balance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError> {
-        Just(contract)
-            .setFailureType(to: SessionTaskError.self)
-            .receive(on: queue)
-            .flatMap { [weak self, queue, blockchainProvider] contract -> AnyPublisher<BigUInt, SessionTaskError> in
-                let key = "\(address.eip55String)-\(contract.eip55String)"
+    func getErc20Balance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) async throws -> BigUInt {
+        let key = "\(address.eip55String)-\(contract.eip55String)"
+        if let status = inFlightTasks[key] {
+            switch status {
+            case .fetched(let value):
+                return value
+            case .inProgress(let task):
+                return try await task.value
+            }
+        }
 
-                if let publisher = self?.inFlightPublishers[key] {
-                    return publisher
-                } else {
-                    let publisher = blockchainProvider
-                        .call(Erc20BalanceOfMethodCall(contract: contract, address: address))
-                        .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = .none })
-                        .share()
-                        .eraseToAnyPublisher()
+        let task: Task<BigUInt, Error> = Task {
+            return try await blockchainProvider.call(Erc20BalanceOfMethodCall(contract: contract, address: address))
+        }
 
-                    self?.inFlightPublishers[key] = publisher
+        inFlightTasks[key] = .inProgress(task)
+        let value = try await task.value
+        inFlightTasks[key] = .fetched(value)
 
-                    return publisher
-                }
-            }.eraseToAnyPublisher()
+        return value
     }
 }

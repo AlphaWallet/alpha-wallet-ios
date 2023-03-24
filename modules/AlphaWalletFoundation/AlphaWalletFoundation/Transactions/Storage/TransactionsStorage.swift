@@ -288,37 +288,36 @@ open class TransactionDataStore {
 }
 
 extension TransactionDataStore: Erc721TokenIdsFetcher {
-    public func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> AnyPublisher<[String], Never> {
-        Future { [store] seal in
-            //Important to sort ascending to figure out ownership from transfers in and out
-            //TODO is this really slow? getting all transactions, right?
-            //TODO why are some isERC20Interaction = false
-            var tokenIds: Set<String> = .init()
-            store.performSync { realm in
-                let transactions = realm.objects(Transaction.self)
-                    .filter(TransactionDataStore.functional.transactionPredicate(server: server, operationContract: contract))
-                    .sorted(byKeyPath: "date", ascending: true)
+    public func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) async -> [String] {
+        //Important to sort ascending to figure out ownership from transfers in and out
+        //TODO is this really slow? getting all transactions, right?
+        //TODO why are some isERC20Interaction = false
 
-                let operations: [LocalizedOperationObject] = transactions
-                    .flatMap { $0.localizedOperations.filter { $0.contractAddress == contract } }
+        var tokenIds: Set<String> = .init()
+        store.performSync { realm in
+            let transactions = realm.objects(Transaction.self)
+                .filter(TransactionDataStore.functional.transactionPredicate(server: server, operationContract: contract))
+                .sorted(byKeyPath: "date", ascending: true)
 
-                for each in operations {
-                    let tokenId = each.tokenId
-                    guard !tokenId.isEmpty else { continue }
-                    if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
+            let operations: [LocalizedOperationObject] = transactions
+                .flatMap { $0.localizedOperations.filter { $0.contractAddress == contract } }
+
+            for each in operations {
+                let tokenId = each.tokenId
+                guard !tokenId.isEmpty else { continue }
+                if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
                         //no-op
-                    } else if account.sameContract(as: each.from) {
-                        tokenIds.remove(tokenId)
-                    } else if account.sameContract(as: each.to) {
-                        tokenIds.insert(tokenId)
-                    } else {
+                } else if account.sameContract(as: each.from) {
+                    tokenIds.remove(tokenId)
+                } else if account.sameContract(as: each.to) {
+                    tokenIds.insert(tokenId)
+                } else {
                         //no-op
-                    }
                 }
             }
+        }
 
-            seal(.success(Array(tokenIds)))
-        }.eraseToAnyPublisher()
+        return Array(tokenIds)
     }
 }
 

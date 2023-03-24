@@ -12,23 +12,24 @@ import Combine
 
 class ENSDelegateImpl: ENSDelegate {
     private let blockchainProvider: BlockchainProvider
+    private let supported165: IsInterfaceSupported165
 
     init(blockchainProvider: BlockchainProvider) {
+        self.supported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
         self.blockchainProvider = blockchainProvider
     }
 
     func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, AlphaWalletENS.SmartContractError> {
-        return IsInterfaceSupported165(blockchainProvider: blockchainProvider)
-            .getInterfaceSupported165(hash: hash, contract: contract)
+        return Future { [supported165] in try await supported165.getInterfaceSupported165(hash: hash, contract: contract) }
             .mapError { e in SmartContractError.embeded(e) }
             .eraseToAnyPublisher()
     }
 
     func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject]) -> AnyPublisher<[String: Any], SmartContractError> {
 
-        return blockchainProvider
-            .call(AnyContractMethodCall(contract: contract, functionName: functionName, abiString: abiString, parameters: parameters))
-            .mapError { e in SmartContractError.embeded(e) }
+        return Future { [blockchainProvider] in
+            try await blockchainProvider.call(AnyContractMethodCall(contract: contract, functionName: functionName, abiString: abiString, parameters: parameters))
+        }.mapError { e in SmartContractError.embeded(e) }
             .eraseToAnyPublisher()
     }
 

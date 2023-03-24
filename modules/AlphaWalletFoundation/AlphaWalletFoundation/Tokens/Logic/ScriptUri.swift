@@ -11,7 +11,9 @@ class ScriptUri {
         self.blockchainProvider = blockchainProvider
     }
 
-    func get(forContract contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
-        blockchainProvider.call(Erc721ScriptUriMethodCall(contract: contract))
+    func get(forContract contract: AlphaWallet.Address) async throws -> URL{
+        try await blockchainProvider.call(Erc721ScriptUriMethodCall(contract: contract))
     }
 }
+
+

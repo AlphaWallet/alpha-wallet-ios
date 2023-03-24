@@ -6,7 +6,7 @@
 import Foundation
 import Combine
 
-public class IsErc721Contract {
+public actor IsErc721Contract {
     private let blockchainProvider: BlockchainProvider
 
     private struct DoesNotSupportERC165Querying {
@@ -30,67 +30,55 @@ public class IsErc721Contract {
         static let onlyKat = "0x9a20483d"
     }
 
-    private var inFlightPromises: [String: AnyPublisher<Bool, SessionTaskError>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.isErc721Contract")
+    private var inFlightTasks: [String: LoaderTask<Bool>] = [:]
     private lazy var isInterfaceSupported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
 
     public init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getIsERC721Contract(for contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
-        return Just(contract)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, isInterfaceSupported165, blockchainProvider] contract -> AnyPublisher<Bool, SessionTaskError> in
-                if let value = IsErc721Contract.sureItsErc721(contract: contract) {
-                    return .just(value)
-                }
+    func getIsERC721Contract(for contract: AlphaWallet.Address) async throws -> Bool {
+        let key = "\(contract.eip55String)-\(blockchainProvider.server.chainID)"
 
-                let key = "\(contract.eip55String)-\(blockchainProvider.server.chainID)"
-                if let promise = self?.inFlightPromises[key] {
-                    return promise
-                } else {
-                    let cryptoKittyPromise = isInterfaceSupported165
-                        .getInterfaceSupported165(hash: ERC165Hash.onlyKat, contract: contract)
-                        .mapToResult()
+        if let status = inFlightTasks[key] {
+            switch status {
+            case .fetched(let value):
+                return value
+            case .inProgress(let task):
+                return try await task.value
+            }
+        }
 
-                    let nonCryptoKittyERC721Promise = isInterfaceSupported165
-                        .getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
-                        .mapToResult()
+        if let value = IsErc721Contract.sureItsErc721(contract: contract) {
+            inFlightTasks[key] = .fetched(value)
+            return value
+        }
 
-                    let nonCryptoKittyERC721WithOldInterfaceHashPromise = isInterfaceSupported165
-                        .getInterfaceSupported165(hash: ERC165Hash.old, contract: contract)
-                        .mapToResult()
+        let task: Task<Bool, Error> = Task {
+            let isCryptoKitty = try? await isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.onlyKat, contract: contract)
+            let isNonCryptoKittyERC721 = try? await isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
+            let isNonCryptoKittyERC721WithOldInterfaceHash = try? await isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.old, contract: contract)
 
-                    //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
-                    let promise = Publishers.CombineLatest3(cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
-                        .receive(on: queue)
-                        .setFailureType(to: SessionTaskError.self)
-                        .flatMap { r1, r2, r3 -> AnyPublisher<Bool, SessionTaskError> in
-                            let isCryptoKitty = try? r1.get()
-                            let isNonCryptoKittyERC721 = try? r2.get()
-                            let isNonCryptoKittyERC721WithOldInterfaceHash = try? r3.get()
-                            if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
-                                return .just(true)
-                            } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {
-                                return .just(true)
-                            } else if let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash, isNonCryptoKittyERC721WithOldInterfaceHash {
-                                return .just(true)
-                            } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
-                                return .just(false)
-                            } else {
-                                return .just(false)
-                            }
-                        }.handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
-                        .share()
-                        .eraseToAnyPublisher()
+            if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
+                return true
+            } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {
+                return true
+            } else if let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash, isNonCryptoKittyERC721WithOldInterfaceHash {
+                return true
+            } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
+                return false
+            } else {
+                return false
+            }
 
-                    self?.inFlightPromises[key] = promise
+            return false
+        }
 
-                    return promise
-                }
-            }.eraseToAnyPublisher()
+        inFlightTasks[key] = .inProgress(task)
+        let value = try await task.value
+        inFlightTasks[key] = .fetched(value)
+
+        return value
     }
 
     private static func sureItsErc721(contract: AlphaWallet.Address) -> Bool? {

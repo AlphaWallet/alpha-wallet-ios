@@ -13,16 +13,20 @@ import SwiftyJSON
 import Combine
 import BigInt
 
-final class JsonFromTokenUri {
+enum LoaderTask<T> {
+    case inProgress(Task<T, Error>)
+    case fetched(T)
+}
+
+final actor JsonFromTokenUri {
     typealias Publisher = AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>
 
     private let tokensService: TokenProvidable
     private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
-    private var inFlightPromises: [String: Publisher] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let networkService: NetworkService
+    private var inFlightTasks: [String: LoaderTask<NonFungibleBalanceAndItsSource<JsonString>>] = [:]
 
     public init(blockchainProvider: BlockchainProvider,
                 tokensService: TokenProvidable,
@@ -40,65 +44,56 @@ final class JsonFromTokenUri {
             ]))
     }
 
-    func clear() {
-        inFlightPromises.removeAll()
-    }
-
     func fetchJsonFromTokenUri(for tokenId: String,
                                tokenType: NonFungibleFromJsonTokenType,
-                               address: AlphaWallet.Address) -> Publisher {
+                               address: AlphaWallet.Address) async throws -> NonFungibleBalanceAndItsSource<JsonString> {
 
-        return Just(tokenId)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
-                guard let strongSelf = self, let getTokenUri = getTokenUri else { return .empty() }
-                let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
+        let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
+        if let status = inFlightTasks[key] {
+            switch status {
+            case .fetched(let value):
+                return value
+            case .inProgress(let task):
+                return try await task.value
+            }
+        }
 
-                if let promise = strongSelf.inFlightPromises[key] {
-                    return promise
-                } else {
-                    let promise = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
-                        .receive(on: queue)
-                        .flatMap { strongSelf.handleUriData(data: $0, tokenId: tokenId, tokenType: tokenType, address: address) }
-                        .catch { _ in return strongSelf.generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address) }
-                        .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPromises[key] = .none })
-                        .share()
-                        .eraseToAnyPublisher()
+        let task: Task<NonFungibleBalanceAndItsSource<JsonString>, Error> = Task {
+            do {
+                let data = try await getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
+                return try await handleUriData(data: data, tokenId: tokenId, tokenType: tokenType, address: address)
+            } catch {
+                return try await generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
+            }
+        }
 
-                    strongSelf.inFlightPromises[key] = promise
+        inFlightTasks[key] = .inProgress(task)
+        let value = try await task.value
+        inFlightTasks[key] = .fetched(value)
 
-                    return promise
-                }
-            }.eraseToAnyPublisher()
+        return value
     }
 
     private func handleUriData(data: TokenUriData,
                                tokenId: String,
                                tokenType: NonFungibleFromJsonTokenType,
-                               address: AlphaWallet.Address) -> Publisher {
+                               address: AlphaWallet.Address) async throws -> NonFungibleBalanceAndItsSource<JsonString> {
 
         switch data {
         case .uri(let uri):
-            return fetchTokenJson(for: tokenId, tokenType: tokenType, uri: uri, address: address)
+            return try await fetchTokenJson(for: tokenId, tokenType: tokenType, uri: uri, address: address)
         case .string(let str):
-            return generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
+            return try await generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
         case .json(let json):
-            do {
-                let value = try fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: nil, address: address)
-                return .just(value)
-            } catch {
-                return .fail(SessionTaskError(error: error))
-            }
+            return try fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: nil, address: address)
         case .data(let data):
-            return generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
+            return try await generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
         }
     }
 
     private func generateTokenJsonFallback(for tokenId: String,
                                            tokenType: NonFungibleFromJsonTokenType,
-                                           address: AlphaWallet.Address) -> Publisher {
+                                           address: AlphaWallet.Address) async throws -> NonFungibleBalanceAndItsSource<JsonString> {
         var jsonDictionary = JSON()
         if let token = tokensService.token(for: address, server: blockchainProvider.server) {
             jsonDictionary["tokenId"] = JSON(tokenId)
@@ -113,7 +108,7 @@ final class JsonFromTokenUri {
             jsonDictionary["animationUrl"] = ""
         }
         let json = jsonDictionary.rawString()!
-        return .just(.init(tokenId: tokenId, value: json, source: .fallback))
+        return .init(tokenId: tokenId, value: json, source: .fallback)
     }
 
     struct JsonFromTokenUriError: Swift.Error {
@@ -163,31 +158,24 @@ final class JsonFromTokenUri {
     private func fetchTokenJson(for tokenId: String,
                                 tokenType: NonFungibleFromJsonTokenType,
                                 uri originalUri: URL,
-                                address: AlphaWallet.Address) -> Publisher {
+                                address: AlphaWallet.Address) async throws -> NonFungibleBalanceAndItsSource<JsonString> {
         
         let uri = originalUri.rewrittenIfIpfs
         //TODO check this doesn't print duplicates, including unnecessary fetches
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
 
-        return networkService
-            .dataTaskPublisher(UrlRequest(url: uri))
-            .receive(on: queue)
-            .flatMap { data -> Publisher in
-                if let json = try? JSON(data: data.data) {
-                    do {
-                        return .just(try self.fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: uri, address: address))
-                    } catch {
-                        verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
-                        return .fail(.responseError(error))
-                    }
-                } else {
-                    //TODO lots of this so not using `warnLog()`. Check
-                    verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
-                    return .fail(.responseError(JsonFromTokenUriError(message: "Decode json failure for: \(tokenId) \(address) \(originalUri)")))
-                }
-            }.handleEvents(receiveCompletion: { result in
-                guard case .failure(let error) = result else { return }
-                verboseLog("Fetching token URI: \(originalUri) error: \(error)")
-            }).eraseToAnyPublisher()
+        do {
+            let data = try await networkService.dataTask(UrlRequest(url: uri))
+            if let json = try? JSON(data: data.data) {
+                return try self.fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: uri, address: address)
+            } else {
+                //TODO lots of this so not using `warnLog()`. Check
+                verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
+                throw SessionTaskError(error: JsonFromTokenUriError(message: "Decode json failure for: \(tokenId) \(address) \(originalUri)"))
+            }
+        } catch {
+            verboseLog("Fetching token URI: \(originalUri) error: \(error)")
+            throw SessionTaskError(error: error)
+        }
     }
 }

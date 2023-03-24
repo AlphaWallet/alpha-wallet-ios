@@ -283,12 +283,17 @@ public class Erc1155TokenIdsFetcher {
             return subject.eraseToAnyPublisher()
         }
 
-        //We just need any contract for the Swift API to get events, it's not actually used
+            //We just need any contract for the Swift API to get events, it's not actually used
         let dummyContract = Constants.nullAddress
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
 
-        return blockchainProvider
-            .eventLogs(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
+        return Future { [blockchainProvider] in
+            try await blockchainProvider.eventLogs(
+                contractAddress: dummyContract,
+                eventName: eventName,
+                abiString: AlphaWallet.Ethereum.ABI.erc1155String,
+                filter: eventFilter)
+        }.mapError { Erc1155TokenIdsFetcherError.internal(error: $0) }
             .map { events -> [Erc1155TransferEvent] in
                 let events = events.filter { $0.eventLog != nil }
                 let sortedEvents = events.sorted(by: { a, b in
@@ -313,14 +318,13 @@ public class Erc1155TokenIdsFetcher {
                         guard let tokenIds = each.decodedResult["_ids"] as? [BigUInt] else { return [] }
                         guard let values = each.decodedResult["_values"] as? [BigUInt] else { return [] }
                         let results: [Erc1155TransferEvent] = zip(tokenIds, values).map { (tokenId, value) in
-                            .init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)
+                                .init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)
                         }
                         return results
                     }
                 }
                 return results
-            }.mapError { Erc1155TokenIdsFetcherError.internal(error: $0.unwrapped) }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
 }

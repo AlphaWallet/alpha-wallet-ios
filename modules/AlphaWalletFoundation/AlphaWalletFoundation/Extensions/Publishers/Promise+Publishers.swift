@@ -139,6 +139,49 @@ extension Publisher {
     }
 }
 
+class MaxTaskGroup<Success> {
+    private let maxTaskCount: Int
+    private let total: Int
+    private let operation: @Sendable (Int) async -> Success
+
+    init(maxTaskCount: Int, total: Int, operation: @escaping @Sendable (Int) async -> Success) {
+        self.maxTaskCount = maxTaskCount
+        self.total = total
+        self.operation = operation
+    }
+
+    var value: AsyncStream<Success> {
+        AsyncStream<Success> { continuation in
+            Task {
+                await withTaskGroup(of: Success.self) { group in
+                    let batchSize: Int = self.maxTaskCount
+
+                    for i in 0..<batchSize {
+                        group.addTask {
+                            await self.operation(i)
+                        }
+                    }
+
+                    var index: Int = batchSize
+
+                    for await value in group {
+                        continuation.yield(value)
+
+                        if index < self.total {
+                            group.addTask { [index] in
+                                await self.operation(index)
+                            }
+                            index += 1
+                        }
+                    }
+
+                    continuation.finish()
+                }
+            }
+        }
+    }
+}
+
 //TODO: this exist for migration from `Promise`/`Future` to async-await. We can remove this once all usage have been migrated.
 public extension Promise {
     convenience init(operation: @escaping () async throws -> T) {

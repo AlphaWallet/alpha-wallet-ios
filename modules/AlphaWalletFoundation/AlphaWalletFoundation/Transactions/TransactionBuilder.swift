@@ -67,7 +67,7 @@ public final class TransactionBuilder {
                                          to recipient: AlphaWallet.Address,
                                          functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
 
-        fetchLocalizedOperation(contract: contract)
+        Future { try await self.fetchLocalizedOperation(contract: contract) }
             .map { token -> [LocalizedOperationObjectInstance] in
                 let operationType = self.mapTokenTypeToTransferOperationType(token.tokenType, functionCall: functionCall)
                 let result = LocalizedOperationObjectInstance(
@@ -86,23 +86,17 @@ public final class TransactionBuilder {
             .eraseToAnyPublisher()
     }
 
-    private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> {
-        return Just(contract)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [tokenProvidable, ercProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
-                if let token = tokenProvidable.token(for: contract, server: server) {
-                    return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
-                } else {
-                    let getContractName = ercProvider.getContractName(for: contract)
-                    let getContractSymbol = ercProvider.getContractSymbol(for: contract)
-                    let getDecimals = ercProvider.getDecimals(for: contract)
-                    let getTokenType = ercProvider.getTokenType(for: contract)
+    private func fetchLocalizedOperation(contract: AlphaWallet.Address) async throws -> TransactionBuilder.LocalizedOperation {
+        if let token = tokenProvidable.token(for: contract, server: server) {
+            return (name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type)
+        } else {
+            let name = try await ercProvider.getContractName(for: contract)
+            let symbol = try await ercProvider.getContractSymbol(for: contract)
+            let decimals = try await ercProvider.getDecimals(for: contract)
+            let tokenType = try await ercProvider.getTokenType(for: contract)
 
-                    return Publishers.CombineLatest4(getContractName, getContractSymbol, getDecimals, getTokenType)
-                        .map { (name: $0, symbol: $1, decimals: $2, tokenType: $3) }
-                        .eraseToAnyPublisher()
-                }
-            }.eraseToAnyPublisher()
+            return (name: name, symbol: symbol, decimals: decimals, tokenType: tokenType)
+        }
     }
 
     private func buildOperationForTokenTransfer(for transaction: NormalTransaction) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {

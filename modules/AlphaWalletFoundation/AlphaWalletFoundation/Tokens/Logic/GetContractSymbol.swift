@@ -6,9 +6,8 @@ import AlphaWalletWeb3
 import AlphaWalletCore
 import Combine
 
-final class GetContractSymbol {
-    private var inFlightPromises: [String: AnyPublisher<String, SessionTaskError>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractSymbol")
+final actor GetContractSymbol {
+    private var inFlightTasks: [String: LoaderTask<String>] = [:]
 
     private let blockchainProvider: BlockchainProvider
 
@@ -16,28 +15,25 @@ final class GetContractSymbol {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getSymbol(for contract: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError> {
-        return Just(contract)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, blockchainProvider] contract -> AnyPublisher<String, SessionTaskError> in
-                let key = contract.eip55String
+    func getSymbol(for contract: AlphaWallet.Address) async throws -> String {
+        let key = contract.eip55String
+        if let status = inFlightTasks[key] {
+            switch status {
+            case .fetched(let value):
+                return value
+            case .inProgress(let task):
+                return try await task.value
+            }
+        }
 
-                if let promise = self?.inFlightPromises[key] {
-                    return promise
-                } else {
-                    let promise = blockchainProvider
-                        .call(Erc20SymbolMethodCall(contract: contract))
-                        .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
-                        .share()
-                        .eraseToAnyPublisher()
+        let task: Task<String, Error> = Task {
+            return try await blockchainProvider.call(Erc20SymbolMethodCall(contract: contract))
+        }
 
-                    self?.inFlightPromises[key] = promise
+        inFlightTasks[key] = .inProgress(task)
+        let value = try await task.value
+        inFlightTasks[key] = .fetched(value)
 
-                    return promise
-                }
-            }.eraseToAnyPublisher()
+        return value
     }
-
 }

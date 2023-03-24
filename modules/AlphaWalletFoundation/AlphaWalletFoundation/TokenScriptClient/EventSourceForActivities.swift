@@ -321,7 +321,7 @@ final class EventSourceForActivities {
                         server: token.server,
                         eventName: eventOrigin.eventName)
 
-                    return eventFetcher.fetchEvents(token: token, card: card, oldEventBlockNumber: oldEvent?.blockNumber)
+                    return Future { try await eventFetcher.fetchEvents(token: token, card: card, oldEventBlockNumber: oldEvent?.blockNumber) }
                         .handleEvents(receiveOutput: { [eventsDataStore] in eventsDataStore.addOrUpdate(events: $0) })
                         .replaceError(with: [])
                         .eraseToAnyPublisher()

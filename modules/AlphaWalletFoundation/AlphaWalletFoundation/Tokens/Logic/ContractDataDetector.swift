@@ -66,9 +66,9 @@ public class ContractDataDetector {
         self.wallet = wallet
         self.ercTokenProvider = ercTokenProvider
         self.assetDefinitionStore = assetDefinitionStore
-        namePromise = ercTokenProvider.getContractName(for: contract).promise()
-        symbolPromise = ercTokenProvider.getContractSymbol(for: contract).promise()
-        tokenTypePromise = ercTokenProvider.getTokenType(for: contract).promise()
+        namePromise = Promise { try await ercTokenProvider.getContractName(for: contract) }
+        symbolPromise = Promise { try await ercTokenProvider.getContractSymbol(for: contract) }
+        tokenTypePromise = Promise { try await ercTokenProvider.getTokenType(for: contract) }
     }
 
     //Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
@@ -93,70 +93,70 @@ public class ContractDataDetector {
     private func processTokenType(_ tokenType: TokenType) {
         switch tokenType {
         case .erc875:
-            getErc875TokenBalanceCancellable = ercTokenProvider.getErc875TokenBalance(for: wallet, contract: contract)
-                .sink(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-
+            getErc875TokenBalanceCancellable = Task {
+                do {
+                    let balance = try await ercTokenProvider.getErc875TokenBalance(for: wallet, contract: contract)
+                    self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
+                    self.completionOfPartialData(.balance(nonFungible: .erc875(balance), fungible: nil, tokenType: .erc875))
+                } catch {
                     self.nonFungibleBalanceSeal.reject(error)
                     self.decimalsSeal.fulfill(0)
                     self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc875Balance))
-                }, receiveValue: { balance in
-                    self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
-                    self.completionOfPartialData(.balance(nonFungible: .erc875(balance), fungible: nil, tokenType: .erc875))
-                })
+                }
+            }.asCancellable()
         case .erc721:
-            getErc721BalanceCancellable = ercTokenProvider.getErc721Balance(for: contract)
-                .sink(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-
-                    self.nonFungibleBalanceSeal.reject(error)
-                    self.decimalsSeal.fulfill(0)
-                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc721Balance))
-
-                }, receiveValue: { balance in
+            getErc875TokenBalanceCancellable = Task {
+                do {
+                    let balance = try await ercTokenProvider.getErc721Balance(for: contract)
                     self.nonFungibleBalanceSeal.fulfill(.balance(balance))
                     self.decimalsSeal.fulfill(0)
                     self.completionOfPartialData(.balance(nonFungible: .balance(balance), fungible: nil, tokenType: .erc721))
-                })
-        case .erc721ForTickets:
-            getErc721ForTicketsBalanceCancellable = ercTokenProvider.getErc721ForTicketsBalance(for: contract)
-                .sink(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-
+                } catch {
                     self.nonFungibleBalanceSeal.reject(error)
-                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc721ForTicketsBalance))
-                }, receiveValue: { balance in
+                    self.decimalsSeal.fulfill(0)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc721Balance))
+                }
+            }.asCancellable()
+        case .erc721ForTickets:
+            getErc875TokenBalanceCancellable = Task {
+                do {
+                    let balance = try await ercTokenProvider.getErc721ForTicketsBalance(for: contract)
+
                     self.nonFungibleBalanceSeal.fulfill(.erc721ForTickets(balance))
                     self.decimalsSeal.fulfill(0)
                     self.completionOfPartialData(.balance(nonFungible: .erc721ForTickets(balance), fungible: nil, tokenType: .erc721ForTickets))
-                })
+                } catch {
+                    self.nonFungibleBalanceSeal.reject(error)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc721ForTicketsBalance))
+                }
+            }.asCancellable()
         case .erc1155:
             let balance: [String] = .init()
             self.nonFungibleBalanceSeal.fulfill(.balance(balance))
             self.decimalsSeal.fulfill(0)
             self.completionOfPartialData(.balance(nonFungible: .balance(balance), fungible: nil, tokenType: .erc1155))
         case .erc20:
-            getErc20BalanceCancellable = ercTokenProvider.getErc20Balance(for: contract)
-                .sink(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-
-                    self.fungibleBalanceSeal.reject(error)
-                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc20Balance))
-                }, receiveValue: { value in
+            getErc20BalanceCancellable = Task {
+                do {
+                    let value = try await ercTokenProvider.getErc20Balance(for: contract)
                     self.fungibleBalanceSeal.fulfill(value)
                     self.completionOfPartialData(.balance(nonFungible: nil, fungible: value, tokenType: .erc20))
-                })
+                } catch {
+                    self.fungibleBalanceSeal.reject(error)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc20Balance))
+                }
+            }.asCancellable()
 
-            getDecimalsCancellable = ercTokenProvider.getDecimals(for: contract)
-                .sink(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-
-                    self.decimalsSeal.reject(error)
-                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .decimals))
-                }, receiveValue: { decimal in
+            getDecimalsCancellable = Task {
+                do {
+                    let decimal = try await ercTokenProvider.getDecimals(for: contract)
                     self.decimalsSeal.fulfill(decimal)
                     self.completionOfPartialData(.decimals(decimal))
-                })
+                } catch {
+                    self.decimalsSeal.reject(error)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .decimals))
+                }
+            }.asCancellable()
         case .nativeCryptocurrency:
             break
         }

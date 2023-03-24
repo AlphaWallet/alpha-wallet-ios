@@ -99,8 +99,8 @@ public class OklinkApiNetworking: ApiNetworking {
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
-                return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
-                    .setFailureType(to: PromiseError.self)
+                return Future { try await self.fetchMissingOperationData(contracts: Array(Set(contracts))) }
+                    .mapError { PromiseError(error: $0) }
                     .map { operations -> TransactionsResponse<TransactionInstance> in
                         let transactions = self.map(erc20TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
@@ -130,8 +130,8 @@ public class OklinkApiNetworking: ApiNetworking {
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
-                return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
-                    .setFailureType(to: PromiseError.self)
+                return Future { try await self.fetchMissingOperationData(contracts: Array(Set(contracts))) }
+                    .mapError { PromiseError(error: $0) }
                     .map { operations -> TransactionsResponse<TransactionInstance> in
                         let transactions = self.map(erc721TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
@@ -161,8 +161,8 @@ public class OklinkApiNetworking: ApiNetworking {
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
-                return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
-                    .setFailureType(to: PromiseError.self)
+                return Future { try await self.fetchMissingOperationData(contracts: Array(Set(contracts))) }
+                    .mapError { PromiseError(error: $0) }
                     .map { operations -> TransactionsResponse<TransactionInstance> in
                         let transactions = self.map(erc1155TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
@@ -284,28 +284,24 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private typealias LocalizedOperation = (name: String, decimals: Int, symbol: String)
-    private func fetchMissingOperationData(contracts: [AlphaWallet.Address]) -> AnyPublisher<[AlphaWallet.Address: LocalizedOperation], Never> {
-        let publishers = contracts.map { contract in
-            let p1 = ercTokenProvider.getContractName(for: contract)
-            let p2 = ercTokenProvider.getDecimals(for: contract)
-            let p3 = ercTokenProvider.getContractSymbol(for: contract)
+    private func fetchMissingOperationData(contracts: [AlphaWallet.Address]) async throws -> [AlphaWallet.Address: LocalizedOperation] {
+        let operations = try await contracts.asyncCompactMap { contract -> (contract: AlphaWallet.Address, operation: LocalizedOperation)? in
+            do {
+                let name = try await ercTokenProvider.getContractName(for: contract)
+                let decimals = try await ercTokenProvider.getDecimals(for: contract)
+                let symbol = try await ercTokenProvider.getContractSymbol(for: contract)
 
-            return Publishers.CombineLatest3(p1, p2, p3)
-                .map { (contract: contract, name: $0.0, decimals: $0.1, symbol: $0.2) }
-                .map { Optional($0) }
-                .replaceError(with: nil)
-                .eraseToAnyPublisher()
+                return (contract: contract, operation: (name: name, decimals: decimals, symbol: symbol))
+            } catch {
+                return nil
+            }
+        }
+        var values: [AlphaWallet.Address: LocalizedOperation] = [:]
+        for each in operations {
+            values[each.contract] = each.operation
         }
 
-        return Publishers.MergeMany(publishers)
-            .collect()
-            .map { $0.compactMap { $0 } }
-            .map { data -> [AlphaWallet.Address: LocalizedOperation] in
-                var values: [AlphaWallet.Address: LocalizedOperation] = [:]
-                for each in data { values[each.contract] = (name: each.name, decimals: each.decimals, symbol: each.symbol) }
-
-                return values
-            }.eraseToAnyPublisher()
+        return values
     }
     
 }

@@ -10,8 +10,7 @@ public class IsErc875Contract {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func getIsERC875Contract(for contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
-        blockchainProvider
-            .call(Erc875IsStormBirdContractMethodCall(contract: contract))
+    public func getIsERC875Contract(for contract: AlphaWallet.Address) async throws -> Bool {
+        try await blockchainProvider.call(Erc875IsStormBirdContractMethodCall(contract: contract))
     }
 }

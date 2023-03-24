@@ -15,19 +15,19 @@ final class NonFungibleContract {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<TokenUriData, SessionTaskError> {
-        return blockchainProvider
-            .call(Erc721TokenUriMethodCall(contract: contract, tokenId: tokenId))
-            .catch { [blockchainProvider] _ -> AnyPublisher<TokenUriData, SessionTaskError> in
-                return blockchainProvider
-                    .call(Erc721UriMethodCall(contract: contract, tokenId: tokenId))
-            }.map { [uriMapper] data -> TokenUriData in
-                switch data {
-                case .data, .json, .string:
-                    return data
-                case .uri(let uri):
-                    return .uri(uriMapper.map(uri: uri) ?? uri)
-                }
-            }.eraseToAnyPublisher()
+    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) async throws -> TokenUriData {
+        let data: Erc721TokenUriMethodCall.Response
+        do {
+            data = try await blockchainProvider.call(Erc721TokenUriMethodCall(contract: contract, tokenId: tokenId))
+        } catch {
+            data = try await blockchainProvider.call(Erc721UriMethodCall(contract: contract, tokenId: tokenId))
+        }
+
+        switch data {
+        case .data, .json, .string:
+            return data
+        case .uri(let uri):
+            return .uri(uriMapper.map(uri: uri) ?? uri)
+        }
     }
 }

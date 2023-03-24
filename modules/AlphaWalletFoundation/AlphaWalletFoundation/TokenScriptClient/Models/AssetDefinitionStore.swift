@@ -212,13 +212,9 @@ public class AssetDefinitionStore: NSObject {
             return
         }
 
-        urlToFetch(contract: contract, server: server)
-            .receive(on: RunLoop.main)
-            .sinkAsync(receiveCompletion: { result in
-                guard case .failure(let error) = result else { return }
-                //no-op
-                warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
-            }, receiveValue: { result in
+        Task { @MainActor in
+            do {
+                let result = try await urlToFetch(contract: contract, server: server)
                 guard let (url, isScriptUri) = result else { return }
                 self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch) { result in
                     //Try a bit harder if the TokenScript was specified via EIP-5169 (`scriptURI()`)
@@ -235,7 +231,10 @@ public class AssetDefinitionStore: NSObject {
                         completionHandler?(result)
                     }
                 }
-            })
+            } catch {
+                warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
+            }
+        }
     }
 
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
@@ -294,22 +293,19 @@ public class AssetDefinitionStore: NSObject {
         fetchXML(forContract: address, server: nil)
     }
 
-    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> AnyPublisher<(url: URL, isScriptUri: Bool)?, Never> {
+    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) async throws -> (url: URL, isScriptUri: Bool)? {
         let urlToFetchFromTokenScriptRepo = functional.urlToFetchFromTokenScriptRepo(contract: contract).flatMap { ($0, false) }
+        guard let server = server else { return urlToFetchFromTokenScriptRepo }
 
-        if let server = server {
-            return Just(server)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { [blockchainsProvider] server -> AnyPublisher<(url: URL, isScriptUri: Bool)?, SessionTaskError> in
-                    guard let blockchain = blockchainsProvider.blockchain(with: server) else { return .fail(SessionTaskError.responseError(PMKError.cancelled)) }
+        do {
+            guard let blockchain = blockchainsProvider.blockchain(with: server) else {
+                throw SessionTaskError.responseError(PMKError.cancelled)
+            }
 
-                    return ScriptUri(blockchainProvider: blockchain).get(forContract: contract)
-                        .map { ($0, true) }
-                        .eraseToAnyPublisher()
-                }.replaceError(with: urlToFetchFromTokenScriptRepo)
-                .eraseToAnyPublisher()
-        } else {
-            return .just(urlToFetchFromTokenScriptRepo)
+            let uri = try await ScriptUri(blockchainProvider: blockchain).get(forContract: contract)
+            return (uri, true)
+        } catch {
+            return urlToFetchFromTokenScriptRepo
         }
     }
 

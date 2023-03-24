@@ -49,13 +49,14 @@ public final class ApproveSwapProvider {
     public func approveSwap(swapQuote: SwapQuote, fromAmount: BigUInt) {
         delegate?.changeState(in: self, state: .checkingForEnoughAllowance)
 
-        getErc20Allowance.hasEnoughAllowance(
+        Future { [configurator, getErc20Allowance] in try await getErc20Allowance.hasEnoughAllowance(
             tokenAddress: swapQuote.action.fromToken.address,
             owner: configurator.session.account.address,
             spender: swapQuote.estimate.spender,
-            amount: fromAmount)
+            amount: fromAmount) }
+        .receive(on: RunLoop.main)
+        .mapError { SwapError(error: $0) }
         .map { (swapQuote, $0.hasEnough, $0.shortOf) }
-        .mapError { SwapError(error: $0.unwrapped) }
         .flatMap { [configurator] swapQuote, isApproved, shortOf -> AnyPublisher<SwapQuote, SwapError> in
             if isApproved {
                 return .just(swapQuote)

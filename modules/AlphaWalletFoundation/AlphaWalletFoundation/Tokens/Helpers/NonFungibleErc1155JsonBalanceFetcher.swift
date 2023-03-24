@@ -55,8 +55,8 @@ class NonFungibleErc1155JsonBalanceFetcher {
                     .mapValues { tokenIds -> [BigInt] in tokenIds.compactMap { BigInt($0) } }
 
                 let promises = contractsToTokenIds.map { contract, tokenIds in
-                    erc1155BalanceFetcher
-                        .getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))
+                    Future { try await erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds)) }
+                        .mapError { SessionTaskError(error: $0) }
                         .map { (contract: contract, balances: $0 ) }
                 }
 
@@ -85,7 +85,8 @@ class NonFungibleErc1155JsonBalanceFetcher {
         var allGuarantees: [AnyPublisher<TokenIdMetaData, SessionTaskError>] = .init()
         for (contract, tokenIds) in contractsAndTokenIds {
             let guarantees = tokenIds.map { tokenId -> AnyPublisher<TokenIdMetaData, SessionTaskError> in
-                return jsonFromTokenUri.fetchJsonFromTokenUri(for: String(tokenId), tokenType: .erc1155, address: contract)
+                return Future { [jsonFromTokenUri] in try await jsonFromTokenUri.fetchJsonFromTokenUri(for: String(tokenId), tokenType: .erc1155, address: contract) }
+                    .mapError { SessionTaskError(error: $0) }
                     .map { jsonAndItsUri -> TokenIdMetaData in
                         return (contract: contract, tokenId: tokenId, jsonAndItsSource: jsonAndItsUri)
                     }.eraseToAnyPublisher()

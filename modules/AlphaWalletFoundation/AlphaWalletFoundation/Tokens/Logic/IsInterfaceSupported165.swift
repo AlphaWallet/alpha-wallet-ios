@@ -6,12 +6,10 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
-public class IsInterfaceSupported165 {
+public actor IsInterfaceSupported165 {
     private let fileName: String
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.isInterfaceSupported165")
     private lazy var storage: Storage<[String: Bool]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
-    private var inFlightPromises: [String: AnyPublisher<Bool, SessionTaskError>] = [:]
-
+    private var inFlightTasks: [String: LoaderTask<Bool>] = [:]
     private let blockchainProvider: BlockchainProvider
 
     public init(blockchainProvider: BlockchainProvider, fileName: String = "isInterfaceSupported165") {
@@ -19,35 +17,33 @@ public class IsInterfaceSupported165 {
         self.fileName = fileName
     }
 
-    public func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
-        return Just(hash)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, blockchainProvider, storage] hash -> AnyPublisher<Bool, SessionTaskError> in
-                let key = "\(hash)-\(contract)-\(blockchainProvider.server)"
+    public func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) async throws -> Bool {
+        let key = "\(hash)-\(contract)-\(blockchainProvider.server)"
+        if let status = inFlightTasks[key] {
+            switch status {
+            case .fetched(let value):
+                return value
+            case .inProgress(let task):
+                return try await task.value
+            }
+        }
 
-                if let value = storage.value[key] {
-                    return .just(value)
-                }
+        if let value = storage.value[key] {
+            inFlightTasks[key] = .fetched(value)
+            return value
+        }
 
-                if let promise = self?.inFlightPromises[key] {
-                    return promise
-                } else {
-                    let promise = blockchainProvider
-                        .call(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
-                        .receive(on: queue)
-                        .handleEvents(receiveOutput: { supported in
-                            storage.value[key] = supported
-                        }, receiveCompletion: { _ in
-                            self?.inFlightPromises[key] = .none
-                        })
-                        .share()
-                        .eraseToAnyPublisher()
+        let task: Task<Bool, Error> = Task {
+            let supported = try await blockchainProvider.call(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
+            storage.value[key] = supported
 
-                    self?.inFlightPromises[key] = promise
+            return supported
+        }
 
-                    return promise
-                }
-            }.eraseToAnyPublisher()
+        inFlightTasks[key] = .inProgress(task)
+        let value = try await task.value
+        inFlightTasks[key] = .fetched(value)
+
+        return value
     }
 }
