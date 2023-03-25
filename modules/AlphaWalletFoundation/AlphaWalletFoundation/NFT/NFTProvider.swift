@@ -8,7 +8,6 @@
 import Foundation
 import AlphaWalletCore
 import AlphaWalletOpenSea
-import PromiseKit
 import Combine
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: Void)

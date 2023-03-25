@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import PromiseKit
 import AlphaWalletFoundation
 
 protocol ServerUnavailableCoordinatorDelegate: AnyObject {

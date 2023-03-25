@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import PromiseKit
 import SwiftyJSON
 import Combine
 import AlphaWalletCore

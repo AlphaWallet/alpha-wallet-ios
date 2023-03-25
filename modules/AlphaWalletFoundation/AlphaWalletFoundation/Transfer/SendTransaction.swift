@@ -2,10 +2,7 @@
 
 import Foundation
 import AlphaWalletLogger
-import APIKit
 import BigInt
-import JSONRPCKit
-import PromiseKit
 
 public class SendTransaction {
     private let keystore: Keystore

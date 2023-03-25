@@ -7,9 +7,14 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import Combine
 import AlphaWalletWeb3
+
+extension WalletSession {
+    enum SessionError: Error {
+        case sessionNotFound
+    }
+}
 
 final class EventFetcher {
     private let sessionsProvider: SessionsProvider
@@ -23,7 +28,7 @@ final class EventFetcher {
             .setFailureType(to: SessionTaskError.self)
             .flatMap { [sessionsProvider] tokenId -> AnyPublisher<[EventInstanceValue], SessionTaskError> in
                 guard let session = sessionsProvider.session(for: token.server) else {
-                    return .fail(SessionTaskError.responseError(PMKError.cancelled))
+                    return .fail(SessionTaskError(error: WalletSession.SessionError.sessionNotFound))
                 }
 
                 let (filterName, filterValue) = eventOrigin.eventFilter

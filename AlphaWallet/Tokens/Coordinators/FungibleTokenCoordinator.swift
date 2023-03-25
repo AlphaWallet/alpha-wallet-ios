@@ -7,7 +7,6 @@
 
 import Foundation
 import AlphaWalletFoundation
-import PromiseKit
 import Combine
 
 protocol FungibleTokenCoordinatorDelegate: AnyObject, CanOpenURL {

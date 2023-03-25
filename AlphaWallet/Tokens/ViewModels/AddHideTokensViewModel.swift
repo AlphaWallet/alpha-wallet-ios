@@ -1,7 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit
 import Combine
 import AlphaWalletFoundation
 
@@ -155,7 +154,7 @@ final class AddHideTokensViewModel {
                 .importToken(for: token.contractAddress, onlyIfThereIsABalance: false)
                 .flatMap { [tokenCollection] _token -> AnyPublisher<TokenWithIndexToInsert?, ImportToken.ImportTokenError> in
                     guard let token = tokenCollection.tokenViewModel(for: _token) else {
-                        return .fail(ImportToken.ImportTokenError.internal(error: PMKError.cancelled))
+                        return .fail(ImportToken.ImportTokenError.notContractOrFailed(.delegateContracts([_token.addressAndRPCServer])))
                     }
                     self.popularTokens.remove(at: indexPath.row)
                     self.displayedTokens.append(token)

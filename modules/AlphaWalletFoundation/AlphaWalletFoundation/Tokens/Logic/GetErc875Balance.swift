@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit
 import AlphaWalletCore
 import Combine
 

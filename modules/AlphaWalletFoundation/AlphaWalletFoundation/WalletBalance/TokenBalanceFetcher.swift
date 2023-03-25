@@ -11,7 +11,6 @@ import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
 import BigInt
-import PromiseKit
 import SwiftyJSON
 
 public protocol TokenBalanceFetcherDelegate: AnyObject {

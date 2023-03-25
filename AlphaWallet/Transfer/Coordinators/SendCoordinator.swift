@@ -1,7 +1,6 @@
 import Foundation
 import UIKit
 import BigInt
-import PromiseKit
 import AlphaWalletFoundation
 
 protocol SendCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
