@@ -12,7 +12,7 @@ import AlphaWalletCore
 import AlphaWalletLogger
 
 public protocol GasPriceEstimator {
-    func estimateGasPrice() async throws -> GasEstimates
+    func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError>
 }
 
 extension RPCServer {
@@ -47,22 +47,26 @@ public final class LegacyGasPriceEstimator: GasPriceEstimator {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func estimateGasPrice() async throws -> GasEstimates {
+    public func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError> {
         if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
-            do {
-                let estimates = try await etherscanGasPriceEstimator.gasPriceEstimates(server: blockchainProvider.server)
-                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(blockchainProvider.server) estimate: \(estimates)")
-                return estimates
-            } catch {
-                return try await blockchainProvider.gasEstimates()
-            }
+            return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
+                .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
+                .eraseToAnyPublisher()
         } else {
             switch blockchainProvider.server.serverWithEnhancedSupport {
             case .xDai:
-                return .init(standard: GasPriceConfiguration.xDaiGasPrice)
+                return .just(.init(standard: GasPriceConfiguration.xDaiGasPrice))
             case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-                return try await blockchainProvider.gasEstimates()
+                return blockchainProvider.gasEstimates()
             }
         }
+    }
+
+    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
+        return etherscanGasPriceEstimator
+            .gasPriceEstimates(server: server)
+            .handleEvents(receiveOutput: { estimates in
+                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
+            }).eraseToAnyPublisher()
     }
 }

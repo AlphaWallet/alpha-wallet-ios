@@ -67,7 +67,7 @@ final class EventForActivitiesFetcher {
                             guard let blockNumber = event.eventLog?.blockNumber else {
                                 return .just(nil)
                             }
-                            return Future { try await session.blockchainProvider.block(by: blockNumber) }
+                            return session.blockchainProvider.block(by: blockNumber)
                                 .map { block in
                                     EventSourceForActivities.functional.convertEventToDatabaseObject(
                                         event,

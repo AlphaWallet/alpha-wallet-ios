@@ -17,18 +17,18 @@ import JSONRPCKit
 public protocol BlockchainProvider {
     var server: RPCServer { get }
 
-    func balance(for address: AlphaWallet.Address) async throws -> Balance
-    func blockNumber() async throws -> Int
-    func transactionReceipt(hash: String) async throws -> TransactionReceipt
-    func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) async throws -> String
+    func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
+    func blockNumber() -> AnyPublisher<Int, SessionTaskError>
+    func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError>
+    func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
     func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
-    func transaction(byHash hash: String) async throws -> EthereumTransaction?
-    func nextNonce(wallet: AlphaWallet.Address) async throws -> Int
-    func block(by blockNumber: BigUInt) async throws -> Block
+    func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError>
+    func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
+    func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
-    func gasEstimates() async throws -> GasEstimates
-    func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) async throws -> BigUInt
-    func send(rawTransaction: String) async throws -> String
+    func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError>
+    func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
+    func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError>
 }
 
 extension BlockchainProvider {
@@ -58,32 +58,32 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         self.getEventLogs = GetEventLogs()
     }
 
-    public func send(rawTransaction: String) async throws -> String {
+    public func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError> {
         let payload = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
         let (rpcURL, rpcHeaders) = rpcURLAndHeaders
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
         
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func nextNonce(wallet: AlphaWallet.Address) async throws -> Int {
+    public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
         let payload = GetTransactionCountRequest(address: wallet, state: "pending")
         let (rpcURL, rpcHeaders) = rpcURLAndHeaders
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func balance(for address: AlphaWallet.Address) async throws -> Balance {
+    public func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) async throws -> String {
+    public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(EthCallRequest(from: from, to: to, value: value, data: data)))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
     public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
@@ -94,28 +94,28 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func blockNumber() async throws -> Int {
+    public func blockNumber() -> AnyPublisher<Int, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func transactionReceipt(hash: String) async throws -> TransactionReceipt {
+    public func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(TransactionReceiptRequest(hash: hash)))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func transaction(byHash hash: String) async throws -> EthereumTransaction? {
+    public func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GetTransactionRequest(hash: hash)))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func block(by blockNumber: BigUInt) async throws -> Block {
+    public func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockByNumberRequest(number: blockNumber)))
 
-        return try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
     public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
@@ -125,47 +125,50 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func gasEstimates() async throws -> GasEstimates {
+    public func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-        do {
-            let gasPrice = try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
-            infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(gasPrice)")
-            if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
-                // Guard against really high prices
-                return GasEstimates(standard: params.maxPrice)
-            } else {
-                if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > GasPriceConfiguration.oneGwei {
-                    //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
-                    return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+            .handleEvents(receiveOutput: { [server] estimate in
+                infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
+            }).map { [params] gasPrice in
+                if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
+                    // Guard against really high prices
+                    return GasEstimates(standard: params.maxPrice)
                 } else {
-                    return GasEstimates(standard: gasPrice)
+                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > GasPriceConfiguration.oneGwei {
+                        //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
+                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    } else {
+                        return GasEstimates(standard: gasPrice)
+                    }
                 }
-            }
-        } catch {
-            return GasEstimates(standard: params.defaultPrice)
-        }
+            }.catch { [params] _ -> AnyPublisher<GasEstimates, PromiseError> in .just(GasEstimates(standard: params.defaultPrice)) }
+            .eraseToAnyPublisher()
     }
 
-    public func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) async throws -> BigUInt {
+    public func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError> {
         let transactionType = toAddress.flatMap { EstimateGasTransactionType.normal(to: $0) } ?? .contractDeployment
         let payload = EstimateGasRequest(from: wallet, transactionType: transactionType, value: value, data: data)
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(payload))
-        let gasLimit = try await APIKitSession.sendPublisher(request, server: server, analytics: analytics).first
 
-        infoLog("[RPC] Estimated gas limit with eth_estimateGas: \(gasLimit) canCapGasLimit: \(transactionType.canCapGasLimit)")
-
-        var adjustedGasLimit: BigUInt
-        if gasLimit == params.minGasLimit {
-            adjustedGasLimit = gasLimit
-        }
-        if transactionType.canCapGasLimit {
-            adjustedGasLimit = min(gasLimit + (gasLimit * 20 / 100), params.maxGasLimit)
-        } else {
-            adjustedGasLimit = gasLimit + (gasLimit * 20 / 100)
-        }
-
-        infoLog("[RPC] Using gas limit: \(adjustedGasLimit)")
-        return adjustedGasLimit
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+            .mapError { SessionTaskError(error: $0) }
+            .map { [params] limit -> BigUInt in
+                infoLog("[RPC] Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(transactionType.canCapGasLimit)")
+                let gasLimit: BigUInt = {
+                    if limit == GasLimitConfiguration.minGasLimit {
+                        return limit
+                    }
+                    if transactionType.canCapGasLimit {
+                        return min(limit + (limit * 20 / 100), params.maxGasLimit)
+                    } else {
+                        return limit + (limit * 20 / 100)
+                    }
+                }()
+                infoLog("[RPC] Using gas limit: \(gasLimit)")
+                return gasLimit
+            }.eraseToAnyPublisher()
     }
 
 }
