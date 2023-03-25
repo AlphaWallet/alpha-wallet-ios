@@ -49,10 +49,20 @@ class PingInfuraCoordinator: Coordinator {
         viewController.displayLoading()
 
         let session = sessionsProvider.activeSessions.anyValue
-        Task { @MainActor in
-            do {
-                let _ = try await session.blockchainProvider.blockNumber()
-                
+        session.blockchainProvider.blockNumber()
+            .sink(receiveCompletion: { result in
+                if case .failure(let error) = result {
+                    UIAlertController.alert(
+                        title: R.string.localizable.settingsPingInfuraFail(),
+                        message: "\(error.localizedDescription)",
+                        alertButtonTitles: [R.string.localizable.oK()],
+                        alertButtonStyles: [.cancel],
+                        viewController: self.viewController,
+                        style: .alert)
+                }
+                self.viewController.hideLoading()
+                self.delegate?.didPing(in: self)
+            }, receiveValue: { _ in
                 UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),
                     message: nil,
@@ -60,18 +70,7 @@ class PingInfuraCoordinator: Coordinator {
                     alertButtonStyles: [.cancel],
                     viewController: self.viewController,
                     style: .alert)
-            } catch {
-                UIAlertController.alert(
-                    title: R.string.localizable.settingsPingInfuraFail(),
-                    message: "\(error.localizedDescription)",
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self.viewController,
-                    style: .alert)
-            }
-            self.viewController.hideLoading()
-            self.delegate?.didPing(in: self)
-        }.store(in: &cancellable)
+            }).store(in: &cancellable)
     }
 }
 

@@ -32,7 +32,7 @@ public class SendTransaction {
 
     public func send(rawTransaction: String) async throws -> ConfirmResult {
         do {
-            let transactionId = try await session.blockchainProvider.send(rawTransaction: rawTransaction.add0x)
+            let transactionId = try await session.blockchainProvider.send(rawTransaction: rawTransaction.add0x).first
             infoLog("Sent rawTransaction with transactionId: \(transactionId)")
             return .sentRawTransaction(id: transactionId, original: rawTransaction)
         } catch {
@@ -45,7 +45,7 @@ public class SendTransaction {
         if transaction.nonce >= 0 {
             return try await signAndSend(transaction: transaction)
         } else {
-            let nonce = try await session.blockchainProvider.nextNonce(wallet: session.account.address)
+            let nonce = try await session.blockchainProvider.nextNonce(wallet: session.account.address).first
             let transaction = transaction.updating(nonce: nonce)
             return try await signAndSend(transaction: transaction)
         }
@@ -57,7 +57,7 @@ public class SendTransaction {
             case .failure(let error):
                 throw error
             case .success(let data):
-                let transactionId = try await session.blockchainProvider.send(rawTransaction: data.hexEncoded)
+                let transactionId = try await session.blockchainProvider.send(rawTransaction: data.hexEncoded).first
                 infoLog("Sent transaction with transactionId: \(transactionId)")
                 return .sentTransaction(SentTransaction(id: transactionId, original: transaction))
             }

@@ -1229,7 +1229,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
     func requestGetTransactionCount(session: WalletSession, source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError> {
         infoLog("[\(source)] getTransactionCount")
-        return Future { try await session.blockchainProvider.nextNonce(wallet: session.account.address) }
+        return session.blockchainProvider.nextNonce(wallet: session.account.address)
             .mapError { PromiseError(error: $0) }
             .flatMap { nonce -> AnyPublisher<Data, PromiseError> in
                 if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {
@@ -1250,7 +1250,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
         infoLog("[\(source)] ethCall")
         let provider = session.blockchainProvider
-        return Future { try await provider.call(from: from, to: to, value: value, data: data) }
+        return provider.call(from: from, to: to, value: value, data: data)
             .receive(on: RunLoop.main)
             .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
