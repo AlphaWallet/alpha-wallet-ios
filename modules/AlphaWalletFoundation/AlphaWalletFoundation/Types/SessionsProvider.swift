@@ -69,6 +69,10 @@ open class BaseSessionsProvider: SessionsProvider {
                         sessions[blockchain.server] = strongSelf.buildSession(blockchain: blockchain)
                     }
                 }
+
+                let sessionsToDelete = sessionsSubject.value.filter { session in !sessions.contains(where: { $0.key == session.key }) }
+                sessionsToDelete.forEach { $0.value.stop() }
+
                 return sessions
             }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
             .store(in: &cancelable)
