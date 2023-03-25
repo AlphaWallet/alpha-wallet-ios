@@ -6,7 +6,6 @@
 //
 
 @testable import AlphaWallet
-import PromiseKit
 import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine

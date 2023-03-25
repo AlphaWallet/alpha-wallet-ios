@@ -2,7 +2,6 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import Combine
 
 // TODO: prepare tests for Eip681UrlResolver

@@ -2,7 +2,6 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import Combine
 
 public struct NormalTransaction: Decodable {

@@ -7,7 +7,6 @@
 
 import Foundation
 import AlphaWalletCore
-import PromiseKit
 import Combine
 
 public protocol TokensAutodetector: NSObjectProtocol {

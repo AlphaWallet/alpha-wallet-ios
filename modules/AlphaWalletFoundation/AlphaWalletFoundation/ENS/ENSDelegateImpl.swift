@@ -7,7 +7,6 @@
 
 import Foundation
 import AlphaWalletENS
-import PromiseKit
 import Combine
 
 class ENSDelegateImpl: ENSDelegate {

@@ -7,7 +7,6 @@
 
 @testable import AlphaWallet
 import AlphaWalletAddress
-import PromiseKit
 import XCTest
 import AlphaWalletFoundation
 

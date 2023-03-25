@@ -5,7 +5,6 @@ import XCTest
 import AlphaWalletFoundation
 import Combine
 import AlphaWalletCore
-import PromiseKit
 
 final class FakeNetworkService: NetworkService {
     func dataTask(_ request: AlphaWalletFoundation.URLRequestConvertible) async throws -> URLRequest.Response {

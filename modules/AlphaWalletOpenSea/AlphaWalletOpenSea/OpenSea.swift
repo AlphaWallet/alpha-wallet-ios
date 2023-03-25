@@ -7,7 +7,6 @@
 
 import AlphaWalletAddress
 import AlphaWalletCore
-import PromiseKit
 import SwiftyJSON
 import Alamofire
 import Combine

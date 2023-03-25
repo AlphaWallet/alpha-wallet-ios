@@ -6,7 +6,6 @@
 
 import Foundation
 import AlphaWalletENS
-import PromiseKit
 import Combine
 
 /// https://eips.ethereum.org/EIPS/eip-634

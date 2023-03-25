@@ -2,7 +2,6 @@
 
 import UIKit
 import StatefulViewController
-import PromiseKit
 import Combine
 import AlphaWalletFoundation
 

@@ -3,7 +3,6 @@
 import Foundation
 import QRCodeReaderViewController
 import BigInt
-import PromiseKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
 
