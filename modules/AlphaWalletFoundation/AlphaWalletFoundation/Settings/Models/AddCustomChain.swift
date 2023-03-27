@@ -52,7 +52,6 @@ public class AddCustomChain {
     private let networking: AddCustomChainNetworking
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
-    private lazy var getChainId = GetChainId(analytics: analytics)
 
     public weak var delegate: AddCustomChainDelegate?
 
@@ -205,7 +204,13 @@ public class AddCustomChain {
             isTestnet: false,
             chainNameFallback: chainNameFallback)
 
-        return getChainId.getChainId(server: RPCServer.custom(customRpc))
+        let server = RPCServer.custom(customRpc)
+        let provider = RpcBlockchainProvider(
+            server: server,
+            analytics: analytics,
+            params: .defaultParams(for: server))
+
+        return provider.getChainId()
             .mapError { AddCustomChainError.unknown($0) }
             .tryMap { retrievedChainId in
                 if retrievedChainId == chainId {

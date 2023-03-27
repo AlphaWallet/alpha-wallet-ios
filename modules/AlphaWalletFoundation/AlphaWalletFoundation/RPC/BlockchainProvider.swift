@@ -29,6 +29,7 @@ public protocol BlockchainProvider {
     func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError>
     func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
     func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError>
+    func getChainId() -> AnyPublisher<Int, SessionTaskError>
 }
 
 extension BlockchainProvider {
@@ -64,6 +65,11 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
         
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+    }
+
+    public func getChainId() -> AnyPublisher<Int, SessionTaskError> {
+        let request = ChainIdRequest()
+        return APIKitSession.sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
     }
 
     public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
@@ -171,6 +177,31 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             }.eraseToAnyPublisher()
     }
 
+}
+
+public typealias APIKitSession = APIKit.Session
+public typealias SessionTaskError = APIKit.SessionTaskError
+public typealias JSONRPCError = JSONRPCKit.JSONRPCError
+
+extension SessionTaskError {
+    init(error: Error) {
+        if let e = error as? SessionTaskError {
+            self = e
+        } else {
+            self = .responseError(error)
+        }
+    }
+
+    public var unwrapped: Error {
+        switch self {
+        case .connectionError(let e):
+            return e
+        case .requestError(let e):
+            return e
+        case .responseError(let e):
+            return e
+        }
+    }
 }
 
 extension JSONRPCKit.JSONRPCError: LocalizedError {
