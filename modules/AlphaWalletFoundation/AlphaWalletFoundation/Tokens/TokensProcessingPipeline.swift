@@ -63,7 +63,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-            .removeDuplicates()
             .receive(on: RunLoop.main)
 
         let initialSnapshot = Just(tokensService.tokens)
