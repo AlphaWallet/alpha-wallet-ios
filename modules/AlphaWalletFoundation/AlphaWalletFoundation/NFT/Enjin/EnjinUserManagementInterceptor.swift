@@ -7,37 +7,45 @@
 
 import Apollo
 import PromiseKit
+import AlphaWalletLogger
 
-fileprivate typealias AccessToken = String
-extension Config {
-    fileprivate static let accessTokenKey = "AccessTokenKey"
-
-    fileprivate var accessToken: AccessToken? {
-        get {
-            defaults.value(forKey: Self.accessTokenKey) as? AccessToken
-        }
-        set {
-            guard let value = newValue else {
-                return defaults.removeObject(forKey: Self.accessTokenKey)
-            }
-            defaults.set(value, forKey: Self.accessTokenKey)
-        }
-    }
+public typealias EnjinAccessToken = String
+public typealias EnjinCredentials = (email: String, password: String)
+public protocol EnjinAccessTokenStore {
+    func accessToken(email: String) -> EnjinAccessToken?
+    func set(accessToken: EnjinAccessToken?, email: String)
 }
 
-private class EnjinUserManager {
+class EnjinUserManager {
     private let store: ApolloStore
     private let client: URLSessionClient
+    private let endpointURL: URL
+    private let credentials: EnjinCredentials
 
-    init(store: ApolloStore, client: URLSessionClient) {
+    let accessTokenStore: EnjinAccessTokenStore
+
+    init(store: ApolloStore,
+         client: URLSessionClient,
+         accessTokenStore: EnjinAccessTokenStore,
+         endpointURL: URL,
+         credentials: EnjinCredentials) {
+
+        self.credentials = credentials
+        self.endpointURL = endpointURL
         self.store = store
         self.client = client
+        self.accessTokenStore = accessTokenStore
     }
 
-    private var config = Config()
+    var accessToken: EnjinAccessToken? {
+        accessTokenStore.accessToken(email: credentials.email)
+    }
+
     private lazy var graphqlClient: ApolloClient = {
         let provider = InterceptorProviderForAuthorization(client: client, store: store)
-        let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.Enjin.apiUrl)
+        let transport = RequestChainNetworkTransport(
+            interceptorProvider: provider,
+            endpointURL: endpointURL)
 
         return ApolloClient(networkTransport: transport, store: store)
     }()
@@ -46,27 +54,19 @@ private class EnjinUserManager {
         case fetchAccessTokenFailure
         case credentialsNotFound
     }
-
-    var accessToken: AccessToken? { config.accessToken }
-
-    func enjinAuthorize() -> Promise<AccessToken> {
-        guard Constants.Credentials.enjinUserName.nonEmpty && Constants.Credentials.enjinUserPassword.nonEmpty else {
-            return .init(error: EnjinUserManagerError.credentialsNotFound)
-        }
-        return enjinAuthorize(email: Constants.Credentials.enjinUserName, password: Constants.Credentials.enjinUserPassword)
-    }
-
-    private func enjinAuthorize(email: String, password: String) -> Promise<AccessToken> {
-        return EnjinUserManager.functional.authorize(graphqlClient: graphqlClient, email: email, password: password).map { oauth -> AccessToken in
+    
+    func enjinAuthorize() -> Promise<EnjinAccessToken> {
+        return EnjinUserManager.functional.authorize(graphqlClient: graphqlClient, email: credentials.email, password: credentials.password).map { oauth -> EnjinAccessToken in
             if let accessToken = oauth.accessTokens?.compactMap({ $0 }).first {
                 return accessToken
             } else {
                 throw EnjinUserManagerError.fetchAccessTokenFailure
             }
-        }.get { accessToken in
-            self.config.accessToken = accessToken
-        }.recover { e -> Promise<AccessToken> in
-            self.config.accessToken = .none
+        }.get { [credentials] accessToken in
+            self.accessTokenStore.set(accessToken: accessToken, email: credentials.email)
+        }.recover { [credentials] e -> Promise<EnjinAccessToken> in
+            infoLog("[Enjin] authorization failure: \(e.localizedDescription)")
+            self.accessTokenStore.set(accessToken: .none, email: credentials.email)
             throw e
         }
     }
@@ -185,15 +185,16 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
 
     private let userManager: EnjinUserManager
     private var pending: AtomicArray<() -> Void> = .init()
-    private var inFlightPromise: Promise<AccessToken>?
+    private var inFlightPromise: Promise<EnjinAccessToken>?
 
-    init(store: ApolloStore, client: URLSessionClient) {
-        self.userManager = EnjinUserManager(store: store, client: client)
+    init(userManager: EnjinUserManager) {
+
+        self.userManager = userManager
     }
 
     func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
-        func addTokenAndProceed<Operation: GraphQLOperation>(_ token: AccessToken, to request: HTTPRequest<Operation>, chain: RequestChain, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+        func addTokenAndProceed<Operation: GraphQLOperation>(_ token: EnjinAccessToken, to request: HTTPRequest<Operation>, chain: RequestChain, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
             request.addHeader(name: "Authorization", value: "Bearer \(token)")
             chain.proceedAsync(request: request, response: response, completion: completion)
@@ -252,12 +253,12 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
             }
         }
 
-        guard let token = userManager.accessToken else {
+        guard let accessToken = userManager.accessToken else {
             authorizeEnjinUser()
             return
         }
 
-        addTokenAndProceed(token, to: request, chain: chain, response: response, completion: overridenCompletion)
+        addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: overridenCompletion)
     }
 }
 

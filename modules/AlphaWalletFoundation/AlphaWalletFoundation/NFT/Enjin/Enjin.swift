@@ -15,10 +15,16 @@ public final class Enjin {
     private let networking: EnjinNetworking
     private let storage: EnjinStorage
 
-    public init(server: RPCServer, storage: EnjinStorage) {
+    public init(server: RPCServer,
+                storage: EnjinStorage,
+                accessTokenStore: EnjinAccessTokenStore,
+                credentials: EnjinCredentials) {
+        
         self.storage = storage
         self.server = server
-        self.networking = EnjinNetworking()
+        self.networking = EnjinNetworking(
+            accessTokenStore: accessTokenStore,
+            credentials: credentials)
     }
 
     func token(tokenId: TokenId) -> EnjinToken? {

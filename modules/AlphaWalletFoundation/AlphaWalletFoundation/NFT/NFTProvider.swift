@@ -40,11 +40,23 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     private let wallet: Wallet
     private let server: RPCServer
 
-    public init(analytics: AnalyticsLogger, wallet: Wallet, server: RPCServer, config: Config, storage: RealmStore) {
+    public init(analytics: AnalyticsLogger,
+                wallet: Wallet,
+                server: RPCServer,
+                config: Config,
+                storage: RealmStore) {
+        
         self.wallet = wallet
         self.server = server
-        enjin = Enjin(server: server, storage: storage)
-        openSea = OpenSea(analytics: analytics, server: server, config: config)
+        enjin = Enjin(
+            server: server,
+            storage: storage,
+            accessTokenStore: config,
+            credentials: (email: Constants.Credentials.enjinUserName, password: Constants.Credentials.enjinUserPassword))
+        openSea = OpenSea(
+            analytics: analytics,
+            server: server,
+            config: config)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {
@@ -73,4 +85,24 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             .eraseToAnyPublisher()
     }
 
+}
+
+extension Config: EnjinAccessTokenStore {
+    fileprivate static func accessTokenKey(email: String) -> String {
+        return "AccessTokenKey-\(email)"
+    }
+
+    public func accessToken(email: String) -> EnjinAccessToken? {
+        let key = Self.accessTokenKey(email: email)
+        return defaults.value(forKey: key) as? EnjinAccessToken
+    }
+
+    public func set(accessToken: EnjinAccessToken?, email: String) {
+        let key = Self.accessTokenKey(email: email)
+        guard let value = accessToken else {
+            defaults.removeObject(forKey: key)
+            return
+        }
+        defaults.set(value, forKey: key)
+    }
 }
