@@ -6,9 +6,6 @@ import CryptoSwift
 import TrustKeystore
 import Combine
 
-public enum FileBasedKeystoreError: LocalizedError {
-    case protectionDisabled
-}
 fileprivate typealias LegacyKeyStore = TrustKeystore.KeyStore
 
 public class LegacyFileBasedKeystore {
