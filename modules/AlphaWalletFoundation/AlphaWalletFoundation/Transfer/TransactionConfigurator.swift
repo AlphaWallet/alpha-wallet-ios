@@ -6,13 +6,6 @@ import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
 
-public protocol TransactionConfiguratorDelegate: AnyObject {
-    func configurationChanged(in configurator: TransactionConfigurator)
-    func gasLimitEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator)
-    func gasPriceEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator)
-    func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
-}
-
 public enum TransactionConfiguratorError: LocalizedError {
     case impossibleToBuildConfiguration
 
@@ -23,7 +16,6 @@ public enum TransactionConfiguratorError: LocalizedError {
 
 public class TransactionConfigurator {
     public let session: WalletSession
-    public weak var delegate: TransactionConfiguratorDelegate?
 
     public var currentConfiguration: TransactionConfiguration {
         switch selectedConfigurationType {
@@ -76,13 +68,39 @@ public class TransactionConfigurator {
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
     private let gasPriceEstimator: LegacyGasPriceEstimator
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
+    private let gasPriceSubject = PassthroughSubject<BigUInt, Never>()
+    private let nonceSubject = PassthroughSubject<Int, Never>()
+    private let gasLimitSubject = PassthroughSubject<BigUInt, Never>()
+
+    public var gasPrice: AnyPublisher<BigUInt, Never> {
+        gasPriceSubject.eraseToAnyPublisher()
+    }
+
+    public var nonce: AnyPublisher<Int, Never> {
+        nonceSubject.eraseToAnyPublisher()
+    }
+
+    public var gasLimit: AnyPublisher<BigUInt, Never> {
+        gasLimitSubject.eraseToAnyPublisher()
+    }
+
+    public var objectChanges: AnyPublisher<Void, Never> {
+        Publishers.Merge3(gasPrice.mapToVoid(), gasLimit.mapToVoid(), nonce.mapToVoid())
+            .eraseToAnyPublisher()
+    }
+    private let tokensService: TokenViewModelState
+    private let configuration: TransactionType.Configuration
 
     public init(session: WalletSession,
                 analytics: AnalyticsLogger,
                 transaction: UnconfirmedTransaction,
-                networkService: NetworkService) {
+                networkService: NetworkService,
+                tokensService: TokenViewModelState,
+                configuration: TransactionType.Configuration) {
 
+        self.configuration = configuration
+        self.tokensService = tokensService
         self.session = session
         self.analytics = analytics
         self.transaction = transaction
@@ -95,7 +113,7 @@ public class TransactionConfigurator {
         self.configurations = .init(standard: standardConfiguration)
     }
 
-    public func updateTransaction(value: BigUInt) {
+    private func updateTransaction(value: BigUInt) {
         let tx = self.transaction
         self.transaction = .init(transactionType: tx.transactionType, value: value, recipient: tx.recipient, contract: tx.contract, data: tx.data, gasLimit: tx.gasLimit, gasPrice: tx.gasPrice, nonce: tx.nonce)
     }
@@ -123,8 +141,8 @@ public class TransactionConfigurator {
                     self.configurations[each] = config
                 }
 
-                self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-            }).store(in: &cancelable)
+                self.gasLimitSubject.send(gasLimit)
+            }).store(in: &cancellable)
     }
 
     private func estimateGasPrice() {
@@ -152,8 +170,8 @@ public class TransactionConfigurator {
                     self.configurations[each] = config
                 }
 
-                self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
-            }).store(in: &cancelable)
+                self.gasPriceSubject.send(standard)
+            }).store(in: &cancellable)
     }
 
     public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt) -> Bool {
@@ -219,6 +237,7 @@ public class TransactionConfigurator {
             estimateGasLimit()
         }
         computeNonce()
+        adjustTransactionValue()
     }
 
     private func useNonce(_ nonce: Int) {
@@ -239,7 +258,8 @@ public class TransactionConfigurator {
                     configurations[each] = config
                 }
             }
-            delegate?.updateNonce(to: nonce, in: self)
+
+            nonceSubject.send(nonce)
         }
     }
 
@@ -254,8 +274,43 @@ public class TransactionConfigurator {
                     logError(e, rpcServer: session.server)
                 }, receiveValue: {
                     self.useNonce($0)
-                }).store(in: &cancelable)
+                }).store(in: &cancellable)
         }
+    }
+
+    private func adjustTransactionValue() {
+        let transactionType = transaction.transactionType
+        Just(transactionType.tokenObject)
+            .filter { [configuration] _ in
+                guard case .sendFungiblesTransaction = configuration else { return false }
+                return true
+            }.flatMap { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
+                switch token.type {
+                case .nativeCryptocurrency:
+                    let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
+                    return tokensService.tokenViewModelPublisher(for: etherToken)
+                case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
+                    return tokensService.tokenViewModelPublisher(for: token)
+                }
+            }.compactMap { $0 }
+            .sink { token in
+                switch token.type {
+                case .nativeCryptocurrency:
+                    switch transactionType.amount {
+                    case .notSet, .none, .amount:
+                        break
+                    case .allFunds:
+                        //NOTE: ignore passed value of 'allFunds', as we recalculating it again
+                        if token.balance.value > self.gasValue {
+                            self.updateTransaction(value: token.balance.value - self.gasValue)
+                        } else {
+                            self.updateTransaction(value: .zero)
+                        }
+                    }
+                case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                    break
+                }
+            }.store(in: &cancellable)
     }
 
     public func formUnsignedTransaction() -> UnsignedTransaction {
@@ -274,11 +329,11 @@ public class TransactionConfigurator {
     public func chooseCustomConfiguration(_ configuration: TransactionConfiguration) {
         configurations.custom = configuration
         selectedConfigurationType = .custom
-        delegate?.configurationChanged(in: self)
+        gasPriceSubject.send(configuration.gasPrice)
     }
 
     public func chooseDefaultConfigurationType(_ configurationType: TransactionConfigurationType) {
         selectedConfigurationType = configurationType
-        delegate?.configurationChanged(in: self)
+        gasPriceSubject.send(currentConfiguration.gasPrice)
     }
 }

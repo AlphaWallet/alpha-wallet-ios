@@ -12,7 +12,7 @@ public enum AddressOrEnsResolution {
     case invalidInput
     case resolved(AddressOrEnsName?)
 
-    var value: String? {
+    public var value: String? {
         switch self {
         case .invalidInput:
             return nil

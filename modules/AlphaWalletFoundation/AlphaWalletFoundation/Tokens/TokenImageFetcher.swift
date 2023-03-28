@@ -13,11 +13,11 @@ public typealias Image = UIImage
 public typealias TokenImagePublisher = AnyPublisher<TokenImage?, Never>
 
 public struct TokenImage {
-    public let image: ImageOrWebImageUrl
+    public let image: ImageOrWebImageUrl<RawImage>
     public let isFinal: Bool
     public let overlayServerIcon: UIImage?
 
-    public init(image: ImageOrWebImageUrl, isFinal: Bool, overlayServerIcon: UIImage?) {
+    public init(image: ImageOrWebImageUrl<RawImage>, isFinal: Bool, overlayServerIcon: UIImage?) {
         self.image = image
         self.isFinal = isFinal
         self.overlayServerIcon = overlayServerIcon
@@ -225,7 +225,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     //TODO: refactor and rename
     private static func nftCollectionImageUrl(_ type: TokenType,
                                               balance: NonFungibleFromJson?,
-                                              size: GoogleContentSize) throws -> ImageOrWebImageUrl {
+                                              size: GoogleContentSize) throws -> ImageOrWebImageUrl<RawImage> {
 
         switch type {
         case .erc721, .erc1155:
@@ -271,7 +271,7 @@ class GithubAssetsURLResolver {
     }
 }
 
-public typealias ImagePublisher = AnyPublisher<Image?, Never>
+public typealias ImagePublisher = AnyPublisher<ImageOrWebImageUrl<Image>?, Never>
 
 public class RPCServerImageFetcher {
     public static var instance = RPCServerImageFetcher()
@@ -281,7 +281,7 @@ public class RPCServerImageFetcher {
         if let sub = subscribables[server.chainID] {
             return sub
         } else {
-            let sub = CurrentValueSubject<Image?, Never>(iconImage)
+            let sub = CurrentValueSubject<ImageOrWebImageUrl<Image>?, Never>(.image(iconImage))
             subscribables[server.chainID] = sub.eraseToAnyPublisher()
 
             return sub.eraseToAnyPublisher()

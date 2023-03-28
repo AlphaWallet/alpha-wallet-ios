@@ -16,12 +16,6 @@ protocol TransactionConfirmationHeaderViewDelegate: AnyObject {
 
 class TransactionConfirmationHeaderView: UIView {
 
-    struct Configuration {
-        var isOpened: Bool = false
-        let section: Int
-        var shouldHideChevron: Bool = true
-    }
-
     private var isTapActionEnabled = false
 
     private let nameLabel: UILabel = {
@@ -160,9 +154,9 @@ class TransactionConfirmationHeaderView: UIView {
     }
 
     func configure(viewModel: TransactionConfirmationHeaderViewModel) {
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        chevronView.isHidden = viewModel.configuration.shouldHideChevron
+        chevronView.isHidden = viewModel.viewState.shouldHideChevron
         chevronImageView.image = viewModel.chevronImage
 
         titleIconImageView.set(imageSource: viewModel.titleIcon)
@@ -181,22 +175,22 @@ class TransactionConfirmationHeaderView: UIView {
 
     @objc private func didTap(_ sender: UITapGestureRecognizer) {
         if isTapActionEnabled {
-            delegate?.headerView(self, tappedSection: viewModel.configuration.section)
+            delegate?.headerView(self, tappedSection: viewModel.viewState.section)
         } else {
-            viewModel.configuration.isOpened.toggle()
+            viewModel.viewState.isOpened.toggle()
 
             chevronImageView.image = viewModel.chevronImage
             titleLabel.alpha = viewModel.titleAlpha
             titleIconImageView.alpha = viewModel.titleAlpha
 
-            delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
+            delegate?.headerView(self, openStateChanged: viewModel.viewState.section)
         }
     }
 
     func expand() {
         guard let delegate = delegate else { return }
 
-        for (index, view) in childrenStackView.arrangedSubviews.enumerated() where delegate.headerView(self, shouldShowChildren: viewModel.configuration.section, index: index) {
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() where delegate.headerView(self, shouldShowChildren: viewModel.viewState.section, index: index) {
             view.isHidden = false
         }
     }
@@ -204,7 +198,7 @@ class TransactionConfirmationHeaderView: UIView {
     func collapse() {
         guard let delegate = delegate else { return }
 
-        for (index, view) in childrenStackView.arrangedSubviews.enumerated() where delegate.headerView(self, shouldHideChildren: viewModel.configuration.section, index: index) {
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() where delegate.headerView(self, shouldHideChildren: viewModel.viewState.section, index: index) {
             view.isHidden = true
         }
     }

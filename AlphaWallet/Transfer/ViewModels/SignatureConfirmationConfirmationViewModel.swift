@@ -98,7 +98,7 @@ extension SignatureConfirmationViewModel {
             values = (requester?.viewModels ?? []).compactMap { $0 as? SignatureConfirmationViewModel.ViewType }
 
             return values + [
-                .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, configuration: .init(section: values.count)), availableToShowFullMessage)
+                .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, viewState: .init(section: values.count)), availableToShowFullMessage)
             ]
         }
     }
@@ -136,7 +136,7 @@ extension SignatureConfirmationViewModel {
                 let string = data.value.shortStringRepresentation
                 values += [
                     .headerWithShowButton(
-                        .init(title: .normal(string), headerName: data.key, configuration: .init(section: Int(sectionIndex))),
+                        .init(title: .normal(string), headerName: data.key, viewState: .init(section: Int(sectionIndex))),
                         true
                     )
                 ]
@@ -162,7 +162,7 @@ extension SignatureConfirmationViewModel {
                 let string = typedMessage.value.string
                 values += [
                     .headerWithShowButton(
-                        .init(title: .normal(string), headerName: typedMessage.name, configuration: .init(section: Int(sectionIndex))),
+                        .init(title: .normal(string), headerName: typedMessage.name, viewState: .init(section: Int(sectionIndex))),
                         true
                     )
                 ]

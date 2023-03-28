@@ -23,7 +23,9 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: transaction,
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
         XCTAssertEqual(configurator.toAddress, address)
     }
@@ -40,7 +42,9 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: transaction,
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
         XCTAssertEqual(configurator.toAddress, address)
         XCTAssertNotEqual(configurator.toAddress, transaction.recipient)
@@ -57,7 +61,9 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: transaction,
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
         XCTAssertEqual(configurator.toAddress, address)
         XCTAssertNotEqual(configurator.toAddress, transaction.contract)

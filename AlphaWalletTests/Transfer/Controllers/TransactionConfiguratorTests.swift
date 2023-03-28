@@ -13,7 +13,9 @@ class TransactionConfiguratorTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: .make(gasPrice: gasPrice),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
         XCTAssertEqual(gasPrice, configurator.currentConfiguration.gasPrice)
     }
 
@@ -23,7 +25,9 @@ class TransactionConfiguratorTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: .make(gasPrice: BigUInt(1000000000)),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
         XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.currentConfiguration.gasPrice)
     }
 
@@ -33,7 +37,9 @@ class TransactionConfiguratorTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: .make(gasPrice: BigUInt(990000000000)),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
         XCTAssertEqual(GasPriceConfiguration.maxPrice, configurator.currentConfiguration.gasPrice)
     }
 
@@ -43,7 +49,9 @@ class TransactionConfiguratorTests: XCTestCase {
             session: .make(),
             analytics: analytics,
             transaction: .make(gasLimit: nil, gasPrice: nil),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
+            configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
         XCTAssertEqual(BigUInt(GasPriceConfiguration.defaultPrice), configurator.currentConfiguration.gasPrice)
         //gas limit is always 21k for native ether transfers
         XCTAssertEqual(BigUInt(21000), configurator.currentConfiguration.gasLimit)

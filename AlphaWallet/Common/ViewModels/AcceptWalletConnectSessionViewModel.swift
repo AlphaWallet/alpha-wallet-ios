@@ -108,24 +108,28 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
 
         switch sections[section] {
         case .name:
-            return .init(title: .normal(proposal.name), headerName: sections[section].title, configuration: .init(section: section))
+            return .init(title: .normal(proposal.name), headerName: sections[section].title, viewState: .init(section: section))
         case .networks:
             let servers = serversToConnect.map { $0.displayName }.joined(separator: ", ")
             let shouldHideChevron = proposal.serverEditing == .notSupporting || serversToConnect.count == 1
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
+            let viewState = TransactionConfirmationHeaderViewModel.ViewState(
                 isOpened: isOpened,
                 section: section,
                 shouldHideChevron: shouldHideChevron)
             let serverIcon = serversToConnect.first?.walletConnectIconImage ?? .just(nil)
 
-            return .init(title: .normal(servers), headerName: serversSectionTitle, titleIcon: serverIcon, configuration: configuration)
+            return .init(title: .normal(servers), headerName: serversSectionTitle, titleIcon: serverIcon, viewState: viewState)
         case .url:
             let dappUrl = proposal.dappUrl.absoluteString
-            return .init(title: .normal(dappUrl), headerName: sections[section].title, configuration: .init(section: section))
+            return .init(title: .normal(dappUrl), headerName: sections[section].title, viewState: .init(section: section))
         case .methods:
             let methods = methods.joined(separator: ", ")
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: isOpened, section: section, shouldHideChevron: !sections[section].isExpandable)
-            return .init(title: .normal(methods), headerName: sections[section].title, configuration: configuration)
+            let viewState = TransactionConfirmationHeaderViewModel.ViewState(
+                isOpened: isOpened,
+                section: section,
+                shouldHideChevron: !sections[section].isExpandable)
+
+            return .init(title: .normal(methods), headerName: sections[section].title, viewState: viewState)
         }
     }
 

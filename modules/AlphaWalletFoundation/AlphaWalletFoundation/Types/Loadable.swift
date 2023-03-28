@@ -8,6 +8,28 @@ public enum Loadable<T, F> {
     case failure(F)
 }
 
+extension Loadable {
+    public var value: T? {
+        switch self {
+        case .loading, .failure:
+            return nil
+        case .done(let t):
+            return t
+        }
+    }
+
+    public func mapValue<T2>(_ block: (T) -> T2) -> Loadable<T2, F> {
+        switch self {
+        case .loading:
+            return .loading
+        case .done(let t):
+            return .done(block(t))
+        case .failure(let f):
+            return .failure(f)
+        }
+    }
+}
+
 extension Loadable: Equatable where T: Equatable, F: Equatable {
     public static func == (lhs: Loadable<T, F>, rhs: Loadable<T, F>) -> Bool {
         switch (lhs, rhs) {
