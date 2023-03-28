@@ -60,7 +60,6 @@
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
 		290B2B611F9179880053C83E /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B601F9179880053C83E /* AccountViewModel.swift */; };
 		290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B691F92C0440053C83E /* ConfigTests.swift */; };
-		290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */; };
 		290B2B6E1F92C3980053C83E /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B6D1F92C3980053C83E /* UserDefaults.swift */; };
 		2912CCF91F6A830700C6CBE3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */; };
 		2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2912CD011F6A830700C6CBE3 /* Assets.xcassets */; };
@@ -226,6 +225,7 @@
 		5E7C74B07DDDBE3344273CB7 /* PromptBackupWalletAfterWalletCreationViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C723C21F6376387AD1DCE /* PromptBackupWalletAfterWalletCreationViewViewModel.swift */; };
 		5E7C74B5796FB59C8427C7A0 /* GenerateTransferMagicLinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D46C7CABC31A7477F37 /* GenerateTransferMagicLinkViewController.swift */; };
 		5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C67C1FF0BFDDA82C61E /* TokenImageView.swift */; };
+		5E7C74B83E23186A213ED86C /* RPCServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C728F67C0407A84E8C699 /* RPCServerTests.swift */; };
 		5E7C74B99922D0CAB635970E /* PasscodeCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */; };
 		5E7C74B9BD63DEFE074BB80D /* ErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7058BACDB443883F068B /* ErrorTests.swift */; };
 		5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79778E4BFE1322711EA6 /* LocaleViewModel.swift */; };
@@ -944,7 +944,6 @@
 		290B2B5E1F9177860053C83E /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		290B2B601F9179880053C83E /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
 		290B2B691F92C0440053C83E /* ConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigTests.swift; sourceTree = "<group>"; };
-		290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCServerTests.swift; sourceTree = "<group>"; };
 		290B2B6D1F92C3980053C83E /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
 		2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlphaWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -1080,6 +1079,7 @@
 		5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearDappBrowserCacheCoordinator.swift; sourceTree = "<group>"; };
 		5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C728B3CA6A429AB5EE5DF /* ContainerViewWithShadow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewWithShadow.swift; sourceTree = "<group>"; };
+		5E7C728F67C0407A84E8C699 /* RPCServerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPCServerTests.swift; sourceTree = "<group>"; };
 		5E7C72CDD54E5A0C5BB23C89 /* AddressAndRPCServerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressAndRPCServerTests.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicTokenViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C72E648B7C34EDA193BDA /* ActivitiesCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivitiesCoordinator.swift; sourceTree = "<group>"; };
@@ -1887,7 +1887,6 @@
 			children = (
 				778EAF7B1FF10AE000C8E2AB /* Coordinators */,
 				290B2B691F92C0440053C83E /* ConfigTests.swift */,
-				290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3266,6 +3265,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C788DE5B9738CD53B913B /* DeepLinkTests.swift */,
+				5E7C728F67C0407A84E8C699 /* RPCServerTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -5719,7 +5719,6 @@
 				29F1C85620036887003780D8 /* AppTrackerTests.swift in Sources */,
 				87300E8E28520F28009DE4B3 /* EnsRecordsStorageTests.swift in Sources */,
 				0256B64227F73EBF008AF8CF /* StringValidatorTestCases.swift in Sources */,
-				290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */,
 				290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */,
 				8739912D2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift in Sources */,
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
@@ -5858,6 +5857,7 @@
 				5E7C7C53FC6F46DF501E8AD1 /* CallSmartContractFunctionTests.swift in Sources */,
 				5E7C7A0DD3EA1BC36F567068 /* BCHardwareWalletTests.swift in Sources */,
 				5E7C709FD887B4942BB7C629 /* DeepLinkTests.swift in Sources */,
+				5E7C74B83E23186A213ED86C /* RPCServerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
