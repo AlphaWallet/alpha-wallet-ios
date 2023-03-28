@@ -17,6 +17,11 @@ public protocol TokenProvidable {
     func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
     func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
 }
+public extension TokenProvidable {
+    func token(for identifieble: TokenIdentifiable) -> Token? {
+        token(for: identifieble.contractAddress, server: identifieble.server)
+    }
+}
 
 public protocol TokenAddable {
     @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]

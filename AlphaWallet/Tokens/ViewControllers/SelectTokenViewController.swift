@@ -78,18 +78,20 @@ class SelectTokenViewController: UIViewController {
             fetch: fetch.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak self, dataSource, navigationItem] viewState in
-            dataSource.apply(viewState.snapshot, animatingDifferences: false)
-            switch viewState.loadingState {
-            case .idle:
-                break
-            case .beginLoading:
-                self?.startLoading(animated: false)
-            case .endLoading:
-                self?.endLoading(animated: false)
-            }
-            navigationItem.title = viewState.title
-        }.store(in: &cancellable)
+        output.viewState
+            .sink { [weak self, dataSource, navigationItem] viewState in
+                dataSource.apply(viewState.snapshot, animatingDifferences: false)
+
+                switch viewState.loadingState {
+                case .idle:
+                    break
+                case .beginLoading:
+                    self?.startLoading(animated: false)
+                case .endLoading:
+                    self?.endLoading(animated: false)
+                }
+                navigationItem.title = viewState.title
+            }.store(in: &cancellable)
     } 
 }
 
@@ -103,8 +105,7 @@ extension SelectTokenViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        guard let token = viewModel.selectTokenViewModel(at: indexPath) else { return }
+        guard let token = viewModel.selectTokenViewModel(viewModel: dataSource.item(at: indexPath)) else { return }
         delegate?.controller(self, didSelectToken: token)
     }
 }

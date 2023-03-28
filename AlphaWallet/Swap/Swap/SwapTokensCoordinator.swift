@@ -258,7 +258,6 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
                 keystore: keystore,
                 tokensService: tokenCollection,
                 networkService: networkService)
-
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:
