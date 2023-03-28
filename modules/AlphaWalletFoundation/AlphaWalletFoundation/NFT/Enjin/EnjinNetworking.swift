@@ -17,7 +17,7 @@ final class EnjinNetworking {
     typealias TokenPublisher = AnyPublisher<EnjinToken, PromiseError>
 
     private let accessTokenStore: EnjinAccessTokenStore
-    private let credentials: EnjinCredentials
+    private let credentials: EnjinCredentials?
     private lazy var graphqlClient: ApolloClient = {
         let cache = InMemoryNormalizedCache()
         let store = ApolloStore(cache: cache)
@@ -42,7 +42,7 @@ final class EnjinNetworking {
     }()
 
     init(accessTokenStore: EnjinAccessTokenStore,
-         credentials: EnjinCredentials) {
+         credentials: EnjinCredentials?) {
 
         self.credentials = credentials
         self.accessTokenStore = accessTokenStore
