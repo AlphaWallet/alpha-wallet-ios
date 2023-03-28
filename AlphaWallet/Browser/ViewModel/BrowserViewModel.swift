@@ -23,6 +23,7 @@ struct BrowserViewModelOutput {
     let universalLink: AnyPublisher<URL, Never>
     let recordUrl: AnyPublisher<Void, Never>
     let dappAction: AnyPublisher<(action: DappAction, callbackId: Int), Never>
+    let keyboardAction: AnyPublisher<BrowserViewModel.KeyboardAction, Never>
 }
 
 class BrowserViewModel: NSObject {
@@ -34,6 +35,16 @@ class BrowserViewModel: NSObject {
     private let universalLinkSubject = PassthroughSubject<URL, Never>()
     private let dappActionSubject = PassthroughSubject<(action: DappAction, callbackId: Int), Never>()
     private var cancellable = Set<AnyCancellable>()
+    private var keyboardStatePublisher: AnyPublisher<KeyboardChecker.KeyboardState, Never> {
+        let keyboardNotifications: [NSNotification.Name] = [
+            UIResponder.keyboardWillShowNotification,
+            UIResponder.keyboardWillHideNotification,
+        ]
+
+        return Publishers.MergeMany(keyboardNotifications.map { NotificationCenter.default.publisher(for: $0) })
+            .map { KeyboardChecker.KeyboardState(with: $0) }
+            .eraseToAnyPublisher()
+    }
 
     lazy var config: WKWebViewConfiguration = {
         let config = WKWebViewConfiguration.make(forType: .dappBrowser(server), address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
@@ -55,11 +66,15 @@ class BrowserViewModel: NSObject {
         let progress = input.progress
             .map { BrowserViewModel.ProgressBarState(value: Float($0), isHidden: $0 == 1) }
 
+        let keyboardAction = keyboardStatePublisher
+            .compactMap { [weak self] in self?.handle(keyboardState: $0) }
+
         return .init(
             progressBarState: progress.eraseToAnyPublisher(),
             universalLink: universalLinkSubject.eraseToAnyPublisher(),
             recordUrl: recordUrlSubject.eraseToAnyPublisher(),
-            dappAction: dappActionSubject.eraseToAnyPublisher())
+            dappAction: dappActionSubject.eraseToAnyPublisher(),
+            keyboardAction: keyboardAction.eraseToAnyPublisher())
     }
 
     private func handle(decidePolicy: BrowserViewModel.DecidePolicy) {
@@ -91,6 +106,35 @@ class BrowserViewModel: NSObject {
 
         decidePolicy.decisionHandler(.allow)
     }
+
+    private func handle(keyboardState: KeyboardChecker.KeyboardState) -> BrowserViewModel.KeyboardAction? {
+        switch keyboardState.state {
+        case .willShow:
+            return .adjustBottomInset(height: keyboardState.endFrame.size.height)
+        case .willHide:
+            //If there's a external keyboard (or on simulator with software keyboard disabled):
+            //    When text input starts. beginRect: size.height=0 endRect: size.height ~54. origin.y remains at ~812 (out of the screen)
+            //    When text input ends. beginRect: size.height ~54 endRect: size.height = 0. origin.y remains at 812 (out of the screen)
+            //Note the above. keyboardWillHide() is called for both when input starts and ends for external keyboard. Probably because the keyboard is hidden in both cases
+            let beginRect = keyboardState.beginFrame
+            let endRect = keyboardState.endFrame
+            let isExternalKeyboard = beginRect.origin == endRect.origin && (beginRect.size.height == 0 || endRect.size.height == 0)
+            let isEnteringEditModeWithExternalKeyboard: Bool
+            if isExternalKeyboard {
+                isEnteringEditModeWithExternalKeyboard = beginRect.size.height == 0 && endRect.size.height > 0
+            } else {
+                isEnteringEditModeWithExternalKeyboard = false
+            }
+
+            if !isExternalKeyboard || !isEnteringEditModeWithExternalKeyboard {
+                //Must exit editing more explicitly (and update the nav bar buttons) because tapping on the web view can hide keyboard
+                return .hideKeyboard
+            }
+            return nil
+        case .frameChange, .didHide, .didShow:
+            return nil
+        }
+    }
 }
 
 extension BrowserViewModel: WKScriptMessageHandler {
@@ -110,6 +154,11 @@ extension BrowserViewModel: WKScriptMessageHandler {
 }
 
 extension BrowserViewModel {
+
+    enum KeyboardAction {
+        case hideKeyboard
+        case adjustBottomInset(height: CGFloat)
+    }
 
     struct Keys {
         static let developerExtrasEnabled = "developerExtrasEnabled"
