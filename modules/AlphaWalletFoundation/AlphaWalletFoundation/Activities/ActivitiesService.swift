@@ -27,20 +27,13 @@ typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: 
 public class ActivitiesService: ActivitiesServiceType {
     let sessionsProvider: SessionsProvider
     private let tokensService: TokenProvidable
-
-    private let assetDefinitionStore: AssetDefinitionStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
-    private let eventsDataStore: NonActivityEventsDataStore
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
     private var activities: AtomicArray<Activity> = .init()
-    private var tokensAndTokenHolders: AtomicDictionary<AddressAndRPCServer, [TokenHolder]> = .init()
-    private var rateLimitedViewControllerReloader: RateLimiter?
-    private var hasLoadedActivitiesTheFirstTime = false
-
     private let didUpdateActivitySubject: PassthroughSubject<Activity, Never> = .init()
     private let activitiesSubject: CurrentValueSubject<[ActivityCollection.MappedToDateActivityOrTransaction], Never> = .init([])
-    private var cancellable: AnyCancellable?
+    private var cancellable = Set<AnyCancellable>()
 
     private var wallet: Wallet {
         sessionsProvider.activeSessions.anyValue.account
@@ -61,17 +54,13 @@ public class ActivitiesService: ActivitiesServiceType {
     private let activitiesGenerator: ActivitiesGenerator
     
     init(sessionsProvider: SessionsProvider,
-         assetDefinitionStore: AssetDefinitionStore,
          eventsActivityDataStore: EventsActivityDataStoreProtocol,
-         eventsDataStore: NonActivityEventsDataStore,
          transactionDataStore: TransactionDataStore,
          activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
          transactionsFilterStrategy: TransactionsFilterStrategy = .all,
          tokensService: TokenProvidable) {
 
         self.sessionsProvider = sessionsProvider
-        self.assetDefinitionStore = assetDefinitionStore
-        self.eventsDataStore = eventsDataStore
         self.eventsActivityDataStore = eventsActivityDataStore
         self.activitiesFilterStrategy = activitiesFilterStrategy
         self.transactionDataStore = transactionDataStore
@@ -93,49 +82,46 @@ public class ActivitiesService: ActivitiesServiceType {
             .map { Array($0.keys) }
             .flatMapLatest { [transactionDataStore, transactionsFilterStrategy] in
                 transactionDataStore.transactionsChangeset(filter: transactionsFilterStrategy, servers: $0)
-            }.mapToVoid()
-            .eraseToAnyPublisher()
+            }
 
         let activities = activitiesGenerator.generateActivities()
-        cancellable = Publishers.CombineLatest(transactionsChangeset, activities)
+
+        Publishers.CombineLatest(transactionsChangeset, activities)
             .sink { [weak self] data in self?.createActivities(activitiesAndTokens: data.1) }
+            .store(in: &cancellable)
+
+        didUpdateActivitySubject
+            .debounce(for: .seconds(5), scheduler: RunLoop.main)
+            .receive(on: DispatchQueue.global())
+            .sink { [weak self] _ in
+                self?.combineActivitiesWithTransactions()
+            }.store(in: &cancellable)
     }
 
     public func stop() {
-        cancellable?.cancel()
+        cancellable.cancellAll()
     }
 
-    public func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensService: tokensService)
+    public func copy(activitiesFilterStrategy: ActivitiesFilterStrategy,
+                     transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
+
+        return ActivitiesService(
+            sessionsProvider: sessionsProvider,
+            eventsActivityDataStore: eventsActivityDataStore,
+            transactionDataStore: transactionDataStore,
+            activitiesFilterStrategy: activitiesFilterStrategy,
+            transactionsFilterStrategy: transactionsFilterStrategy,
+            tokensService: tokensService)
     }
 
     private func createActivities(activitiesAndTokens: [ActivityTokenObjectTokenHolder]) {
         activities.set(array: activitiesAndTokens.compactMap { $0.activity }.sorted { $0.blockNumber > $1.blockNumber })
         updateActivitiesIndexLookup(with: activities.all)
 
-        reloadViewController(reloadImmediately: true)
+        combineActivitiesWithTransactions()
 
         for (activity, token, tokenHolder) in activitiesAndTokens {
             refreshActivity(token: token, tokenHolder: tokenHolder, activity: activity)
-        }
-    }
-
-    private func reloadViewController(reloadImmediately: Bool) {
-        if reloadImmediately {
-            combineActivitiesWithTransactions()
-        } else {
-            //We want to show the activities tab immediately the first time activities are available, otherwise when the app launch and user goes to the tab immediately and wait for a few seconds, they'll see some of the transactions transforming into activities. Very jarring
-            if hasLoadedActivitiesTheFirstTime {
-                if rateLimitedViewControllerReloader == nil {
-                    rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
-                        self?.combineActivitiesWithTransactions()
-                    }
-                } else {
-                    rateLimitedViewControllerReloader?.run()
-                }
-            } else {
-                combineActivitiesWithTransactions()
-            }
         }
     }
 
@@ -146,10 +132,6 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     private func combineActivitiesWithTransactions() {
-        if !activities.isEmpty {
-            hasLoadedActivitiesTheFirstTime = true
-        }
-
         let transactions = transactionDataStore.transactions(
             forFilter: transactionsFilterStrategy,
             servers: Array(sessionsProvider.activeSessions.keys),
@@ -259,7 +241,6 @@ public class ActivitiesService: ActivitiesServiceType {
 
             if activities.contains(index: index) {
                 activities[index] = updatedActivity
-                reloadViewController(reloadImmediately: false)
 
                 didUpdateActivitySubject.send(updatedActivity)
             }
