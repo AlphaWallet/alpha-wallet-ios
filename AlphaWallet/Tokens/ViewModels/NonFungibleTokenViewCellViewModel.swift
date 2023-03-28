@@ -6,14 +6,15 @@ import BigInt
 import AlphaWalletFoundation
 import Combine
 
-struct NonFungibleTokenViewCellViewModel {
+struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
     private let safeShortTitleInPluralForm: String
     private let symbol: String
-    private let server: RPCServer
-    private let contract: AlphaWallet.Address
     private let nonZeroBalanceCount: Int
     private let isVisible: Bool
 
+    let type: TokenType
+    let contractAddress: AlphaWallet.Address
+    let server: RPCServer
     let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
@@ -22,7 +23,8 @@ struct NonFungibleTokenViewCellViewModel {
          accessoryType: UITableViewCell.AccessoryType = .none,
          tokenImageFetcher: TokenImageFetcher) {
 
-        self.contract = token.contractAddress
+        self.type = token.type
+        self.contractAddress = token.contractAddress
         self.server = token.server
         self.iconImage = tokenImageFetcher.image(token: token, size: .s750)
         self.nonZeroBalanceCount = token.nonZeroBalance.count

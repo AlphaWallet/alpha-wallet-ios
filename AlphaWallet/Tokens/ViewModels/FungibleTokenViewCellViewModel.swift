@@ -4,16 +4,17 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-struct FungibleTokenViewCellViewModel {
+struct FungibleTokenViewCellViewModel: TokenIdentifiable {
     private let safeShortTitleInPluralForm: String
     private let amountShort: String
     private let symbolInPluralForm: String
     private let ticker: CoinTicker?
     private let valueDecimal: Decimal
-    private let contract: AlphaWallet.Address
-    private let server: RPCServer
     private let isVisible: Bool
-    
+
+    let type: TokenType
+    let contractAddress: AlphaWallet.Address
+    let server: RPCServer
     let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
@@ -22,11 +23,12 @@ struct FungibleTokenViewCellViewModel {
          accessoryType: UITableViewCell.AccessoryType = .none,
          tokenImageFetcher: TokenImageFetcher) {
 
+        self.type = token.type
         self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""
         self.amountShort = token.balance.amountShort
         self.symbolInPluralForm = token.tokenScriptOverrides?.symbolInPluralForm ?? ""
         self.ticker = token.balance.ticker
-        self.contract = token.contractAddress
+        self.contractAddress = token.contractAddress
         self.server = token.server
         self.valueDecimal = token.balance.valueDecimal
         self.iconImage = tokenImageFetcher.image(token: token, size: .s300)
