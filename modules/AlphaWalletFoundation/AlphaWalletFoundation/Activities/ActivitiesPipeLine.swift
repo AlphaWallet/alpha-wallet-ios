@@ -18,15 +18,31 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, sessionsProvider: sessionsProvider)
+        return EventSourceForActivities(
+            wallet: wallet,
+            config: config,
+            tokensService: tokensService,
+            assetDefinitionStore: assetDefinitionStore,
+            eventsDataStore: eventsActivityDataStore,
+            sessionsProvider: sessionsProvider)
     }()
     private let tokensService: TokenProvidable
     private lazy var eventSource: EventSource = {
-        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config, sessionsProvider: sessionsProvider)
+        EventSource(
+            wallet: wallet,
+            tokensService: tokensService,
+            assetDefinitionStore: assetDefinitionStore,
+            eventsDataStore: eventsDataStore,
+            config: config,
+            sessionsProvider: sessionsProvider)
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
-        return ActivitiesService(sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
+        return ActivitiesService(
+            sessionsProvider: sessionsProvider,
+            eventsActivityDataStore: eventsActivityDataStore,
+            transactionDataStore: transactionDataStore,
+            tokensService: tokensService)
     }()
 
     public var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> {

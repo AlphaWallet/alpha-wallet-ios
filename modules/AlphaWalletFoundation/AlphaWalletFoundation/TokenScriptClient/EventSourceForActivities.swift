@@ -274,6 +274,7 @@ final class EventSourceForActivities {
                     .filter { $0.policy == .force }
 
                 cancellable = Publishers.Merge(waitForCurrent, force)
+                    .receive(on: DispatchQueue.global())
                     .flatMap { [eventsFetcher] in eventsFetcher.fetchEvents(token: $0.token) }
                     .sink { _ in }
             }
