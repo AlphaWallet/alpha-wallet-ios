@@ -16,14 +16,37 @@ final class EnjinNetworking {
     typealias TokensPublisher = AnyPublisher<EnjinTokensResponse, PromiseError>
     typealias TokenPublisher = AnyPublisher<EnjinToken, PromiseError>
 
+    private let accessTokenStore: EnjinAccessTokenStore
+    private let credentials: EnjinCredentials
     private lazy var graphqlClient: ApolloClient = {
         let cache = InMemoryNormalizedCache()
         let store = ApolloStore(cache: cache)
-        let provider = NetworkInterceptorProvider(store: store, client: URLSessionClient())
-        let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.Enjin.apiUrl)
+        let userManager = EnjinUserManager(
+            store: store,
+            client: URLSessionClient(),
+            accessTokenStore: accessTokenStore,
+            endpointURL: Constants.Enjin.apiUrl,
+            credentials: credentials)
+
+        let provider = NetworkInterceptorProvider(
+            store: store,
+            client: URLSessionClient(),
+            accessTokenStore: accessTokenStore,
+            userManager: userManager)
+
+        let transport = RequestChainNetworkTransport(
+            interceptorProvider: provider,
+            endpointURL: Constants.Enjin.apiUrl)
 
         return ApolloClient(networkTransport: transport, store: store)
     }()
+
+    init(accessTokenStore: EnjinAccessTokenStore,
+         credentials: EnjinCredentials) {
+
+        self.credentials = credentials
+        self.accessTokenStore = accessTokenStore
+    }
 
     func getEnjinBalances(owner: AlphaWallet.Address,
                           offset: Int,
@@ -108,10 +131,14 @@ final private class NetworkInterceptorProvider: InterceptorProvider {
     private let client: URLSessionClient
     private let enjinUserManagementInterceptor: EnjinUserManagementInterceptor
 
-    init(store: ApolloStore, client: URLSessionClient) {
+    init(store: ApolloStore,
+         client: URLSessionClient,
+         accessTokenStore: EnjinAccessTokenStore,
+         userManager: EnjinUserManager) {
+
         self.store = store
         self.client = client
-        self.enjinUserManagementInterceptor = EnjinUserManagementInterceptor(store: store, client: client)
+        self.enjinUserManagementInterceptor = EnjinUserManagementInterceptor(userManager: userManager)
     }
 
     func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
