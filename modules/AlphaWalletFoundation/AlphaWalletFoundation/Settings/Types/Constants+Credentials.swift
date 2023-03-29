@@ -57,8 +57,8 @@ extension Constants {
         static let unstoppableDomainsV2ApiKey = env("UNSTOPPABLEDOMAINSV2KEY") ?? "Bearer rLuujk_dLBN-JDE6Xl8QSCg-FeIouRKM"
         static let blockscanChatProxyKey = env("BLOCKSCHATPROXYKEY") ?? ""
         static let covalentApiKey = env("COVALENTAPIKEY") ?? "ckey_7ee61be7f8364ba784f697510bd"
-        //Without the "Basic " prefix
-        static let klaytnRpcNodeKeyBasicAuth = env("KLAYTNRPCNODEKEYBASICAUTH") ?? ""
+        static let klaytnRpcNodeCypressKey = env("KLAYTNRPCNODECYPRESSKEY") ?? ""
+        static let klaytnRpcNodeBaobabKey = env("KLAYTNRPCNODEBAOBABKEY") ?? ""
     }
 }
 
