@@ -309,7 +309,7 @@ public enum RPCServer: Hashable, CaseIterable {
 
     var etherscanApiKey: String? {
         switch self {
-        case .main, .goerli, .optimistic, .optimismGoerli, .sepolia: return Constants.Credentials.etherscanKey
+        case .main, .goerli, .optimistic, .sepolia: return Constants.Credentials.etherscanKey
         case .arbitrum: return Constants.Credentials.arbiscanExplorerApiKey
         case .binance_smart_chain: return Constants.Credentials.binanceSmartChainExplorerApiKey //Key not needed for testnet (empirically)
         case .polygon, .mumbai_testnet: return Constants.Credentials.polygonScanExplorerApiKey
@@ -319,6 +319,7 @@ public enum RPCServer: Hashable, CaseIterable {
         case .classic, .xDai, .artis_sigma1, .artis_tau1, .callisto, .fantom_testnet, .avalanche_testnet, .cronosTestnet, .palm, .palmTestnet, .custom, .cronosMainnet: return nil
         case .ioTeX, .ioTeXTestnet: return nil
         case .optimismGoerli, .arbitrumGoerli: return nil
+        case .optimismGoerli: return nil
         case .okx: return nil
         }
     }
