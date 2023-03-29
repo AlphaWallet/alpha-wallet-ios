@@ -16,7 +16,7 @@ import BigInt
 final class JsonFromTokenUri {
     typealias Publisher = AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>
 
-    private let tokensService: TokenProvidable
+    private let tokensService: TokensProvidable
     private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
     private var inFlightPromises: [String: Publisher] = [:]
@@ -25,7 +25,7 @@ final class JsonFromTokenUri {
     private let networkService: NetworkService
 
     public init(blockchainProvider: BlockchainProvider,
-                tokensService: TokenProvidable,
+                tokensService: TokensProvidable,
                 networkService: NetworkService) {
 
         self.networkService = networkService

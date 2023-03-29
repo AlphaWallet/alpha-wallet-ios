@@ -120,7 +120,7 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
             .receive(on: queue)
             .setFailureType(to: ImportTokenError.self)
             .flatMap { [tokensDataStore, queue, server] server -> AnyPublisher<Token, ImportTokenError> in
-                if let token = tokensDataStore.token(forContract: contract, server: server) {
+                if let token = tokensDataStore.token(for: contract, server: server) {
                     return .just(token)
                 } else {
                     return self.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)

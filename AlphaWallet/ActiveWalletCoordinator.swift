@@ -136,7 +136,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let tokenSwapper: TokenSwapper
-    private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
+    private let tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable
     private let lock: Lock
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private var cancelable = Set<AnyCancellable>()
@@ -165,7 +165,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          sessionsProvider: SessionsProvider,
          tokenCollection: TokenCollection,
          transactionsDataStore: TransactionDataStore,
-         tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
+         tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable,
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,

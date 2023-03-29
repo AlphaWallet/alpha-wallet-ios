@@ -26,7 +26,7 @@ typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: 
 
 public class ActivitiesService: ActivitiesServiceType {
     let sessionsProvider: SessionsProvider
-    private let tokensService: TokenProvidable
+    private let tokensService: TokensProvidable
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
@@ -58,7 +58,7 @@ public class ActivitiesService: ActivitiesServiceType {
          transactionDataStore: TransactionDataStore,
          activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
          transactionsFilterStrategy: TransactionsFilterStrategy = .all,
-         tokensService: TokenProvidable) {
+         tokensService: TokensProvidable) {
 
         self.sessionsProvider = sessionsProvider
         self.eventsActivityDataStore = eventsActivityDataStore

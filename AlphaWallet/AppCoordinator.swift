@@ -843,7 +843,7 @@ extension AppCoordinator {
         let activitiesPipeLine: ActivitiesPipeLine
         let transactionsDataStore: TransactionDataStore
         let tokensDataStore: TokensDataStore
-        let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
+        let tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable & TokensServiceTests
         let pipeline: TokensProcessingPipeline
         let fetcher: WalletBalanceFetcher
         let sessionsProvider: SessionsProvider

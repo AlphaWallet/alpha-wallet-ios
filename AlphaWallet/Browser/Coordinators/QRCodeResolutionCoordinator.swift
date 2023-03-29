@@ -29,7 +29,7 @@ protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
 
 final class QRCodeResolutionCoordinator: Coordinator {
     enum Usage {
-        case all(tokensService: TokenProvidable, sessionsProvider: SessionsProvider)
+        case all(tokensService: TokensProvidable, sessionsProvider: SessionsProvider)
         case importWalletOnly
     }
 

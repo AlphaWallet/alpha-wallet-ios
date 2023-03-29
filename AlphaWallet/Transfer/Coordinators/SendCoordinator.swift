@@ -13,7 +13,7 @@ class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let keystore: Keystore
-    private let tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable
+    private let tokensService: TokensProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
@@ -35,7 +35,7 @@ class SendCoordinator: Coordinator {
          session: WalletSession,
          sessionsProvider: SessionsProvider,
          keystore: Keystore,
-         tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
+         tokensService: TokensProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,

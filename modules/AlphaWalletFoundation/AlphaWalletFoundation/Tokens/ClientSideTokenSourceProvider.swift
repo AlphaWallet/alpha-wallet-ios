@@ -23,8 +23,8 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private let balanceFetcher: TokenBalanceFetcherType
 
-    public private (set) lazy var newTokens: AnyPublisher<[Token], Never> = {
-        return tokensDataStore.enabledTokensChangeset(for: [session.server])
+    public private (set) lazy var addedTokensPublisher: AnyPublisher<[Token], Never> = {
+        return tokensDataStore.tokensChangesetPublisher(for: [session.server])
             .map { changeset -> [Token] in
                 switch changeset {
                 case .initial, .error: return []
@@ -35,11 +35,11 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
             .eraseToAnyPublisher()
     }()
 
-    public var tokens: [Token] { tokensDataStore.enabledTokens(for: [session.server]) }
+    public var tokens: [Token] { tokensDataStore.tokens(for: [session.server]) }
 
     public var tokensPublisher: AnyPublisher<[Token], Never> {
         let initialOrForceSnapshot = Publishers.Merge(Just<Void>(()), refreshSubject)
-            .map { [tokensDataStore, session] _ in tokensDataStore.enabledTokens(for: [session.server]) }
+            .map { [tokensDataStore, session] _ in tokensDataStore.tokens(for: [session.server]) }
             .eraseToAnyPublisher()
 
         let addedOrChanged = tokensDataStore.enabledTokensPublisher(for: [session.server])
@@ -98,7 +98,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
         }
 
         func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-            tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
+            tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
         }
 
         func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {

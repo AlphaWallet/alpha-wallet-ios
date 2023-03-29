@@ -24,7 +24,7 @@ public protocol TokenBalanceRefreshable {
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
 }
 
-public protocol TokensProcessingPipeline: TokenViewModelState & TokenViewModelRefreshable, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
+public protocol TokensProcessingPipeline: TokenViewModelState & TokenViewModelRefreshable, TokensProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
     func start()
 }
 //FIXME: Remove TokenCollection later
@@ -208,7 +208,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     private func startTickersHandling() {
         //NOTE: To don't block start method, and apply delay to fetch tickers, inital only
-        let tokens = Publishers.Merge(Just(tokensService.tokens).delay(for: .seconds(2), scheduler: queue), tokensService.newTokens)
+        let tokens = Publishers.Merge(Just(tokensService.tokens).delay(for: .seconds(2), scheduler: queue), tokensService.addedTokensPublisher)
             .removeDuplicates()
 
         Publishers.CombineLatest(tokens, currencyService.$currency)

@@ -10,7 +10,7 @@ final class EventSourceForActivities {
     typealias EventForActivityPublisher = AnyPublisher<[EventActivityInstance], Never>
 
     private let config: Config
-    private let tokensService: TokenProvidable
+    private let tokensService: TokensProvidable
     private let eventsDataStore: EventsActivityDataStoreProtocol
     private var cancellable = Set<AnyCancellable>()
     private let sessionsProvider: SessionsProvider
@@ -20,7 +20,7 @@ final class EventSourceForActivities {
 
     init(wallet: Wallet,
          config: Config,
-         tokensService: TokenProvidable,
+         tokensService: TokensProvidable,
          assetDefinitionStore: AssetDefinitionStore,
          eventsDataStore: EventsActivityDataStoreProtocol,
          sessionsProvider: SessionsProvider) {
@@ -90,7 +90,7 @@ final class EventSourceForActivities {
 
     class TokenScriptChangedTokens {
         private let queue = DispatchQueue(label: "com.eventSource.tokenScriptChangedTokens")
-        private let tokensService: TokenProvidable
+        private let tokensService: TokensProvidable
         private let sessionsProvider: SessionsProvider
         private let assetDefinitionStore: AssetDefinitionStore
 
@@ -103,7 +103,7 @@ final class EventSourceForActivities {
                 .eraseToAnyPublisher()
         }
 
-        init(tokensService: TokenProvidable,
+        init(tokensService: TokensProvidable,
              sessionsProvider: SessionsProvider,
              assetDefinitionStore: AssetDefinitionStore) {
 
@@ -132,14 +132,14 @@ final class EventSourceForActivities {
         private typealias RequestOrCancellation = EventSource.ChainTokenEventsForTickersWorker.RequestOrCancellation
 
         private let queue = DispatchQueue(label: "com.eventSource.chainTokenEventsForTickersWorker")
-        private let tokensService: TokenProvidable
+        private let tokensService: TokensProvidable
         private let session: WalletSession
         private let eventsFetcher: TokenEventsForActivitiesTickersFetcher
         private var workers: [AlphaWallet.Address: TokenEventsForActivitiesWorker] = [:]
         private var cancellable: AnyCancellable?
         private let tokenScriptChanges: TokenScriptChangedTokens
 
-        init(tokensService: TokenProvidable,
+        init(tokensService: TokensProvidable,
              session: WalletSession,
              eventsFetcher: TokenEventsForActivitiesTickersFetcher,
              tokenScriptChanges: TokenScriptChangedTokens) {
@@ -189,7 +189,7 @@ final class EventSourceForActivities {
                 .map { $0.filter { $0.server == server } }
                 .map { $0.map { RequestOrCancellation.request(FetchRequest(token: $0, policy: .force)) } }
 
-            let tokensChangeset = tokensService.tokensChangesetPublisher(servers: [server])
+            let tokensChangesetPublisher = tokensService.tokensChangesetPublisher(servers: [server])
                 .receive(on: queue)
                 .compactMap { changeset -> [RequestOrCancellation]? in
                     switch changeset {
@@ -216,7 +216,7 @@ final class EventSourceForActivities {
                     }
                 }
 
-            return Publishers.Merge(tokensChangeset, tokenScriptChanged)
+            return Publishers.Merge(tokensChangesetPublisher, tokenScriptChanged)
                 .map { values -> (requests: [FetchRequest], cancellations: [AlphaWallet.Address]) in
                     let cancellations = values.compactMap { value -> AlphaWallet.Address? in
                         guard case .cancel(let contract) = value else { return nil }
