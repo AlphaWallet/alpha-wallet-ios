@@ -538,7 +538,7 @@ public enum RPCServer: Hashable, CaseIterable {
             switch self {
             case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .classic: return "https://www.ethercluster.com/etc"
-            case .callisto: return "https://explorer.callisto.network/api/eth-rpc"
+            case .callisto: return "https://rpc.callisto.network"
             case .goerli: return "https://goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             //https://rpc.ankr.com/gnosis handles batching and errors differently from other RPC nodes
             // if there's an error, the `id` field is null (unlike others)
