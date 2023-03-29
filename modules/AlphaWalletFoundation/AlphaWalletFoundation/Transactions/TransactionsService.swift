@@ -108,8 +108,7 @@ public class TransactionsService {
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
                 ercTokenDetector: ercTokenDetector,
-                networking: session.apiNetworking,
-                defaultPagination: session.server.defaultTransactionsPagination)
+                networking: session.apiNetworking)
 
             provider.start()
 
@@ -164,18 +163,5 @@ public class TransactionsService {
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
         
         transactionDataStore.add(transactions: [transaction])
-    }
-}
-
-extension RPCServer {
-    var defaultTransactionsPagination: TransactionsPagination {
-        switch transactionsSource {
-        case .etherscan, .blockscout, .unknown:
-            return .init(page: 0, lastFetched: [], limit: 200)
-        case .covalent:
-            return .init(page: 0, lastFetched: [], limit: 500)
-        case .oklink:
-            return .init(page: 0, lastFetched: [], limit: 50)
-        }
     }
 }

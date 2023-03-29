@@ -93,6 +93,10 @@ public struct Config {
         "\(Keys.lastFetchedAutoDetectedTransactedTokenErc721BlockNumber)-\(wallet.eip55String)"
     }
 
+    private static func generateLastFetchedErc1155InteractionBlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
+        "\(Keys.lastFetchedAutoDetectedTransactedTokenErc1155BlockNumber)-\(wallet.eip55String)"
+    }
+
     private static func generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
         "\(Keys.lastFetchedAutoDetectedTransactedTokenErc20BlockNumber)-\(wallet.eip55String)"
     }
@@ -118,8 +122,19 @@ public struct Config {
         defaults.set(dictionary, forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet))
     }
 
+    public static func setLastFetchedErc1155InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) {
+        var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedErc1155InteractionBlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
+        dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
+        defaults.set(dictionary, forKey: generateLastFetchedErc1155InteractionBlockNumberKey(wallet))
+    }
+
     public static func getLastFetchedErc721InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
+        return dictionary["\(server.chainID)"]?.intValue
+    }
+
+    public static func getLastFetchedErc1155InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
+        guard let dictionary = defaults.value(forKey: generateLastFetchedErc1155InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
 
@@ -157,6 +172,7 @@ public struct Config {
         static let lastFetchedErc20InteractionBlockNumber = "lastFetchedErc20InteractionBlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenErc721BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc721BlockNumber"
+        static let lastFetchedAutoDetectedTransactedTokenErc1155BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc1155BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
         //We don't write to this key anymore as we support more than 1 service provider. Reading this key only for legacy reasons

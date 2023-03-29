@@ -12,18 +12,6 @@ import CombineExt
 public class AlphaWalletTokensService: TokensService {
     private var cancelable = Set<AnyCancellable>()
     private let providers: CurrentValueSubject<ServerDictionary<TokenSourceProvider>, Never> = .init(.init())
-    private let autoDetectTransactedTokensQueue: OperationQueue = {
-        let queue = OperationQueue()
-        queue.name = "Auto-detect Transacted Tokens"
-        queue.maxConcurrentOperationCount = 1
-        return queue
-    }()
-    private let autoDetectTokensQueue: OperationQueue = {
-        let queue = OperationQueue()
-        queue.name = "Auto-detect Tokens"
-        queue.maxConcurrentOperationCount = 1
-        return queue
-    }()
     private let sessionsProvider: SessionsProvider
     private let analytics: AnalyticsLogger
     private let tokensDataStore: TokensDataStore
@@ -101,8 +89,6 @@ public class AlphaWalletTokensService: TokensService {
     public func stop() {
         //NOTE: TokenBalanceFetcher has strong ref to Tokens Service, so we need to remove fetchers manually
         providers.value = .init()
-        autoDetectTransactedTokensQueue.cancelAllOperations()
-        autoDetectTokensQueue.cancelAllOperations()
     }
 
     public func start() {
@@ -140,8 +126,6 @@ public class AlphaWalletTokensService: TokensService {
 
         return ClientSideTokenSourceProvider(
             session: session,
-            autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue,
-            autoDetectTokensQueue: autoDetectTokensQueue,
             tokensDataStore: tokensDataStore,
             balanceFetcher: balanceFetcher)
     }

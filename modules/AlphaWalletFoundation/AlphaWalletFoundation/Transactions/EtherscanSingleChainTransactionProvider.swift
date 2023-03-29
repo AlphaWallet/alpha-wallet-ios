@@ -37,21 +37,36 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             apiNetworking: session.apiNetworking,
             transactionDataStore: transactionDataStore,
             interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(sessionID: session.sessionID, prefix: EtherscanCompatibleSchedulerStatePrefix.normalTransactions.rawValue))
+            stateProvider: PersistantSchedulerStateProvider(
+                sessionID: session.sessionID,
+                prefix: EtherscanCompatibleSchedulerStatePrefix.normalTransactions.rawValue))
 
         let erc20LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
             session: session,
             apiNetworking: session.apiNetworking,
             transferType: .erc20TokenTransfer,
             interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(sessionID: session.sessionID, prefix: EtherscanCompatibleSchedulerStatePrefix.erc20LatestTransactions.rawValue))
+            stateProvider: PersistantSchedulerStateProvider(
+                sessionID: session.sessionID,
+                prefix: EtherscanCompatibleSchedulerStatePrefix.erc20LatestTransactions.rawValue))
 
         let erc721LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
             session: session,
             apiNetworking: session.apiNetworking,
             transferType: .erc721TokenTransfer,
             interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(sessionID: session.sessionID, prefix: EtherscanCompatibleSchedulerStatePrefix.erc721LatestTransactions.rawValue))
+            stateProvider: PersistantSchedulerStateProvider(
+                sessionID: session.sessionID,
+                prefix: EtherscanCompatibleSchedulerStatePrefix.erc721LatestTransactions.rawValue))
+
+        let erc1155LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
+            session: session,
+            apiNetworking: session.apiNetworking,
+            transferType: .erc1155TokenTransfer,
+            interval: 15,
+            stateProvider: PersistantSchedulerStateProvider(
+                sessionID: session.sessionID,
+                prefix: EtherscanCompatibleSchedulerStatePrefix.erc1155LatestTransactions.rawValue))
 
         let oldestTransactionsStateProvider = PersistantSchedulerStateProvider(
             sessionID: session.sessionID,
@@ -64,9 +79,22 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             stateProvider: oldestTransactionsStateProvider)
 
         schedulerProviders = .init([
-            .init(fetchType: .normal, schedulerProvider: latestTransactionsProvider, publisher: latestTransactionsProvider.publisher),
-            .init(fetchType: .erc20Transfer, schedulerProvider: erc20LatestTransactionsProvider, publisher: erc20LatestTransactionsProvider.publisher),
-            .init(fetchType: .erc721Transfer, schedulerProvider: erc721LatestTransactionsProvider, publisher: erc721LatestTransactionsProvider.publisher)
+            .init(
+                fetchType: .normal,
+                schedulerProvider: latestTransactionsProvider,
+                publisher: latestTransactionsProvider.publisher),
+            .init(
+                fetchType: .erc20Transfer,
+                schedulerProvider: erc20LatestTransactionsProvider,
+                publisher: erc20LatestTransactionsProvider.publisher),
+            .init(
+                fetchType: .erc721Transfer,
+                schedulerProvider: erc721LatestTransactionsProvider,
+                publisher: erc721LatestTransactionsProvider.publisher),
+            .init(
+                fetchType: .erc1155Transfer,
+                schedulerProvider: erc1155LatestTransactionsProvider,
+                publisher: erc1155LatestTransactionsProvider.publisher)
         ])
 
         oldestTransferTransactionsScheduler = Scheduler(provider: oldestTransactionsProvider)
@@ -114,6 +142,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     func start() {
+        guard state == .pending else { return }
+
         pendingTransactionProvider.start()
         schedulerProviders.forEach { $0.start() }
         oldestTransferTransactionsScheduler.start()
@@ -133,7 +163,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     private func removeUnknownTransactions() {
-        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
+        //TODO: why do we remove such transactions? especially `.failed` and `.unknown`?
         transactionDataStore.removeTransactions(for: [.unknown], servers: [session.server])
     }
 
@@ -268,7 +298,7 @@ extension EtherscanSingleChainTransactionProvider {
 
             return buildFetchPublisher()
                 .handleEvents(receiveOutput: { [weak self] response in
-                    self?.handle(response: response.0)
+                    self?.handle(response: response.transactions)
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)
@@ -277,31 +307,43 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         //NOTE: don't play with .stopped state set it only when method is not supported, otherwise u will stop service
-        private func buildFetchPublisher() -> AnyPublisher<([Transaction], Int), PromiseError> {
+        private func buildFetchPublisher() -> AnyPublisher<TransactionsResponse, PromiseError> {
             let server = session.server
             let wallet = session.account.address
 
             switch transferType {
             case .erc20TokenTransfer:
                 let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
-                return apiNetworking.erc20TokenTransferTransactions(walletAddress: wallet, startBlock: startBlock)
-                    .handleEvents(receiveOutput: { _, maxBlockNumber in
+                let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
+
+                return apiNetworking.erc20TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
+                    .handleEvents(receiveOutput: { response in
                         //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
-                        if maxBlockNumber > 0 {
+                        if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
                             Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
                         }
                     }).eraseToAnyPublisher()
             case .erc721TokenTransfer:
                 let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
-                return apiNetworking.erc721TokenTransferTransactions(walletAddress: wallet, startBlock: startBlock)
-                    .handleEvents(receiveOutput: { _, maxBlockNumber in
+                let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
+                return apiNetworking.erc721TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
+                    .handleEvents(receiveOutput: { response in
                         //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
-                        if maxBlockNumber > 0 {
+                        if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
                             Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
                         }
                     }).eraseToAnyPublisher()
             case .erc1155TokenTransfer:
-                return .empty()
+                let startBlock = Config.getLastFetchedErc1155InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+                let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
+
+                return apiNetworking.erc1155TokenTransferTransaction(walletAddress: wallet, pagination: pagination)
+                    .handleEvents(receiveOutput: { response in
+                        //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
+                        if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
+                            Config.setLastFetchedErc1155InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
+                        }
+                    }).eraseToAnyPublisher()
             }
         }
 
@@ -369,10 +411,12 @@ extension EtherscanSingleChainTransactionProvider {
                 sortOrder = .desc
             }
 
+            let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: 999_999_999)
+
             return apiNetworking
-                .normalTransactions(walletAddress: session.account.address, startBlock: startBlock, endBlock: 999_999_999, sortOrder: sortOrder)
+                .normalTransactions(walletAddress: session.account.address, sortOrder: sortOrder, pagination: pagination)
                 .handleEvents(receiveOutput: { [weak self] response in
-                    self?.handle(response: response)
+                    self?.handle(response: response.transactions)
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)
@@ -435,10 +479,12 @@ extension EtherscanSingleChainTransactionProvider {
 
             guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server) else { return .empty() }
 
+            let pagination = BlockBasedPagination(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1)
+
             return apiNetworking
-                .normalTransactions(walletAddress: session.account.address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
+                .normalTransactions(walletAddress: session.account.address, sortOrder: .desc, pagination: pagination)
                 .handleEvents(receiveOutput: { [weak self] response in
-                    self?.handle(response: response)
+                    self?.handle(response: response.transactions)
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)

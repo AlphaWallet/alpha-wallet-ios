@@ -11,56 +11,47 @@ import AlphaWalletCore
 import AlphaWalletLogger
 import SwiftyJSON
 
-public struct TransactionsResponse {
-    public let transactions: [Transaction]
-    public let pagination: TransactionsPagination
+public protocol TransactionsPagination: Codable { }
 
-    public init(transactions: [Transaction], pagination: TransactionsPagination) {
-        self.transactions = transactions
-        self.pagination = pagination
-    }
+public struct TransactionsResponse {
+    let transactions: [Transaction]
+    let nextPage: TransactionsPagination?
+}
+
+struct BlockBasedPagination: TransactionsPagination {
+    let startBlock: Int?
+    let endBlock: Int?
 }
 
 public enum ApiNetworkingError: Error {
+    case paginationTypeNotSupported
     case methodNotSupported
 }
 
+//TODO: replace publisher with async await later
 public protocol ApiNetworking {
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
+                            sortOrder: GetTransactions.SortOrder,
+                            pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
+                                        pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
-                                startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+                                pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
 
     func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
-                                 startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+                                 pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
 
     func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
-                                  startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
-
-    func normalTransactions(walletAddress: AlphaWallet.Address,
-                            startBlock: Int,
-                            endBlock: Int,
-                            sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError>
-
-    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
-
-    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
-
-    func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                          startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
-
+                                  pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+    
     func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError>
 }
 
