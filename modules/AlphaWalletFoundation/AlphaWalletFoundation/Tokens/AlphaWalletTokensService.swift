@@ -43,7 +43,7 @@ public class AlphaWalletTokensService: TokensService {
     }()
 
     public func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
-        tokensDataStore.enabledTokensChangeset(for: servers)
+        tokensDataStore.tokensChangesetPublisher(for: servers)
     }
 
     public func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
@@ -61,9 +61,9 @@ public class AlphaWalletTokensService: TokensService {
         AlphaWalletTokensService.filterAwaySpuriousTokens(providers.value.flatMap { $0.value.tokens })
     }
 
-    public lazy var newTokens: AnyPublisher<[Token], Never> = {
+    public lazy var addedTokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
-            .flatMapLatest { $0.map { $0.newTokens }.merge() }
+            .flatMapLatest { $0.map { $0.addedTokensPublisher }.merge() }
             .eraseToAnyPublisher()
     }()
 
@@ -83,7 +83,7 @@ public class AlphaWalletTokensService: TokensService {
     }
 
     public func tokens(for servers: [RPCServer]) -> [Token] {
-        return tokensDataStore.enabledTokens(for: servers)
+        return tokensDataStore.tokens(for: servers)
     }
 
     public func mark(token: TokenIdentifiable, isHidden: Bool) {
@@ -92,11 +92,11 @@ public class AlphaWalletTokensService: TokensService {
     }
 
     public func token(for contract: AlphaWallet.Address) -> Token? {
-        return tokensDataStore.token(forContract: contract)
+        return tokensDataStore.token(for: contract)
     }
 
     public func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
-        return tokensDataStore.token(forContract: contract, server: server)
+        return tokensDataStore.token(for: contract, server: server)
     }
 
     public func refresh() {
@@ -233,7 +233,7 @@ extension AlphaWalletTokensService: TokensServiceTests {
 extension AlphaWalletTokensService {
 
     public func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
+        tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
     }
 
     public func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {

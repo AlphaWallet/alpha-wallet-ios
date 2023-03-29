@@ -26,7 +26,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
             eventsDataStore: eventsActivityDataStore,
             sessionsProvider: sessionsProvider)
     }()
-    private let tokensService: TokenProvidable
+    private let tokensService: TokensProvidable
     private lazy var eventSource: EventSource = {
         EventSource(
             wallet: wallet,
@@ -57,7 +57,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
                 wallet: Wallet,
                 assetDefinitionStore: AssetDefinitionStore,
                 transactionDataStore: TransactionDataStore,
-                tokensService: TokenProvidable,
+                tokensService: TokensProvidable,
                 sessionsProvider: SessionsProvider,
                 eventsActivityDataStore: EventsActivityDataStoreProtocol,
                 eventsDataStore: NonActivityEventsDataStore) {

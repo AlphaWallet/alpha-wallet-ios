@@ -34,7 +34,7 @@ extension Token: EnterAmountSupportable {}
 final class SendViewModel: TransactionTypeSupportable {
     private let transactionTypeFromQrCode: TransactionTypeFromQrCode
     private let session: WalletSession
-    private let tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
+    private let tokensService: TokensProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
     private let transactionTypeSubject: CurrentValueSubject<TransactionType, Never>
     private var cancelable = Set<AnyCancellable>()
     private (set) lazy var amountTextFieldViewModel = AmountTextFieldViewModel(token: nil, debugName: "")
@@ -78,7 +78,7 @@ final class SendViewModel: TransactionTypeSupportable {
 
     init(transactionType: TransactionType,
          session: WalletSession,
-         tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState,
+         tokensService: TokensProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState,
          sessionsProvider: SessionsProvider) {
 
         self.transactionTypeSubject = .init(transactionType)

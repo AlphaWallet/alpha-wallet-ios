@@ -15,7 +15,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var importTokenViewController: ImportMagicTokenViewController?
     private let assetDefinitionStore: AssetDefinitionStore
     private let keystore: Keystore
-    private let tokensService: TokenViewModelState & TokenProvidable
+    private let tokensService: TokenViewModelState & TokensProvidable
     private let session: WalletSession
     private let domainResolutionService: DomainResolutionServiceType
     private let networkService: NetworkService
@@ -30,7 +30,7 @@ class ImportMagicLinkCoordinator: Coordinator {
          config: Config,
          assetDefinitionStore: AssetDefinitionStore,
          keystore: Keystore,
-         tokensService: TokenViewModelState & TokenProvidable,
+         tokensService: TokenViewModelState & TokensProvidable,
          networkService: NetworkService,
          domainResolutionService: DomainResolutionServiceType,
          importToken: TokenImportable & TokenOrContractFetchable,

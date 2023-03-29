@@ -14,16 +14,14 @@ public enum DataStoreError: Error {
 }
 
 /// Multiple-chains tokens data store
-public protocol TokensDataStore: NSObjectProtocol {
-    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
-    func enabledTokens(for servers: [RPCServer]) -> [Token]
+public protocol TokensDataStore: NSObjectProtocol, TokenProvidable {
+    func tokensChangesetPublisher(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
+    func tokens(for servers: [RPCServer]) -> [Token]
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError>
     func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func hiddenContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func addEthToken(forServer server: RPCServer)
-    func token(forContract contract: AlphaWallet.Address) -> Token?
-    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
     func tokenBalancesTestsOnly() -> [TokenBalanceValue]
@@ -41,7 +39,7 @@ extension TokensDataStore {
     }
 
     func initialOrNewTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
-        return enabledTokensChangeset(for: servers)
+        return tokensChangesetPublisher(for: servers)
             .tryMap { changeset -> [Token] in
                 switch changeset {
                 case .initial(let tokens): return tokens
@@ -54,7 +52,7 @@ extension TokensDataStore {
     }
 
     func enabledTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
-        return enabledTokensChangeset(for: servers)
+        return tokensChangesetPublisher(for: servers)
             .map { changeset in
                   switch changeset {
                   case .initial(let tokens): return tokens
@@ -197,7 +195,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
     }
 
-    public func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
+    public func tokensChangesetPublisher(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[Token]>, Never>!
         store.performSync { realm in
             publisher = self.enabledTokenObjectResults(forServers: servers, realm: realm)
@@ -256,7 +254,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             }).eraseToAnyPublisher()
     }
 
-    public func enabledTokens(for servers: [RPCServer]) -> [Token] {
+    public func tokens(for servers: [RPCServer]) -> [Token] {
         var tokensToReturn: [Token] = []
         store.performSync { realm in
             let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Token(tokenObject: $0) })
@@ -315,7 +313,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         }
     }
 
-    public func token(forContract contract: AlphaWallet.Address) -> Token? {
+    public func token(for contract: AlphaWallet.Address) -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(contract: contract)
@@ -331,7 +329,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return token
     }
 
-    public func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+    public func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(server: server, contract: contract)
@@ -577,7 +575,7 @@ extension TokenObject {
 
 extension MultipleChainsTokensDataStore: DetectedContractsProvideble {
     public func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        enabledTokens(for: [server]).map { $0.contractAddress }
+        tokens(for: [server]).map { $0.contractAddress }
     }
 
     public func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {

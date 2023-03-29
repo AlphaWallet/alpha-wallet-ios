@@ -12,12 +12,12 @@ import Combine
 public final class TransactionBuilder {
     private typealias LocalizedOperation = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
 
-    private let tokenProvidable: TokenProvidable
+    private let tokenProvidable: TokensProvidable
     private let ercProvider: TokenProviderType
 
     let server: RPCServer
 
-    public init(tokensService: TokenProvidable,
+    public init(tokensService: TokensProvidable,
                 server: RPCServer,
                 tokenProvider: TokenProviderType) {
 

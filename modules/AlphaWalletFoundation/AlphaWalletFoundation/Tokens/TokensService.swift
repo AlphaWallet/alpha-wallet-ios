@@ -11,16 +11,19 @@ import Combine
 public protocol TokenProvidable {
     func token(for contract: AlphaWallet.Address) -> Token?
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
-    func tokens(for servers: [RPCServer]) -> [Token]
-
-    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
-    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
-    func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
 }
+
 public extension TokenProvidable {
     func token(for identifieble: TokenIdentifiable) -> Token? {
         token(for: identifieble.contractAddress, server: identifieble.server)
     }
+}
+
+public protocol TokensProvidable: TokenProvidable {
+    func tokens(for servers: [RPCServer]) -> [Token]
+    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
+    func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
 }
 
 public protocol TokenAddable {
@@ -29,7 +32,7 @@ public protocol TokenAddable {
 }
 
 public protocol TokenAutoDetectable {
-    var newTokens: AnyPublisher<[Token], Never> { get }
+    var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
 }
 
 public protocol TokensState {
@@ -55,7 +58,7 @@ public protocol TokenUpdatable {
     @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
 }
 
-public protocol TokensService: TokensState, TokenProvidable, TokenAddable, TokenHidable, TokenAutoDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable, DetectedContractsProvideble {
+public protocol TokensService: TokensState, TokensProvidable, TokenAddable, TokenHidable, TokenAutoDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable, DetectedContractsProvideble {
     func refresh()
     func start()
     func stop()

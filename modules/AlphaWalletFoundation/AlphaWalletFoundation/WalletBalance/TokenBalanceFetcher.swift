@@ -28,7 +28,7 @@ public protocol TokenBalanceFetcherType: AnyObject {
 public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let nftProvider: NFTProvider
     private let queue = DispatchQueue(label: "org.alphawallet.swift.tokenBalanceFetcher", qos: .utility)
-    private let tokensService: TokenProvidable & TokenAddable
+    private let tokensService: TokensProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
 
@@ -68,7 +68,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     public init(session: WalletSession,
-                tokensService: TokenProvidable & TokenAddable,
+                tokensService: TokensProvidable & TokenAddable,
                 etherToken: Token,
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,

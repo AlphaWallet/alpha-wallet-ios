@@ -25,7 +25,7 @@ class ImportTokenTests: XCTestCase {
 
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .zero, tokenType: .erc20)
 
-        XCTAssertNil(tokensDataStore.token(forContract: address, server: server), "Initially token is nil")
+        XCTAssertNil(tokensDataStore.token(for: address, server: server), "Initially token is nil")
 
         let expectation = self.expectation(description: "did resolve erc20 token")
         importToken.importToken(for: address)
@@ -35,7 +35,7 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.type, .erc20)
                 XCTAssertEqual(token.symbol, "erc20")
                 XCTAssertEqual(token.decimals, 6)
-                XCTAssertEqual(token, tokensDataStore.token(forContract: address, server: server), "Token has added to storage")
+                XCTAssertEqual(token, tokensDataStore.token(for: address, server: server), "Token has added to storage")
             }).store(in: &cancelable)
 
         waitForExpectations(timeout: 30)

@@ -5,13 +5,13 @@ import Combine
 
 public class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokensService: TokenProvidable
+    private let tokensService: TokensProvidable
     private let serversProvider: ServersProvidable
     private let queue = DispatchQueue(label: "com.FetchAssetDefinitions.UpdateQueue")
     private var cancellable = Set<AnyCancellable>()
 
     public init(assetDefinitionStore: AssetDefinitionStore,
-                tokensService: TokenProvidable,
+                tokensService: TokensProvidable,
                 serversProvider: ServersProvidable) {
 
         self.assetDefinitionStore = assetDefinitionStore

@@ -206,7 +206,7 @@ extension ActivityCollection {
 
 extension ActivityCollection.functional {
 
-    public static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, service: TokenProvidable, wallet: AlphaWallet.Address) -> (token: Token, activityName: String)? {
+    public static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, service: TokensProvidable, wallet: AlphaWallet.Address) -> (token: Token, activityName: String)? {
         enum TokenOperation {
             case nativeCryptoTransfer(Token)
             case completedTransfer(Token)
@@ -269,7 +269,7 @@ extension ActivityCollection.functional {
         return (token: token, activityName: activityName)
     }
 
-    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, service: TokenProvidable, wallet: AlphaWallet.Address) -> Activity? {
+    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, service: TokensProvidable, wallet: AlphaWallet.Address) -> Activity? {
         guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, service: service, wallet: wallet) else { return nil }
 
         var cardAttributes = [AttributeId: AssetInternalValue]()

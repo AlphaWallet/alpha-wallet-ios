@@ -39,7 +39,7 @@ final class ImportMagicLinkController {
 
     private var server: RPCServer { return session.server }
 
-    private let tokensService: TokenViewModelState & TokenProvidable
+    private let tokensService: TokenViewModelState & TokensProvidable
     private let session: WalletSession
     private let networking: ImportMagicLinkNetworking
     private var signedOrder: SignedOrder?
@@ -65,7 +65,7 @@ final class ImportMagicLinkController {
     init(session: WalletSession,
          assetDefinitionStore: AssetDefinitionStore,
          keystore: Keystore,
-         tokensService: TokenViewModelState & TokenProvidable,
+         tokensService: TokenViewModelState & TokensProvidable,
          networkService: NetworkService,
          importToken: TokenImportable & TokenOrContractFetchable,
          reachability: ReachabilityManagerProtocol) {
