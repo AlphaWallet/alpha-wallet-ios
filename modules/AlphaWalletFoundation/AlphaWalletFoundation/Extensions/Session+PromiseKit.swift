@@ -109,7 +109,12 @@ extension APIKitSession {
                 case .errorObjectParseError(let e):
                     RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.errorObjectParseError | error: \(e.localizedDescription)", url: baseUrl.absoluteString)
                 case .unsupportedVersion(let str):
-                    RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.unsupportedVersion | str: \(String(describing: str))", url: baseUrl.absoluteString)
+                    //If there's an error and the payload is missing the "jsonrpc" key (and the HTTP status code is still `200`), JSONRPCKit interprets that as `.unsupportedVersion`. But the error could be (eg. https://klaytn-baobab.blockpi.network/v1/rpc/ for Klaytn) `{"error":{"code":-32000,"message":"The apikey format is wrong"}}`                                                                    `
+                    if let host = baseUrl.host, ["klaytn.blockpi.network", "klaytn-baobab.blockpi.network"].contains(host) {
+                        return RpcNodeRetryableRequestError.invalidApiKey(server: server, domainName: baseUrl.host ?? "")
+                    } else {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.unsupportedVersion | str: \(String(describing: str))", url: baseUrl.absoluteString)
+                    }
                 case .unexpectedTypeObject(let obj):
                     RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.unexpectedTypeObject | obj: \(obj)", url: baseUrl.absoluteString)
                 case .missingBothResultAndError(let obj):
