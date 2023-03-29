@@ -8,20 +8,7 @@ import BigInt
 
 extension RPCServer {
     public var rpcHeaders: RPCNodeHTTPHeaders {
-        switch self {
-        case .klaytnCypress, .klaytnBaobabTestnet:
-            let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
-            if basicAuth.isEmpty {
-                return .init()
-            } else {
-                return [
-                    "Authorization": "Basic \(basicAuth)",
-                    "x-chain-id": "\(chainID)",
-                ]
-            }
-        case .main, .classic, .callisto, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet, .okx, .sepolia:
-            return .init()
-        }
+        return .init()
     }
 
     func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {

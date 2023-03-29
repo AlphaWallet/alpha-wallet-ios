@@ -564,18 +564,18 @@ public enum RPCServer: Hashable, CaseIterable {
             case .palm: return "https://palm-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palmTestnet: return "https://palm-testnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .klaytnCypress:
-                let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
-                if basicAuth.isEmpty {
+                let key = Constants.Credentials.klaytnRpcNodeCypressKey
+                if key.isEmpty {
                     return "https://public-node-api.klaytnapi.com/v1/cypress"
                 } else {
-                    return "https://node-api.klaytnapi.com/v1/klaytn"
+                    return "https://klaytn.blockpi.network/v1/rpc/\(key)"
                 }
             case .klaytnBaobabTestnet:
-                let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
-                if basicAuth.isEmpty {
+                let key = Constants.Credentials.klaytnRpcNodeBaobabKey
+                if key.isEmpty {
                     return "https://api.baobab.klaytn.net:8651"
                 } else {
-                    return "https://node-api.klaytnapi.com/v1/klaytn"
+                    return "https://klaytn-baobab.blockpi.network/v1/rpc/\(key)"
                 }
             case .ioTeX: return "https://babel-api.mainnet.iotex.io"
             case .ioTeXTestnet: return "https://babel-api.testnet.iotex.io"
