@@ -191,7 +191,7 @@ extension TransactionConfirmationViewController {
         containerView.stackView.removeAllArrangedSubviews()
 
         var activeHeaderView: TransactionConfirmationHeaderView?
-
+        var viewsToAdd: [UIView] = []
         for each in views {
             switch each {
             case .view(let viewModel, let isHidden):
@@ -219,12 +219,17 @@ extension TransactionConfirmationViewController {
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 }
 
-                containerView.stackView.addArrangedSubview(header)
+                viewsToAdd += [header]
+
                 activeHeaderView = header
             }
 
             activeHeaderView?.childrenStackView.isHidden = activeHeaderView?.childrenStackView.arrangedSubviews.isEmpty ?? true
         }
+
+        containerView.stackView.addArrangedSubviews(viewsToAdd)
+
+        delegate?.didInvalidateLayout(in: self)
     }
 }
 

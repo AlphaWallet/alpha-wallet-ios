@@ -15,6 +15,8 @@ struct ConfirmButtonViewModelInput {
 }
 
 struct ConfirmButtonViewModelOutput {
+    //NOTE: crucial to make sure view model don't have any delay to return data on initial call, delaying might brake view appearing animation,
+    //make sure view models have `.initial` value
     let viewState: AnyPublisher<ConfirmButtonViewModel.ViewState, Never>
     let confirmSelected: AnyPublisher<Void, Never>
 }
