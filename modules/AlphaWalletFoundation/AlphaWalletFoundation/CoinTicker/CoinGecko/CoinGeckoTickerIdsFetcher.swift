@@ -18,7 +18,7 @@ public protocol SupportedTickerIdsFetcherConfig {
 public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     typealias TickerIdsPublisher = AnyPublisher<Void, PromiseError>
 
-    private let networkProvider: CoinTickerNetworkProviderType
+    private let networking: CoinTickerNetworking
     private let storage: TickerIdsStorage & CoinTickersStorage
     private var config: SupportedTickerIdsFetcherConfig
     private let pricesCacheLifetime: TimeInterval
@@ -30,8 +30,8 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     /// - networkProvider
     /// - storage
     /// - config
-    public init(networkProvider: CoinTickerNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: SupportedTickerIdsFetcherConfig, pricesCacheLifetime: TimeInterval = 604800) {
-        self.networkProvider = networkProvider
+    public init(networking: CoinTickerNetworking, storage: TickerIdsStorage & CoinTickersStorage, config: SupportedTickerIdsFetcherConfig, pricesCacheLifetime: TimeInterval = 604800) {
+        self.networking = networking
         self.storage = storage
         self.config = config
         self.pricesCacheLifetime = pricesCacheLifetime
@@ -63,7 +63,7 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
             if let publisher = fetchSupportedTickerIdsPublisher {
                 return publisher
             } else {
-                let publisher = networkProvider.fetchSupportedTickerIds()
+                let publisher = networking.fetchSupportedTickerIds()
                     .receive(on: queue)
                     .handleEvents(receiveOutput: { [storage, weak self] tickerIds in
                         storage.addOrUpdate(tickerIds: tickerIds)

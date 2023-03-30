@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension CoinGeckoNetworkProvider {
+extension BaseCoinTickerNetworking {
     private static var allHTTPHeaderFields: [String: String]? = [
         "Content-type": "application/json",
         "client": Bundle.main.bundleIdentifier ?? "",
@@ -19,7 +19,7 @@ extension CoinGeckoNetworkProvider {
             guard var components = URLComponents(url: Constants.Coingecko.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/api/v3/coins/list"
             var request = try URLRequest(url: components.asURL(), method: .get)
-            request.allHTTPHeaderFields = CoinGeckoNetworkProvider.allHTTPHeaderFields
+            request.allHTTPHeaderFields = BaseCoinTickerNetworking.allHTTPHeaderFields
 
             return try URLEncoding().encode(request, with: ["include_platform": "true"])
         }
@@ -35,7 +35,7 @@ extension CoinGeckoNetworkProvider {
             components.path = "/api/v3/coins/markets"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
-            request.allHTTPHeaderFields = CoinGeckoNetworkProvider.allHTTPHeaderFields
+            request.allHTTPHeaderFields = BaseCoinTickerNetworking.allHTTPHeaderFields
 
             return try URLEncoding().encode(request, with: [
                 "vs_currency": currency,
@@ -58,7 +58,7 @@ extension CoinGeckoNetworkProvider {
             components.path = "/api/v3/coins/\(id)/market_chart"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
-            request.allHTTPHeaderFields = CoinGeckoNetworkProvider.allHTTPHeaderFields
+            request.allHTTPHeaderFields = BaseCoinTickerNetworking.allHTTPHeaderFields
 
             return try URLEncoding().encode(request, with: [
                 "vs_currency": currency,
