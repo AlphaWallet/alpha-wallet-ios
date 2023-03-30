@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftyJSON
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public class FakeCoinTickerNetworking: CoinTickerNetworking {
     public init() {}
@@ -33,9 +34,21 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
         self.transporter = transporter
     }
 
+    private func log(response: URLRequest.Response) {
+        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
+        case .failure:
+            let error = try? decoder.decode(CoinGeckoErrorResponse.self, from: response.data)
+            let message = error?.status.message ?? ""
+            infoLog("[CoinGecko] request failure with status code: \(response.response.statusCode), message: \(message)")
+        case .success:
+            break
+        }
+    }
+
     public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
         transporter
             .dataTaskPublisher(TokensThatHasPricesRequest())
+            .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
             .mapError { PromiseError.some(error: $0) }
             .share()
@@ -67,6 +80,7 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
         return transporter
             .dataTaskPublisher(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
+            .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { try ChartHistory(json: try JSON(data: $0.data), currency: currency) }
             .mapError { PromiseError.some(error: $0) }
             .share()
@@ -76,6 +90,7 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
     private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
         return transporter
             .dataTaskPublisher(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
+            .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { [decoder] in
                 do {
                     return try decoder.decode([CoinTicker].self, from: $0.data)

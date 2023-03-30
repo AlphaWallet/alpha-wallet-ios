@@ -22,6 +22,20 @@ extension URLRequest {
     public typealias Response = (data: Data, response: HTTPURLResponse)
 }
 
+extension URLRequest {
+    public static func validate<S: Sequence>(statusCode acceptableStatusCodes: S,
+                                      response: HTTPURLResponse) -> Alamofire.Request.ValidationResult where S.Iterator.Element == Int {
+
+        if acceptableStatusCodes.contains(response.statusCode) {
+            return .success(())
+        } else {
+            let reason = AFError.ResponseValidationFailureReason.unacceptableStatusCode(code: response.statusCode)
+            return .failure(AFError.responseValidationFailed(reason: reason))
+        }
+
+    }
+}
+
 public protocol NetworkService {
     func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response
     func dataTaskPublisher(_ request: URLRequestConvertible, callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError>
