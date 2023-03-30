@@ -54,7 +54,7 @@ public class BaseCoinTickersFetcher {
     public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool = false, currency: Currency) {
         //NOTE: cancel all previous requests for prev currency
         inlightPromises.removeAll { $0.currency != currency }
-        print("xxx.tokens: \(tokens)")
+
         let targetTokensToFetchTickers = tokens.filter {
             let key = FetchTickerKey(contractAddress: $0.contractAddress, server: $0.server, currency: currency)
             if inlightPromises[key] != nil {
@@ -68,7 +68,6 @@ public class BaseCoinTickersFetcher {
 
         //NOTE: use shared loading tickers operation for batch of tokens
         let operation = fetchBatchOfTickers(for: targetTokensToFetchTickers, currency: currency)
-            .print("xxx.fetchBatchOfTickers")
             .sink(receiveCompletion: { [inlightPromises] _ in
                 for token in targetTokensToFetchTickers {
                     let key = FetchTickerKey(contractAddress: token.contractAddress, server: token.server, currency: currency)
