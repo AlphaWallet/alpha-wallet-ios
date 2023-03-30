@@ -74,9 +74,6 @@ final class BrowserViewController: UIViewController {
         ])
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-
         bind(viewModel: viewModel)
     }
 
@@ -108,36 +105,23 @@ final class BrowserViewController: UIViewController {
         output.recordUrl
             .sink { [weak self] _ in self?.recordURL() }
             .store(in: &cancellable)
+
+        output.keyboardAction
+            .sink { [weak self] state in
+                guard let strongSelf = self else { return }
+                switch state {
+                case .hideKeyboard:
+                    strongSelf.webView.scrollView.contentInset.bottom = 0
+                    //Must exit editing more explicitly (and update the nav bar buttons) because tapping on the web view can hide keyboard
+                    strongSelf.delegate?.dismissKeyboard(in: strongSelf)
+                case .adjustBottomInset(let height):
+                    strongSelf.webView.scrollView.contentInset.bottom = height
+                }
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    @objc private func keyboardWillShow(notification: NSNotification) {
-        if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let _ = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue {
-            webView.scrollView.contentInset.bottom = keyboardEndFrame.size.height
-        }
-    }
-
-    @objc private func keyboardWillHide(notification: NSNotification) {
-        //If there's a external keyboard (or on simulator with software keyboard disabled):
-        //    When text input starts. beginRect: size.height=0 endRect: size.height ~54. origin.y remains at ~812 (out of the screen)
-        //    When text input ends. beginRect: size.height ~54 endRect: size.height = 0. origin.y remains at 812 (out of the screen)
-        //Note the above. keyboardWillHide() is called for both when input starts and ends for external keyboard. Probably because the keyboard is hidden in both cases
-        guard let beginRect = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let endRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
-        let isExternalKeyboard = beginRect.origin == endRect.origin && (beginRect.size.height == 0 || endRect.size.height == 0)
-        let isEnteringEditModeWithExternalKeyboard: Bool
-        if isExternalKeyboard {
-            isEnteringEditModeWithExternalKeyboard = beginRect.size.height == 0 && endRect.size.height > 0
-        } else {
-            isEnteringEditModeWithExternalKeyboard = false
-        }
-        if !isExternalKeyboard || !isEnteringEditModeWithExternalKeyboard {
-            webView.scrollView.contentInset.bottom = 0
-            //Must exit editing more explicitly (and update the nav bar buttons) because tapping on the web view can hide keyboard
-            delegate?.dismissKeyboard(in: self)
-        }
     }
 
     private func injectUserAgent() {
