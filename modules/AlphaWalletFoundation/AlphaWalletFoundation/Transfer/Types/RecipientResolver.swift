@@ -21,16 +21,16 @@ public class RecipientResolver {
     }
 
     public let address: AlphaWallet.Address?
-    private var resolution: BlockieAndAddressOrEnsResolution?
+    private var resolution: Loadable<BlockieAndAddressOrEnsResolution, Error> = .loading
     public var ensName: EnsName? {
-        resolution?.resolution.value
+        resolution.value?.resolution.value
     }
     public var blockieImage: BlockiesImage? {
-        resolution?.image
+        resolution.value?.image
     }
 
     public var hasResolvedEnsName: Bool {
-        if let value = resolution?.resolution.value {
+        if let value = resolution.value?.resolution.value {
             return !value.trimmed.isEmpty
         }
         return false
@@ -40,17 +40,24 @@ public class RecipientResolver {
     public init(address: AlphaWallet.Address?, domainResolutionService: DomainResolutionServiceType) {
         self.address = address
         self.domainResolutionService = domainResolutionService
-    } 
+    }
 
-    public func resolveRecipient() -> AnyPublisher<BlockieAndAddressOrEnsResolution?, Never> {
+    private struct RecipientResolutionError: Error {
+        let message: String
+    }
+
+    public func resolveRecipient() -> AnyPublisher<Loadable<BlockieAndAddressOrEnsResolution, Error>, Never> {
         guard let address = address else {
-            return .just((image: nil, resolution: .invalidInput))
+            return .just(.failure(RecipientResolutionError(message: "address not found")))
+                .prepend(.loading)
+                .eraseToAnyPublisher()
         }
 
         return domainResolutionService.resolveEnsAndBlockie(address: address)
-            .map { resolution -> BlockieAndAddressOrEnsResolution? in return resolution }
-            .replaceError(with: nil)
+            .map { resolution -> Loadable<BlockieAndAddressOrEnsResolution, Error> in return .done(resolution) }
+            .catch { return Just(Loadable<BlockieAndAddressOrEnsResolution, Error>.failure($0)) }
             .handleEvents(receiveOutput: { [weak self] in self?.resolution = $0 })
+            .prepend(.loading)
             .eraseToAnyPublisher()
     }
 
