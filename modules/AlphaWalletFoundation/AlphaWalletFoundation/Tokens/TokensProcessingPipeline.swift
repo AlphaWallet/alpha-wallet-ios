@@ -216,7 +216,14 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 let nativeCryptoForAllChains = RPCServer.allCases.map { MultipleChainsTokensDataStore.functional.etherToken(forServer: $0) }
                 //NOTE: remove type type filtering when add support for nonfungibles
                 let tokens = (tokens + nativeCryptoForAllChains).filter { !$0.server.isTestnet && ($0.type == .nativeCryptocurrency || $0.type == .erc20 ) }
-                let uniqueTokens = Set(tokens).map { TokenMappedToTicker(symbol: $0.symbol, name: $0.name, contractAddress: $0.contractAddress, server: $0.server, coinGeckoId: nil) }
+                let uniqueTokens = Set(tokens).map {
+                    TokenMappedToTicker(
+                        symbol: $0.symbol,
+                        name: $0.name,
+                        contractAddress: $0.contractAddress,
+                        server: $0.server,
+                        coinGeckoId: $0.info.coinGeckoId)
+                }
 
                 coinTickersFetcher.fetchTickers(for: uniqueTokens, force: false, currency: currency)
                 tokensService.refreshBalance(updatePolicy: .tokens(tokens: tokens))
