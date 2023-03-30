@@ -31,13 +31,13 @@ struct Web3Signer: WalletConnectSwiftV2.EthereumSigner {
         case recoverPubKeyFailure
     }
 
-    func sign(message: Data, with key: Data) throws -> EthereumSignature {
+    func sign(message: Data, with key: Data) throws -> WalletConnectSwiftV2.EthereumSignature {
         let hash = message.sha3(.keccak256)
         let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-        return EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
+        return WalletConnectSwiftV2.EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
     }
 
-    func recoverPubKey(signature: EthereumSignature, message: Data) throws -> Data {
+    func recoverPubKey(signature: WalletConnectSwiftV2.EthereumSignature, message: Data) throws -> Data {
         guard let data = Web3.Utils.recoverPublicKey(message: message, v: signature.v, r: signature.r, s: signature.s) else {
             throw SignerError.recoverPubKeyFailure
         }
