@@ -70,7 +70,7 @@ class HelpUsCoordinator: Coordinator {
         hostViewController.dismiss(animated: true, completion: nil)
     }
 
-    func presentSharing(in viewController: UIViewController, from sender: UIView) {
+    private func presentSharing(in viewController: UIViewController, from sender: UIView) {
         let activityViewController = UIActivityViewController(
             activityItems: viewModel.activityItems,
             applicationActivities: nil
