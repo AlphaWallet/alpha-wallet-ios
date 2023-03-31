@@ -77,6 +77,9 @@ class HelpUsCoordinator: Coordinator {
         )
         activityViewController.popoverPresentationController?.sourceView = sender
         activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
+        activityViewController.completionHandler = { [weak self] _, isShared in
+            self?.logSharedAppWhenPrompted(isShared)
+        }
         viewController.present(activityViewController, animated: true, completion: nil)
     }
 }
@@ -111,5 +114,9 @@ extension HelpUsCoordinator: WellDoneViewControllerDelegate {
 extension HelpUsCoordinator {
     private func logEmailNewsletterSubscription(isSubscribed: Bool) {
         analytics.log(action: Analytics.Action.subscribeToEmailNewsletter, properties: [Analytics.Properties.isAccepted.rawValue: isSubscribed])
+    }
+
+    private func logSharedAppWhenPrompted(_ isShared: Bool) {
+        analytics.log(action: Analytics.Action.sharedAppWhenPrompted, properties: [Analytics.Properties.isAccepted.rawValue: isShared])
     }
 }
