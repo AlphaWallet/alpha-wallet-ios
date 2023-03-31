@@ -24,7 +24,7 @@ extension URLRequest {
 
 extension URLRequest {
     public static func validate<S: Sequence>(statusCode acceptableStatusCodes: S,
-                                      response: HTTPURLResponse) -> Alamofire.Request.ValidationResult where S.Iterator.Element == Int {
+                                             response: HTTPURLResponse) -> Alamofire.Request.ValidationResult where S.Iterator.Element == Int {
 
         if acceptableStatusCodes.contains(response.statusCode) {
             return .success(())
