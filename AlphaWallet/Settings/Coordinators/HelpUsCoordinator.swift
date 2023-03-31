@@ -77,7 +77,7 @@ class HelpUsCoordinator: Coordinator {
         )
         activityViewController.popoverPresentationController?.sourceView = sender
         activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
-        activityViewController.completionHandler = { [weak self] _, isShared in
+        activityViewController.completionWithItemsHandler = { [weak self] _, isShared, _, _ in
             self?.logSharedAppWhenPrompted(isShared)
         }
         viewController.present(activityViewController, animated: true, completion: nil)
