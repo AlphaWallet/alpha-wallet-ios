@@ -115,7 +115,7 @@ class Button: UIButton {
         return nil
     }
 
-    func apply(size: ButtonSize, style: ButtonStyle) {
+    private func apply(size: ButtonSize, style: ButtonStyle) {
         heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
 
         let constraint = heightAnchor.constraint(equalToConstant: size.height)
