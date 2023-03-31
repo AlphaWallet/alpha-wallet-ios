@@ -171,7 +171,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                 case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
-                    viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+                    viewController.updateBalanceValue(balance, tokenType: tokenType)
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
 
                     return .just(tokenType)
@@ -206,7 +206,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                     viewController.updateSymbolValue(symbol)
                 case .balance(let nonFungibleBalance, _, let tokenType):
                     if let balance = nonFungibleBalance {
-                        viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+                        viewController.updateBalanceValue(balance, tokenType: tokenType)
                     }
                 case .decimals(let decimals):
                     viewController.updateDecimalsValue(decimals)

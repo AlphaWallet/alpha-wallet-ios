@@ -229,11 +229,22 @@ class NewTokenViewController: UIViewController {
     }
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
-    public func updateBalanceValue(_ balance: [String], tokenType: TokenType) {
+    public func updateBalanceValue(_ balance: NonFungibleBalance, tokenType: TokenType) {
         //TODO this happens to work for CryptoKitty now because of how isNonZeroBalance() is implemented. But should fix
-        let filteredTokens = balance.filter { isNonZeroBalance($0, tokenType: tokenType) }
-        viewModel.erc875TokenBalance = filteredTokens
-        balanceTextField.value = viewModel.erc875TokenBalanceAmount.description
+        let filteredBalance: NonFungibleBalance
+        switch balance {
+        case .assets(let values):
+            filteredBalance = .assets(values.filter { isNonZeroBalance($0.json, tokenType: tokenType) })
+        case .erc875(let values):
+            filteredBalance = .erc875(values.filter { isNonZeroBalance($0, tokenType: tokenType) })
+        case .erc721ForTickets(let values):
+            filteredBalance = .erc721ForTickets(values.filter { isNonZeroBalance($0, tokenType: tokenType) })
+        case .balance(let values):
+            filteredBalance = .balance(values.filter { isNonZeroBalance($0, tokenType: tokenType) })
+        }
+
+        viewModel.nonFungibleBalance = filteredBalance
+        balanceTextField.value = viewModel.nonFungibleBalanceAmount.description
     }
 
     public func updateForm(forTokenType tokenType: TokenType) {
@@ -314,8 +325,20 @@ class NewTokenViewController: UIViewController {
         let symbol = symbolTextField.value
         let decimals = Int(decimalsTextField.value) ?? 0
         guard let tokenType = self.tokenType else { return }
-        //TODO looks wrong to mention ERC875TokenBalance specifically
-        var balance: [String] = viewModel.erc875TokenBalance
+
+        var nonFungibleBalance: NonFungibleBalance
+        switch tokenType {
+        case .erc875:
+            if let balance = viewModel.nonFungibleBalance {
+                nonFungibleBalance = balance.rawValue.isEmpty ? .erc875(["0"]) : balance
+            } else {
+                nonFungibleBalance = .erc875(["0"])
+            }
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
+            nonFungibleBalance = viewModel.nonFungibleBalance ?? .balance([])
+        case .erc721ForTickets:
+            nonFungibleBalance = viewModel.nonFungibleBalance ?? .erc721ForTickets([])
+        }
 
         guard let address = AlphaWallet.Address(string: contract) else {
             addressTextField.errorState = .error(InputError.invalidAddress.localizedDescription)
@@ -323,11 +346,7 @@ class NewTokenViewController: UIViewController {
         }
         addressTextField.errorState = .none
 
-        if balance.isEmpty {
-            balance.append("0")
-        }
-
-        let ercToken = ErcToken(contract: address, server: server, name: name, symbol: symbol, decimals: decimals, type: tokenType, value: .zero, balance: .erc875(balance))
+        let ercToken = ErcToken(contract: address, server: server, name: name, symbol: symbol, decimals: decimals, type: tokenType, value: .zero, balance: nonFungibleBalance)
 
         delegate?.didAddToken(ercToken: ercToken, in: self)
     }
