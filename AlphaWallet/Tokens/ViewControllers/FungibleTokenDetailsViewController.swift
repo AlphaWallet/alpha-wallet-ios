@@ -31,7 +31,7 @@ class FungibleTokenDetailsViewController: UIViewController {
         let chartView = TokenHistoryChartView(viewModel: viewModel.chartViewModel)
         return chartView
     }()
-    
+
     private let viewModel: FungibleTokenDetailsViewModel
     private var cancelable = Set<AnyCancellable>()
     private let willAppear = PassthroughSubject<Void, Never>()
