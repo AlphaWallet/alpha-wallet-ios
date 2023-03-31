@@ -746,7 +746,9 @@ public enum RPCServer: Hashable, CaseIterable {
             return 3000
         case .main, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .fantom, .custom, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .sepolia:
             return nil
-        case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            return 1024
+        case .ioTeX, .ioTeXTestnet:
             //These not allow range more than 10,000
             return 9999
         case .cronosMainnet:
