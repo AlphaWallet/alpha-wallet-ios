@@ -22,7 +22,7 @@ extension TransactionConfirmationViewModel {
         private let session: WalletSession
         private let transactionType: TransactionType
         private let functionCallMetaData: DecodedFunctionCall?
-        private let tokensService: TokenViewModelState
+        private let tokensService: TokensProcessingPipeline
         private var cancellable = Set<AnyCancellable>()
         private var sections: [Section] {
             var sections: [Section]
@@ -44,7 +44,7 @@ extension TransactionConfirmationViewModel {
         init(configurator: TransactionConfigurator,
              recipientResolver: RecipientResolver,
              requester: RequesterViewModel?,
-             tokensService: TokenViewModelState) {
+             tokensService: TokensProcessingPipeline) {
 
             self.tokensService = tokensService
             self.recipientResolver = recipientResolver

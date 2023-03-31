@@ -16,7 +16,7 @@ import BigInt
 final class JsonFromTokenUri {
     typealias Publisher = AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>
 
-    private let tokensService: TokensProvidable
+    private let tokensDataStore: TokensDataStore
     private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
     private var inFlightPromises: [String: Publisher] = [:]
@@ -25,12 +25,12 @@ final class JsonFromTokenUri {
     private let networkService: NetworkService
 
     public init(blockchainProvider: BlockchainProvider,
-                tokensService: TokensProvidable,
+                tokensDataStore: TokensDataStore,
                 networkService: NetworkService) {
 
         self.networkService = networkService
         self.blockchainProvider = blockchainProvider
-        self.tokensService = tokensService
+        self.tokensDataStore = tokensDataStore
         self.getTokenUri = NonFungibleContract(
             blockchainProvider: blockchainProvider,
             uriMapper: TokenUriMapper(hostMappers: [
@@ -100,7 +100,7 @@ final class JsonFromTokenUri {
                                            tokenType: NonFungibleFromJsonTokenType,
                                            address: AlphaWallet.Address) -> Publisher {
         var jsonDictionary = JSON()
-        if let token = tokensService.token(for: address, server: blockchainProvider.server) {
+        if let token = tokensDataStore.token(for: address, server: blockchainProvider.server) {
             jsonDictionary["tokenId"] = JSON(tokenId)
             jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
             jsonDictionary["contractName"] = JSON(token.name)
@@ -136,7 +136,7 @@ final class JsonFromTokenUri {
             verboseLog("Fetched token URI: \(originalUri?.absoluteString)")
 
             var jsonDictionary = json
-            if let token = tokensService.token(for: address, server: blockchainProvider.server) {
+            if let token = tokensDataStore.token(for: address, server: blockchainProvider.server) {
                 jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
                     //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
                 jsonDictionary["contractName"] = JSON(token.name)

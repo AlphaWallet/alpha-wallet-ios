@@ -15,7 +15,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         case cancel
     }
 
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: GasPrice)
@@ -87,7 +87,7 @@ class ReplaceTransactionCoordinator: Coordinator {
           session: WalletSession,
           transaction: TransactionInstance,
           mode: Mode,
-          tokensService: TokenViewModelState,
+          tokensService: TokensProcessingPipeline,
           networkService: NetworkService) {
         
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }

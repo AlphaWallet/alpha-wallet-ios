@@ -16,14 +16,14 @@ extension TransactionConfirmationViewModel {
 
         private let configurator: TransactionConfigurator
         private let session: WalletSession
-        private let tokensService: TokenViewModelState
+        private let tokensService: TokensProcessingPipeline
         private var cancellable = Set<AnyCancellable>()
         private var sections: [Section] { [.gas, .network, .description] }
 
         let confirmButtonViewModel: ConfirmButtonViewModel
         var openedSections = Set<Int>()
 
-        init(configurator: TransactionConfigurator, tokensService: TokenViewModelState) {
+        init(configurator: TransactionConfigurator, tokensService: TokensProcessingPipeline) {
             self.configurator = configurator
             self.tokensService = tokensService
             self.session = configurator.session

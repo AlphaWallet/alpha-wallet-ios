@@ -13,7 +13,7 @@ class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let keystore: Keystore
-    private let tokensService: TokensProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable
+    private let tokensPipeline: TokensProcessingPipeline
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
@@ -21,6 +21,7 @@ class SendCoordinator: Coordinator {
     private let sessionsProvider: SessionsProvider
     private let networkService: NetworkService
     private let tokenImageFetcher: TokenImageFetcher
+    private let tokensService: TokensService
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -35,13 +36,15 @@ class SendCoordinator: Coordinator {
          session: WalletSession,
          sessionsProvider: SessionsProvider,
          keystore: Keystore,
-         tokensService: TokensProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
+         tokensPipeline: TokensProcessingPipeline,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          networkService: NetworkService,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.networkService = networkService
         self.sessionsProvider = sessionsProvider
@@ -49,7 +52,7 @@ class SendCoordinator: Coordinator {
         self.navigationController = navigationController
         self.session = session
         self.keystore = keystore
-        self.tokensService = tokensService
+        self.tokensPipeline = tokensPipeline
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
@@ -63,8 +66,9 @@ class SendCoordinator: Coordinator {
         let viewModel = SendViewModel(
             transactionType: transactionType,
             session: session,
-            tokensService: tokensService,
-            sessionsProvider: sessionsProvider)
+            tokensPipeline: tokensPipeline,
+            sessionsProvider: sessionsProvider,
+            tokensService: tokensService)
 
         let controller = SendViewController(
             viewModel: viewModel,
@@ -120,7 +124,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             keystore: keystore,
-            tokensService: tokensService,
+            tokensService: tokensPipeline,
             networkService: networkService)
         
         addCoordinator(coordinator)

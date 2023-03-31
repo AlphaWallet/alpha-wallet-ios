@@ -12,17 +12,17 @@ import Combine
 public final class TransactionBuilder {
     private typealias LocalizedOperation = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
 
-    private let tokenProvidable: TokensProvidable
+    private let tokensService: TokensService
     private let ercProvider: TokenProviderType
 
     let server: RPCServer
 
-    public init(tokensService: TokensProvidable,
+    public init(tokensService: TokensService,
                 server: RPCServer,
                 tokenProvider: TokenProviderType) {
 
         self.ercProvider = tokenProvider
-        self.tokenProvidable = tokensService
+        self.tokensService = tokensService
         self.server = server
     }
 
@@ -89,8 +89,8 @@ public final class TransactionBuilder {
     private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> {
         return Just(contract)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [tokenProvidable, ercProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
-                if let token = tokenProvidable.token(for: contract, server: server) {
+            .flatMap { [tokensService, ercProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
+                if let token = tokensService.token(for: contract, server: server) {
                     return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
                 } else {
                     let getContractName = ercProvider.getContractName(for: contract)

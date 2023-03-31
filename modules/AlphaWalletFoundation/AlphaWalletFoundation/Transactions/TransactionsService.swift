@@ -6,7 +6,7 @@ import Combine
 public class TransactionsService {
     private let transactionDataStore: TransactionDataStore
     private let sessionsProvider: SessionsProvider
-    private let tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable
+    private let tokensService: TokensService
     private let analytics: AnalyticsLogger
     private var providers: [RPCServer: SingleChainTransactionProvider] = [:]
     private let config: Config
@@ -40,7 +40,7 @@ public class TransactionsService {
     public init(sessionsProvider: SessionsProvider,
                 transactionDataStore: TransactionDataStore,
                 analytics: AnalyticsLogger,
-                tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable,
+                tokensService: TokensService,
                 networkService: NetworkService,
                 config: Config,
                 assetDefinitionStore: AssetDefinitionStore) {

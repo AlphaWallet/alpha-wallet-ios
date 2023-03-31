@@ -11,7 +11,7 @@ class TransactionsCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let sessionsProvider: SessionsProvider
     private let transactionsService: TransactionsService
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let tokenImageFetcher: TokenImageFetcher
 
     lazy var rootViewController: TransactionsViewController = {
@@ -30,7 +30,7 @@ class TransactionsCoordinator: Coordinator {
          sessionsProvider: SessionsProvider,
          navigationController: UINavigationController = .withOverridenBarAppearence(),
          transactionsService: TransactionsService,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher

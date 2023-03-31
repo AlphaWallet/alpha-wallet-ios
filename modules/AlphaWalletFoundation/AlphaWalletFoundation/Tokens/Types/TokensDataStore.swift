@@ -14,7 +14,9 @@ public enum DataStoreError: Error {
 }
 
 /// Multiple-chains tokens data store
-public protocol TokensDataStore: NSObjectProtocol, TokenProvidable {
+public protocol TokensDataStore: NSObjectProtocol {
+    func token(for contract: AlphaWallet.Address) -> Token?
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func tokensChangesetPublisher(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
     func tokens(for servers: [RPCServer]) -> [Token]
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError>
@@ -573,7 +575,7 @@ extension TokenObject {
     }
 }
 
-extension MultipleChainsTokensDataStore: DetectedContractsProvideble {
+extension MultipleChainsTokensDataStore {
     public func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
         tokens(for: [server]).map { $0.contractAddress }
     }

@@ -31,7 +31,7 @@ struct SwapTokensViewModelOutput {
 final class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
-    private let tokensService: TokenViewModelState
+    private let tokensPipeline: TokensProcessingPipeline
 
     lazy private (set) var activeSession: AnyPublisher<WalletSession, Never> = {
         return configurator.$server.combineLatest(configurator.$sessions) { server, sessions -> WalletSession? in
@@ -98,9 +98,9 @@ final class SwapTokensViewModel: NSObject {
 
     lazy var quoteDetailsViewModel: SwapQuoteDetailsViewModel = .init(configurator: configurator)
 
-    init(configurator: SwapOptionsConfigurator, tokensService: TokenViewModelState) {
+    init(configurator: SwapOptionsConfigurator, tokensPipeline: TokensProcessingPipeline) {
         self.configurator = configurator
-        self.tokensService = tokensService
+        self.tokensPipeline = tokensPipeline
         let value = configurator.swapPair
         self.swapPair = .init(value)
 
@@ -163,15 +163,15 @@ final class SwapTokensViewModel: NSObject {
     }
 
     private func buildMaxFungibleAmount(for trigger: AnyPublisher<Void, Never>) -> AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never> {
-        trigger.compactMap { [tokensService, configurator] _ -> AmountTextFieldViewModel.FungibleAmount? in
+        trigger.compactMap { [tokensPipeline, configurator] _ -> AmountTextFieldViewModel.FungibleAmount? in
             let token = configurator.swapPair.from
             switch token.type {
             case .nativeCryptocurrency:
-                guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
+                guard let balance = tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
 
                 return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
             case .erc20:
-                guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
+                guard let balance = tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
 
                 return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
             case .erc1155, .erc721, .erc875, .erc721ForTickets:
@@ -222,7 +222,7 @@ final class SwapTokensViewModel: NSObject {
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {
         return Just(token)
-            .flatMap { [tokensService] in tokensService.tokenViewModelPublisher(for: $0) }
+            .flatMap { [tokensPipeline] in tokensPipeline.tokenViewModelPublisher(for: $0) }
             .map { $0?.balance }
             .eraseToAnyPublisher()
     }
@@ -237,7 +237,7 @@ final class SwapTokensViewModel: NSObject {
     }
 
     private func balance(for token: Token, session: WalletSession) -> BalanceViewModel? {
-        return tokensService.tokenViewModel(for: token)
+        return tokensPipeline.tokenViewModel(for: token)
             .flatMap { $0.balance }
     }
 }

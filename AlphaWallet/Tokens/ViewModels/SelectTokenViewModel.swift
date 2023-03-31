@@ -20,19 +20,22 @@ struct SelectTokenViewModelOutput {
 
 final class SelectTokenViewModel {
     private let filter: WalletFilter
-    private let tokenCollection: TokenCollection
+    private let tokensPipeline: TokensProcessingPipeline
     private var cancelable = Set<AnyCancellable>()
     private let tokensFilter: TokensFilter
     private let whenFilterHasChanged: AnyPublisher<Void, Never>
     private let tokenImageFetcher: TokenImageFetcher
+    private let tokensService: TokensService
 
-    init(tokenCollection: TokenCollection,
+    init(tokensPipeline: TokensProcessingPipeline,
          tokensFilter: TokensFilter,
          filter: WalletFilter,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokensPipeline
         self.tokensFilter = tokensFilter
         self.filter = filter
 
@@ -45,7 +48,8 @@ final class SelectTokenViewModel {
     }
 
     func selectTokenViewModel(viewModel: SelectTokenViewModel.ViewModelType) -> Token? {
-        tokenCollection.token(for: viewModel.asTokenIdentifiable)
+        let value = viewModel.asTokenIdentifiable
+        return tokensService.token(for: value.contractAddress, server: value.server)
     }
 
     func transform(input: SelectTokenViewModelInput) -> SelectTokenViewModelOutput {
@@ -55,9 +59,9 @@ final class SelectTokenViewModel {
             .merge(with: input.fetch, whenFilterHasChanged)
             .handleEvents(receiveOutput: { [loadingState] in
                 loadingState.send(.beginLoading)
-            }).flatMap { [tokenCollection] _ in tokenCollection.tokenViewModels.first() }
+            }).flatMap { [tokensPipeline] _ in tokensPipeline.tokenViewModels.first() }
 
-        let snapshot = tokenCollection.tokenViewModels
+        let snapshot = tokensPipeline.tokenViewModels
             .merge(with: whenAppearOrFetchOrFilterHasChanged)
             .map { [tokensFilter, filter] tokens -> [TokenViewModel] in
                 let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)

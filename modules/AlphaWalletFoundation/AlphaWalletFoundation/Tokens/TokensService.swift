@@ -8,58 +8,33 @@
 import Foundation
 import Combine
 
-public protocol TokenProvidable {
-    func token(for contract: AlphaWallet.Address) -> Token?
-    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
-}
-
-public extension TokenProvidable {
-    func token(for identifieble: TokenIdentifiable) -> Token? {
-        token(for: identifieble.contractAddress, server: identifieble.server)
-    }
-}
-
-public protocol TokensProvidable: TokenProvidable {
-    func tokens(for servers: [RPCServer]) -> [Token]
-    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
-    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
-    func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
-}
-
-public protocol TokenAddable {
-    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
-    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
-}
-
-public protocol TokenAutoDetectable {
-    var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
-}
-
-public protocol TokensState {
+public protocol TokensService {
     var tokens: [Token] { get }
     var tokensPublisher: AnyPublisher<[Token], Never> { get }
-}
+    var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
 
-public protocol TokenHidable {
+    func token(for contract: AlphaWallet.Address) -> Token?
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
+    func tokens(for servers: [RPCServer]) -> [Token]
+    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
+    func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
+
+    func refresh()
+    func start()
+    func stop()
     func mark(token: TokenIdentifiable, isHidden: Bool)
-}
-
-public protocol TokensServiceTests {
     func setBalanceTestsOnly(balance: Balance, for token: Token)
     func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token)
     func addOrUpdateTokenTestsOnly(token: Token)
     func deleteTokenTestsOnly(token: Token)
-}
-
-public protocol PipelineTests: CoinTickersFetcherTests { }
-
-public protocol TokenUpdatable {
+    func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
+    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
+    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
     func update(token: TokenIdentifiable, value: TokenFieldUpdate)
     @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
-}
 
-public protocol TokensService: TokensState, TokensProvidable, TokenAddable, TokenHidable, TokenAutoDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable, DetectedContractsProvideble {
-    func refresh()
-    func start()
-    func stop()
+    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address]
 }

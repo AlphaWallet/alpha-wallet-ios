@@ -25,7 +25,7 @@ class TokensCoordinator: Coordinator {
     private let sessionsProvider: SessionsProvider
     private let keystore: Keystore
     private let config: Config
-    private let tokenCollection: TokenCollection
+    private let tokensPipeline: TokensProcessingPipeline
     private let assetDefinitionStore: AssetDefinitionStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
@@ -37,7 +37,7 @@ class TokensCoordinator: Coordinator {
     private (set) lazy var tokensViewController: TokensViewController = {
         let viewModel = TokensViewModel(
             wallet: wallet,
-            tokenCollection: tokenCollection,
+            tokensPipeline: tokensPipeline,
             tokensFilter: tokensFilter,
             walletConnectProvider: walletConnectCoordinator.walletConnectProvider,
             walletBalanceService: walletBalanceService,
@@ -46,7 +46,8 @@ class TokensCoordinator: Coordinator {
             blockiesGenerator: blockiesGenerator,
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher,
-            serversProvider: serversProvider)
+            serversProvider: serversProvider,
+            tokensService: tokensService)
 
         let controller = TokensViewController(viewModel: viewModel)
 
@@ -73,6 +74,7 @@ class TokensCoordinator: Coordinator {
     private let currencyService: CurrencyService
     private var cancellable = Set<AnyCancellable>()
     private let serversProvider: ServersProvidable
+    private let tokensService: TokensService
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -93,7 +95,8 @@ class TokensCoordinator: Coordinator {
          coinTickersFetcher: CoinTickersFetcher,
          activitiesService: ActivitiesServiceType,
          walletBalanceService: WalletBalanceService,
-         tokenCollection: TokenCollection,
+         tokenCollection: TokensProcessingPipeline,
+         tokensService: TokensService,
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType,
          tokensFilter: TokensFilter,
@@ -101,12 +104,13 @@ class TokensCoordinator: Coordinator {
          tokenImageFetcher: TokenImageFetcher,
          serversProvider: ServersProvidable) {
 
+        self.tokensService = tokensService
         self.serversProvider = serversProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.wallet = sessionsProvider.activeSessions.anyValue.account
         self.tokensFilter = tokensFilter
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokenCollection
         self.navigationController = navigationController
         self.sessionsProvider = sessionsProvider
         self.keystore = keystore
@@ -193,10 +197,11 @@ class TokensCoordinator: Coordinator {
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: activitiesService,
             alertService: alertService,
-            tokensService: tokenCollection,
+            tokensPipeline: tokensPipeline,
             sessionsProvider: sessionsProvider,
             currencyService: currencyService,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
 
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -221,7 +226,7 @@ class TokensCoordinator: Coordinator {
 
         let coordinator = QRCodeResolutionCoordinator(
             coordinator: scanQRCodeCoordinator,
-            usage: .all(tokensService: tokenCollection, sessionsProvider: sessionsProvider),
+            usage: .all(tokensService: tokensService, sessionsProvider: sessionsProvider),
             account: wallet)
 
         coordinator.delegate = self
@@ -327,13 +332,14 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let coordinator: AddHideTokensCoordinator = .init(
             tokensFilter: tokensFilter,
             wallet: wallet,
-            tokenCollection: tokenCollection,
+            tokenCollection: tokensPipeline,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             navigationController: navigationController,
             serversProvider: serversProvider,
             sessionsProvider: sessionsProvider,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
 
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -485,7 +491,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
             configuration: .create,
             token: token,
             session: coordinator.session,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             alertService: alertService,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher)
@@ -501,7 +507,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
             configuration: .edit(alert),
             token: token,
             session: coordinator.session,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             alertService: alertService,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher)

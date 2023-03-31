@@ -20,7 +20,7 @@ extension TransactionConfirmationViewModel {
         private let toToken: TokenToSwap
         private let toAmount: BigUInt
         private let session: WalletSession
-        private let tokensService: TokenViewModelState
+        private let tokensService: TokensProcessingPipeline
         private var cancellable = Set<AnyCancellable>()
         private var sections: [Section] { [.network, .gas, .from, .to] }
 
@@ -32,7 +32,7 @@ extension TransactionConfirmationViewModel {
              fromAmount: BigUInt,
              toToken: TokenToSwap,
              toAmount: BigUInt,
-             tokensService: TokenViewModelState) {
+             tokensService: TokensProcessingPipeline) {
             
             self.configurator = configurator
             self.fromToken = fromToken

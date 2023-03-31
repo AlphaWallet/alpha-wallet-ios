@@ -23,13 +23,14 @@ final class AddHideTokensViewModel {
     private let sessionsProvider: SessionsProvider
     private let popularTokensCollection: PopularTokensCollectionType
     private var cancelable = Set<AnyCancellable>()
-    private let tokenCollection: TokenViewModelState & TokenHidable
+    private let tokenCollection: TokensProcessingPipeline
     private let addToken = PassthroughSubject<Void, Never>()
     private (set) var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending)
     private var searchText: String?
     private var isSearchActive: Bool = false
     private let tokensFilter: TokensFilter
     private let tokenImageFetcher: TokenImageFetcher
+    private let tokensService: TokensService
 
     var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     var title: String = R.string.localizable.walletsAddHideTokensTitle()
@@ -38,11 +39,13 @@ final class AddHideTokensViewModel {
         sections.count
     }
 
-    init(tokenCollection: TokenViewModelState & TokenHidable,
+    init(tokenCollection: TokensProcessingPipeline,
          tokensFilter: TokensFilter,
          sessionsProvider: SessionsProvider,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.tokenCollection = tokenCollection
         self.sessionsProvider = sessionsProvider
@@ -125,7 +128,7 @@ final class AddHideTokensViewModel {
     }
 
     private func mark(token: TokenViewModel, isHidden: Bool) {
-        tokenCollection.mark(token: token, isHidden: isHidden)
+        tokensService.mark(token: token, isHidden: isHidden)
 
         if let index = tokens.firstIndex(where: { $0 == token }) {
             tokens[index] = token.override(shouldDisplay: !isHidden)
@@ -152,7 +155,7 @@ final class AddHideTokensViewModel {
             }
             let publisher = session.importToken
                 .importToken(for: token.contractAddress, onlyIfThereIsABalance: false)
-                .flatMap { [tokenCollection] _token -> AnyPublisher<TokenWithIndexToInsert?, ImportToken.ImportTokenError> in
+                .flatMap { [tokensService, tokenCollection] _token -> AnyPublisher<TokenWithIndexToInsert?, ImportToken.ImportTokenError> in
                     guard let token = tokenCollection.tokenViewModel(for: _token) else {
                         return .fail(ImportToken.ImportTokenError.notContractOrFailed(.delegateContracts([_token.addressAndRPCServer])))
                     }
@@ -160,7 +163,7 @@ final class AddHideTokensViewModel {
                     self.displayedTokens.append(token)
 
                     if let sectionIndex = self.sections.firstIndex(of: .displayedTokens) {
-                        tokenCollection.mark(token: token, isHidden: false)
+                        tokensService.mark(token: token, isHidden: false)
 
                         return .just((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
                     }

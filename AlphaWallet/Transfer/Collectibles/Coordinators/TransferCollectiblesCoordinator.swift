@@ -27,7 +27,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let networkService: NetworkService
     private let tokenImageFetcher: TokenImageFetcher
 
@@ -43,7 +43,7 @@ class TransferCollectiblesCoordinator: Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          networkService: NetworkService,
          tokenImageFetcher: TokenImageFetcher) {
 

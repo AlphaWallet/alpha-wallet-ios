@@ -23,7 +23,8 @@ struct TokensViewModelOutput {
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 // swiftlint:disable type_body_length
 final class TokensViewModel {
-    private let tokenCollection: TokenCollection
+    private let tokensService: TokensService
+    private let tokensPipeline: TokensProcessingPipeline
     private let walletConnectProvider: WalletConnectProvider
     private let walletBalanceService: WalletBalanceService
         //Must be computed because localization can be overridden by user dynamically
@@ -147,7 +148,7 @@ final class TokensViewModel {
     }
 
     init(wallet: Wallet,
-         tokenCollection: TokenCollection,
+         tokensPipeline: TokensProcessingPipeline,
          tokensFilter: TokensFilter,
          walletConnectProvider: WalletConnectProvider,
          walletBalanceService: WalletBalanceService,
@@ -156,11 +157,13 @@ final class TokensViewModel {
          blockiesGenerator: BlockiesGenerator,
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher,
-         serversProvider: ServersProvidable) {
+         serversProvider: ServersProvidable,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokensPipeline
         self.tokensFilter = tokensFilter
         self.walletConnectProvider = walletConnectProvider
         self.walletBalanceService = walletBalanceService
@@ -178,7 +181,7 @@ final class TokensViewModel {
 
         Publishers.Merge(input.appear, input.pullToRefresh)
             .receive(on: RunLoop.main)
-            .sink { [tokenCollection] _ in tokenCollection.refresh() }
+            .sink { [tokensService] _ in tokensService.refresh() }
             .store(in: &cancellable)
 
         walletConnectProvider.sessionsPublisher
@@ -188,7 +191,7 @@ final class TokensViewModel {
                 self?.reloadData()
             }.store(in: &cancellable)
 
-        tokenCollection.tokenViewModels
+        tokensPipeline.tokenViewModels
             .sink { [weak self] tokens in
                 self?.tokens = tokens
                 self?.reloadData()
@@ -274,7 +277,7 @@ final class TokensViewModel {
     }
 
     private func selection(trigger: AnyPublisher<TokensViewModel.SelectionSource, Never>) -> AnyPublisher<Token, Never> {
-        trigger.compactMap { [unowned self, tokenCollection] source -> Token? in
+        trigger.compactMap { [unowned self, tokensService] source -> Token? in
             switch source {
             case .gridItem(let indexPath, let isLeftCardSelected):
                 switch self.sections[indexPath.section] {
@@ -282,7 +285,7 @@ final class TokensViewModel {
                     let pair = collectiblePairs[indexPath.row]
                     guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
 
-                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)
+                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server)
                 case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
                     return nil
                 }
@@ -290,7 +293,7 @@ final class TokensViewModel {
                 let tokenOrServer = self.tokenOrServer(at: indexPath)
                 switch (self.sections[indexPath.section], tokenOrServer) {
                 case (.tokens, .token(let viewModel)):
-                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)!
+                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server)!
                 case (_, _):
                     return nil
                 }
@@ -410,7 +413,7 @@ final class TokensViewModel {
     }
 
     @discardableResult private func markTokenHidden(token: TokenViewModel) -> Bool {
-        tokenCollection.mark(token: token, isHidden: true)
+        tokensService.mark(token: token, isHidden: true)
 
         if let index = tokens.firstIndex(where: { $0 == token }) {
             tokens.remove(at: index)

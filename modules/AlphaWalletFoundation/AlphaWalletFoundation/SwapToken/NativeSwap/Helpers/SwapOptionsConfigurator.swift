@@ -21,7 +21,7 @@ public final class SwapOptionsConfigurator {
     private var isInitialServerValidation: Bool = true
     private var errorSubject: PassthroughSubject<TokenSwapper.TokenSwapperError?, Never> = .init()
     private var cancelable = Set<AnyCancellable>()
-    private let tokenCollection: TokenCollection
+    private let tokensService: TokensService
     private var fromAmountSubject: CurrentValueSubject<BigUInt?, Never> = .init(nil)
     private var fetchSwapQuoteStateSubject: CurrentValueSubject<SwapQuoteState, Never> = .init(.pendingInput)
     @Published public private(set) var sessions: [WalletSession]
@@ -99,14 +99,14 @@ public final class SwapOptionsConfigurator {
 
     public init(sessionProvider: SessionsProvider,
                 swapPair: SwapPair,
-                tokenCollection: TokenCollection,
+                tokensService: TokensService,
                 tokenSwapper: TokenSwapper) {
 
         self.tokenSwapper = tokenSwapper
         self.sessions = sessionProvider.activeSessions.values.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
         self.server = swapPair.from.server
         self.swapPair = swapPair
-        self.tokenCollection = tokenCollection
+        self.tokensService = tokensService
 
         invalidateSessionsWhenSupportedTokensChanged()
         fetchSupportedTokensForSelectedServer()
@@ -253,7 +253,7 @@ public final class SwapOptionsConfigurator {
 
     private func supportedTokens(forServer server: RPCServer) throws -> [Token] {
         guard swapPairs(for: server) != nil else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
-        return tokenCollection.tokens(for: [server])
+        return tokensService.tokens(for: [server])
     }
 
     private func firstSupportedFromToken(forServer server: RPCServer, tokens: [Token]) throws -> Token {

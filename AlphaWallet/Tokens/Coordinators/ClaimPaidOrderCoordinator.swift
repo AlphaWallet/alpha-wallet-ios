@@ -15,7 +15,7 @@ protocol ClaimOrderCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
 
 class ClaimPaidOrderCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let keystore: Keystore
     private let session: WalletSession
     private let token: Token
@@ -45,7 +45,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          assetDefinitionStore: AssetDefinitionStore,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {
         self.networkService = networkService
         self.navigationController = navigationController

@@ -44,7 +44,7 @@ class TransferNFTCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let networkService: NetworkService
 
     weak var delegate: TransferNFTCoordinatorDelegate?
@@ -60,7 +60,7 @@ class TransferNFTCoordinator: Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          networkService: NetworkService,
          tokenImageFetcher: TokenImageFetcher) {
 

@@ -22,7 +22,7 @@ final class FungibleTokenHeaderViewModel {
     private var headerRefreshTimer: Timer?
     private let token: Token
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private var cancelable = Set<AnyCancellable>()
     private let tokenImageFetcher: TokenImageFetcher
 
@@ -36,7 +36,7 @@ final class FungibleTokenHeaderViewModel {
     }
 
     init(token: Token,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher

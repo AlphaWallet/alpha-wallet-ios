@@ -32,7 +32,7 @@ class NFTAssetViewModel {
     private let assetDisplayHelper: NftAssetDisplayHelper
     private let nftProvider: NFTProvider
     private let mode: NFTAssetViewModel.InterationMode
-    private let service: TokenViewModelState & TokenHolderState
+    private let service: TokensProcessingPipeline
     private var actionAdapter: TokenInstanceActionAdapter {
         return TokenInstanceActionAdapter(
            session: session,
@@ -97,7 +97,7 @@ class NFTAssetViewModel {
          mode: NFTAssetViewModel.InterationMode,
          nftProvider: NFTProvider,
          session: WalletSession,
-         service: TokenViewModelState & TokenHolderState,
+         service: TokensProcessingPipeline,
          tokenActionsProvider: SupportedTokenActionsProvider) {
 
         self.tokenActionsProvider = tokenActionsProvider

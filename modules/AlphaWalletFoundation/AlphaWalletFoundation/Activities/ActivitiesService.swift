@@ -26,7 +26,7 @@ typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: 
 
 public class ActivitiesService: ActivitiesServiceType {
     let sessionsProvider: SessionsProvider
-    private let tokensService: TokensProvidable
+    private let tokensService: TokensService
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
@@ -58,7 +58,7 @@ public class ActivitiesService: ActivitiesServiceType {
          transactionDataStore: TransactionDataStore,
          activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
          transactionsFilterStrategy: TransactionsFilterStrategy = .all,
-         tokensService: TokensProvidable) {
+         tokensService: TokensService) {
 
         self.sessionsProvider = sessionsProvider
         self.eventsActivityDataStore = eventsActivityDataStore
@@ -167,7 +167,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     let operations = transaction.localizedOperations
                     return operations.allSatisfy { activity != $0 }
                 }
-                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), service: tokensService, wallet: wallet.address)
+                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty && activities.isEmpty {
                     results.append(.standaloneTransaction(transaction: transaction, activity: activity))
                 } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
@@ -180,7 +180,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
                     results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), service: tokensService, wallet: wallet.address)
+                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
                     for each in activities {
@@ -197,7 +197,7 @@ public class ActivitiesService: ActivitiesServiceType {
             case .activity(let activity):
                 return [.standaloneActivity(activity: activity)]
             case .transaction(let transaction):
-                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), service: tokensService, wallet: wallet.address)
+                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else if transaction.localizedOperations.count == 1 {
@@ -207,7 +207,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), service: tokensService, wallet: wallet.address)
+                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
 
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })

@@ -9,12 +9,12 @@ import Foundation
 import Combine
 
 public final class ErcTokenDetector {
-    private let tokensService: DetectedContractsProvideble & TokenAddable
+    private let tokensService: TokensService
     private let ercProvider: TokenProviderType
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
 
-    public init(tokensService: DetectedContractsProvideble & TokenAddable,
+    public init(tokensService: TokensService,
                 server: RPCServer,
                 ercProvider: TokenProviderType,
                 assetDefinitionStore: AssetDefinitionStore) {
