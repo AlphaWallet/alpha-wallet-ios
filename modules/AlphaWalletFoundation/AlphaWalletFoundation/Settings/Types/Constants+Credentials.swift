@@ -52,8 +52,8 @@ extension Constants {
         static let openseaKey = env("OPENSEAKEY") ?? nil
         static let rampApiKey = env("RAMPAPIKEY") ?? "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
         static let coinbaseAppId = env("COINBASEAPPID") ?? ""
-        static let enjinUserName = env("ENJINUSERNAME") ?? "vlad_shepitko@outlook.com"
-        static let enjinUserPassword = env("ENJINUSERPASSWORD") ?? "wf@qJPz75CL9Tw$"
+        static let enjinUserName = env("ENJINUSERNAME")
+        static let enjinUserPassword = env("ENJINUSERPASSWORD")
         static let unstoppableDomainsV2ApiKey = env("UNSTOPPABLEDOMAINSV2KEY") ?? "Bearer rLuujk_dLBN-JDE6Xl8QSCg-FeIouRKM"
         static let blockscanChatProxyKey = env("BLOCKSCHATPROXYKEY") ?? ""
         static let covalentApiKey = env("COVALENTAPIKEY") ?? "ckey_7ee61be7f8364ba784f697510bd"

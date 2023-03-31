@@ -18,7 +18,7 @@ public final class Enjin {
     public init(server: RPCServer,
                 storage: EnjinStorage,
                 accessTokenStore: EnjinAccessTokenStore,
-                credentials: EnjinCredentials) {
+                credentials: EnjinCredentials?) {
         
         self.storage = storage
         self.server = server

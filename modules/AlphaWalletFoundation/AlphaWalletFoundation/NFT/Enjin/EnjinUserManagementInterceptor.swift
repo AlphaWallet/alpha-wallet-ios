@@ -20,7 +20,7 @@ class EnjinUserManager {
     private let store: ApolloStore
     private let client: URLSessionClient
     private let endpointURL: URL
-    private let credentials: EnjinCredentials
+    private let credentials: EnjinCredentials?
 
     let accessTokenStore: EnjinAccessTokenStore
 
@@ -28,7 +28,7 @@ class EnjinUserManager {
          client: URLSessionClient,
          accessTokenStore: EnjinAccessTokenStore,
          endpointURL: URL,
-         credentials: EnjinCredentials) {
+         credentials: EnjinCredentials?) {
 
         self.credentials = credentials
         self.endpointURL = endpointURL
@@ -38,7 +38,8 @@ class EnjinUserManager {
     }
 
     var accessToken: EnjinAccessToken? {
-        accessTokenStore.accessToken(email: credentials.email)
+        guard let credentials = credentials else { return nil }
+        return accessTokenStore.accessToken(email: credentials.email)
     }
 
     private lazy var graphqlClient: ApolloClient = {
@@ -56,13 +57,17 @@ class EnjinUserManager {
     }
     
     func enjinAuthorize() -> Promise<EnjinAccessToken> {
+        guard let credentials = credentials else {
+            return .init(error: EnjinUserManagementInterceptor.UserError.usersCredentialsNotFound)
+        }
+
         return EnjinUserManager.functional.authorize(graphqlClient: graphqlClient, email: credentials.email, password: credentials.password).map { oauth -> EnjinAccessToken in
             if let accessToken = oauth.accessTokens?.compactMap({ $0 }).first {
                 return accessToken
             } else {
                 throw EnjinUserManagerError.fetchAccessTokenFailure
             }
-        }.get { [credentials] accessToken in
+        }.get { accessToken in
             self.accessTokenStore.set(accessToken: accessToken, email: credentials.email)
         }.recover { [credentials] e -> Promise<EnjinAccessToken> in
             infoLog("[Enjin] authorization failure: \(e.localizedDescription)")
@@ -132,12 +137,11 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
         self.cacheKeyForObject = cacheKeyForObject
     }
 
-    public func interceptAsync<Operation: GraphQLOperation>(
-        chain: RequestChain,
-        request: HTTPRequest<Operation>,
-        response: HTTPResponse<Operation>?,
-        completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void
-    ) {
+    public func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain,
+                                                            request: HTTPRequest<Operation>,
+                                                            response: HTTPResponse<Operation>?,
+                                                            completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+        
         guard let createdResponse = response else {
             chain.handleErrorAsync(JSONResponseParsingError.noResponseToParse, request: request, response: response, completion: completion)
             return
@@ -181,6 +185,7 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
 
     enum UserError: Error {
         case noUserLoggedIn
+        case usersCredentialsNotFound
     }
 
     private let userManager: EnjinUserManager
@@ -188,11 +193,13 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
     private var inFlightPromise: Promise<EnjinAccessToken>?
 
     init(userManager: EnjinUserManager) {
-
         self.userManager = userManager
     }
 
-    func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain,
+                                                     request: HTTPRequest<Operation>,
+                                                     response: HTTPResponse<Operation>?,
+                                                     completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
         func addTokenAndProceed<Operation: GraphQLOperation>(_ token: EnjinAccessToken, to request: HTTPRequest<Operation>, chain: RequestChain, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
@@ -278,11 +285,14 @@ extension EnjinUserManager.functional {
                 return json["accessToken"] as? String
             }
             guard !tokens.isEmpty else { return nil }
-            return EnjinOauthQuery.Data.EnjinOauth.init(name: name, accessTokens: tokens)
+            return EnjinOauthQuery.Data.EnjinOauth(name: name, accessTokens: tokens)
         }
     }
 
-    fileprivate static func authorize(graphqlClient: ApolloClient, email: String, password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
+    fileprivate static func authorize(graphqlClient: ApolloClient,
+                                      email: String,
+                                      password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
+
         return Promise<EnjinOauthQuery.Data.EnjinOauth> { seal in
             graphqlClient.fetch(query: EnjinOauthQuery(email: email, password: password)) { response in
                 switch response {
