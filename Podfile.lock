@@ -192,28 +192,6 @@ PODS:
     - SwiftProtobuf
   - WalletConnectSwift (1.7.0):
     - CryptoSwift (~> 1.5)
-  - WalletConnectSwiftV2 (1.3.1):
-    - WalletConnectSwiftV2/WalletConnect (= 1.3.1)
-  - WalletConnectSwiftV2/Commons (1.3.1)
-  - WalletConnectSwiftV2/JSONRPC (1.3.1):
-    - WalletConnectSwiftV2/Commons
-  - WalletConnectSwiftV2/WalletConnect (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectPairing
-  - WalletConnectSwiftV2/WalletConnectAuth (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectPairing
-  - WalletConnectSwiftV2/WalletConnectKMS (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectUtils
-  - WalletConnectSwiftV2/WalletConnectNetworking (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectRelay
-  - WalletConnectSwiftV2/WalletConnectPairing (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectNetworking
-  - WalletConnectSwiftV2/WalletConnectRelay (1.3.1):
-    - WalletConnectSwiftV2/WalletConnectKMS
-  - WalletConnectSwiftV2/WalletConnectUtils (1.3.1):
-    - WalletConnectSwiftV2/JSONRPC
-  - WalletConnectSwiftV2/Web3Wallet (1.3.1):
-    - WalletConnectSwiftV2/WalletConnect
-    - WalletConnectSwiftV2/WalletConnectAuth
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
@@ -254,8 +232,6 @@ DEPENDENCIES:
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
   - WalletConnectSwift (from `https://github.com/AlphaWallet/WalletConnectSwift.git`, branch `alphaWallet`)
-  - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2.git`, tag `1.3.1`)
-  - WalletConnectSwiftV2/Web3Wallet (from `https://github.com/WalletConnect/WalletConnectSwiftV2.git`, tag `1.3.1`)
   - xcbeautify
 
 SPEC REPOS:
@@ -356,9 +332,6 @@ EXTERNAL SOURCES:
   WalletConnectSwift:
     :branch: alphaWallet
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
-  WalletConnectSwiftV2:
-    :git: https://github.com/WalletConnect/WalletConnectSwiftV2.git
-    :tag: 1.3.1
 
 CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
@@ -385,9 +358,6 @@ CHECKOUT OPTIONS:
   WalletConnectSwift:
     :commit: cb8dfc428ec70499a585c43e33a5e5c695b135a2
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
-  WalletConnectSwiftV2:
-    :git: https://github.com/WalletConnect/WalletConnectSwiftV2.git
-    :tag: 1.3.1
 
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
@@ -455,9 +425,8 @@ SPEC CHECKSUMS:
   TrustKeystore: 3d8b4571c66648fb985015c96b3185440bb837fe
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
-  WalletConnectSwiftV2: 52e67915f8d861ed3ba4eabb0f69fee0990f0a5f
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 7af818359ffa865018452a48c414674fb96a2346
+PODFILE CHECKSUM: 6708b1d8aea7c6fe832a34255b67c64d00244230
 
 COCOAPODS: 1.11.3

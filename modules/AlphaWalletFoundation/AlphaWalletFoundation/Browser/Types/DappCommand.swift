@@ -167,8 +167,35 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
         }
     }
 
+    public struct ExplorerUrl: Decodable {
+        let name: String
+        let url: String
+
+        enum CodingKeys: CodingKey {
+            case name
+            case url
+        }
+
+        public init(name: String, url: String) {
+            self.url = url
+            self.name = name
+        }
+
+        public init(from decoder: Decoder) throws {
+            do {
+                let container = try decoder.singleValueContainer()
+                url = try container.decode(String.self)
+                name = String()
+            } catch {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                name = try container.decode(String.self, forKey: .name)
+                url = try container.decode(String.self, forKey: .url)
+            }
+        }
+    }
+    
     public let nativeCurrency: NativeCurrency?
-    public var blockExplorerUrls: [String]?
+    public var blockExplorerUrls: [ExplorerUrl]?
     public let chainName: String?
     public let chainId: String
     public let rpcUrls: [String]?
@@ -177,7 +204,7 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
         return Int(chainId0xString: chainId).flatMap { RPCServer(chainIdOptional: $0) }
     }
 
-    public init(nativeCurrency: NativeCurrency?, blockExplorerUrls: [String]?, chainName: String?, chainId: String, rpcUrls: [String]?) {
+    public init(nativeCurrency: NativeCurrency?, blockExplorerUrls: [ExplorerUrl]?, chainName: String?, chainId: String, rpcUrls: [String]?) {
         self.nativeCurrency = nativeCurrency
         self.blockExplorerUrls = blockExplorerUrls
         self.chainName = chainName
@@ -192,7 +219,7 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
 
 extension CustomRPC {
     public init(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType, isTestnet: Bool, chainNameFallback: String) {
-        self.init(chainID: chainId, nativeCryptoTokenName: customChain.nativeCurrency?.name, chainName: customChain.chainName ?? chainNameFallback, symbol: customChain.nativeCurrency?.symbol, rpcEndpoint: rpcUrl, explorerEndpoint: customChain.blockExplorerUrls?.first, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet)
+        self.init(chainID: chainId, nativeCryptoTokenName: customChain.nativeCurrency?.name, chainName: customChain.chainName ?? chainNameFallback, symbol: customChain.nativeCurrency?.symbol, rpcEndpoint: rpcUrl, explorerEndpoint: customChain.blockExplorerUrls?.first?.url, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet)
     }
 }
 

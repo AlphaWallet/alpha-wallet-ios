@@ -192,10 +192,10 @@ extension AddCustomChain {
 
     convenience init(_ customRpc: CustomRPC, restartHandler: RestartQueueHandler, networkService: NetworkService, analytics: AnalyticsLogger) {
         let defaultDecimals = 18
-        let explorerEndpoints: [String]?
+        let explorerEndpoints: [WalletAddEthereumChainObject.ExplorerUrl]?
 
         if let endpoint = customRpc.explorerEndpoint {
-            explorerEndpoints = [endpoint]
+            explorerEndpoints = [.init(name: "", url: endpoint)]
         } else {
             explorerEndpoints = nil
         }

@@ -33,10 +33,11 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
 
     init(proposal: AlphaWallet.WalletConnect.Proposal,
          serversProvider: ServersProvidable) {
-        
+
         self.proposal = proposal
-        self.serversToConnect = proposal.servers
-        self.methods = proposal.methods
+        //TODO: refactor later with using servers from each level of received namepaces
+        self.serversToConnect = proposal.requiredNamespaces.flatMap { Array($0.chains) } + proposal.optionalNamespaces.flatMap { Array($0.chains) }
+        self.methods = []//proposal.methods
         self.serversProvider = serversProvider
     }
 
@@ -46,7 +47,7 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
 
     var title: String {
         return R.string.localizable.walletConnectConnectionTitle()
-    } 
+    }
 
     var connectButtonTitle: String {
         return R.string.localizable.confirmPaymentConnectButtonTitle()
@@ -59,7 +60,7 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
     private var sections: [Section] {
         var sections: [Section] = [.name, .url]
         sections += [.networks]
-        sections += methods.isEmpty ? [] : [.methods]
+        //sections += methods.isEmpty ? [] : [.methods]
         //TODO: display events
         return sections
     }
@@ -108,7 +109,8 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
 
         switch sections[section] {
         case .name:
-            return .init(title: .normal(proposal.name), headerName: sections[section].title, viewState: .init(section: section))
+            let name = proposal.name.trimmed.isEmpty ? "--" : proposal.name.trimmed
+            return .init(title: .normal(name), headerName: sections[section].title, viewState: .init(section: section))
         case .networks:
             let servers = serversToConnect.map { $0.displayName }.joined(separator: ", ")
             let shouldHideChevron = proposal.serverEditing == .notSupporting || serversToConnect.count == 1

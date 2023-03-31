@@ -228,13 +228,13 @@ public class AddCustomChain {
         }
 
         return networking
-            .figureOutHostname(urlString)
+            .figureOutHostname(urlString.url)
             .map { newUrlString in
-                if urlString == newUrlString {
+                if urlString.url == newUrlString {
                     return (customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
                 } else {
                     var updatedCustomChain = customChain
-                    updatedCustomChain.blockExplorerUrls = [newUrlString]
+                    updatedCustomChain.blockExplorerUrls = [.init(name: "", url: newUrlString)]
                     return (customChain: updatedCustomChain, chainId: chainId, rpcUrl: rpcUrl)
                 }
             }.catch { _ -> CheckBlockchainExplorerApiHostnamePublisher in

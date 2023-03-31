@@ -79,6 +79,9 @@ final class WalletConnectProvider: NSObject {
         }
     }
 
+    //NOTE: even when we received `wallet_switchEthereumChain` and returned to served null as successfull response it doesn't cause server change in the dapp
+    //we have to send swith server request manually
+    //WARNING: tweak for WalletConnect v2 as it might accept several servers at once
     func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws {
         for each in services.value {
             try each.update(topicOrUrl, servers: servers)
@@ -93,17 +96,6 @@ final class WalletConnectProvider: NSObject {
 
     func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool {
         return services.value.contains(where: { $0.isConnected(topicOrUrl) })
-    }
-
-    func responseServerChangeSucceed(request: AlphaWallet.WalletConnect.Session.Request) throws {
-        return try respond(.value(nil), request: request)
-    }
-
-    //NOTE: even when we received `wallet_switchEthereumChain` and returned to served null as successfull response it doesn't cause server change in the dapp
-    //we have to send swith server request manually
-    //WARNING: tweak for WalletConnect v2 as it might accept several servers at once
-    func notifyUpdateServers(request: AlphaWallet.WalletConnect.Session.Request, server: RPCServer) throws {
-        try update(request.topicOrUrl, servers: [server])
     }
 }
 
@@ -215,7 +207,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 guard let newServer = customChain.server else { return .empty() }
 
                 try? self?.respond(.init(data: nil), request: request)
-                try? self?.notifyUpdateServers(request: request, server: newServer)
+                try? self?.update(request.topicOrUrl, servers: [newServer])
 
                 return .empty()
             }.eraseToAnyPublisher()
@@ -247,7 +239,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             .flatMap { [weak self] _ -> ResponsePublisher in
                 //save order of operations, first we have to respond of request then update session with server
                 try? self?.respond(.init(data: nil), request: request)
-                try? self?.notifyUpdateServers(request: request, server: newServer)
+                try? self?.update(request.topicOrUrl, servers: [newServer])
 
                 return .empty()
             }.eraseToAnyPublisher()

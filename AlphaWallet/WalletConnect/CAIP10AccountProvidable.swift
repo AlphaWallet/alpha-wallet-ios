@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletFoundation
+import WalletConnectSign
 
 protocol CAIP10AccountProvidable {
     var accounts: AnyPublisher<Set<CAIP10Account>, Never> { get }
@@ -96,26 +97,47 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
             return [SupportedSessionNamespace.eip155.rawValue: SessionNamespace(accounts: accounts, methods: [], events: [])]
         case .proposal(let proposal):
             var sessionNamespaces: [String: SessionNamespace] = [:]
-            for each in proposal.requiredNamespaces {
-                guard let namespace = SupportedSessionNamespace(rawValue: each.key) else { continue }
-                let proposalNamespace = each.value
-
-                let accounts = accountsForSupportedBlockchains(for: proposalNamespace.chains)
-                if accounts.isEmpty { continue }
-
-                let sessionNamespace = SessionNamespace(
-                    accounts: accounts,
-                    methods: proposalNamespace.methods,
-                    events: proposalNamespace.events)
-
-                sessionNamespaces[namespace.rawValue] = sessionNamespace
-            }
+            buildResponseNamespaces(&sessionNamespaces, namespaces: proposal.requiredNamespaces)
+            buildResponseNamespaces(&sessionNamespaces, namespaces: proposal.optionalNamespaces ?? [:])
 
             if sessionNamespaces.isEmpty {
                 throw CAIP10AccountProvidableError.emptyNamespaces
             }
 
             return sessionNamespaces
+        }
+    }
+
+    private func buildResponseNamespaces(_ responseNamespaces: inout [String: SessionNamespace], namespaces: [String: ProposalNamespace]) {
+        for each in namespaces {
+            let proposalNamespace = each.value
+
+            let accounts: Set<CAIP10Account>
+            let key: String
+            if let namespace = SupportedSessionNamespace(rawValue: each.key) {
+                key = namespace.rawValue
+                accounts = accountsForSupportedBlockchains(for: proposalNamespace.chains ?? [])
+            } else if let blockchain = Blockchain(each.key) {
+                key = blockchain.absoluteString
+                accounts = accountsForSupportedBlockchains(for: [blockchain])
+            } else {
+                continue
+            }
+
+            if accounts.isEmpty { continue }
+            if let existedNamespace = responseNamespaces[key] {
+                responseNamespaces[key] = SessionNamespace(
+                    accounts: existedNamespace.accounts.union(accounts),
+                    methods: existedNamespace.methods.union(proposalNamespace.methods),
+                    events: existedNamespace.events.union(proposalNamespace.events))
+            } else {
+                let sessionNamespace = SessionNamespace(
+                    accounts: accounts,
+                    methods: proposalNamespace.methods,
+                    events: proposalNamespace.events)
+
+                responseNamespaces[key] = sessionNamespace
+            }
         }
     }
 
