@@ -51,6 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        NSLog("Application open userActivity: \(userActivity)")
         return appCoordinator.applicationContinueUserActivity(userActivity, restorationHandler: restorationHandler)
     }
 
