@@ -8,15 +8,12 @@
 import Combine
 import Foundation
 
-public protocol CoinTickersFetcherTests {
-    func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
-}
-
-public protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherTests, CoinTickersFetcherProvider {
+public protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherProvider {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
     func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker?
+    func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
 }
 
 public struct AssignedCoinTickerId: Hashable, Codable {

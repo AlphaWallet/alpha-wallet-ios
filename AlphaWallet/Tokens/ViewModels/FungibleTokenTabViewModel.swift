@@ -19,21 +19,28 @@ struct FungibleTokenTabViewModelOutput {
 
 class FungibleTokenTabViewModel {
     private let token: Token
-    private let tokensService: TokenBalanceRefreshable & TokenViewModelState
+    private let tokensPipeline: TokensProcessingPipeline
     private let assetDefinitionStore: AssetDefinitionStore
     private var cancelable = Set<AnyCancellable>()
+    private let tokensService: TokensService
     lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
 
     let session: WalletSession
     let tabBarItems: [TabBarItem]
 
-    init(token: Token, session: WalletSession, tokensService: TokenBalanceRefreshable & TokenViewModelState, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: Token,
+         session: WalletSession,
+         tokensPipeline: TokensProcessingPipeline,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokensService: TokensService) {
+
         self.tokensService = tokensService
+        self.tokensPipeline = tokensPipeline
         self.assetDefinitionStore = assetDefinitionStore
         self.token = token
         self.session = session
 
-        let hasTicker = tokensService.tokenViewModel(for: token)?.balance.ticker != nil
+        let hasTicker = tokensPipeline.tokenViewModel(for: token)?.balance.ticker != nil
 
         if Features.default.isAvailable(.isAlertsEnabled) && hasTicker {
             tabBarItems = [.details, .activities, .alerts]
@@ -48,7 +55,7 @@ class FungibleTokenTabViewModel {
                 tokensService.refreshBalance(updatePolicy: .token(token: token))
             }.store(in: &cancelable)
 
-        let viewState = tokensService
+        let viewState = tokensPipeline
             .tokenViewModelPublisher(for: token)
             .map { $0?.tokenScriptOverrides?.titleInPluralForm }
             .map { FungibleTokenTabViewModel.ViewState(title: $0) }

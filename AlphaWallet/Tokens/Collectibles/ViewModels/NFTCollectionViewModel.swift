@@ -25,7 +25,7 @@ struct NFTCollectionViewModelOutput {
 final class NFTCollectionViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokensService: TokenViewModelState & TokenHolderState
+    private let tokensService: TokensProcessingPipeline
     private let nftProvider: NFTProvider
     private let config: Config
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -65,7 +65,7 @@ final class NFTCollectionViewModel {
     init(token: Token,
          wallet: Wallet,
          assetDefinitionStore: AssetDefinitionStore,
-         tokensService: TokenViewModelState & TokenHolderState,
+         tokensService: TokensProcessingPipeline,
          activitiesService: ActivitiesServiceType,
          nftProvider: NFTProvider,
          config: Config,

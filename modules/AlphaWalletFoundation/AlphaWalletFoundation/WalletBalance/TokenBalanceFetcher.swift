@@ -28,13 +28,13 @@ public protocol TokenBalanceFetcherType: AnyObject {
 public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let nftProvider: NFTProvider
     private let queue = DispatchQueue(label: "org.alphawallet.swift.tokenBalanceFetcher", qos: .utility)
-    private let tokensService: TokensProvidable & TokenAddable
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
     private lazy var jsonFromTokenUri: JsonFromTokenUri = {
-        return JsonFromTokenUri(blockchainProvider: session.blockchainProvider, tokensService: tokensService, networkService: networkService)
+        return JsonFromTokenUri(blockchainProvider: session.blockchainProvider, tokensDataStore: tokensDataStore, networkService: networkService)
     }()
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
         analytics: analytics,
@@ -50,7 +50,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
         let fetcher = NonFungibleErc1155JsonBalanceFetcher(
-            tokensService: tokensService,
+            tokensDataStore: tokensDataStore,
             server: session.server,
             erc1155TokenIdsFetcher: erc1155TokenIdsFetcher,
             jsonFromTokenUri: jsonFromTokenUri,
@@ -68,7 +68,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     public init(session: WalletSession,
-                tokensService: TokensProvidable & TokenAddable,
+                tokensDataStore: TokensDataStore,
                 etherToken: Token,
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,
@@ -78,7 +78,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         self.networkService = networkService
         self.nftProvider = session.nftProvider
         self.etherToken = etherToken
-        self.tokensService = tokensService
+        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
 
@@ -242,10 +242,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                     .eraseToAnyPublisher()
             }.sink(receiveCompletion: { [weak self] _ in
                 self?.cancellable[randomUuid] = nil
-            }, receiveValue: { [weak self, tokensService] jsons in
+            }, receiveValue: { [weak self, tokensDataStore] jsons in
                 guard let strongSelf = self else { return }
 
-                guard let token = tokensService.token(for: contract, server: strongSelf.session.server) else { return }
+                guard let token = tokensDataStore.token(for: contract, server: strongSelf.session.server) else { return }
 
                 let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
                 strongSelf.notifyUpdateBalance([
@@ -276,7 +276,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
                 tokenType = .erc721
             }
-            if let token = tokensService.token(for: contract, server: session.server) {
+            if let token = tokensDataStore.token(for: contract, server: session.server) {
                 actions += [
                     .update(token: token, field: .type(tokenType)),
                     .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets))),

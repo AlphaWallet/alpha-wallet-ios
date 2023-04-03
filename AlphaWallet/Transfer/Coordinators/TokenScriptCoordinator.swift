@@ -31,7 +31,7 @@ class TokenScriptCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
     private var cancelable = Set<AnyCancellable>()
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let networkService: NetworkService
 
     weak var delegate: TokenScriptCoordinatorDelegate?
@@ -47,7 +47,7 @@ class TokenScriptCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          action: TokenInstanceAction,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {
 
         self.networkService = networkService

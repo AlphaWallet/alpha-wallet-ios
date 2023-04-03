@@ -34,7 +34,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             tokenGroupIdentifier: TokenGroupIdentifier.identifier(fromFileName: "tokens")!)
     }()
 
-    internal let tokenCollection: TokenCollection
+    internal let tokensPipeline: TokensProcessingPipeline
 
     var transactionCoordinator: TransactionsCoordinator? {
         return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
@@ -136,7 +136,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let tokenSwapper: TokenSwapper
-    private let tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable
+    private let tokensService: TokensService
     private let lock: Lock
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private var cancelable = Set<AnyCancellable>()
@@ -163,9 +163,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          domainResolutionService: DomainResolutionServiceType,
          tokenSwapper: TokenSwapper,
          sessionsProvider: SessionsProvider,
-         tokenCollection: TokenCollection,
+         tokenCollection: TokensProcessingPipeline,
          transactionsDataStore: TransactionDataStore,
-         tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable,
+         tokensService: TokensService,
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
@@ -184,7 +184,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         self.lock = lock
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokenCollection
         self.activitiesPipeLine = activitiesPipeLine
         self.tokenSwapper = tokenSwapper
         self.sessionsProvider = sessionsProvider
@@ -337,7 +337,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: activitiesPipeLine,
             walletBalanceService: walletBalanceService,
-            tokenCollection: tokenCollection,
+            tokenCollection: tokensPipeline,
+            tokensService: tokensService,
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService,
             tokensFilter: tokensFilter,
@@ -367,7 +368,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             analytics: analytics,
             sessionsProvider: sessionsProvider,
             transactionsService: transactionsService,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             tokenImageFetcher: tokenImageFetcher)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.transactions.tabBarItem
@@ -508,13 +509,14 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
                 analytics: analytics,
-                tokenCollection: tokenCollection,
+                tokensPipeline: tokensPipeline,
                 domainResolutionService: domainResolutionService,
                 tokenSwapper: tokenSwapper,
                 tokensFilter: tokensFilter,
                 networkService: networkService,
                 transactionDataStore: transactionsDataStore,
-                tokenImageFetcher: tokenImageFetcher)
+                tokenImageFetcher: tokenImageFetcher,
+                tokensService: tokensService)
 
             coordinator.delegate = self
             coordinator.start()
@@ -819,7 +821,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             session: session,
             transaction: transaction,
             mode: .speedup,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             networkService: networkService) else { return }
 
         coordinator.delegate = self
@@ -838,7 +840,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             session: session,
             transaction: transaction,
             mode: .cancel,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             networkService: networkService) else { return }
 
         coordinator.delegate = self
@@ -901,7 +903,7 @@ extension ActiveWalletCoordinator: UITabBarControllerDelegate {
 extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
-        tokenCollection.refreshBalance(updatePolicy: .all)
+        tokensService.refreshBalance(updatePolicy: .all)
         activitiesPipeLine.start()
     }
 
@@ -948,11 +950,12 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         self.pendingOperation = operation
 
         let coordinator = SelectTokenCoordinator(
-            tokenCollection: tokenCollection,
+            tokensPipeline: tokensPipeline,
             tokensFilter: tokensFilter,
             navigationController: navigationController,
             filter: .filter(NativeCryptoOrErc20TokenFilter()),
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
 
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -1145,7 +1148,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         infoLog("[\(source)] signTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, tokensService: tokenCollection, networkService: networkService)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, tokensService: tokensPipeline, networkService: networkService)
         }.map { data -> Data in
             switch data {
             case .signedTransaction(let data):
@@ -1214,7 +1217,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         infoLog("[\(source)] sendTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self, keystore: keystore, tokensService: tokenCollection, networkService: networkService)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self, keystore: keystore, tokensService: tokensPipeline, networkService: networkService)
         }.map { data -> SentTransaction in
             switch data {
             case .sentTransaction(let transaction):

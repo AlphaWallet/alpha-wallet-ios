@@ -9,7 +9,7 @@ struct ConfigureTransactionViewModel {
         case invalidNonce
         case none
     }
-    private let service: TokenViewModelState
+    private let service: TokensProcessingPipeline
     private let transactionType: TransactionType
     let configurator: TransactionConfigurator
     private let fullFormatter = EtherNumberFormatter.full
@@ -137,7 +137,7 @@ struct ConfigureTransactionViewModel {
 
     init(configurator: TransactionConfigurator,
          recoveryMode: ConfigureTransactionViewModel.RecoveryMode,
-         service: TokenViewModelState) {
+         service: TokensProcessingPipeline) {
         
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)

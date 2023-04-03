@@ -20,10 +20,10 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private let erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher
     private let erc1155BalanceFetcher: Erc1155BalanceFetcher
     private let server: RPCServer
-    private let tokensService: TokensProvidable
+    private let tokensDataStore: TokensDataStore
     private let importToken: TokenImportable & TokenOrContractFetchable
 
-    init(tokensService: TokensProvidable,
+    init(tokensDataStore: TokensDataStore,
          server: RPCServer,
          erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher,
          jsonFromTokenUri: JsonFromTokenUri,
@@ -32,7 +32,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
 
         self.server = server
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
-        self.tokensService = tokensService
+        self.tokensDataStore = tokensDataStore
         self.jsonFromTokenUri = jsonFromTokenUri
         self.erc1155BalanceFetcher = erc1155BalanceFetcher
         self.importToken = importToken

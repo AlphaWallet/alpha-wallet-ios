@@ -206,7 +206,7 @@ extension ActivityCollection {
 
 extension ActivityCollection.functional {
 
-    public static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, service: TokensProvidable, wallet: AlphaWallet.Address) -> (token: Token, activityName: String)? {
+    public static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensService: TokensService, wallet: AlphaWallet.Address) -> (token: Token, activityName: String)? {
         enum TokenOperation {
             case nativeCryptoTransfer(Token)
             case completedTransfer(Token)
@@ -237,13 +237,13 @@ extension ActivityCollection.functional {
             //Explicitly listing out combinations so future changes to enums will be caught by compiler
             switch (transactionRow.state, transactionRow.operation?.operationType) {
             case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer), (.pending, .erc1155TokenTransfer):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingTransfer($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensService.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingTransfer($0) }
             case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer), (.completed, .erc1155TokenTransfer):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedTransfer($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensService.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedTransfer($0) }
             case (.pending, .erc20TokenApprove):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingErc20Approval($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensService.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingErc20Approval($0) }
             case (.completed, .erc20TokenApprove):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedErc20Approval($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensService.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedErc20Approval($0) }
             case (.pending, .erc721TokenApproveAll):
                 //TODO support ERC721 setApprovalForAll()
                 erc20TokenOperation = .none
@@ -269,8 +269,8 @@ extension ActivityCollection.functional {
         return (token: token, activityName: activityName)
     }
 
-    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, service: TokensProvidable, wallet: AlphaWallet.Address) -> Activity? {
-        guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, service: service, wallet: wallet) else { return nil }
+    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, tokensService: TokensService, wallet: AlphaWallet.Address) -> Activity? {
+        guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, tokensService: tokensService, wallet: wallet) else { return nil }
 
         var cardAttributes = [AttributeId: AssetInternalValue]()
         cardAttributes.setSymbol(string: transactionRow.server.symbol)

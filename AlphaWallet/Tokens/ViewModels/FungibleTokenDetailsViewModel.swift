@@ -18,7 +18,7 @@ struct FungibleTokenDetailsViewModelOutput {
 final class FungibleTokenDetailsViewModel {
     private let chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
     private let coinTickersFetcher: CoinTickersFetcher
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private var cancelable = Set<AnyCancellable>()
     private var chartHistories: [ChartHistoryPeriod: ChartHistory] { chartHistoriesSubject.value }
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
@@ -56,7 +56,7 @@ final class FungibleTokenDetailsViewModel {
 
     init(token: Token,
          coinTickersFetcher: CoinTickersFetcher,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          session: WalletSession,
          assetDefinitionStore: AssetDefinitionStore,
          tokenActionsProvider: SupportedTokenActionsProvider,

@@ -8,8 +8,11 @@
 import Foundation
 import Combine
 
-public protocol TokenSourceProvider: TokensState, TokenAutoDetectable {
+public protocol TokenSourceProvider {
     var session: WalletSession { get }
+    var tokens: [Token] { get }
+    var tokensPublisher: AnyPublisher<[Token], Never> { get }
+    var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
 
     func start()
     func refresh()

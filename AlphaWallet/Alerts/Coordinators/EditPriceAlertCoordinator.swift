@@ -18,7 +18,7 @@ class EditPriceAlertCoordinator: Coordinator {
     private let token: Token
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let currencyService: CurrencyService
     private let tokenImageFetcher: TokenImageFetcher
 
@@ -29,7 +29,7 @@ class EditPriceAlertCoordinator: Coordinator {
          configuration: EditPriceAlertViewModel.Configuration,
          token: Token,
          session: WalletSession,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          alertService: PriceAlertServiceType,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher) {

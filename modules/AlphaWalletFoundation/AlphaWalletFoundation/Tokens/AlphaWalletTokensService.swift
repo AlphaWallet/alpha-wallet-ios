@@ -46,17 +46,6 @@ public class AlphaWalletTokensService: TokensService {
         tokensDataStore.tokensChangesetPublisher(for: servers)
     }
 
-    public func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
-        providers.map { $0.values.filter { servers.contains($0.session.server) } }
-            .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
-            .map { $0.flatMap { $0 } }
-            .map { [providers] tokens -> [Token] in
-                let servers = Array(providers.value.keys)
-                return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
-            }.map { AlphaWalletTokensService.filterAwaySpuriousTokens($0) }
-            .eraseToAnyPublisher()
-    }
-
     public var tokens: [Token] {
         AlphaWalletTokensService.filterAwaySpuriousTokens(providers.value.flatMap { $0.value.tokens })
     }
@@ -112,28 +101,29 @@ public class AlphaWalletTokensService: TokensService {
     }
 
     public func start() {
-        sessionsProvider.sessions.map { [weak self] sessions in
-            var providers: ServerDictionary<TokenSourceProvider> = .init()
-            for session in sessions {
-                if let provider = self?.providers.value[safe: session.key] {
-                    providers[session.key] = provider
-                } else {
-                    guard let provider = self?.buildTokenSource(session: session.value) else { continue }
-                    provider.start()
+        sessionsProvider.sessions
+            .map { [weak self] sessions in
+                var providers: ServerDictionary<TokenSourceProvider> = .init()
+                for session in sessions {
+                    if let provider = self?.providers.value[safe: session.key] {
+                        providers[session.key] = provider
+                    } else {
+                        guard let provider = self?.buildTokenSource(session: session.value) else { continue }
+                        provider.start()
 
-                    providers[session.key] = provider
+                        providers[session.key] = provider
+                    }
                 }
-            }
-            
-            return providers
-        }.assign(to: \.value, on: providers, ownership: .weak)
-        .store(in: &cancelable)
+
+                return providers
+            }.assign(to: \.value, on: providers, ownership: .weak)
+            .store(in: &cancelable)
     }
 
     private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
         let balanceFetcher = TokenBalanceFetcher(
             session: session,
-            tokensService: self,
+            tokensDataStore: tokensDataStore,
             etherToken: MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server),
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
@@ -212,7 +202,7 @@ public class AlphaWalletTokensService: TokensService {
     }
 }
 
-extension AlphaWalletTokensService: TokensServiceTests {
+extension AlphaWalletTokensService {
     public func setBalanceTestsOnly(balance: Balance, for token: Token) {
         tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .value(balance.value))
     }

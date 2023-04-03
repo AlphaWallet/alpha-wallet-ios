@@ -64,7 +64,11 @@ extension WalletDataProcessingPipeline {
             currencyService: currencyService,
             sessionsProvider: sessionsProvider)
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline, currencyService: .make())
+        let fetcher = WalletBalanceFetcher(
+            wallet: wallet,
+            tokensPipeline: pipeline,
+            currencyService: .make(),
+            tokensService: tokensService)
 
         let activitiesPipeLine = ActivitiesPipeLine(
             config: .make(),
@@ -85,7 +89,8 @@ extension WalletDataProcessingPipeline {
             fetcher: fetcher,
             sessionsProvider: sessionsProvider,
             eventsDataStore: eventsDataStore,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            coinTickersFetcher: coinTickersFetcher)
         
         dep.sessionsProvider.start()
         dep.fetcher.start()
@@ -112,13 +117,14 @@ class PaymentCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
-            tokenCollection: dep.pipeline,
+            tokensPipeline: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             networkService: FakeNetworkService(),
             transactionDataStore: FakeTransactionsStorage(wallet: wallet),
-            tokenImageFetcher: FakeTokenImageFetcher())
+            tokenImageFetcher: FakeTokenImageFetcher(),
+            tokensService: dep.tokensService)
         coordinator.start()
 
         XCTAssertEqual(1, coordinator.coordinators.count)
@@ -138,13 +144,14 @@ class PaymentCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
-            tokenCollection: dep.pipeline,
+            tokensPipeline: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             networkService: FakeNetworkService(),
             transactionDataStore: FakeTransactionsStorage(wallet: wallet),
-            tokenImageFetcher: FakeTokenImageFetcher())
+            tokenImageFetcher: FakeTokenImageFetcher(),
+            tokensService: dep.tokensService)
 
         coordinator.start()
 

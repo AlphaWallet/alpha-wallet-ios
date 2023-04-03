@@ -15,24 +15,13 @@ public protocol TokensAutodetector: NSObjectProtocol {
     func start()
 }
 
-public protocol DetectedContractsProvideble {
-    /// Tokens contracts
-    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    /// Not using anymore, leave it to avoid migration fixing
-    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    /// Also seems like not supported
-    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    /// Partially resolved token contracts
-    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address]
-}
-
 public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let session: WalletSession
     private let queue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
     private let importToken: TokenImportable & TokenOrContractFetchable
-    private let detectedTokens: DetectedContractsProvideble
+    private let tokensDataStore: TokensDataStore
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
     private lazy var getContractInteractions = GetContractInteractions(networkService: networkService)
     private let contractToImportStorage: ContractToImportStorage
@@ -45,7 +34,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
     init(session: WalletSession,
          contractToImportStorage: ContractToImportStorage,
-         detectedTokens: DetectedContractsProvideble,
+         tokensDataStore: TokensDataStore,
          withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
          withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
          importToken: TokenImportable & TokenOrContractFetchable,
@@ -55,7 +44,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         self.contractToImportStorage = contractToImportStorage
         self.importToken = importToken
         self.session = session
-        self.detectedTokens = detectedTokens
+        self.tokensDataStore = tokensDataStore
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
     }
@@ -82,10 +71,10 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], forServer server: RPCServer) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: server)
-        let deletedContracts = detectedTokens.deletedContracts(for: server)
-        let hiddenContracts = detectedTokens.hiddenContracts(for: server)
-        let delegateContracts = detectedTokens.delegateContracts(for: server)
+        let alreadyAddedContracts = tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
+        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
+        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
+        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.contractAddress }
 
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
@@ -142,9 +131,9 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
     private func contractsToAutodetectTokens(contractsToDetect: [ContractToImport]) -> [ContractToImport] {
         return contractsToDetect.filter {
-            !detectedTokens.alreadyAddedContracts(for: $0.server).contains($0.contract) &&
-            !detectedTokens.deletedContracts(for: $0.server).contains($0.contract) &&
-            !detectedTokens.hiddenContracts(for: $0.server).contains($0.contract)
+            !tokensDataStore.tokens(for: [$0.server]).map { $0.contractAddress }.contains($0.contract) &&
+            !tokensDataStore.deletedContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract) &&
+            !tokensDataStore.hiddenContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract)
         }
     }
 }

@@ -10,9 +10,8 @@ import Combine
 
 public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private lazy var tokensAutodetector: TokensAutodetector = {
-        let detectedContractsProvider = DetectedContractsProvider(tokensDataStore: tokensDataStore)
         let contractToImportStorage = ContractToImportFileStorage(server: session.server)
-        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: session.importToken, networkService: networkService)
+        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, tokensDataStore: tokensDataStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: session.importToken, networkService: networkService)
         return autodetector
     }()
     private let networkService: NetworkService
@@ -88,30 +87,6 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
     public func refreshBalance(for tokens: [Token]) {
         balanceFetcher.refreshBalance(for: tokens)
-    }
-
-    private class DetectedContractsProvider: DetectedContractsProvideble {
-        private let tokensDataStore: TokensDataStore
-
-        init(tokensDataStore: TokensDataStore) {
-            self.tokensDataStore = tokensDataStore
-        }
-
-        func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-            tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
-        }
-
-        func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-            tokensDataStore.deletedContracts(forServer: server).map { $0.address }
-        }
-
-        func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-            tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
-        }
-
-        func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-            tokensDataStore.delegateContracts(forServer: server).map { $0.address }
-        }
     }
 }
 

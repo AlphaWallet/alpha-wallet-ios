@@ -23,7 +23,7 @@ class TransactionDetailsViewModel {
     private let fullFormatter = EtherNumberFormatter.full
     private let analytics: AnalyticsLogger
     private let transactionsService: TransactionsService
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let wallet: Wallet
     private let tokenImageFetcher: TokenImageFetcher
     private var moreButtonTitle: String {
@@ -43,7 +43,7 @@ class TransactionDetailsViewModel {
          transactionRow: TransactionRow,
          blockNumberProvider: BlockNumberProvider,
          wallet: Wallet,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          analytics: AnalyticsLogger,
          tokenImageFetcher: TokenImageFetcher) {
 

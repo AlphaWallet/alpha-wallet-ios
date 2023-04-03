@@ -14,7 +14,7 @@ extension TransactionConfirmationViewModel {
     class TokenScriptTransactionViewModel: TransactionConfirmationViewModelType {
         @Published private var etherCurrencyRate: Loadable<CurrencyRate, Error> = .loading
 
-        private let tokensService: TokenViewModelState
+        private let tokensService: TokensProcessingPipeline
         private let address: AlphaWallet.Address
         private let configurator: TransactionConfigurator
         private let session: WalletSession
@@ -28,7 +28,7 @@ extension TransactionConfirmationViewModel {
         init(address: AlphaWallet.Address,
              configurator: TransactionConfigurator,
              functionCallMetaData: DecodedFunctionCall,
-             tokensService: TokenViewModelState) {
+             tokensService: TokensProcessingPipeline) {
 
             self.tokensService = tokensService
             self.address = address

@@ -40,6 +40,7 @@ class TokensCoordinatorTests: XCTestCase {
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep.pipeline,
+            tokensService: dep.tokensService,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),

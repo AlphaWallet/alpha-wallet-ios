@@ -112,7 +112,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }()
 
     private var cancelable = Set<AnyCancellable>()
-    private let service: TokenViewModelState
+    private let service: TokensProcessingPipeline
     private let containerView: ScrollableStackView = {
         let containerView = ScrollableStackView()
         containerView.stackView.axis = .vertical
@@ -133,7 +133,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     init(viewModel: EnterSellTokensCardPriceQuantityViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         service: TokenViewModelState,
+         service: TokensProcessingPipeline,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher) {
 

@@ -50,7 +50,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private var server: RPCServer { configurator.session.server }
     private let navigationController: UIViewController
     private let keystore: Keystore
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
@@ -63,7 +63,7 @@ class TransactionConfirmationCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          keystore: Keystore,
-         tokensService: TokenViewModelState,
+         tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {
 
         configurator = TransactionConfigurator(

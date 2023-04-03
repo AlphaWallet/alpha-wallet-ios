@@ -61,6 +61,7 @@ class ConfigTests: XCTestCase {
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep1.pipeline,
+            tokensService: dep1.tokensService,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),

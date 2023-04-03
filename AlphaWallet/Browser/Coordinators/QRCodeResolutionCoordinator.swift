@@ -29,7 +29,7 @@ protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
 
 final class QRCodeResolutionCoordinator: Coordinator {
     enum Usage {
-        case all(tokensService: TokensProvidable, sessionsProvider: SessionsProvider)
+        case all(tokensService: TokensService, sessionsProvider: SessionsProvider)
         case importWalletOnly
     }
 
@@ -74,8 +74,8 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
     private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
         switch usage {
-        case .all(let tokensService, _):
-            let isTokenFound = tokensService.token(for: contract, server: .main) != nil
+        case .all(let tokensDataStore, _):
+            let isTokenFound = tokensDataStore.token(for: contract, server: .main) != nil
             if isTokenFound {
                 return [.sendToAddress, .watchWallet, .openInEtherscan]
             } else {

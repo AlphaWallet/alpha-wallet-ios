@@ -13,7 +13,7 @@ import CombineExt
 class ActivitiesGenerator {
     private let sessionsProvider: SessionsProvider
     private let transactionsFilterStrategy: TransactionsFilterStrategy
-    private let tokensService: TokensProvidable
+    private let tokensService: TokensService
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
 
@@ -22,7 +22,7 @@ class ActivitiesGenerator {
     init(sessionsProvider: SessionsProvider,
          transactionsFilterStrategy: TransactionsFilterStrategy,
          activitiesFilterStrategy: ActivitiesFilterStrategy,
-         tokensService: TokensProvidable,
+         tokensService: TokensService,
          eventsActivityDataStore: EventsActivityDataStoreProtocol) {
 
         self.eventsActivityDataStore = eventsActivityDataStore

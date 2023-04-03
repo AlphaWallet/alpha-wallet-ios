@@ -29,7 +29,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let analytics: AnalyticsLogger
     private let nftProvider: NFTProvider
     private let activitiesService: ActivitiesServiceType
-    private let tokensService: TokenViewModelState & TokenHolderState
+    private let tokensService: TokensProcessingPipeline
     private lazy var tokenCardViewFactory: TokenCardViewFactory = {
         TokenCardViewFactory(
             token: token,
@@ -79,7 +79,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
          analytics: AnalyticsLogger,
          nftProvider: NFTProvider,
          activitiesService: ActivitiesServiceType,
-         tokensService: TokenViewModelState & TokenHolderState,
+         tokensService: TokensProcessingPipeline,
          sessionsProvider: SessionsProvider,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher,

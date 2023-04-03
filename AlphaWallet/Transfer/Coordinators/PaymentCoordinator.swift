@@ -26,7 +26,7 @@ class PaymentCoordinator: Coordinator {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let tokenCollection: TokenCollection
+    private let tokensPipeline: TokensProcessingPipeline
     private let tokenSwapper: TokenSwapper
     private var shouldRestoreNavigationBarIsHiddenState: Bool
     private var latestNavigationStackViewController: UIViewController?
@@ -36,6 +36,7 @@ class PaymentCoordinator: Coordinator {
     private let networkService: NetworkService
     private let transactionDataStore: TransactionDataStore
     private let tokenImageFetcher: TokenImageFetcher
+    private let tokensService: TokensService
 
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
@@ -49,22 +50,24 @@ class PaymentCoordinator: Coordinator {
          keystore: Keystore,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
-         tokenCollection: TokenCollection,
+         tokensPipeline: TokensProcessingPipeline,
          reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
          domainResolutionService: DomainResolutionServiceType,
          tokenSwapper: TokenSwapper,
          tokensFilter: TokensFilter,
          networkService: NetworkService,
          transactionDataStore: TransactionDataStore,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.transactionDataStore = transactionDataStore
         self.networkService = networkService
         self.tokensFilter = tokensFilter
         self.tokenSwapper = tokenSwapper
         self.reachabilityManager = reachabilityManager
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokensPipeline
         self.navigationController = navigationController
         self.server = server
         self.sessionsProvider = sessionsProvider
@@ -85,12 +88,13 @@ class PaymentCoordinator: Coordinator {
             session: session,
             sessionsProvider: sessionsProvider,
             keystore: keystore,
-            tokensService: tokenCollection,
+            tokensPipeline: tokensPipeline,
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             networkService: networkService,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
 
         coordinator.delegate = self
         coordinator.start()
@@ -107,7 +111,7 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             networkService: networkService,
             tokenImageFetcher: tokenImageFetcher)
 
@@ -127,7 +131,7 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             networkService: networkService,
             tokenImageFetcher: tokenImageFetcher)
 
@@ -147,7 +151,7 @@ class PaymentCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             action: action,
-            tokensService: tokenCollection,
+            tokensService: tokensPipeline,
             networkService: networkService)
 
         coordinator.delegate = self
@@ -159,7 +163,7 @@ class PaymentCoordinator: Coordinator {
         let configurator = SwapOptionsConfigurator(
             sessionProvider: sessionsProvider,
             swapPair: swapPair,
-            tokenCollection: tokenCollection,
+            tokensService: tokensService,
             tokenSwapper: tokenSwapper)
 
         let coordinator = SwapTokensCoordinator(
@@ -169,11 +173,12 @@ class PaymentCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             assetDefinitionStore: assetDefinitionStore,
-            tokenCollection: tokenCollection,
+            tokensPipeline: tokensPipeline,
             tokensFilter: tokensFilter,
             networkService: networkService,
             transactionDataStore: transactionDataStore,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
 
         coordinator.start()
         coordinator.delegate = self

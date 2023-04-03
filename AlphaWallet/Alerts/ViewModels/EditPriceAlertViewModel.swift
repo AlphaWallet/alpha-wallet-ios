@@ -27,7 +27,7 @@ final class EditPriceAlertViewModel {
     private let configuration: EditPriceAlertViewModel.Configuration
     private var rate: CurrencyRate?
     private var cryptoValue: Double?
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let alertService: PriceAlertServiceType
     private var cancelable = Set<AnyCancellable>()
     private let currencyService: CurrencyService
@@ -35,7 +35,7 @@ final class EditPriceAlertViewModel {
     var title: String { configuration.title } 
     let token: Token
 
-    init(configuration: EditPriceAlertViewModel.Configuration, token: Token, tokensService: TokenViewModelState, alertService: PriceAlertServiceType, currencyService: CurrencyService) {
+    init(configuration: EditPriceAlertViewModel.Configuration, token: Token, tokensService: TokensProcessingPipeline, alertService: PriceAlertServiceType, currencyService: CurrencyService) {
         self.currencyService = currencyService
         self.configuration = configuration
         self.token = token

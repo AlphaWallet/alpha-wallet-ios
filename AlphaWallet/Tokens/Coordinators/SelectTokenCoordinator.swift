@@ -41,36 +41,41 @@ class SelectTokenCoordinator: Coordinator {
     private let parentsNavigationController: UINavigationController
     private (set) lazy var rootViewController: SelectTokenViewController = {
         let viewModel = SelectTokenViewModel(
-            tokenCollection: tokenCollection,
+            tokensPipeline: tokensPipeline,
             tokensFilter: tokensFilter,
             filter: filter,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            tokensService: tokensService)
+
         let viewController = SelectTokenViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
 
         return viewController
     }()
     private let tokenImageFetcher: TokenImageFetcher
-    private let tokenCollection: TokenCollection
+    private let tokensPipeline: TokensProcessingPipeline
     private let filter: WalletFilter
     private let tokensFilter: TokensFilter
+    private let tokensService: TokensService
     
     lazy var navigationController = NavigationController(rootViewController: rootViewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(tokenCollection: TokenCollection,
+    init(tokensPipeline: TokensProcessingPipeline,
          tokensFilter: TokensFilter,
          navigationController: UINavigationController,
          filter: WalletFilter,
-         tokenImageFetcher: TokenImageFetcher) {
+         tokenImageFetcher: TokenImageFetcher,
+         tokensService: TokensService) {
 
+        self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.tokensFilter = tokensFilter
         self.filter = filter
         self.parentsNavigationController = navigationController
-        self.tokenCollection = tokenCollection
+        self.tokensPipeline = tokensPipeline
         self.navigationController.hidesBottomBarWhenPushed = true
 
         rootViewController.delegate = self

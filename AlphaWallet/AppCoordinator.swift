@@ -624,7 +624,7 @@ class AppCoordinator: NSObject, Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             networkService: networkService)
 
-        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
+        let tokensPipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
             tokensService: tokensService,
             coinTickersFetcher: coinTickersFetcher,
@@ -633,9 +633,14 @@ class AppCoordinator: NSObject, Coordinator {
             currencyService: currencyService,
             sessionsProvider: sessionsProvider)
 
-        pipeline.start()
+        tokensPipeline.start()
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline, currencyService: currencyService)
+        let fetcher = WalletBalanceFetcher(
+            wallet: wallet,
+            tokensPipeline: tokensPipeline,
+            currencyService: currencyService,
+            tokensService: tokensService)
+
         fetcher.start()
 
         let activitiesPipeLine = ActivitiesPipeLine(
@@ -653,11 +658,12 @@ class AppCoordinator: NSObject, Coordinator {
             transactionsDataStore: transactionsDataStore,
             tokensDataStore: tokensDataStore,
             tokensService: tokensService,
-            pipeline: pipeline,
+            pipeline: tokensPipeline,
             fetcher: fetcher,
             sessionsProvider: sessionsProvider,
             eventsDataStore: eventsDataStore,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            coinTickersFetcher: coinTickersFetcher)
 
         dependencies[wallet] = dependency
 
@@ -844,12 +850,13 @@ extension AppCoordinator {
         let activitiesPipeLine: ActivitiesPipeLine
         let transactionsDataStore: TransactionDataStore
         let tokensDataStore: TokensDataStore
-        let tokensService: DetectedContractsProvideble & TokensProvidable & TokenAddable & TokensServiceTests
+        let tokensService: TokensService
         let pipeline: TokensProcessingPipeline
         let fetcher: WalletBalanceFetcher
         let sessionsProvider: SessionsProvider
         let eventsDataStore: NonActivityEventsDataStore
         let currencyService: CurrencyService
+        let coinTickersFetcher: CoinTickersFetcher
     }
 }
 

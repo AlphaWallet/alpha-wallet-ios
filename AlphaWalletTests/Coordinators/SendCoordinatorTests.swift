@@ -7,18 +7,20 @@ import AlphaWalletFoundation
 class SendCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
+        let dep = WalletDataProcessingPipeline.make()
         let coordinator = SendCoordinator(
             transactionType: .nativeCryptocurrency(Token(), destination: .none, amount: .notSet),
             navigationController: FakeNavigationController(),
             session: .make(),
             sessionsProvider: FakeSessionsProvider.make(servers: [.main]),
             keystore: FakeEtherKeystore(),
-            tokensService: WalletDataProcessingPipeline.make().pipeline,
+            tokensPipeline: dep.pipeline,
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
             networkService: FakeNetworkService(),
-            tokenImageFetcher: FakeTokenImageFetcher())
+            tokenImageFetcher: FakeTokenImageFetcher(),
+            tokensService: dep.tokensService)
 
         coordinator.start()
 
@@ -27,18 +29,20 @@ class SendCoordinatorTests: XCTestCase {
 
     func testDestination() {
         let address: AlphaWallet.Address = .make()
+        let dep = WalletDataProcessingPipeline.make()
         let coordinator = SendCoordinator(
             transactionType: .nativeCryptocurrency(Token(), destination: .init(address: address), amount: .notSet),
             navigationController: FakeNavigationController(),
             session: .make(),
             sessionsProvider: FakeSessionsProvider.make(servers: [.main]),
             keystore: FakeEtherKeystore(),
-            tokensService: WalletDataProcessingPipeline.make().pipeline,
+            tokensPipeline: dep.pipeline,
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
             networkService: FakeNetworkService(),
-            tokenImageFetcher: FakeTokenImageFetcher())
+            tokenImageFetcher: FakeTokenImageFetcher(),
+            tokensService: dep.tokensService)
         coordinator.start()
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)

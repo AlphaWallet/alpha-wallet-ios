@@ -20,7 +20,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private var autoDetectErc721TransactionsOperation: AnyCancellable?
 
     private var isFetchingLatestTransactions = false
-    private let tokensService: TokensProvidable
+    private let tokensService: TokensService
     private lazy var transactionsNetworkProvider = TransactionsNetworkProvider(
         session: session,
         networkService: networkService,
@@ -42,7 +42,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     init(session: WalletSession,
          analytics: AnalyticsLogger,
          transactionDataStore: TransactionDataStore,
-         tokensService: TokensProvidable,
+         tokensService: TokensService,
          fetchLatestTransactionsQueue: OperationQueue,
          ercTokenDetector: ErcTokenDetector,
          networkService: NetworkService) {

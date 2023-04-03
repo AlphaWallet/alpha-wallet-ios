@@ -19,7 +19,7 @@ extension TransactionConfirmationViewModel {
         private let numberOfTokens: UInt
         private let session: WalletSession
         private var cancellable = Set<AnyCancellable>()
-        private let tokensService: TokenViewModelState
+        private let tokensService: TokensProcessingPipeline
         private var sections: [Section] { Section.allCases }
 
         let confirmButtonViewModel: ConfirmButtonViewModel
@@ -28,7 +28,7 @@ extension TransactionConfirmationViewModel {
         init(configurator: TransactionConfigurator,
              price: BigUInt,
              numberOfTokens: UInt,
-             tokensService: TokenViewModelState) {
+             tokensService: TokensProcessingPipeline) {
             
             self.configurator = configurator
             self.price = price

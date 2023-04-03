@@ -89,14 +89,14 @@ public class TransactionConfigurator {
         Publishers.Merge3(gasPrice.mapToVoid(), gasLimit.mapToVoid(), nonce.mapToVoid())
             .eraseToAnyPublisher()
     }
-    private let tokensService: TokenViewModelState
+    private let tokensService: TokensProcessingPipeline
     private let configuration: TransactionType.Configuration
 
     public init(session: WalletSession,
                 analytics: AnalyticsLogger,
                 transaction: UnconfirmedTransaction,
                 networkService: NetworkService,
-                tokensService: TokenViewModelState,
+                tokensService: TokensProcessingPipeline,
                 configuration: TransactionType.Configuration) {
 
         self.configuration = configuration

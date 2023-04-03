@@ -10,14 +10,14 @@ final class EventSource {
 
     private let config: Config
     private var cancellable = Set<AnyCancellable>()
-    private let tokensService: TokensProvidable
+    private let tokensService: TokensService
     private let sessionsProvider: SessionsProvider
     private let eventFetcher: TokenEventsForTickersFetcher
     private let tokenScriptChanges: TokenScriptChangedTokens
     private var workers: [RPCServer: ChainTokenEventsForTickersWorker] = [:]
 
     init(wallet: Wallet,
-         tokensService: TokensProvidable,
+         tokensService: TokensService,
          assetDefinitionStore: AssetDefinitionStore,
          eventsDataStore: NonActivityEventsDataStore,
          config: Config,
@@ -88,7 +88,7 @@ final class EventSource {
 
     class TokenScriptChangedTokens {
         private let queue = DispatchQueue(label: "com.eventSource.tokenScriptChangedTokens")
-        private let tokensService: TokensProvidable
+        private let tokensService: TokensService
         private let sessionsProvider: SessionsProvider
         private let assetDefinitionStore: AssetDefinitionStore
         private let eventsDataStore: NonActivityEventsDataStore
@@ -103,7 +103,7 @@ final class EventSource {
                 .eraseToAnyPublisher()
         }
 
-        init(tokensService: TokensProvidable,
+        init(tokensService: TokensService,
              sessionsProvider: SessionsProvider,
              eventsDataStore: NonActivityEventsDataStore,
              assetDefinitionStore: AssetDefinitionStore) {
@@ -130,14 +130,14 @@ final class EventSource {
 
     class ChainTokenEventsForTickersWorker {
         private let queue = DispatchQueue(label: "com.eventSource.chainTokenEventsForTickersWorker")
-        private let tokensService: TokensProvidable
+        private let tokensService: TokensService
         private let session: WalletSession
         private let eventsFetcher: TokenEventsForTickersFetcher
         private var workers: [AlphaWallet.Address: TokenEventsForTickersWorker] = [:]
         private var cancellable: AnyCancellable?
         private let tokenScriptChanges: TokenScriptChangedTokens
 
-        init(tokensService: TokensProvidable,
+        init(tokensService: TokensService,
              session: WalletSession,
              eventsFetcher: TokenEventsForTickersFetcher,
              tokenScriptChanges: TokenScriptChangedTokens) {

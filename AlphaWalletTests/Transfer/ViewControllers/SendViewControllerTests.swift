@@ -117,7 +117,7 @@ class SendViewControllerTests: XCTestCase {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        let tokens = dep.pipeline.tokens(for: [.main])
+        let tokens = dep.tokensService.tokens(for: [.main])
 
         XCTAssertTrue(tokens.contains(token))
 
@@ -256,7 +256,7 @@ class SendViewControllerTests: XCTestCase {
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
         Config.setLocale(locale)
-        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, sessionsProvider: dep.sessionsProvider)
+        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensPipeline: dep.pipeline, sessionsProvider: dep.sessionsProvider, tokensService: dep.tokensService)
         return SendViewController(viewModel: viewModel, domainResolutionService: FakeDomainResolutionService(), tokenImageFetcher: FakeTokenImageFetcher())
     }
 }
@@ -292,9 +292,9 @@ class TokenBalanceTests: XCTestCase {
         let tokenToTicker = TokenMappedToTicker(token: token)
         let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
 
-        pipeline.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
-        pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 0), for: tokenToTicker) // no changes should be, as value is stay the same
-        pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 666), for: tokenToTicker)
+        dep.coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
+        dep.coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 0), for: tokenToTicker) // no changes should be, as value is stay the same
+        dep.coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 666), for: tokenToTicker)
 
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("4000000020224719101120")!), for: token)
         
@@ -379,7 +379,7 @@ class TokenBalanceTests: XCTestCase {
 
         let tokenToTicker = TokenMappedToTicker(token: token)
         let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
-        pipeline.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
+        dep.coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
 
         let group = DispatchGroup()
         for each in 0 ..< 10 {
@@ -392,7 +392,7 @@ class TokenBalanceTests: XCTestCase {
                 }
             } else {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
-                    pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: ticker.price_usd + Double(each)), for: tokenToTicker)
+                    self.dep.coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: ticker.price_usd + Double(each)), for: tokenToTicker)
                     group.leave()
                 }
             }

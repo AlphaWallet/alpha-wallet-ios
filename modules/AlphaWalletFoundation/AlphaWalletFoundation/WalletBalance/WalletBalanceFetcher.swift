@@ -9,13 +9,6 @@ import Foundation
 import BigInt
 import Combine
 
-public protocol WalletBalanceFetcherTypeTests {
-    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token)
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token)
-    func deleteTokenTestsOnly(token: Token)
-    func addOrUpdateTokenTestsOnly(token: Token)
-}
-
 public protocol WalletBalanceFetcherType: AnyObject {
     var walletBalance: AnyPublisher<WalletBalance, Never> { get }
 
@@ -28,7 +21,8 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private var timer: Timer?
     private let wallet: Wallet
     private var cancelable = Set<AnyCancellable>()
-    private let tokensService: TokenViewModelState & TokenBalanceRefreshable
+    private let tokensPipeline: TokensProcessingPipeline
+    private let tokensService: TokensService
     private lazy var walletBalanceSubject = CurrentValueSubject<WalletBalance, Never>(WalletBalance(wallet: wallet, tokens: [], currency: currencyService.currency))
     private let currencyService: CurrencyService
     public var walletBalance: AnyPublisher<WalletBalance, Never> {
@@ -36,11 +30,13 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     public init(wallet: Wallet,
-                tokensService: TokenViewModelState & TokenBalanceRefreshable,
-                currencyService: CurrencyService) {
+                tokensPipeline: TokensProcessingPipeline,
+                currencyService: CurrencyService,
+                tokensService: TokensService) {
 
-        self.wallet = wallet
         self.tokensService = tokensService
+        self.wallet = wallet
+        self.tokensPipeline = tokensPipeline
         self.currencyService = currencyService
         super.init()
     }
@@ -52,7 +48,7 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             self?.refreshBalance(updatePolicy: .all)
         }
 
-        tokensService.tokenViewModels
+        tokensPipeline.tokenViewModels
             .map { [wallet, currencyService] in WalletBalance(wallet: wallet, tokens: $0, currency: currencyService.currency) }
             .removeDuplicates()
             .assign(to: \.value, on: walletBalanceSubject)
