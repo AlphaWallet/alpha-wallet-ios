@@ -36,7 +36,7 @@ extension OpenSea: NftAssetImageProvider {
 
 extension Constants.Credentials {
     static var enjinCredentials: EnjinCredentials? {
-        guard let email = Constants.Credentials.enjinUserName, let password = Constants.Credentials.enjinUserName else { return nil }
+        guard let email = Constants.Credentials.enjinUserName, let password = Constants.Credentials.enjinUserPassword else { return nil }
         return (email: email, password: password)
     }
 }
