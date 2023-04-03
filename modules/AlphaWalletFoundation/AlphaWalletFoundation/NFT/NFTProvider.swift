@@ -36,7 +36,7 @@ extension OpenSea: NftAssetImageProvider {
 
 extension Constants.Credentials {
     static var enjinCredentials: EnjinCredentials? {
-        guard let email = Constants.Credentials.enjinUserName, let password = Constants.Credentials.enjinUserName else { return nil }
+        guard let email = Constants.Credentials.enjinUserName, let password = Constants.Credentials.enjinUserPassword else { return nil }
         return (email: email, password: password)
     }
 }
@@ -52,7 +52,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
                 server: RPCServer,
                 config: Config,
                 storage: RealmStore) {
-        
+
         self.wallet = wallet
         self.server = server
         enjin = Enjin(
@@ -60,7 +60,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             storage: storage,
             accessTokenStore: config,
             credentials: Constants.Credentials.enjinCredentials)
-        
+
         openSea = OpenSea(
             analytics: analytics,
             server: server,
