@@ -8,6 +8,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         do {
+            //Keep this log because it's really useful for debugging things without requiring a new TestFlight/app store submission
+            NSLog("Application launched with launchOptions: \(String(describing: launchOptions))")
             appCoordinator = try AppCoordinator.create()
             appCoordinator.start(launchOptions: launchOptions)
         } catch {
@@ -43,6 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // URI scheme links and AirDrop
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        //Keep this log because it's really useful for debugging things without requiring a new TestFlight/app store submission
+        NSLog("Application open url: \(url.absoluteString) options: \(options)")
         return appCoordinator.applicationOpenUrl(url, options: options)
     }
 
