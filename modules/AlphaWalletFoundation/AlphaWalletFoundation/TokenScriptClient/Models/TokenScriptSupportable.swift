@@ -201,7 +201,8 @@ public func isZeroBalance(_ balance: String, tokenType: TokenType) -> Bool {
         return balance.isEmpty
     case .erc1155:
         //TODO this makes an assumption about the serialization format for `BigInt`, but avoids the performance hit for deserializing the JSON string to a type. Improve this architecture-wise
-        return balance.isEmpty || balance.contains("value\":[\"+\",0],\"")
+        //make sure to mask token balance as zero if balance has value "0", might be wrongly setted when importing
+        return balance.isEmpty || balance.contains("value\":[\"+\",0],\"") || balance == "0"
     }
 }
 

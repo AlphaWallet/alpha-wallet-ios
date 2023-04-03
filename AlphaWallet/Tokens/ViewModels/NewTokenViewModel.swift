@@ -1,22 +1,18 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
+import AlphaWalletFoundation
 
 struct NewTokenViewModel {
     var title: String {
         return R.string.localizable.tokensNewtokenNavigationTitle()
     }
 
-    var erc875TokenBalance: [String] = []
+    var nonFungibleBalance: NonFungibleBalance?
 
-    var erc875TokenBalanceAmount: Int {
-        var balance = 0
-        if !erc875TokenBalance.isEmpty {
-            for _ in 0...erc875TokenBalance.count - 1 {
-                balance += 1
-            }
-        }
-        return balance
+    var nonFungibleBalanceAmount: Int {
+        guard let balance = nonFungibleBalance else { return 0 }
+        return balance.rawValue.count
     }
 
     var addressLabel: String {
