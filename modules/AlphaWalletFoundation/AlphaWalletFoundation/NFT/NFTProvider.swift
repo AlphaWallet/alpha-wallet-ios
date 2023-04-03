@@ -52,7 +52,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
                 server: RPCServer,
                 config: Config,
                 storage: RealmStore) {
-        
+
         self.wallet = wallet
         self.server = server
         enjin = Enjin(
@@ -60,7 +60,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             storage: storage,
             accessTokenStore: config,
             credentials: Constants.Credentials.enjinCredentials)
-        
+
         openSea = OpenSea(
             analytics: analytics,
             server: server,
