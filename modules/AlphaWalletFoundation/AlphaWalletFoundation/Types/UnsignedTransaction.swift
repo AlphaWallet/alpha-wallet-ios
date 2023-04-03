@@ -9,7 +9,7 @@ public struct UnsignedTransaction {
     public let to: AlphaWallet.Address?
     public let nonce: Int
     public let data: Data
-    public let gasPrice: BigUInt
+    public let gasPrice: GasPrice
     public let gasLimit: BigUInt
     public let server: RPCServer
     public let transactionType: TransactionType
@@ -19,7 +19,7 @@ public struct UnsignedTransaction {
                 to: AlphaWallet.Address?,
                 nonce: Int,
                 data: Data,
-                gasPrice: BigUInt,
+                gasPrice: GasPrice,
                 gasLimit: BigUInt,
                 server: RPCServer,
                 transactionType: TransactionType) {

@@ -7,6 +7,7 @@ import Foundation
 import SwiftyJSON
 import Combine
 import AlphaWalletCore
+import BigInt
 
 class GetContractInteractions {
     private let networkService: NetworkService
@@ -220,6 +221,8 @@ extension GetContractInteractions.functional {
                     name: transactionJson["tokenName"].stringValue,
                     decimals: transactionJson["tokenDecimal"].intValue)
 
+            let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
+
             return TransactionInstance(
                     id: transactionJson["hash"].stringValue,
                     server: server,
@@ -230,7 +233,7 @@ extension GetContractInteractions.functional {
                     //Must not set the value of the ERC20 token transferred as the native crypto value transferred
                     value: "0",
                     gas: transactionJson["gas"].stringValue,
-                    gasPrice: transactionJson["gasPrice"].stringValue,
+                    gasPrice: gasPrice,
                     gasUsed: transactionJson["gasUsed"].stringValue,
                     nonce: transactionJson["nonce"].stringValue,
                     date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),

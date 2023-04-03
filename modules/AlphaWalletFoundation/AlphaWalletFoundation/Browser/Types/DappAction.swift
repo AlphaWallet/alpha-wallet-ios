@@ -70,9 +70,18 @@ extension DappAction {
             guard let value = object["gasLimit"]?.value ?? object["gas"]?.value else { return .none }
             return BigUInt((value).drop0x, radix: 16)
         }()
-        let gasPrice: BigUInt? = {
-            guard let value = object["gasPrice"]?.value else { return .none }
-            return BigUInt((value).drop0x, radix: 16)
+        let gasPrice: GasPrice? = {
+            if let value = object["gasPrice"]?.value, let gasPrice = BigUInt(value.drop0x, radix: 16) {
+                return .legacy(gasPrice: gasPrice)
+            } else if let maxFeePerGasValue = object["maxFeePerGas"]?.value,
+                      let maxPriorityFeePerGasValue = object["maxPriorityFeePerGas"]?.value,
+                      let maxFeePerGas = BigUInt(maxFeePerGasValue.drop0x, radix: 16),
+                      let maxPriorityFeePerGas = BigUInt(maxPriorityFeePerGasValue.drop0x, radix: 16) {
+
+                return .eip1559(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
+            } else {
+                return nil
+            }
         }()
         let data = Data(_hex: object["data"]?.value ?? "0x")
 

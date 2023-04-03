@@ -14,7 +14,7 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
     func testDAppRecipientAddress() throws {
         let address = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!
-        let walletConnectTransaction = WalletConnectTransaction(to: address)
+        let walletConnectTransaction = WalletConnectTransaction(contract: address)
 
         let transaction = try TransactionType.prebuilt(.main).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
         let analytics = FakeAnalyticsService()

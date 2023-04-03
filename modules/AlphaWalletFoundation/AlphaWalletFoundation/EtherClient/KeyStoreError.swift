@@ -8,6 +8,7 @@ public enum KeystoreError: Error {
     case failedToImport(Error)
     case duplicateAccount
     case failedToSignTransaction
+    case failedToEncodeRLP
     case failedToCreateWallet
     case failedToImportPrivateKey
     case failedToParseJSON

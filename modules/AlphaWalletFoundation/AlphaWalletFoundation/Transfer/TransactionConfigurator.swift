@@ -176,7 +176,7 @@ public class TransactionConfigurator {
 
     public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt) -> Bool {
         //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
-        if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice > estimatedGasPrice {
+        if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice.max > estimatedGasPrice {
             return false
         } else {
             return true
@@ -218,7 +218,7 @@ public class TransactionConfigurator {
 
     private static func createConfiguration(server: RPCServer, gasPriceEstimator: LegacyGasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
-        let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: transaction.gasPrice)
+        let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: transaction.gasPrice?.max)
         let gasLimit: BigUInt
 
         switch transaction.transactionType {
@@ -228,7 +228,7 @@ public class TransactionConfigurator {
             gasLimit = transaction.gasLimit ?? maxGasLimit
         }
 
-        return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: transaction.data ?? .init())
+        return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: transaction.data)
     }
 
     public func start() {
@@ -320,7 +320,7 @@ public class TransactionConfigurator {
             to: toAddress,
             nonce: currentConfiguration.nonce ?? -1,
             data: currentConfiguration.data,
-            gasPrice: currentConfiguration.gasPrice,
+            gasPrice: .legacy(gasPrice: currentConfiguration.gasPrice),
             gasLimit: currentConfiguration.gasLimit,
             server: session.server,
             transactionType: transaction.transactionType)

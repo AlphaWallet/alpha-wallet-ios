@@ -12,10 +12,11 @@ class TransactionConfiguratorTests: XCTestCase {
         let configurator = TransactionConfigurator(
             session: .make(),
             analytics: analytics,
-            transaction: .make(gasPrice: gasPrice),
+            transaction: .make(gasPrice: .legacy(gasPrice: gasPrice)),
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
+
         XCTAssertEqual(gasPrice, configurator.currentConfiguration.gasPrice)
     }
 
@@ -24,10 +25,11 @@ class TransactionConfiguratorTests: XCTestCase {
         let configurator = TransactionConfigurator(
             session: .make(),
             analytics: analytics,
-            transaction: .make(gasPrice: BigUInt(1000000000)),
+            transaction: .make(gasPrice: .legacy(gasPrice: BigUInt(1000000000))),
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
+
         XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.currentConfiguration.gasPrice)
     }
 
@@ -36,10 +38,11 @@ class TransactionConfiguratorTests: XCTestCase {
         let configurator = TransactionConfigurator(
             session: .make(),
             analytics: analytics,
-            transaction: .make(gasPrice: BigUInt(990000000000)),
+            transaction: .make(gasPrice: .legacy(gasPrice: BigUInt(990000000000))),
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
+
         XCTAssertEqual(GasPriceConfiguration.maxPrice, configurator.currentConfiguration.gasPrice)
     }
 

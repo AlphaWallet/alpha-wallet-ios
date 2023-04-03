@@ -25,7 +25,7 @@ extension Covalent {
 
         private func covalentTxToNativeTx(tx: Covalent.Transaction, server: RPCServer) -> TransactionInstance? {
             let gas = tx.gasOffered.flatMap { String($0) } ?? ""
-            let gasPrice = tx.gasPrice.flatMap { String($0) } ?? ""
+            let gasPrice = tx.gasPrice.flatMap { String($0) }.flatMap { BigUInt($0.drop0x) }.flatMap { GasPrice.legacy(gasPrice: $0) }
             let gasSpent = tx.gasSpent.flatMap { String($0) } ?? ""
 
             guard let date = ToNativeTransactionMapper.formatter.date(from: tx.blockSignedAt) else {

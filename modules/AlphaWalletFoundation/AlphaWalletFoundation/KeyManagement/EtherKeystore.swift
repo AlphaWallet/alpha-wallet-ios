@@ -594,38 +594,28 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     public func signTransaction(_ transaction: UnsignedTransaction, prompt: String) async -> Result<Data, KeystoreError> {
-        let signer: Signer
+        let signer: TransactionSigner
         if transaction.server.chainID == 0 {
             signer = HomesteadSigner()
         } else {
             signer = EIP155Signer(server: transaction.server)
         }
 
-        do {
-            let hash = try signer.hash(transaction: transaction)
-            let data = await _signHash(hash, for: transaction.account, prompt: prompt)
-            switch data {
-            case .success(let signature):
-                let (r, s, v) = signer.values(signature: signature)
-                let values: [Any] = [
-                    transaction.nonce,
-                    transaction.gasPrice,
-                    transaction.gasLimit,
-                    transaction.to?.data ?? Data(),
-                    transaction.value,
-                    transaction.data,
-                    v, r, s,
-                ]
-                //NOTE: avoid app crash, returns with return error, Happens when amount to send less then 0
-                guard let data = RLP.encode(values) else {
-                    return .failure(.failedToSignTransaction)
-                }
+        let key = getPrivateKeyForSigning(forAccount: transaction.account, prompt: prompt)
+        switch key {
+        case .seed, .seedPhrase:
+            return .failure(.failedToExportPrivateKey)
+        case .key(let key):
+            do {
+                let data = try signer.sign(transaction: transaction, privateKey: key)
                 return .success(data)
-            case .failure:
-                return data
+            } catch {
+                return .failure(KeystoreError.failedToSignMessage)
             }
-        } catch {
-            return .failure(.failedToSignTransaction)
+        case .userCancelled:
+            return .failure(.userCancelled)
+        case .notFound, .otherFailure:
+            return .failure(.accountMayNeedImportingAgainOrEnablePasscode)
         }
     }
 

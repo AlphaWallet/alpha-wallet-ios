@@ -52,7 +52,7 @@ public enum TransactionRow {
     }
 
     public var gas: String { transaction.gas }
-    public var gasPrice: String { transaction.gasPrice }
+    public var gasPrice: String { transaction.gasPrice.flatMap { String(describing: $0.max) } ?? "" }
     public var gasUsed: String { transaction.gasUsed }
     public var nonce: String { transaction.nonce }
     public var date: Date { transaction.date }
