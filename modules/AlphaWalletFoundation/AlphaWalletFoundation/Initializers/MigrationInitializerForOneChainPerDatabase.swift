@@ -32,7 +32,6 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
             TokenBalance.self,
             TokenInfoObject.self,
             TokenObject.self,
-            TransactionObject.self
         ]
 
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
