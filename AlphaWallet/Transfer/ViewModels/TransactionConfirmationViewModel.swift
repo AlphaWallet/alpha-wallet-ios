@@ -119,8 +119,7 @@ extension TransactionConfirmationViewModel {
     }
 
     static func gasFeeString(for configurator: TransactionConfigurator, rate: CurrencyRate?) -> String {
-        let configuration = configurator.currentConfiguration
-        let fee = Decimal(bigUInt: configuration.gasPrice * configuration.gasLimit, decimals: configurator.session.server.decimals) ?? .zero
+        let fee = Decimal(bigUInt: configurator.gasFee, decimals: configurator.session.server.decimals) ?? .zero
         let estimatedProcessingTime = configurator.selectedGasSpeed.estimatedProcessingTime
         let feeString = NumberFormatter.shortCrypto.string(decimal: fee) ?? "-"
         let costs: String

@@ -135,7 +135,7 @@ extension TransactionConfirmationViewModel {
                     amountToSend = value
                 case .allFunds:
                     //NOTE: special case for `nativeCryptocurrency` we amount - gas displayd in `amount` section
-                    amountToSend = abs(balanceViewModel.balance - (Decimal(bigUInt: configurator.gasValue, decimals: token.decimals) ?? .zero).doubleValue)
+                    amountToSend = abs(balanceViewModel.balance - (Decimal(bigUInt: configurator.gasFee, decimals: token.decimals) ?? .zero).doubleValue)
                 case .notSet, .none:
                     amountToSend = .zero
                 }

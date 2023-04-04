@@ -12,7 +12,33 @@ import AlphaWalletCore
 import AlphaWalletLogger
 
 public protocol GasPriceEstimator {
-    func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError>
+    var gasPrice: FillableValue<GasPrice> { get }
+    var gasPricePublisher: AnyPublisher<FillableValue<GasPrice>, Never> { get }
+    var estimatesPublisher: AnyPublisher<GasEstimates, Never> { get }
+    var state: AnyPublisher<GasPriceEstimatorState, Never> { get }
+    var selectedGasSpeed: GasSpeed { get }
+
+    func set(gasSpeed: GasSpeed)
+}
+
+public enum GasPriceEstimatorState {
+    case idle
+    case loading
+    case done
+    case tick(Int)
+
+    init(state: Scheduler.State) {
+        switch state {
+        case .idle:
+            self = .idle
+        case .tick(let int):
+            self = .tick(int)
+        case .loading:
+            self = .loading
+        case .done(let result):
+            self = .done
+        }
+    }
 }
 
 extension RPCServer {
@@ -32,41 +58,5 @@ extension RPCServer {
                 return defaultGasPrice
             }
         }
-    }
-}
-
-public final class LegacyGasPriceEstimator: GasPriceEstimator {
-    private let networkService: NetworkService
-    private lazy var etherscanGasPriceEstimator = EtherscanGasPriceEstimator(networkService: networkService)
-    private let blockchainProvider: BlockchainProvider
-
-    public init(blockchainProvider: BlockchainProvider,
-                networkService: NetworkService) {
-
-        self.networkService = networkService
-        self.blockchainProvider = blockchainProvider
-    }
-
-    public func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError> {
-        if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
-            return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
-                .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
-                .eraseToAnyPublisher()
-        } else {
-            switch blockchainProvider.server.serverWithEnhancedSupport {
-            case .xDai:
-                return .just(.init(standard: GasPriceConfiguration.xDaiGasPrice))
-            case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-                return blockchainProvider.gasEstimates()
-            }
-        }
-    }
-
-    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
-        return etherscanGasPriceEstimator
-            .gasPriceEstimates(server: server)
-            .handleEvents(receiveOutput: { estimates in
-                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
-            }).eraseToAnyPublisher()
     }
 }

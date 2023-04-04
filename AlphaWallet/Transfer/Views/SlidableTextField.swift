@@ -7,10 +7,9 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol SlidableTextFieldDelegate: AnyObject {
-    func textField(_ textField: SlidableTextField, textDidChange value: Int)
-    func textField(_ textField: SlidableTextField, valueDidChange value: Int)
     func shouldReturn(in textField: SlidableTextField) -> Bool
     func doneButtonTapped(for textField: SlidableTextField)
     func nextButtonTapped(for textField: SlidableTextField)
@@ -34,15 +33,12 @@ class SlidableTextField: UIView {
     lazy var textField: TextField = {
         let textField = TextField.buildTextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.keyboardType = .numberPad
         textField.delegate = self
 
         return textField
     }()
-
-    var value: Int {
-        return Int(slider.value)
-    }
+    private let textSubject = PassthroughSubject<Float, Never>()
+    private var cancellable = Set<AnyCancellable>()
 
     var returnKeyType: UIReturnKeyType {
         get { return textField.returnKeyType }
@@ -66,7 +62,7 @@ class SlidableTextField: UIView {
 
     weak var delegate: SlidableTextFieldDelegate?
 
-    init() {
+    init(viewModel: SlidableTextFieldViewModel) {
         super.init(frame: .zero)
 
         let spacing: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
@@ -83,37 +79,48 @@ class SlidableTextField: UIView {
             textField.widthAnchor.constraint(equalToConstant: 100),
             stackView.anchorsConstraint(to: self, edgeInsets: SlidableTextField.textFieldInsets)
         ])
+        translatesAutoresizingMaskIntoConstraints = false
 
-        slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+        bind(viewModel: viewModel)
+    }
+
+    private func bind(viewModel: SlidableTextFieldViewModel) {
+        let value = slider.publisher(forEvent: .valueChanged)
+            .compactMap { [weak slider] _ in slider?.value }
+            .map { roundf($0) }
+
+        let input = SlidableTextFieldViewModelInput(
+            sliderChanged: value.eraseToAnyPublisher(),
+            textChanged: textSubject.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+
+        output.sliderViewState
+            .sink { [weak slider] viewState in
+                slider?.maximumValue = viewState.range.upperBound
+                slider?.minimumValue = viewState.range.lowerBound
+                slider?.setValue(viewState.value, animated: false)
+            }.store(in: &cancellable)
+
+        output.status
+            .assign(to: \.status, on: textField, ownership: .weak)
+            .store(in: &cancellable)
+
+        output.text
+            .assign(to: \.value, on: textField, ownership: .weak)
+            .store(in: &cancellable)
+
+        value
+            .assign(to: \.value, on: slider, ownership: .weak)
+            .store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    func configureSliderRange(viewModel: SlidableTextFieldViewModel) {
-        slider.minimumValue = Float(viewModel.minimumValue)
-        slider.maximumValue = Float(viewModel.maximumValue)
-        slider.setValue(Float(viewModel.value), animated: false)
-    }
-
-    func configure(viewModel: SlidableTextFieldViewModel) {
-        configureSliderRange(viewModel: viewModel)
-
-        textField.value = String(viewModel.value)
-    }
-
     @discardableResult override func becomeFirstResponder() -> Bool {
         return textField.becomeFirstResponder()
-    }
-
-    @objc private func sliderValueChanged(_ sender: UISlider) {
-        textField.value = String(Int(sender.value))
-        notifyValueDidChange(value: value)
-    }
-
-    private func notifyValueDidChange(value: Int) {
-        delegate?.textField(self, valueDidChange: value)
     }
 }
 
@@ -132,17 +139,14 @@ extension SlidableTextField: TextFieldDelegate {
     }
 
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
-        guard string.isNumeric() || string.isEmpty else { return false }
         let convertedNSString = textField.value as NSString
         let newString: String = convertedNSString.replacingCharacters(in: range, with: string)
         if newString.isEmpty {
             return true
         } else {
-            guard let value = Int(newString), let delegate = delegate else { return false }
-            slider.setValue(Float(value), animated: false)
-            delegate.textField(self, textDidChange: value)
+            guard let value = DecimalParser().parseAnyDecimal(from: newString), let value = value.floatValue else { return false }
+            textSubject.send(value)
             return true
         }
     }
 }
-

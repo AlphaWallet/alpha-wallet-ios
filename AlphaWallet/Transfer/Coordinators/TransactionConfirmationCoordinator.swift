@@ -220,7 +220,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator,
-                                                        recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
+                                                        recoveryMode: EditTransactionViewModel.RecoveryMode = .none) {
         let viewModel = ConfigureTransactionViewModel(
             configurator: configurator,
             recoveryMode: recoveryMode,
@@ -244,13 +244,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 }
 
 extension TransactionConfirmationCoordinator: ConfigureTransactionViewControllerDelegate {
-    func didSavedToUseDefaultConfigurationType(_ gasSpeed: GasSpeed, in viewController: ConfigureTransactionViewController) {
-        configurator.chooseDefaultConfigurationType(gasSpeed)
-        viewController.navigationController?.dismiss(animated: true)
-    }
 
-    func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController) {
-        configurator.chooseCustomConfiguration(customConfiguration)
+    func didSaved(in viewController: ConfigureTransactionViewController) {
         viewController.navigationController?.dismiss(animated: true)
     }
 }
@@ -272,7 +267,7 @@ extension TransactionConfirmationCoordinator {
             speedType = .custom
         }
 
-        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.currentConfiguration.data)
+        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.data)
         let overridingRpcUrl: URL? = configurator.session.config.sendPrivateTransactionsProvider?.rpcUrl(forServer: configurator.session.server)
         let privateNetworkProvider: SendPrivateTransactionsProvider?
         if overridingRpcUrl == nil {
@@ -320,7 +315,7 @@ extension TransactionConfirmationCoordinator {
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
-        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.currentConfiguration.data)
+        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.data)
         var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.source.rawValue: source.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,

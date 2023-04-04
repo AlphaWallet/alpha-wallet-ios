@@ -6,19 +6,57 @@
 //
 
 import UIKit
+import Combine
 
-struct TextFieldViewModel {
+struct TextFieldViewModelInput {
+    let textChanged: AnyPublisher<String?, Never>
+}
 
-    let placeholder: String?
-    let value: String
-    var keyboardType: UIKeyboardType = .default
-    var allowEditing: Bool = true
+struct TextFieldViewModelOuput {
+    let text: AnyPublisher<String?, Never>
+    let attributedPlaceholder: AnyPublisher<NSAttributedString?, Never>
+    let keyboardType: AnyPublisher<UIKeyboardType, Never>
+    let status: AnyPublisher<TextField.TextFieldErrorState, Never>
+    let allowEditing: AnyPublisher<Bool, Never>
+}
 
-    var shouldHidePlaceholder: Bool { return attributedPlaceholder == nil }
-    var attributedPlaceholder: NSAttributedString? {
-        guard let placeholder = placeholder else { return nil }
+class TextFieldViewModel {
+    private var cancellable = Set<AnyCancellable>()
+    private let textChangedSubject = PassthroughSubject<String?, Never>()
 
-        return NSAttributedString(string: placeholder, attributes: [
+    @Published private(set) var text: String?
+    @Published var placeholder: String?
+    @Published var keyboardType: UIKeyboardType = .default
+    @Published var status: TextField.TextFieldErrorState = .none
+    @Published var allowEditing: Bool = true
+
+    init(text: String? = nil) {
+        self.text = text
+    }
+
+    func set(text: String?) {
+        textChangedSubject.send(text)
+    }
+
+    func transform(input: TextFieldViewModelInput) -> TextFieldViewModelOuput {
+        input.textChanged
+            .assign(to: \.text, on: self, ownership: .weak)
+            .store(in: &cancellable)
+
+        let placeholder = $placeholder.map { self.buildPlaceholder(string: $0) }
+
+        return .init(
+            text: textChangedSubject.prepend(text).eraseToAnyPublisher(),
+            attributedPlaceholder: placeholder.eraseToAnyPublisher(),
+            keyboardType: $keyboardType.eraseToAnyPublisher(),
+            status: $status.eraseToAnyPublisher(),
+            allowEditing: $allowEditing.eraseToAnyPublisher())
+    }
+
+    private func buildPlaceholder(string: String?) -> NSAttributedString? {
+        guard let string = string, !string.trimmed.isEmpty else { return nil }
+
+        return NSAttributedString(string: string, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Fonts.regular(size: 13)
         ])
