@@ -88,8 +88,8 @@ class GasSpeedView: UIView {
         return nil
     }
 
-    func configure(viewModel: GasSpeedViewModel) {
-        backgroundColor = viewModel.backgroundColor
+    func configure(viewModel: GasSpeedViewModelType) {
+        backgroundColor = .clear
 
         speedLabel.attributedText = viewModel.titleAttributedString
 

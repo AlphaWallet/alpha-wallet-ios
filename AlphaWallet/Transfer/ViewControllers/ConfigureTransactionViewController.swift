@@ -67,7 +67,7 @@ class ConfigureTransactionViewController: UIViewController {
 
         return view
     }()
-    private weak var customGasSpeedView: GasSpeedView?
+    private var gasSpeedViews: [GasSpeed: GasSpeedView] = [:]
 
     private let textFieldInsets: UIEdgeInsets = {
         let bottomInset: CGFloat = ScreenChecker.size(big: 20, medium: 20, small: 16)
@@ -265,7 +265,7 @@ class ConfigureTransactionViewController: UIViewController {
     private func recalculateTotalFeeForCustomGas() {
         totalFeeTextField.value = viewModel.gasViewModel.feeText
 
-        if let view = customGasSpeedView {
+        if let view = gasSpeedViews[.custom] {
             view.configure(viewModel: viewModel.gasSpeedViewModel(gasSpeed: .custom))
         }
 
@@ -420,71 +420,72 @@ extension ConfigureTransactionViewController: SlidableTextFieldDelegate {
 
 extension ConfigureTransactionViewController {
 
+    func didSelectCell(gasSpeed: GasSpeed) {
+        self.viewModel.selectedGasSpeed = gasSpeed
+
+        generateViews(viewModel: self.viewModel)
+    }
+
+    private func buildGasSpeedView(gasSpeed: GasSpeed) -> GasSpeedView {
+        if let view = gasSpeedViews[gasSpeed] {
+            return view
+        } else {
+            let subview = GasSpeedView()
+            subview.isUserInteractionEnabled = true
+
+            UITapGestureRecognizer.init(addToView: subview) {
+                self.didSelectCell(gasSpeed: gasSpeed)
+            }
+            gasSpeedViews[gasSpeed] = subview
+
+            return subview
+        }
+    }
+
     private func generateViews(viewModel: ConfigureTransactionViewModel) {
         var views: [UIView] = []
 
-        func didSelectCell(indexPath: IndexPath) {
-            switch viewModel.sections[indexPath.section] {
+        for section in viewModel.sections {
+            switch section {
             case .configurations:
-                self.viewModel.selectedGasSpeed = viewModel.gasSpeedsList[indexPath.row]
-            case .custom:
-                break
-            }
+                for gasSpeed in viewModel.gasSpeedsList {
+                    let subview: GasSpeedView = buildGasSpeedView(gasSpeed: gasSpeed)
+                    subview.configure(viewModel: viewModel.gasSpeedViewModel(gasSpeed: gasSpeed))
 
-            generateViews(viewModel: self.viewModel)
-        }
-
-        typealias ContainerView = TokensViewController.ContainerView<UIView>
-
-        for indexPath in viewModel.indexPaths {
-            switch viewModel.sections[indexPath.section] {
-            case .configurations:
-                let subview: GasSpeedView = GasSpeedView()
-                switch viewModel.gasSpeedsList[indexPath.row] {
-                case .custom:
-                    customGasSpeedView = subview
-                case .fast, .rapid, .slow, .standard:
-                    break
+                    views += [subview, UIView.separator()]
                 }
-
-                subview.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
-                subview.isUserInteractionEnabled = true
-
-                UITapGestureRecognizer.init(addToView: subview) {
-                    didSelectCell(indexPath: indexPath)
-                }
-
-                views += [subview, UIView.separator()]
             case .custom:
-                switch viewModel.editableConfigurationViews[indexPath.row] {
-                case .header(let string):
-                    let view: GasSpeedTableViewHeaderView = .init()
-                    view.configure(viewModel: .init(title: string))
+                for each in viewModel.editableConfigurationViews {
+                    switch each {
+                    case .header(let string):
+                        let view: GasSpeedTableViewHeaderView = .init()
+                        view.configure(viewModel: .init(title: string))
 
-                    views += [view]
-                case .field(let fieldType):
-                    switch fieldType {
-                    case .gasPrice:
-                        gasPriceTextField.configure(viewModel: viewModel.gasPriceSliderViewModel)
+                        views += [view]
+                    case .field(let fieldType):
+                        switch fieldType {
+                        case .gasPrice:
+                            gasPriceTextField.configure(viewModel: viewModel.gasPriceSliderViewModel)
 
-                        views += [gasPriceTextField, UIView.separator()]
-                    case .gasLimit:
-                        gasLimitTextField.configure(viewModel: viewModel.gasLimitSliderViewModel)
+                            views += [gasPriceTextField, UIView.separator()]
+                        case .gasLimit:
+                            gasLimitTextField.configure(viewModel: viewModel.gasLimitSliderViewModel)
 
-                        views += [gasLimitTextField, UIView.separator()]
-                    case .nonce:
-                        nonceTextField.configure(viewModel: viewModel.nonceViewModel)
-                        nonceTextField.inputAccessoryButtonType = viewModel.isDataInputHidden ? .done : .next
+                            views += [gasLimitTextField, UIView.separator()]
+                        case .nonce:
+                            nonceTextField.configure(viewModel: viewModel.nonceViewModel)
+                            nonceTextField.inputAccessoryButtonType = viewModel.isDataInputHidden ? .done : .next
 
-                        views += [nonceTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
-                    case .totalFee:
-                        totalFeeTextField.configure(viewModel: viewModel.totalFeeViewModel)
+                            views += [nonceTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
+                        case .totalFee:
+                            totalFeeTextField.configure(viewModel: viewModel.totalFeeViewModel)
 
-                        views += [totalFeeTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
-                    case .transactionData:
-                        dataTextField.configure(viewModel: viewModel.dataViewModel)
+                            views += [totalFeeTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
+                        case .transactionData:
+                            dataTextField.configure(viewModel: viewModel.dataViewModel)
 
-                        views += [dataTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
+                            views += [dataTextField.defaultLayout(edgeInsets: textFieldInsets), UIView.separator()]
+                        }
                     }
                 }
             }
