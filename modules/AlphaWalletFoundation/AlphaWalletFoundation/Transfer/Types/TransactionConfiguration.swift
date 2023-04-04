@@ -46,14 +46,14 @@ public struct TransactionConfiguration {
     }
 }
 
-public enum TransactionConfigurationType: Int, CaseIterable {
+public enum GasSpeed: Int, CaseIterable {
     case slow
     case standard
     case fast
     case rapid
     case custom
 
-    public static var sortedThirdPartyFastestFirst: [TransactionConfigurationType] {
+    public static var sortedThirdPartyFastestFirst: [GasSpeed] {
         //We intentionally do not include `.standard`
         [.rapid, .fast, .slow]
     }

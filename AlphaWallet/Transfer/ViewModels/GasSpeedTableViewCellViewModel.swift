@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 
 struct GasSpeedViewModel {
     let configuration: TransactionConfiguration
-    let configurationType: TransactionConfigurationType
+    let gasSpeed: GasSpeed
     let rate: CurrencyRate?
     let symbol: String
     var title: String
@@ -34,7 +34,7 @@ struct GasSpeedViewModel {
     }
 
     private var estimatedTime: String? {
-        let estimatedProcessingTime = configurationType.estimatedProcessingTime
+        let estimatedProcessingTime = gasSpeed.estimatedProcessingTime
         if estimatedProcessingTime.isEmpty {
             return nil
         } else {

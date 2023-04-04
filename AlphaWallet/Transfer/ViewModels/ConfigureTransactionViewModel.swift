@@ -25,16 +25,16 @@ struct ConfigureTransactionViewModel {
     }
 
     var recoveryMode: RecoveryMode
-    var selectedConfigurationType: TransactionConfigurationType
+    var selectedGasSpeed: GasSpeed
     var configurationToEdit: EditedTransactionConfiguration {
         didSet {
             configurations.custom = configurationToEdit.configuration
         }
     }
-    var configurationTypes: [TransactionConfigurationType]
+    var gasSpeedsList: [GasSpeed]
     var configurations: TransactionConfigurations {
         didSet {
-            configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
+            gasSpeedsList = ConfigureTransactionViewModel.sortedGasSpeedList(fromConfigurations: configurations)
         }
     }
     var gasPriceWarning: TransactionConfigurator.GasPriceWarning? {
@@ -103,7 +103,7 @@ struct ConfigureTransactionViewModel {
     }
 
     var sections: [Section] {
-        switch selectedConfigurationType {
+        switch selectedGasSpeed {
         case .standard, .slow, .fast, .rapid:
             return [.configurations]
         case .custom:
@@ -140,7 +140,7 @@ struct ConfigureTransactionViewModel {
          service: TokensProcessingPipeline) {
         
         let configurations = configurator.configurations
-        self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
+        self.gasSpeedsList = ConfigureTransactionViewModel.sortedGasSpeedList(fromConfigurations: configurations)
         self.configurator = configurator
         self.configurations = configurations
         self.transactionType = configurator.transaction.transactionType
@@ -148,44 +148,44 @@ struct ConfigureTransactionViewModel {
         self.service = service
         switch recoveryMode {
         case .invalidNonce:
-            selectedConfigurationType = .custom
+            selectedGasSpeed = .custom
         case .none:
-            selectedConfigurationType = configurator.selectedConfigurationType
+            selectedGasSpeed = configurator.selectedGasSpeed
         }
         configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom, server: configurator.session.server)
     }
 
-    static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
+    static func sortedGasSpeedList(fromConfigurations configurations: TransactionConfigurations) -> [GasSpeed] {
         let available = configurations.types
-        let all: [TransactionConfigurationType] = [.slow, .standard, .fast, .rapid, .custom]
+        let all: [GasSpeed] = [.slow, .standard, .fast, .rapid, .custom]
         return all.filter { available.contains($0) }
     }
 
     func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedViewModel {
-        let configurationType = configurationTypes[indexPath.row]
-        let isSelected = selectedConfigurationType == configurationType
-        let configuration = configurations[configurationType]!
+        let gasSpeed = gasSpeedsList[indexPath.row]
+        let isSelected = selectedGasSpeed == gasSpeed
+        let configuration = configurations[gasSpeed]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
         let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
 
-        return .init(configuration: configuration, configurationType: configurationType, rate: rate, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        return .init(configuration: configuration, gasSpeed: gasSpeed, rate: rate, symbol: server.symbol, title: gasSpeed.title, isSelected: isSelected)
     }
 
-    func gasSpeedViewModel(configurationType: TransactionConfigurationType) -> GasSpeedViewModel {
-        let isSelected = selectedConfigurationType == configurationType
-        let configuration = configurations[configurationType]!
+    func gasSpeedViewModel(gasSpeed: GasSpeed) -> GasSpeedViewModel {
+        let isSelected = selectedGasSpeed == gasSpeed
+        let configuration = configurations[gasSpeed]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
         let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
 
-        return .init(configuration: configuration, configurationType: configurationType, rate: rate, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        return .init(configuration: configuration, gasSpeed: gasSpeed, rate: rate, symbol: server.symbol, title: gasSpeed.title, isSelected: isSelected)
     }
 
     func numberOfRowsInSections(in section: Int) -> Int {
         switch sections[section] {
         case .configurations:
-            return configurationTypes.count
+            return gasSpeedsList.count
         case .custom:
             return editableConfigurationViews.count
         }

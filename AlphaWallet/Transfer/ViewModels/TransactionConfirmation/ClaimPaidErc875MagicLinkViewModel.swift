@@ -91,7 +91,7 @@ extension TransactionConfirmationViewModel {
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, viewState: viewState)
                 } else {
-                    return .init(title: .normal(configurator.selectedConfigurationType.title), headerName: headerName, viewState: viewState)
+                    return .init(title: .normal(configurator.selectedGasSpeed.title), headerName: headerName, viewState: viewState)
                 }
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, viewState: viewState)
