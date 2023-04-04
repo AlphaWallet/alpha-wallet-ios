@@ -12,7 +12,6 @@ struct ConfigureTransactionViewModel {
     private let service: TokensProcessingPipeline
     private let transactionType: TransactionType
     let configurator: TransactionConfigurator
-    private let fullFormatter = EtherNumberFormatter.full
     private var totalFee: BigUInt {
         return configurationToEdit.gasPrice * configurationToEdit.gasLimit
     }
@@ -51,7 +50,7 @@ struct ConfigureTransactionViewModel {
 
     var gasViewModel: GasViewModel {
         let rate = coinTicker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
-        return GasViewModel(fee: totalFee, symbol: server.symbol, rate: rate, formatter: fullFormatter)
+        return GasViewModel(fee: totalFee, symbol: server.symbol, rate: rate, formatter: EtherNumberFormatter.full)
     }
 
     var title: String {
@@ -71,16 +70,14 @@ struct ConfigureTransactionViewModel {
         return .init(
             value: configurationToEdit.gasLimitRawValue,
             minimumValue: configurationToEdit.defaultMinGasLimit,
-            maximumValue: configurationToEdit.maxGasLimit
-        )
+            maximumValue: configurationToEdit.maxGasLimit)
     }
 
     var gasPriceSliderViewModel: SlidableTextFieldViewModel {
         return .init(
             value: configurationToEdit.gasPriceRawValue,
             minimumValue: configurationToEdit.defaultMinGasPrice,
-            maximumValue: configurationToEdit.maxGasPrice
-        )
+            maximumValue: configurationToEdit.maxGasPrice)
     }
 
     var nonceViewModel: TextFieldViewModel {
@@ -113,8 +110,8 @@ struct ConfigureTransactionViewModel {
 
     var editableConfigurationViews: [ConfigureTransactionViewModel.ViewType] {
         var views: [ConfigureTransactionViewModel.ViewType] = [
-            .header(string: gasPriceHeaderTitle), .field(.gasPrice),
-            .header(string: gasLimitHeaderTitle), .field(.gasLimit),
+            .header(string: R.string.localizable.configureTransactionHeaderGasPrice()), .field(.gasPrice),
+            .header(string: R.string.localizable.configureTransactionHeaderGasLimit()), .field(.gasLimit),
             .field(.nonce)
         ]
 
@@ -125,14 +122,6 @@ struct ConfigureTransactionViewModel {
         views += [.field(.totalFee)]
         
         return views
-    }
-
-    var gasPriceHeaderTitle: String {
-        return R.string.localizable.configureTransactionHeaderGasPrice()
-    }
-
-    var gasLimitHeaderTitle: String {
-        return R.string.localizable.configureTransactionHeaderGasLimit()
     }
 
     init(configurator: TransactionConfigurator,
@@ -161,43 +150,20 @@ struct ConfigureTransactionViewModel {
         return all.filter { available.contains($0) }
     }
 
-    func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedViewModel {
-        let gasSpeed = gasSpeedsList[indexPath.row]
+    func gasSpeedViewModel(gasSpeed: GasSpeed) -> GasSpeedViewModelType {
         let isSelected = selectedGasSpeed == gasSpeed
         let configuration = configurations[gasSpeed]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
         let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
 
-        return .init(configuration: configuration, gasSpeed: gasSpeed, rate: rate, symbol: server.symbol, title: gasSpeed.title, isSelected: isSelected)
-    }
-
-    func gasSpeedViewModel(gasSpeed: GasSpeed) -> GasSpeedViewModel {
-        let isSelected = selectedGasSpeed == gasSpeed
-        let configuration = configurations[gasSpeed]!
-        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
-
-        return .init(configuration: configuration, gasSpeed: gasSpeed, rate: rate, symbol: server.symbol, title: gasSpeed.title, isSelected: isSelected)
-    }
-
-    func numberOfRowsInSections(in section: Int) -> Int {
-        switch sections[section] {
-        case .configurations:
-            return gasSpeedsList.count
-        case .custom:
-            return editableConfigurationViews.count
-        }
-    }
-
-    var indexPaths: [IndexPath] {
-        return sections.indices.map { section -> [IndexPath] in
-            guard numberOfRowsInSections(in: section) > 0 else { return [] }
-            return (0 ..< numberOfRowsInSections(in: section)).map { row in
-                IndexPath(row: row, section: section)
-            }
-        }.flatMap { $0 }
+        return LegacyGasSpeedViewModel(
+            gasPrice: configuration.gasPrice,
+            gasLimit: configuration.gasLimit,
+            gasSpeed: gasSpeed,
+            rate: rate,
+            symbol: server.symbol,
+            isSelected: isSelected)
     }
 }
 

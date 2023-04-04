@@ -9,16 +9,17 @@ import UIKit
 import BigInt
 import AlphaWalletFoundation
 
-struct GasSpeedViewModel {
-    let configuration: TransactionConfiguration
+struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
+    let gasPrice: BigUInt
+    let gasLimit: BigUInt
     let gasSpeed: GasSpeed
     let rate: CurrencyRate?
     let symbol: String
-    var title: String
+    var title: String { gasSpeed.title }
     let isSelected: Bool
 
     private var gasFeeString: String {
-        let fee = configuration.gasPrice * configuration.gasLimit
+        let fee = gasPrice * gasLimit
         let feeString = EtherNumberFormatter.short.string(from: fee)
         if let rate = rate {
             let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * rate.value / Double(EthereumUnit.ether.rawValue), and: rate.currency.code)
@@ -29,7 +30,7 @@ struct GasSpeedViewModel {
     }
 
     private var gasPriceString: String {
-        let price = configuration.gasPrice / BigUInt(EthereumUnit.gwei.rawValue)
+        let price = gasPrice / BigUInt(EthereumUnit.gwei.rawValue)
         return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) \(EthereumUnit.gwei.name)"
     }
 
