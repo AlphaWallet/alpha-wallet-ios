@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 import Combine
 
 protocol ConfigureTransactionViewControllerDelegate: AnyObject {
-    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)
+    func didSavedToUseDefaultConfigurationType(_ gasSpeed: GasSpeed, in viewController: ConfigureTransactionViewController)
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
 }
 
@@ -266,7 +266,7 @@ class ConfigureTransactionViewController: UIViewController {
         totalFeeTextField.value = viewModel.gasViewModel.feeText
 
         if let view = customGasSpeedView {
-            view.configure(viewModel: viewModel.gasSpeedViewModel(configurationType: .custom))
+            view.configure(viewModel: viewModel.gasSpeedViewModel(gasSpeed: .custom))
         }
 
         showGasPriceWarning()
@@ -302,7 +302,7 @@ class ConfigureTransactionViewController: UIViewController {
     @objc private func saveButtonSelected(_ sender: UIBarButtonItem) {
         guard let delegate = delegate else { return }
 
-        switch viewModel.selectedConfigurationType {
+        switch viewModel.selectedGasSpeed {
         case .custom:
             var canSave: Bool = true
 
@@ -348,7 +348,7 @@ class ConfigureTransactionViewController: UIViewController {
             let configuration = makeConfigureSuitableForSaving(from: viewModel.configurationToEdit.configuration)
             delegate.didSaved(customConfiguration: configuration, in: self)
         case .standard, .slow, .fast, .rapid:
-            delegate.didSavedToUseDefaultConfigurationType(viewModel.selectedConfigurationType, in: self)
+            delegate.didSavedToUseDefaultConfigurationType(viewModel.selectedGasSpeed, in: self)
         }
     }
 
@@ -426,7 +426,7 @@ extension ConfigureTransactionViewController {
         func didSelectCell(indexPath: IndexPath) {
             switch viewModel.sections[indexPath.section] {
             case .configurations:
-                self.viewModel.selectedConfigurationType = viewModel.configurationTypes[indexPath.row]
+                self.viewModel.selectedGasSpeed = viewModel.gasSpeedsList[indexPath.row]
             case .custom:
                 break
             }
@@ -440,7 +440,7 @@ extension ConfigureTransactionViewController {
             switch viewModel.sections[indexPath.section] {
             case .configurations:
                 let subview: GasSpeedView = GasSpeedView()
-                switch viewModel.configurationTypes[indexPath.row] {
+                switch viewModel.gasSpeedsList[indexPath.row] {
                 case .custom:
                     customGasSpeedView = subview
                 case .fast, .rapid, .slow, .standard:

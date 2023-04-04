@@ -18,11 +18,11 @@ public class TransactionConfigurator {
     public let session: WalletSession
 
     public var currentConfiguration: TransactionConfiguration {
-        switch selectedConfigurationType {
+        switch selectedGasSpeed {
         case .standard:
             return configurations.standard
         case .slow, .fast, .rapid:
-            return configurations[selectedConfigurationType]!
+            return configurations[selectedGasSpeed]!
         case .custom:
             return configurations.custom
         }
@@ -59,7 +59,7 @@ public class TransactionConfigurator {
     }
 
     public private(set) var transaction: UnconfirmedTransaction
-    public var selectedConfigurationType: TransactionConfigurationType = .standard
+    public var selectedGasSpeed: GasSpeed = .standard
     public var configurations: TransactionConfigurations
 
     private var isGasLimitSpecifiedByTransaction: Bool {
@@ -67,7 +67,7 @@ public class TransactionConfigurator {
     }
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
-    private let gasPriceEstimator: LegacyGasPriceEstimator
+    private let gasPriceEstimator: GasPriceEstimator
     private var cancellable = Set<AnyCancellable>()
     private let gasPriceSubject = PassthroughSubject<BigUInt, Never>()
     private let nonceSubject = PassthroughSubject<Int, Never>()
@@ -109,7 +109,7 @@ public class TransactionConfigurator {
             blockchainProvider: session.blockchainProvider,
             networkService: networkService)
 
-        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, gasPriceEstimator: gasPriceEstimator, transaction: transaction)
+        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, transaction: transaction)
         self.configurations = .init(standard: standardConfiguration)
     }
 
@@ -135,7 +135,7 @@ public class TransactionConfigurator {
                 self.configurations.standard = defaultConfig
 
                 //Careful to not create if they don't exist
-                for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
+                for each: GasSpeed in [.slow, .fast, .rapid] {
                     guard var config = self.configurations[each] else { continue }
                     config.setEstimated(gasLimit: gasLimit)
                     self.configurations[each] = config
@@ -162,7 +162,7 @@ public class TransactionConfigurator {
                     self.configurations.standard = defaultConfig
                 }
 
-                for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
+                for each: GasSpeed in [.slow, .fast, .rapid] {
                     guard let estimate = estimates[each] else { continue }
                     //Since there's a price estimate, we want to add that config if it's missing
                     var config = self.configurations[each] ?? defaultConfig
@@ -216,7 +216,7 @@ public class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, gasPriceEstimator: LegacyGasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
         let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: transaction.gasPrice?.max)
         let gasLimit: BigUInt
@@ -251,7 +251,7 @@ public class TransactionConfigurator {
             defaultConfig.set(nonce: nonce)
             configurations.standard = defaultConfig
 
-            for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
+            for each: GasSpeed in [.slow, .fast, .rapid] {
                 //We don't want to add that config if it's missing (e.g. testnets don't have them)
                 if var config = configurations[each] {
                     config.set(nonce: nonce)
@@ -328,12 +328,12 @@ public class TransactionConfigurator {
 
     public func chooseCustomConfiguration(_ configuration: TransactionConfiguration) {
         configurations.custom = configuration
-        selectedConfigurationType = .custom
+        selectedGasSpeed = .custom
         gasPriceSubject.send(configuration.gasPrice)
     }
 
-    public func chooseDefaultConfigurationType(_ configurationType: TransactionConfigurationType) {
-        selectedConfigurationType = configurationType
+    public func chooseDefaultConfigurationType(_ gasSpeed: GasSpeed) {
+        selectedGasSpeed = gasSpeed
         gasPriceSubject.send(currentConfiguration.gasPrice)
     }
 }

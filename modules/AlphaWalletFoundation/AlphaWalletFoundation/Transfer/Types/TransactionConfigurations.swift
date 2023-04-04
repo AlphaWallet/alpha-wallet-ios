@@ -3,17 +3,17 @@
 import Foundation
 
 public struct TransactionConfigurations {
-    private var others: [TransactionConfigurationType: TransactionConfiguration]
+    private var others: [GasSpeed: TransactionConfiguration]
 
     public var standard: TransactionConfiguration
     public var custom: TransactionConfiguration
 
-    public var types: [TransactionConfigurationType] {
+    public var types: [GasSpeed] {
         others.keys + [.standard, .custom]
     }
 
     public var fastestThirdPartyConfiguration: TransactionConfiguration? {
-        for each in TransactionConfigurationType.sortedThirdPartyFastestFirst {
+        for each in GasSpeed.sortedThirdPartyFastestFirst {
             if let config = others[each] {
                 return config
             }
@@ -22,7 +22,7 @@ public struct TransactionConfigurations {
     }
 
     public var slowestThirdPartyConfiguration: TransactionConfiguration? {
-        for each in TransactionConfigurationType.sortedThirdPartyFastestFirst.reversed() {
+        for each in GasSpeed.sortedThirdPartyFastestFirst.reversed() {
             if let config = others[each] {
                 return config
             }
@@ -30,19 +30,19 @@ public struct TransactionConfigurations {
         return nil
     }
 
-    public subscript(configurationType: TransactionConfigurationType) -> TransactionConfiguration? {
+    public subscript(gasSpeed: GasSpeed) -> TransactionConfiguration? {
         get {
-            switch configurationType {
+            switch gasSpeed {
             case .standard:
                 return standard
             case .custom:
                 return custom
             case .fast, .rapid, .slow:
-                return others[configurationType]
+                return others[gasSpeed]
             }
         }
         set(config) {
-            switch configurationType {
+            switch gasSpeed {
             case .standard:
                 //Better crash here than elsewhere or worse: hiding it
                 standard = config!
@@ -50,7 +50,7 @@ public struct TransactionConfigurations {
                 //Better crash here than elsewhere or worse: hiding it
                 custom = config!
             case .fast, .rapid, .slow:
-                others[configurationType] = config
+                others[gasSpeed] = config
             }
         }
     }

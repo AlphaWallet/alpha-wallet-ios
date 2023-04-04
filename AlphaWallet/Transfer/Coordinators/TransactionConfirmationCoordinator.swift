@@ -244,8 +244,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 }
 
 extension TransactionConfirmationCoordinator: ConfigureTransactionViewControllerDelegate {
-    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController) {
-        configurator.chooseDefaultConfigurationType(configurationType)
+    func didSavedToUseDefaultConfigurationType(_ gasSpeed: GasSpeed, in viewController: ConfigureTransactionViewController) {
+        configurator.chooseDefaultConfigurationType(gasSpeed)
         viewController.navigationController?.dismiss(animated: true)
     }
 
@@ -259,7 +259,7 @@ extension TransactionConfirmationCoordinator: ConfigureTransactionViewController
 extension TransactionConfirmationCoordinator {
     private func logCompleteActionSheetForTransactionConfirmationSuccessfully() {
         let speedType: Analytics.TransactionConfirmationSpeedType
-        switch configurator.selectedConfigurationType {
+        switch configurator.selectedGasSpeed {
         case .slow:
             speedType = .slow
         case .standard:
