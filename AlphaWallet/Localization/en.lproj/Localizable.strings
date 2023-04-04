@@ -264,7 +264,7 @@
 "enterPassword.password.textField.placeholder" = "Password to encrypt Keystore JSON";
 "enterPassword.password.textField.placeholder.shorter" = "Password to encrypt Keystore";
 "lock.create.passcode.view.model.confirm" = "Please re-enter your passcode";
-"lock.create.passcode.view.model.initial" = "Enter a new password";
+"lock.create.passcode.view.model.initial" = "Enter a new passcode";
 "lock.create.passcode.view.model.title" = "Set Passcode";
 "lock.enter.passcode.view.model.incorrect.passcode" = "Incorrect passcode. You have %d attempts.";
 "lock.enter.passcode.view.model.initial" = "Enter your passcode.";
