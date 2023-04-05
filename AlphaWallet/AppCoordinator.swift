@@ -224,7 +224,7 @@ class AppCoordinator: NSObject, Coordinator {
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
 
-    private let tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher())
+    private lazy var tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher(), tokenGroupIdentifier: tokenGroupIdentifier, spamImage: R.image.spamSmall()!)
 
     private let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
 
