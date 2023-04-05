@@ -8,6 +8,7 @@ import SwiftyJSON
 import Combine
 import AlphaWalletCore
 import BigInt
+import AlphaWalletLogger
 
 class GetContractInteractions {
     private let networkService: NetworkService
@@ -58,16 +59,16 @@ extension GetContractInteractions {
 class TransactionsNetworkProvider {
     private let walletAddress: AlphaWallet.Address
     private let server: RPCServer
-    private var networkService: NetworkService
-    private var transactionBuilder: TransactionBuilder
+    private let transporter: ApiTransporter
+    private let transactionBuilder: TransactionBuilder
 
     init(session: WalletSession,
-         networkService: NetworkService,
+         transporter: ApiTransporter,
          transactionBuilder: TransactionBuilder) {
         
         self.walletAddress = session.account.address
         self.transactionBuilder = transactionBuilder
-        self.networkService = networkService
+        self.transporter = transporter
         self.server = session.server
     }
 
@@ -92,7 +93,7 @@ class TransactionsNetworkProvider {
     }
 
     func getTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
-        return networkService
+        return transporter
             .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
             .receive(on: DispatchQueue.global())
             .mapError { PromiseError(error: $0) }
@@ -118,7 +119,7 @@ class TransactionsNetworkProvider {
 
     //TODO: rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
     private func getErc20Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
-        return networkService
+        return transporter
             .dataTaskPublisher(GetErc20TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .receive(on: DispatchQueue.global())
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }
@@ -127,7 +128,7 @@ class TransactionsNetworkProvider {
     }
 
     private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
-        return networkService
+        return transporter
             .dataTaskPublisher(GetErc721TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .receive(on: DispatchQueue.global())
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }

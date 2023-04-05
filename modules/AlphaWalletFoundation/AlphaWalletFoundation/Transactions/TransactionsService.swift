@@ -102,6 +102,7 @@ public class TransactionsService {
 
         switch session.server.transactionsSource {
         case .etherscan:
+            let transporter = BaseApiTransporter()
             let provider = EtherscanSingleChainTransactionProvider(
                 session: session,
                 analytics: analytics,
@@ -109,7 +110,7 @@ public class TransactionsService {
                 tokensService: tokensService,
                 fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
                 ercTokenDetector: ercTokenDetector,
-                networkService: networkService)
+                transporter: transporter)
 
             provider.start()
 
