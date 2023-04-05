@@ -28,11 +28,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let activitiesPipeLine: ActivitiesPipeLine
     private let sessionsProvider: SessionsProvider
     private let currencyService: CurrencyService
+    private let tokenGroupIdentifier: TokenGroupIdentifierProtocol
     private lazy var tokensFilter: TokensFilter = {
         return TokensFilter(
             tokenActionsService: tokenActionsService,
-            tokenGroupIdentifier: TokenGroupIdentifier.identifier(fromFileName: "tokens")!)
+            tokenGroupIdentifier: tokenGroupIdentifier)
     }()
+    private lazy var spamTokenService = SpamTokenService(tokenGroupIdentifier: tokenGroupIdentifier, tokensService: tokensService)
 
     internal let tokensPipeline: TokensProcessingPipeline
 
@@ -166,6 +168,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          tokenCollection: TokensProcessingPipeline,
          transactionsDataStore: TransactionDataStore,
          tokensService: TokensService,
+         tokenGroupIdentifier: TokenGroupIdentifierProtocol,
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
@@ -183,6 +186,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.lock = lock
         self.tokensService = tokensService
+        self.tokenGroupIdentifier = tokenGroupIdentifier
         self.transactionsDataStore = transactionsDataStore
         self.tokensPipeline = tokenCollection
         self.activitiesPipeLine = activitiesPipeLine
@@ -246,6 +250,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         showWhatsNew()
         notificationService.start(wallet: wallet)
         handleTokenScriptOverrideImport()
+        spamTokenService.startMonitoring()
     }
 
     private func handleTokenScriptOverrideImport() {

@@ -226,6 +226,8 @@ class AppCoordinator: NSObject, Coordinator {
 
     private let tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher())
 
+    private let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
+
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
     static func create() throws -> AppCoordinator {
         crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
@@ -466,6 +468,7 @@ class AppCoordinator: NSObject, Coordinator {
             tokenCollection: dep.pipeline,
             transactionsDataStore: dep.transactionsDataStore,
             tokensService: dep.tokensService,
+            tokenGroupIdentifier: tokenGroupIdentifier,
             lock: lock,
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,

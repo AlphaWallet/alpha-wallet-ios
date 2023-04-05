@@ -41,6 +41,7 @@
 		028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
 		02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */; };
+		02A96DFD29DB0B34002616A1 /* SpamTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A96DFC29DB0B34002616A1 /* SpamTokenService.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */; };
 		02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAFA2808027E00CF8722 /* urlUtilities.swift */; };
@@ -925,6 +926,7 @@
 		028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensionTests.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
 		02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModelTestCase.swift; sourceTree = "<group>"; };
+		02A96DFC29DB0B34002616A1 /* SpamTokenService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpamTokenService.swift; path = AlphaWallet/Common/Services/SpamTokenService.swift; sourceTree = SOURCE_ROOT; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetIsERC1155ContractCoordinatorTestCase.swift; sourceTree = "<group>"; };
 		02CEFAFA2808027E00CF8722 /* urlUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = urlUtilities.swift; sourceTree = "<group>"; };
@@ -4166,6 +4168,7 @@
 		87B1ACDD28C0D5C50072A5E2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				02A96DFC29DB0B34002616A1 /* SpamTokenService.swift */,
 				87B1B5F228C8715F0072A5E2 /* Analytics */,
 				5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */,
 				875CA90828BF2B720020FA48 /* LocalNotificationService.swift */,
@@ -5169,6 +5172,7 @@
 				8793A4A2291A5DA100BCF849 /* CurrencyTableViewCell.swift in Sources */,
 				8736214E264D3B0000AAF794 /* BalloonMarker.swift in Sources */,
 				87E2555024F52E3600F025F7 /* SlidableTextField.swift in Sources */,
+				02A96DFD29DB0B34002616A1 /* SpamTokenService.swift in Sources */,
 				29C0FCE1200DA94A004A13CB /* SignMessageCoordinator.swift in Sources */,
 				29A13E331F6B1B7A00E432A2 /* AppStyle.swift in Sources */,
 				87D84749274533F600EDBA80 /* UIImageView+Extension.swift in Sources */,
