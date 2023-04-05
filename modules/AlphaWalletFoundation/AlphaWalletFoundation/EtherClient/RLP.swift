@@ -22,6 +22,8 @@ public struct RLP {
             return encodeBigInt(bigint)
         case let biguint as BigUInt:
             return encodeBigUInt(biguint)
+        case let number as UInt8:
+            return encodeUInt(UInt(number))
         case let data as Data:
             return encodeData(data)
         default:
