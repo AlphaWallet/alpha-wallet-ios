@@ -23,7 +23,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let tokensService: TokensService
     private lazy var transactionsNetworkProvider = TransactionsNetworkProvider(
         session: session,
-        networkService: networkService,
+        transporter: transporter,
         transactionBuilder: transactionBuilder)
 
     private lazy var transactionBuilder = TransactionBuilder(
@@ -37,7 +37,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             transactionDataStore: transactionDataStore,
             ercTokenDetector: ercTokenDetector)
     }()
-    private let networkService: NetworkService
+    private let transporter: ApiTransporter
 
     init(session: WalletSession,
          analytics: AnalyticsLogger,
@@ -45,9 +45,9 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
          tokensService: TokensService,
          fetchLatestTransactionsQueue: OperationQueue,
          ercTokenDetector: ErcTokenDetector,
-         networkService: NetworkService) {
+         transporter: ApiTransporter) {
 
-        self.networkService = networkService
+        self.transporter = transporter
         self.tokensService = tokensService
         self.session = session
         self.analytics = analytics

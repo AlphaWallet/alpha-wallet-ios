@@ -10,14 +10,7 @@ import Alamofire
 import Combine
 
 public protocol ApiTransporter {
-    func dataTaskPublisher(_ request: URLRequestConvertible,
-                           callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError>
-}
-
-extension ApiTransporter {
-    func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
-        dataTaskPublisher(request, callbackQueue: .global())
-    }
+    func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
 }
 
 final class ApiTransporterRetryPolicy: RetryPolicy {
@@ -91,9 +84,7 @@ public class BaseApiTransporter: ApiTransporter {
         let request: URLRequestConvertible
     }
 
-    public func dataTaskPublisher(_ request: URLRequestConvertible,
-                                  callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
-
+    public func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         Just(request)
             .setFailureType(to: SessionTaskError.self)
             .flatMap(maxPublishers: .max(maxPublishers)) { [session, rootQueue] request in
