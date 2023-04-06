@@ -21,10 +21,22 @@ class GetContractInteractions {
         let request = GetContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20)
         return networkService
             .dataTaskPublisher(request)
+            .handleEvents(receiveOutput: { self.log(response: $0) })
             .receive(on: DispatchQueue.global())
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data)) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
+    }
+
+    private func log(response: URLRequest.Response) {
+        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
+        case .failure:
+            let json = try? JSON(response.data)
+            let message = json.flatMap { $0["message"].stringValue } ?? ""
+            infoLog("[API] request failure with status code: \(response.response.statusCode), message: \(message)")
+        case .success:
+            break
+        }
     }
 }
 
@@ -95,6 +107,7 @@ class TransactionsNetworkProvider {
     func getTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return transporter
             .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
+            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
             .receive(on: DispatchQueue.global())
             .mapError { PromiseError(error: $0) }
             .flatMap { [transactionBuilder] result -> AnyPublisher<[TransactionInstance], PromiseError> in
@@ -121,6 +134,7 @@ class TransactionsNetworkProvider {
     private func getErc20Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return transporter
             .dataTaskPublisher(GetErc20TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
+            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
             .receive(on: DispatchQueue.global())
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }
             .mapError { PromiseError.some(error: $0) }
@@ -130,6 +144,7 @@ class TransactionsNetworkProvider {
     private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return transporter
             .dataTaskPublisher(GetErc721TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
+            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
             .receive(on: DispatchQueue.global())
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }
             .mapError { PromiseError.some(error: $0) }
@@ -155,6 +170,17 @@ class TransactionsNetworkProvider {
                 }
                 return results
             }.eraseToAnyPublisher()
+    }
+
+    static func log(response: URLRequest.Response) {
+        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
+        case .failure:
+            let json = try? JSON(response.data)
+            let message = json?["message"].stringValue ?? ""
+            infoLog("[API] request failure with status code: \(response.response.statusCode), message: \(message)")
+        case .success:
+            break
+        }
     }
 }
 
