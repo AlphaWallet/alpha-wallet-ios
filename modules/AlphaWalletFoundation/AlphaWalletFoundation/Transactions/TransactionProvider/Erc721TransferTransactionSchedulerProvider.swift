@@ -47,7 +47,7 @@ final class Erc721TransferTransactionSchedulerProvider: SchedulerProvider {
             .transactionsPagination(server: session.server, fetchType: .erc721) ?? defaultPagination
 
         return networking
-            .erc721TokenTransferTransactions(walletAddress: session.account.address, pagination: pagination, sortOrder: nil)
+            .erc721TokenTransferTransactions(walletAddress: session.account.address, pagination: pagination)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.handle(response: response)
             }, receiveCompletion: { [weak self] result in
