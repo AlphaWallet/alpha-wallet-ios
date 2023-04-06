@@ -49,6 +49,7 @@
 		02D7F8CE27D8AAC900CA1140 /* VerticalButtonsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */; };
 		02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */; };
 		02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */; };
+		02E0FE1429DE6B0700928E56 /* ScheduledToDoTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E0FE1329DE6B0700928E56 /* ScheduledToDoTest.swift */; };
 		02EFD0FC27DF0815008B5808 /* RepeatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EFD0FB27DF0815008B5808 /* RepeatTests.swift */; };
 		02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */; };
 		02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */; };
@@ -934,6 +935,7 @@
 		02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalButtonsBar.swift; sourceTree = "<group>"; };
 		02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewController.swift; sourceTree = "<group>"; };
 		02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryView.swift; sourceTree = "<group>"; };
+		02E0FE1329DE6B0700928E56 /* ScheduledToDoTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledToDoTest.swift; sourceTree = "<group>"; };
 		02EFD0FB27DF0815008B5808 /* RepeatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatTests.swift; sourceTree = "<group>"; };
 		02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallViewController.swift; sourceTree = "<group>"; };
 		02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallView.swift; sourceTree = "<group>"; };
@@ -1864,6 +1866,14 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		02E0FE1229DE6AD200928E56 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				02E0FE1329DE6B0700928E56 /* ScheduledToDoTest.swift */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
 		02FA3F632818E11F005EDD63 /* Features */ = {
 			isa = PBXGroup;
 			children = (
@@ -1998,6 +2008,7 @@
 				5E7C754A9D6320C933F675A9 /* modules */,
 				5E7C794A9A49F6C632C636F3 /* Common */,
 				5E7C7E0D20B3B756E903DB22 /* HardwareWallet */,
+				02E0FE1229DE6AD200928E56 /* Misc */,
 			);
 			path = AlphaWalletTests;
 			sourceTree = "<group>";
@@ -5759,6 +5770,7 @@
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,
 				0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */,
+				02E0FE1429DE6B0700928E56 /* ScheduledToDoTest.swift in Sources */,
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
 				29E14FD71F7F490000185568 /* Transaction.swift in Sources */,
 				296106CC1F776FD00006164B /* WalletCoordinatorTests.swift in Sources */,
