@@ -23,18 +23,14 @@ public struct TransactionsResponse<T> {
 
 public protocol ApiNetworking {
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination,
-                            sortOrder: GetTransactions.SortOrder?) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination,
-                                        sortOrder: GetTransactions.SortOrder?) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination,
-                                         sortOrder: GetTransactions.SortOrder?) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination,
-                                         sortOrder: GetTransactions.SortOrder?) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
 }

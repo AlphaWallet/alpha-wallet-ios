@@ -48,7 +48,7 @@ final class NormalTransactionsSchedulerProvider: SchedulerProvider {
             .transactionsPagination(server: session.server, fetchType: .normal) ?? defaultPagination
 
         return networking
-            .normalTransactions(walletAddress: session.account.address, pagination: pagination, sortOrder: nil)
+            .normalTransactions(walletAddress: session.account.address, pagination: pagination)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.handle(response: response)
             }, receiveCompletion: { [weak self] result in
