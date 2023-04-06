@@ -187,7 +187,7 @@ extension FungibleTokenHeaderViewModel.functional {
     private static func priceChange(for balance: BalanceViewModel) -> String? {
         guard let ticker = balance.ticker else { return nil }
 
-        let formatter = NumberFormatter.priceChange(currency: ticker.currency)
+        let formatter = NumberFormatter.percent
         switch TickerHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
             return "(\(formatter.string(double: percentageChange24h) ?? "")%)"
