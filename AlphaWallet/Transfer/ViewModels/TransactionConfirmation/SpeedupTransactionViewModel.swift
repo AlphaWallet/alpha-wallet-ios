@@ -37,7 +37,7 @@ extension TransactionConfirmationViewModel {
             tokensService.tokenViewModelPublisher(for: etherToken)
                 .map { $0?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } }
                 .map { $0.flatMap { Loadable<CurrencyRate, Error>.done($0) } ?? .failure(SendFungiblesTransactionViewModel.NoCurrencyRateError()) }
-                .assign(to: \.etherCurrencyRate, on: self)
+                .assign(to: \.etherCurrencyRate, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
             let viewState = Publishers.Merge($etherCurrencyRate.mapToVoid(), configurator.objectChanges)

@@ -102,7 +102,7 @@ class TransactionConfirmationViewController: UIViewController {
                 }
             }.store(in: &cancellable)
     } 
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
