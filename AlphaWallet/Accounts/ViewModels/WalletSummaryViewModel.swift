@@ -77,7 +77,7 @@ extension WalletSummaryViewModel {
 
             let changePercentage: String = {
                 guard let changePercentage = summary?.changePercentage else { return "-" }
-                let formatter = NumberFormatter.priceChange(currency: changePercentage.currency)
+                let formatter = NumberFormatter.percent
 
                 switch helper.change24h(from: changePercentage.amount) {
                 case .appreciate(let percentageChange24h):

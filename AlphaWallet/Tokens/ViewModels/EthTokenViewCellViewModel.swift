@@ -78,7 +78,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
             guard let ticker = ticker else { return UiTweaks.noPriceMarker }
 
             let helper = TickerHelper(ticker: ticker)
-            let formatter = NumberFormatter.priceChange(currency: ticker.currency)
+            let formatter = NumberFormatter.percent
 
             switch helper.change24h {
             case .appreciate(let percentageChange24h):
