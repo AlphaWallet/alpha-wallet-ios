@@ -53,26 +53,26 @@ extension TransactionConfirmationViewModel {
                     }
                 }.map { [session] in $0.flatMap { TransactedToken(tokenViewModel: $0, session: session) } }
                 .map { $0.flatMap { Loadable<TransactedToken, Error>.done($0) } ?? .failure(NoTokenError()) }
-                .assign(to: \.transactedToken, on: self)
+                .assign(to: \.transactedToken, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
             $transactedToken
-                .map { self.buildTransactionBalance($0) }
-                .assign(to: \.balanceViewModel, on: self)
+                .compactMap { [weak self] in self?.buildTransactionBalance($0) }
+                .assign(to: \.balanceViewModel, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
             let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
             tokensService.tokenViewModelPublisher(for: etherToken)
                 .map { $0?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } }
                 .map { $0.flatMap { Loadable<CurrencyRate, Error>.done($0) } ?? .failure(NoCurrencyRateError()) }
-                .assign(to: \.etherCurrencyRate, on: self)
+                .assign(to: \.etherCurrencyRate, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
             let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, recipientResolver.resolveRecipient()).mapToVoid()
 
             let viewState = Publishers.Merge(stateChanges, configurator.objectChanges)
-                .map { _ in
-                    TransactionConfirmationViewModel.ViewState(
+                .compactMap { _ -> TransactionConfirmationViewModel.ViewState? in
+                    return TransactionConfirmationViewModel.ViewState(
                         title: R.string.localizable.tokenTransactionTransferConfirmationTitle(),
                         views: self.buildTypedViews(),
                         isSeparatorHidden: false)

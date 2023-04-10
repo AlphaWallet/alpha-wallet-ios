@@ -125,23 +125,25 @@ public class TransactionConfigurator {
                 guard case .failure(let e) = result else { return }
                 infoLog("[Transaction Confirmation] Error estimating gas limit: \(e)")
                 logError(e, rpcServer: self.session.server)
-            }, receiveValue: { gasLimit in
+            }, receiveValue: { [weak self] gasLimit in
+                guard let strongSelf = self else { return }
+
                 infoLog("[Transaction Confirmation] Using gas limit: \(gasLimit)")
-                var customConfig = self.configurations.custom
+                var customConfig = strongSelf.configurations.custom
                 customConfig.setEstimated(gasLimit: gasLimit)
-                self.configurations.custom = customConfig
-                var defaultConfig = self.configurations.standard
+                strongSelf.configurations.custom = customConfig
+                var defaultConfig = strongSelf.configurations.standard
                 defaultConfig.setEstimated(gasLimit: gasLimit)
-                self.configurations.standard = defaultConfig
+                strongSelf.configurations.standard = defaultConfig
 
                 //Careful to not create if they don't exist
                 for each: GasSpeed in [.slow, .fast, .rapid] {
-                    guard var config = self.configurations[each] else { continue }
+                    guard var config = strongSelf.configurations[each] else { continue }
                     config.setEstimated(gasLimit: gasLimit)
-                    self.configurations[each] = config
+                    strongSelf.configurations[each] = config
                 }
 
-                self.gasLimitSubject.send(gasLimit)
+                strongSelf.gasLimitSubject.send(gasLimit)
             }).store(in: &cancellable)
     }
 
@@ -150,27 +152,29 @@ public class TransactionConfigurator {
             .sink(receiveCompletion: { [session] result in
                 guard case .failure(let e) = result else { return }
                 logError(e, rpcServer: session.server)
-            }, receiveValue: { estimates in
+            }, receiveValue: { [weak self] estimates in
+                guard let strongSelf = self else { return }
+
                 let standard = estimates.standard
-                var customConfig = self.configurations.custom
+                var customConfig = strongSelf.configurations.custom
                 customConfig.setEstimated(gasPrice: standard)
-                var defaultConfig = self.configurations.standard
+                var defaultConfig = strongSelf.configurations.standard
                 defaultConfig.setEstimated(gasPrice: standard)
 
-                if self.shouldUseEstimatedGasPrice(standard) {
-                    self.configurations.custom = customConfig
-                    self.configurations.standard = defaultConfig
+                if strongSelf.shouldUseEstimatedGasPrice(standard) {
+                    strongSelf.configurations.custom = customConfig
+                    strongSelf.configurations.standard = defaultConfig
                 }
 
                 for each: GasSpeed in [.slow, .fast, .rapid] {
                     guard let estimate = estimates[each] else { continue }
                     //Since there's a price estimate, we want to add that config if it's missing
-                    var config = self.configurations[each] ?? defaultConfig
+                    var config = strongSelf.configurations[each] ?? defaultConfig
                     config.setEstimated(gasPrice: estimate)
-                    self.configurations[each] = config
+                    strongSelf.configurations[each] = config
                 }
 
-                self.gasPriceSubject.send(standard)
+                strongSelf.gasPriceSubject.send(standard)
             }).store(in: &cancellable)
     }
 
@@ -272,8 +276,8 @@ public class TransactionConfigurator {
                 .sink(receiveCompletion: { [session] result in
                     guard case .failure(let e) = result else { return }
                     logError(e, rpcServer: session.server)
-                }, receiveValue: {
-                    self.useNonce($0)
+                }, receiveValue: { [weak self] in
+                    self?.useNonce($0)
                 }).store(in: &cancellable)
         }
     }
@@ -293,7 +297,9 @@ public class TransactionConfigurator {
                     return tokensService.tokenViewModelPublisher(for: token)
                 }
             }.compactMap { $0 }
-            .sink { token in
+            .sink { [weak self] token in
+                guard let strongSelf = self else { return }
+
                 switch token.type {
                 case .nativeCryptocurrency:
                     switch transactionType.amount {
@@ -301,10 +307,10 @@ public class TransactionConfigurator {
                         break
                     case .allFunds:
                         //NOTE: ignore passed value of 'allFunds', as we recalculating it again
-                        if token.balance.value > self.gasValue {
-                            self.updateTransaction(value: token.balance.value - self.gasValue)
+                        if token.balance.value > strongSelf.gasValue {
+                            strongSelf.updateTransaction(value: token.balance.value - strongSelf.gasValue)
                         } else {
-                            self.updateTransaction(value: .zero)
+                            strongSelf.updateTransaction(value: .zero)
                         }
                     }
                 case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:

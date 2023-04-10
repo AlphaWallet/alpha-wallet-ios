@@ -433,8 +433,8 @@ extension ConfigureTransactionViewController {
             let subview = GasSpeedView()
             subview.isUserInteractionEnabled = true
 
-            UITapGestureRecognizer.init(addToView: subview) {
-                self.didSelectCell(gasSpeed: gasSpeed)
+            UITapGestureRecognizer.init(addToView: subview) { [weak self] in
+                self?.didSelectCell(gasSpeed: gasSpeed)
             }
             gasSpeedViews[gasSpeed] = subview
 
