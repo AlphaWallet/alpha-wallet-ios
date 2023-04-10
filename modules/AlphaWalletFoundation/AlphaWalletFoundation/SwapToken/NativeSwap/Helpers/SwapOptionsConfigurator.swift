@@ -68,8 +68,8 @@ public final class SwapOptionsConfigurator {
         return fromAmountSubject.combineLatest(hasFromAndToSwapTokens) { amount, hasSwapToken -> BigUInt? in
             return hasSwapToken ? amount : nil
         }.compactMap { $0.flatMap { BigUInt($0) } }
-        .removeDuplicates()
-        .eraseToAnyPublisher()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }()
 
     public private (set) lazy var swapQuote: AnyPublisher<SwapQuote?, Never> = {
@@ -103,7 +103,7 @@ public final class SwapOptionsConfigurator {
                 tokenSwapper: TokenSwapper) {
 
         self.tokenSwapper = tokenSwapper
-        self.sessions = sessionProvider.activeSessions.values.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
+        self.sessions = functional.sortSessionsWithMainnetsFirst(sessions: sessionProvider.activeSessions.values)
         self.server = swapPair.from.server
         self.swapPair = swapPair
         self.tokensService = tokensService
@@ -282,5 +282,28 @@ public extension SwapOptionsConfigurator {
                 return (swapQuote, tokens)
             }.eraseToAnyPublisher()
         return .just(nil)
+    }
+}
+
+extension SwapOptionsConfigurator {
+    class functional {}
+}
+
+extension SwapOptionsConfigurator.functional {
+    static func sortSessionsWithMainnetsFirst(sessions: [WalletSession]) -> [WalletSession] {
+        let sortedSessions = sessions.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
+        var mainnetsSessions = [WalletSession]()
+        var testnetsSessions = [WalletSession]()
+        var returnedSessions = [WalletSession]()
+        sortedSessions.forEach { session in
+            if session.server.isTestnet {
+                testnetsSessions.append(session)
+            } else {
+                mainnetsSessions.append(session)
+            }
+        }
+        returnedSessions.append(contentsOf: mainnetsSessions)
+        returnedSessions.append(contentsOf: testnetsSessions)
+        return returnedSessions
     }
 }
