@@ -15,6 +15,11 @@ final class ScheduledToDoTest: XCTestCase {
         XCTAssertFalse(dueDateElapsed(expirationDate: expirationDate), "TODO:- Spam Token Icon Removal task: https://github.com/AlphaWallet/iconassets/issues/30")
     }
 
+    func testReminderToCheckKlaytnBlockchainExplorerAPI() throws {
+        let expirationDate = ISO8601DateFormatter().date(from: "2023-06-11T00:00:00Z")!
+        XCTAssertFalse(dueDateElapsed(expirationDate: expirationDate), "TODO:- Check Klaytn blockchain explorer API again. `services-monitor` was disabled because they were always down https://github.com/AlphaWallet/services-monitor/pull/49")
+    }
+
     private func dueDateElapsed(expirationDate: Date) -> Bool {
         let currentDate = Date()
         return expirationDate.isEarlierThan(date: currentDate)
