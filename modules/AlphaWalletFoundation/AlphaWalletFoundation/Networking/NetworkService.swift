@@ -113,7 +113,7 @@ public class BaseNetworkService: NetworkService {
 }
 
 extension BaseNetworkService {
-    class functional {}
+    enum functional {}
 }
 
 struct NonHTTPURLResponseError: Error {

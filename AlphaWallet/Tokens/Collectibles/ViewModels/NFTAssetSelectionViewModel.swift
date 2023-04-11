@@ -269,7 +269,7 @@ extension NFTAssetSelectionViewModel {
         let indexPath: IndexPath
     }
 
-    class functional { }
+    enum functional { }
 
     enum ToolbarAction: CaseIterable {
         case clear

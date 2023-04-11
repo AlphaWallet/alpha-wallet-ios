@@ -57,7 +57,7 @@ public final class WalletSession: Equatable {
 }
 
 extension WalletSession {
-    public class functional {}
+    public enum functional {}
 }
 
 extension WalletSession.functional {

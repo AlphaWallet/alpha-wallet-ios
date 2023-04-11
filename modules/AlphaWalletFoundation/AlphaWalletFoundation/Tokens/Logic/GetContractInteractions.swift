@@ -209,7 +209,7 @@ extension TransactionsNetworkProvider {
 }
 
 extension GetContractInteractions {
-    class functional {}
+    enum functional {}
 }
 
 extension GetContractInteractions.functional {

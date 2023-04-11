@@ -45,7 +45,7 @@ struct WalletSummaryViewModel: Hashable {
 }
 
 extension WalletSummaryViewModel {
-    class functional {
+    enum functional {
         static func walletBalanceAttributes(alignment: NSTextAlignment = .left) -> [NSAttributedString.Key: Any] {
             let style = NSMutableParagraphStyle()
             style.alignment = alignment

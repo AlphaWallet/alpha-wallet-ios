@@ -23,7 +23,7 @@ class WhatsNewListingViewModel: NSObject {
 }
 
 extension WhatsNewListingViewModel {
-    fileprivate class functional {
+    fileprivate enum functional {
         static func generateEntries(fromModel model: WhatsNewListing) -> [WhatsNewEntryViewModel] {
             return model.listing.map { model in
                 WhatsNewEntryViewModel(model: model)

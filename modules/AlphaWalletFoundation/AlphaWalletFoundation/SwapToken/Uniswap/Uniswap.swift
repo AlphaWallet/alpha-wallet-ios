@@ -88,7 +88,7 @@ public struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
             }
         }
 
-        class functional {
+        enum functional {
             static func rewriteContractInput(_ address: AlphaWallet.Address) -> String {
                 if address == Constants.nativeCryptoAddressInDatabase {
                     //Uniswap likes it this way

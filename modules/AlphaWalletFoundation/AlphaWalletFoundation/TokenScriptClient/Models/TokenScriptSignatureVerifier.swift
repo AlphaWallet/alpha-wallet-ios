@@ -243,7 +243,7 @@ class TokenScriptSignatureNetworking {
 }
 
 extension TokenScriptSignatureNetworking {
-    class functional {}
+    enum functional {}
 }
 
 extension TokenScriptSignatureNetworking.functional {

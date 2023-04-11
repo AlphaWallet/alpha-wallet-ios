@@ -326,7 +326,7 @@ public class Erc1155TokenIdsFetcher {
 }
 
 extension Erc1155TokenIdsFetcher {
-    class functional {}
+    enum functional {}
 }
 
 extension Erc1155TokenIdsFetcher.functional {

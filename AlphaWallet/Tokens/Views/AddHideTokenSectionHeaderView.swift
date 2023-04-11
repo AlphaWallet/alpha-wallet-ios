@@ -2,7 +2,7 @@
 
 import UIKit
 extension AddHideTokensViewController {
-    class functional {}
+    enum functional {}
 }
 
 extension AddHideTokensViewController.functional {

@@ -244,7 +244,7 @@ public class AddCustomChain {
 }
 
 extension AddCustomChain {
-    public class functional {
+    public enum functional {
     }
 }
 

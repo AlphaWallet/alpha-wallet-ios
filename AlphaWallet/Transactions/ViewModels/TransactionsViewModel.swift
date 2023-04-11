@@ -63,7 +63,7 @@ extension TransactionsViewModel {
     class DataSource: UITableViewDiffableDataSource<TransactionsViewModel.Section, TransactionRow> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<TransactionsViewModel.Section, TransactionRow>
     typealias Section = String
-    class functional {}
+    enum functional {}
 
     typealias SectionViewModel = (date: String, transactionRows: [TransactionRow])
 

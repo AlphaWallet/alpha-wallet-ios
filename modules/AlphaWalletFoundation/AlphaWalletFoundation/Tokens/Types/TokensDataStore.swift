@@ -600,7 +600,7 @@ extension TokenObject {
 }
 
 extension MultipleChainsTokensDataStore {
-    public class functional {}
+    public enum functional {}
 }
 
 extension MultipleChainsTokensDataStore.functional {
