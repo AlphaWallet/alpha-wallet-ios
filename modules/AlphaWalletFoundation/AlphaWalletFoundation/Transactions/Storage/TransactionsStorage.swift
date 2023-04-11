@@ -337,7 +337,7 @@ extension TransactionDataStore: Erc721TokenIdsFetcher {
 }
 
 extension TransactionDataStore {
-    public class functional {}
+    public enum functional {}
 }
 
 extension TransactionDataStore.functional {

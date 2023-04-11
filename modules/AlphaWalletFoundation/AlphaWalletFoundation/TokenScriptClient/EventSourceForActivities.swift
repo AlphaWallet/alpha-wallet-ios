@@ -337,7 +337,7 @@ final class EventSourceForActivities {
 }
 
 extension EventSourceForActivities {
-    class functional {}
+    enum functional {}
 }
 
 extension EventSourceForActivities.functional {

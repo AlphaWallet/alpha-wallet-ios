@@ -306,7 +306,7 @@ fileprivate func != (activity: Activity, operation: LocalizedOperationObjectInst
 }
 
 extension ActivitiesService {
-    class functional {}
+    enum functional {}
 }
 
 extension ActivitiesService.functional {

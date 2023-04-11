@@ -680,7 +680,7 @@ fileprivate extension WalletFilter {
 }
 
 extension TokensViewModel {
-    class functional {}
+    enum functional {}
 }
 
 extension TokensViewModel.functional {

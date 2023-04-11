@@ -224,7 +224,7 @@ public class ENS {
 }
 
 extension ENS {
-    class functional {}
+    enum functional {}
 }
 
 fileprivate extension ENS.functional {

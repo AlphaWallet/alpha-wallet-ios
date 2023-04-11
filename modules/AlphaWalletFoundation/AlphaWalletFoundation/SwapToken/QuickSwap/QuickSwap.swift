@@ -80,7 +80,7 @@ public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
             }
         }
 
-        class functional {
+        enum functional {
             static func rewriteContractInput(_ address: AlphaWallet.Address) -> String {
                 if address == Constants.nativeCryptoAddressInDatabase {
                     //QuickSwap (forked from Uniswap) likes it this way

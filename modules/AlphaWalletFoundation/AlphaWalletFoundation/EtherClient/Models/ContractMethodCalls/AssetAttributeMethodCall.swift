@@ -44,7 +44,7 @@ struct AssetAttributeMethodCall: ContractMethodCall {
 }
 
 extension CallForAssetAttributeProvider {
-    class functional {}
+    enum functional {}
 }
 
 extension CallForAssetAttributeProvider.functional {

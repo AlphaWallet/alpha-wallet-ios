@@ -84,7 +84,7 @@ public final class ErcTokenDetector {
 }
 
 extension ErcTokenDetector {
-    class functional {}
+    enum functional {}
 }
 
 extension ErcTokenDetector.functional {

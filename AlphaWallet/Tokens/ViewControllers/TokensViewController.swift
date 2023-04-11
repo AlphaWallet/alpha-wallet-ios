@@ -608,7 +608,7 @@ extension TokensViewController {
 }
 
 extension TokensViewController {
-    class functional {}
+    enum functional {}
 }
 
 extension TokensViewController.functional {

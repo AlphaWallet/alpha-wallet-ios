@@ -337,7 +337,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 }
 
 extension TokenBalanceFetcher {
-    class functional {}
+    enum functional {}
 }
 
 extension TokenBalanceFetcher.functional {

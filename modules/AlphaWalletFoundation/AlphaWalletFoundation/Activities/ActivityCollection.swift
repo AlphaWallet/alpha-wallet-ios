@@ -201,7 +201,7 @@ extension String {
 }
 
 extension ActivityCollection {
-    public class functional {}
+    public enum functional {}
 }
 
 extension ActivityCollection.functional {

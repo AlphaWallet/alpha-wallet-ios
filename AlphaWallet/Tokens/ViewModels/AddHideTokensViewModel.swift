@@ -307,7 +307,7 @@ extension AddHideTokensViewModel {
 extension TokenViewModel: TokenIdentifiable { }
 
 extension AddHideTokensViewModel {
-    class functional {}
+    enum functional {}
 }
 
 extension AddHideTokensViewModel.functional {

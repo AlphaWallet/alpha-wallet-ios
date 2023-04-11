@@ -165,7 +165,7 @@ extension ActivitiesViewController {
 }
 
 extension ActivitiesViewController {
-    class functional {}
+    enum functional {}
 }
 
 extension ActivitiesViewController.functional {

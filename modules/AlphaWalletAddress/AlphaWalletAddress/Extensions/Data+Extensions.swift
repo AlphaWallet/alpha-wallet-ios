@@ -60,7 +60,7 @@ extension Data {
 }
 
 extension Data {
-    class functional {}
+    enum functional {}
 }
 
 fileprivate extension Data.functional {

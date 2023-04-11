@@ -54,7 +54,7 @@ public enum DeepLink {
 }
 
 extension DeepLink {
-    public class functional {}
+    public enum functional {}
 }
 
 extension DeepLink {
