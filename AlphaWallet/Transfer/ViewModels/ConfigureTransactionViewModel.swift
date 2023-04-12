@@ -129,22 +129,11 @@ class ConfigureTransactionViewModel {
 
     private func buildGasSpeedViewModel(viewModel: GasSpeedViewModel, selectedSpeed: GasSpeed, rate: CurrencyRate?) -> GasSpeedViewModelType {
         let isSelected = selectedSpeed == viewModel.gasSpeed
-        let gasPrice: GasPrice
-        let gasLimit: BigUInt
-
-//        switch viewModel.gasSpeed {
-//        case .custom:
-//            gasPrice = editTransactionViewModel.gasPriceViewModel.gasPrice.value
-//            gasLimit = editTransactionViewModel.gasLimit
-//        case .standard, .fast, .rapid, .slow:
-        guard let value = viewModel.gasPrice else { return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed) }
-        gasPrice = value
-        gasLimit = viewModel.gasLimit//configurator.gasLimit.value
-//        }
+        guard let gasPrice = viewModel.gasPrice else { return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed) }
 
         return LegacyGasSpeedViewModel(
             gasPrice: gasPrice.max,
-            gasLimit: gasLimit,
+            gasLimit: viewModel.gasLimit,
             gasSpeed: viewModel.gasSpeed,
             rate: rate,
             symbol: server.symbol,
