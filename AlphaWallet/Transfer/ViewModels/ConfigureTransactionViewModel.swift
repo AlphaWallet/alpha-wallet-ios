@@ -3,188 +3,162 @@
 import Foundation
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
-struct ConfigureTransactionViewModel {
-    enum RecoveryMode {
-        case invalidNonce
-        case none
-    }
+struct ConfigureTransactionViewModelInput {
+    let saveSelected: AnyPublisher<Void, Never>
+}
+
+struct ConfigureTransactionViewModelOutput {
+    let gasPriceWarning: AnyPublisher<TransactionConfigurator.GasPriceWarning?, Never>
+    let viewState: AnyPublisher<ConfigureTransactionViewModel.ViewState, Never>
+    let didSave: AnyPublisher<Void, Never>
+}
+
+class ConfigureTransactionViewModel {
     private let service: TokensProcessingPipeline
-    private let transactionType: TransactionType
-    let configurator: TransactionConfigurator
-    private var totalFee: BigUInt {
-        return configurationToEdit.gasPrice * configurationToEdit.gasLimit
-    }
-    private var server: RPCServer {
-        configurator.session.server
-    }
-    private var coinTicker: CoinTicker? {
-        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        return service.tokenViewModel(for: etherToken)?.balance.ticker
-    }
+    private let configurator: TransactionConfigurator
+    private var cancellable = Set<AnyCancellable>()
+    private var server: RPCServer { configurator.session.server }
+    private let selectedGasSpeedSubject: CurrentValueSubject<GasSpeed, Never>
+    private let gasPriceEstimator: GasPriceEstimator
 
-    var recoveryMode: RecoveryMode
-    var selectedGasSpeed: GasSpeed
-    var configurationToEdit: EditedTransactionConfiguration {
-        didSet {
-            configurations.custom = configurationToEdit.configuration
+    let editTransactionViewModel: EditTransactionViewModel
+    let allGasSpeeds: [GasSpeed] = [.slow, .standard, .fast, .rapid, .custom]
+    let updateInViewModel: UpdateInViewModel
+
+    init(configurator: TransactionConfigurator,
+         recoveryMode: EditTransactionViewModel.RecoveryMode,
+         service: TokensProcessingPipeline) {
+
+        self.gasPriceEstimator = configurator.gasPriceEstimator
+        let gasPriceViewModel: EditGasPriceViewModel
+        if let gasPriceEstimator = gasPriceEstimator as? LegacyGasPriceEstimator {
+            gasPriceViewModel = EditLegacyGasPriceViewModel(
+                gasPriceEstimator: gasPriceEstimator,
+                server: configurator.session.server)
+        } else {
+            gasPriceViewModel = EditEip1559GasFeeViewModel(
+                estimator: gasPriceEstimator,
+                server: configurator.session.server)
         }
-    }
-    var gasSpeedsList: [GasSpeed]
-    var configurations: TransactionConfigurations {
-        didSet {
-            gasSpeedsList = ConfigureTransactionViewModel.sortedGasSpeedList(fromConfigurations: configurations)
+
+        editTransactionViewModel = EditTransactionViewModel(
+            configurator: configurator,
+            recoveryMode: recoveryMode,
+            service: service,
+            gasPriceViewModel: gasPriceViewModel)
+
+        self.configurator = configurator
+
+        self.service = service
+        switch recoveryMode {
+        case .invalidNonce:
+            selectedGasSpeedSubject = .init(.custom)
+        case .none:
+            selectedGasSpeedSubject = .init(configurator.selectedGasSpeed)
         }
-    }
-    var gasPriceWarning: TransactionConfigurator.GasPriceWarning? {
-        return configurator.gasPriceWarning(forConfiguration: configurationToEdit.configuration)
+
+        updateInViewModel = UpdateInViewModel(gasPriceEstimator: gasPriceEstimator)
     }
 
-    var gasLimitWarning: TransactionConfigurator.GasLimitWarning? {
-        return configurator.gasLimitWarning(forConfiguration: configurationToEdit.configuration)
+    func transform(input: ConfigureTransactionViewModelInput) -> ConfigureTransactionViewModelOutput {
+        let gasPriceViewModel = editTransactionViewModel.gasPriceViewModel
+
+        let baseEstimates = Publishers.CombineLatest(gasPriceEstimator.estimatesPublisher, configurator.$gasLimit)
+            .map { self.buildGasViewModels(estimates: $0.0, gasLimit: $0.1.value) }
+
+        let customEstimate = Publishers.CombineLatest(gasPriceViewModel.gasPricePublisher, editTransactionViewModel.$gasLimit)
+            .map { (gasSpeed: GasSpeed.custom, gasPrice: $0.0.value, gasLimit: $0.1) }
+
+        let estimates = Publishers.CombineLatest3(baseEstimates, customEstimate, selectedGasSpeedSubject)
+            .map { baseEstimates, customEstimate, selected -> (estimates: [GasSpeedViewModel], selected: GasSpeed) in
+                return (estimates: baseEstimates + [customEstimate], selected: selected)
+            }
+
+        let viewState = Publishers.CombineLatest(estimates, etherCurrencyRate())
+            .map { estimates, rate in
+                let viewModels = estimates.estimates.map { self.buildGasSpeedViewModel(viewModel: $0, selectedSpeed: estimates.selected, rate: rate) }
+
+                return ConfigureTransactionViewModel.ViewState(
+                    gasSpeedViewModels: viewModels,
+                    isEditTransactionHidden: estimates.selected != .custom)
+            }
+
+        let didSave = input.saveSelected
+            .filter { _ in self.save() }
+
+        let gasPriceWarning = gasPriceViewModel.gasPricePublisher
+            .map { $0.warnings.compactMap { $0 as? TransactionConfigurator.GasPriceWarning }.first }
+
+        return .init(
+            gasPriceWarning: gasPriceWarning.eraseToAnyPublisher(),
+            viewState: viewState.eraseToAnyPublisher(),
+            didSave: didSave.eraseToAnyPublisher())
     }
 
-    var gasFeeWarning: TransactionConfigurator.GasFeeWarning? {
-        return configurator.gasFeeWarning(forConfiguration: configurationToEdit.configuration)
-    }
-
-    var gasViewModel: GasViewModel {
-        let rate = coinTicker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
-        return GasViewModel(fee: totalFee, symbol: server.symbol, rate: rate, formatter: EtherNumberFormatter.full)
-    }
-
-    var title: String {
-        return R.string.localizable.configureTransactionNavigationBarTitle()
-    }
-
-    var isDataInputHidden: Bool {
-        switch transactionType {
-        case .nativeCryptocurrency, .prebuilt:
-            return false
-        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+    private func save() -> Bool {
+        switch selectedGasSpeedSubject.value {
+        case .custom:
+            return editTransactionViewModel.save()
+        case .standard, .fast, .rapid, .slow:
+            configurator.gasPriceEstimator.set(gasSpeed: selectedGasSpeedSubject.value)
             return true
         }
     }
 
-    var gasLimitSliderViewModel: SlidableTextFieldViewModel {
-        return .init(
-            value: configurationToEdit.gasLimitRawValue,
-            minimumValue: configurationToEdit.defaultMinGasLimit,
-            maximumValue: configurationToEdit.maxGasLimit)
+    func select(gasSpeed: GasSpeed) {
+        guard selectedGasSpeedSubject.value != gasSpeed else { return }
+        selectedGasSpeedSubject.value = gasSpeed
     }
 
-    var gasPriceSliderViewModel: SlidableTextFieldViewModel {
-        return .init(
-            value: configurationToEdit.gasPriceRawValue,
-            minimumValue: configurationToEdit.defaultMinGasPrice,
-            maximumValue: configurationToEdit.maxGasPrice)
+    private func etherCurrencyRate() -> AnyPublisher<CurrencyRate?, Never> {
+        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+        struct NoRateError: Error {}
+        return service.tokenViewModelPublisher(for: etherToken)
+            .map { $0?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } }
+            .eraseToAnyPublisher()
     }
 
-    var nonceViewModel: TextFieldViewModel {
-        let placeholder = R.string.localizable.configureTransactionNonceLabelTitle()
-        let value = configurationToEdit.nonceRawValue.flatMap { String($0) }
-
-        return .init(placeholder: placeholder, value: value ?? "", keyboardType: .numberPad)
-    }
-
-    var dataViewModel: TextFieldViewModel {
-        let placeholder = R.string.localizable.configureTransactionDataLabelTitle()
-
-        return .init(placeholder: placeholder, value: configurationToEdit.dataRawValue)
-    }
-
-    var totalFeeViewModel: TextFieldViewModel {
-        let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
-
-        return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
-    }
-
-    var sections: [Section] {
-        switch selectedGasSpeed {
-        case .standard, .slow, .fast, .rapid:
-            return [.configurations]
-        case .custom:
-            return [.configurations, .custom]
+    private func buildGasViewModels(estimates: GasEstimates, gasLimit: BigUInt) -> [GasSpeedViewModel] {
+        return allGasSpeeds.map { gasSpeed -> GasSpeedViewModel in
+            let gasPrice = estimates[gasSpeed].flatMap { GasPrice.legacy(gasPrice: $0) }
+            return (gasSpeed: gasSpeed, gasPrice: gasPrice, gasLimit: gasLimit)
         }
     }
 
-    var editableConfigurationViews: [ConfigureTransactionViewModel.ViewType] {
-        var views: [ConfigureTransactionViewModel.ViewType] = [
-            .header(string: R.string.localizable.configureTransactionHeaderGasPrice()), .field(.gasPrice),
-            .header(string: R.string.localizable.configureTransactionHeaderGasLimit()), .field(.gasLimit),
-            .field(.nonce)
-        ]
+    private func buildGasSpeedViewModel(viewModel: GasSpeedViewModel, selectedSpeed: GasSpeed, rate: CurrencyRate?) -> GasSpeedViewModelType {
+        let isSelected = selectedSpeed == viewModel.gasSpeed
+        let gasPrice: GasPrice
+        let gasLimit: BigUInt
 
-        if !isDataInputHidden {
-            views += [.field(.transactionData)]
-        }
-
-        views += [.field(.totalFee)]
-        
-        return views
-    }
-
-    init(configurator: TransactionConfigurator,
-         recoveryMode: ConfigureTransactionViewModel.RecoveryMode,
-         service: TokensProcessingPipeline) {
-        
-        let configurations = configurator.configurations
-        self.gasSpeedsList = ConfigureTransactionViewModel.sortedGasSpeedList(fromConfigurations: configurations)
-        self.configurator = configurator
-        self.configurations = configurations
-        self.transactionType = configurator.transaction.transactionType
-        self.recoveryMode = recoveryMode
-        self.service = service
-        switch recoveryMode {
-        case .invalidNonce:
-            selectedGasSpeed = .custom
-        case .none:
-            selectedGasSpeed = configurator.selectedGasSpeed
-        }
-        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom, server: configurator.session.server)
-    }
-
-    static func sortedGasSpeedList(fromConfigurations configurations: TransactionConfigurations) -> [GasSpeed] {
-        let available = configurations.types
-        let all: [GasSpeed] = [.slow, .standard, .fast, .rapid, .custom]
-        return all.filter { available.contains($0) }
-    }
-
-    func gasSpeedViewModel(gasSpeed: GasSpeed) -> GasSpeedViewModelType {
-        let isSelected = selectedGasSpeed == gasSpeed
-        let configuration = configurations[gasSpeed]!
-        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
+//        switch viewModel.gasSpeed {
+//        case .custom:
+//            gasPrice = editTransactionViewModel.gasPriceViewModel.gasPrice.value
+//            gasLimit = editTransactionViewModel.gasLimit
+//        case .standard, .fast, .rapid, .slow:
+        guard let value = viewModel.gasPrice else { return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed) }
+        gasPrice = value
+        gasLimit = viewModel.gasLimit//configurator.gasLimit.value
+//        }
 
         return LegacyGasSpeedViewModel(
-            gasPrice: configuration.gasPrice,
-            gasLimit: configuration.gasLimit,
-            gasSpeed: gasSpeed,
+            gasPrice: gasPrice.max,
+            gasLimit: gasLimit,
+            gasSpeed: viewModel.gasSpeed,
             rate: rate,
             symbol: server.symbol,
-            isSelected: isSelected)
+            isSelected: isSelected,
+            isHidden: false)
     }
 }
 
 extension ConfigureTransactionViewModel {
+    typealias GasSpeedViewModel = (gasSpeed: GasSpeed, gasPrice: GasPrice?, gasLimit: BigUInt)
 
-    enum Section: Int, CaseIterable {
-        case configurations
-        case custom
+    struct ViewState {
+        let title: String = R.string.localizable.configureTransactionNavigationBarTitle()
+        let gasSpeedViewModels: [GasSpeedViewModelType]
+        let isEditTransactionHidden: Bool
     }
-
-    enum FieldType {
-        case gasLimit
-        case gasPrice
-        case nonce
-        case transactionData
-        case totalFee
-    }
-
-    enum ViewType {
-        case header(string: String)
-        case field(FieldType)
-    }
-
 }

@@ -143,7 +143,7 @@ extension Decimal {
         self.init(bigInt: bigInt, decimals: units.decimals)
     }
 
-    public init?(bigUInt: BigUInt, decimals: Int) {
+    public init?(bigUInt: BigUInt, decimals: Int = 0) {
         guard let significand = Decimal(string: bigUInt.description, locale: .en_US) else {
             return nil
         }
@@ -177,11 +177,11 @@ extension Decimal {
         toBigUInt(decimals: units.decimals)
     }
 
-    public func toBigInt(decimals: Int) -> BigInt? {
+    public func toBigInt(decimals: Int = 0) -> BigInt? {
         return BigInt(roundedString(decimal: decimals))
     }
 
-    public func toBigUInt(decimals: Int) -> BigUInt? {
+    public func toBigUInt(decimals: Int = 0) -> BigUInt? {
         return toBigInt(decimals: decimals).flatMap { BigUInt($0) }
     }
 

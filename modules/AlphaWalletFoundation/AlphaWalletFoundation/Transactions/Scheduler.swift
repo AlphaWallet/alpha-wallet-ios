@@ -23,17 +23,32 @@ protocol SchedulerProtocol {
 
 final class Scheduler: SchedulerProtocol {
     private lazy var timer = CombineTimer(interval: provider.interval)
+    private let countdownTimer = CombineTimer(interval: 1)
     private let reachability: ReachabilityManagerProtocol
     private let provider: SchedulerProvider
-    private lazy var queue = DispatchQueue(label: "com.\(provider.name).scheduler.updateQueue")
+    private lazy var queue = RunLoop.main
     private var cancelable = Set<AnyCancellable>()
     private var schedulerCancelable: AnyCancellable?
     private var isRunning: Bool = false
     private var scheduledTaskCancelable: AnyCancellable?
 
-    init(provider: SchedulerProvider, reachability: ReachabilityManagerProtocol = ReachabilityManager()) {
+    @Published var state: Scheduler.State = .idle
+
+    init(provider: SchedulerProvider,
+         reachability: ReachabilityManagerProtocol = ReachabilityManager(),
+         useCountdownTimer: Bool = false) {
+
         self.reachability = reachability
         self.provider = provider
+
+        if useCountdownTimer {
+            countdownTimer.publisher
+                .compactMap { _ -> Scheduler.State? in
+                    guard case .tick(let value) = self.state, value - 1 >= 0 else { return nil }
+                    return Scheduler.State.tick(value - 1)
+                }.assign(to: \.state, on: self)
+                .store(in: &cancelable)
+        }
     }
 
     func start() {
@@ -46,6 +61,11 @@ final class Scheduler: SchedulerProtocol {
                 self?.schedulerCancelable = self?.runSchedulerCycleWithInitialCall()
             }.store(in: &cancelable)
     }
+    
+    private func resetCountdownCounter() {
+        self.state = .tick(Int(provider.interval))
+        countdownTimer.interval = 1
+    }
 
     func resume() {
         guard reachability.isReachable else { return }
@@ -57,6 +77,7 @@ final class Scheduler: SchedulerProtocol {
     func cancel() {
         cancelScheduledTask()
         cancelScheduler()
+        state = .idle
     }
 
     private func cancelScheduler() {
@@ -73,9 +94,19 @@ final class Scheduler: SchedulerProtocol {
         isRunning = true
 
         cancelScheduledTask()
+        state = .loading
         scheduledTaskCancelable = provider.operation
-            .sink(receiveCompletion: { [weak self] _ in
+            .receive(on: queue)
+            .sink(receiveCompletion: { [weak self] result in
                 self?.isRunning = false
+                switch result {
+                case .failure(let error):
+                    self?.state = .done(.failure(error))
+                case .finished:
+                    self?.state = .done(.success(()))
+                }
+
+                self?.resetCountdownCounter()
                 self?.schedulerCancelable = self?.runNewSchedulerCycle()
             }, receiveValue: {})
     }
@@ -83,13 +114,20 @@ final class Scheduler: SchedulerProtocol {
     private func runSchedulerCycleWithInitialCall() -> AnyCancellable {
         return timer.publisher
             .prepend(())
-            .receive(on: queue)
             .sink { [weak self] _ in self?.onTimedCall() }
     }
 
     private func runNewSchedulerCycle() -> AnyCancellable {
         return timer.publisher
-            .receive(on: queue)
             .sink { [weak self] _ in self?.onTimedCall() }
+    }
+}
+
+extension Scheduler {
+    enum State {
+        case idle
+        case tick(Int)
+        case loading
+        case done(Result<Void, Error>)
     }
 }

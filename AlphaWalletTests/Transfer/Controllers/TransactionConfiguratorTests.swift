@@ -17,7 +17,7 @@ class TransactionConfiguratorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
-        XCTAssertEqual(gasPrice, configurator.currentConfiguration.gasPrice)
+        XCTAssertEqual(gasPrice, configurator.gasPriceEstimator.gasPrice.value.max)
     }
 
     func testMinGasPrice() {
@@ -30,7 +30,7 @@ class TransactionConfiguratorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
-        XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.currentConfiguration.gasPrice)
+        XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.gasPriceEstimator.gasPrice.value.max)
     }
 
     func testMaxGasPrice() {
@@ -43,7 +43,7 @@ class TransactionConfiguratorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
-        XCTAssertEqual(GasPriceConfiguration.maxPrice, configurator.currentConfiguration.gasPrice)
+        XCTAssertEqual(GasPriceConfiguration.maxPrice, configurator.gasPriceEstimator.gasPrice.value.max)
     }
 
     func testSendEtherGasPriceAndLimit() {
@@ -55,8 +55,8 @@ class TransactionConfiguratorTests: XCTestCase {
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
-        XCTAssertEqual(BigUInt(GasPriceConfiguration.defaultPrice), configurator.currentConfiguration.gasPrice)
+        XCTAssertEqual(BigUInt(GasPriceConfiguration.defaultPrice), configurator.gasPriceEstimator.gasPrice.value.max)
         //gas limit is always 21k for native ether transfers
-        XCTAssertEqual(BigUInt(21000), configurator.currentConfiguration.gasLimit)
+        XCTAssertEqual(BigUInt(21000), configurator.gasLimit.value)
     }
 }

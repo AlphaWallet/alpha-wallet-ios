@@ -9,6 +9,16 @@ import UIKit
 import BigInt
 import AlphaWalletFoundation
 
+struct UnavailableGasSpeedViewModel: GasSpeedViewModelType {
+    var gasSpeed: GasSpeed
+    var isHidden: Bool = true
+    var accessoryIcon: UIImage? { return nil }
+    var titleAttributedString: NSAttributedString? { return nil }
+    var detailsAttributedString: NSAttributedString? { return nil }
+    var gasPriceAttributedString: NSAttributedString? { return nil }
+    var estimatedTimeAttributedString: NSAttributedString? { return nil }
+}
+
 struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     let gasPrice: BigUInt
     let gasLimit: BigUInt
@@ -17,7 +27,8 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     let symbol: String
     var title: String { gasSpeed.title }
     let isSelected: Bool
-
+    let isHidden: Bool
+    
     private var gasFeeString: String {
         let fee = gasPrice * gasLimit
         let feeString = EtherNumberFormatter.short.string(from: fee)
@@ -82,9 +93,5 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Fonts.regular(size: 13)
         ])
-    }
-
-    var backgroundColor: UIColor {
-        return .clear
     }
 }

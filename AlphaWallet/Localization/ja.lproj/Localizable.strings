@@ -612,6 +612,7 @@
 "configureTransaction.barButton.useDefault" = "Use Default";
 "configureTransaction.header.gasPrice" = "Gas Price";
 "configureTransaction.header.gasLimit" = "Gas Limit";
+"configureTransaction.header.nextUpdateIn" = "Next update in:";
 "sendTransaction.error.possibleBinanceTestnetTimeout" = "Request has timed out. Please try again";
 "sendTransaction.error.rateLimited" = "There might have been too many requests. Please try again later";
 "sendTransaction.error.networkConnectionWasLost" = "The network connection was lost. Please try again";

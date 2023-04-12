@@ -7,7 +7,10 @@ public struct GasEstimates {
     private var others: [GasSpeed: BigUInt]
 
     public var standard: BigUInt
-
+    public var keys: [GasSpeed] {
+        others.keys.map { $0 }
+    }
+    
     public subscript(gasSpeed: GasSpeed) -> BigUInt? {
         get {
             switch gasSpeed {
@@ -36,5 +39,23 @@ public struct GasEstimates {
     public init(standard: BigUInt, others: [GasSpeed: BigUInt] = .init()) {
         self.others = others
         self.standard = standard
+    }
+
+    public var fastest: BigUInt? {
+        for each in GasSpeed.sortedThirdPartyFastestFirst {
+            if let config = others[each] {
+                return config
+            }
+        }
+        return nil
+    }
+
+    public var slowest: BigUInt? {
+        for each in GasSpeed.sortedThirdPartyFastestFirst.reversed() {
+            if let config = others[each] {
+                return config
+            }
+        }
+        return nil
     }
 }

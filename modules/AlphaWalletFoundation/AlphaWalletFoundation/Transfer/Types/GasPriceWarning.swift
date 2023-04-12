@@ -8,7 +8,7 @@
 import Foundation
 
 extension TransactionConfigurator {
-    public enum GasPriceWarning {
+    public enum GasPriceWarning: Warning {
         case tooHighCustomGasPrice
         case networkCongested
         case tooLowCustomGasPrice

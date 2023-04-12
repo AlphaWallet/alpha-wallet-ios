@@ -612,6 +612,7 @@
 "configureTransaction.barButton.useDefault" = "Use Default";
 "configureTransaction.header.gasPrice" = "Tapahtumamaksu";
 "configureTransaction.header.gasLimit" = "Tapahtumamaksun yläraja";
+"configureTransaction.header.nextUpdateIn" = "Next update in:";
 "sendTransaction.error.possibleBinanceTestnetTimeout" = "Aikaraja ylittyi. Yritä uudelleen.";
 "sendTransaction.error.rateLimited" = "Verkon kuormitus on liian suuri. Yritä myöhemmin uudelleen.";
 "sendTransaction.error.networkConnectionWasLost" = "Verkkoyhteys ei toimi. Yritä uudelleen.";

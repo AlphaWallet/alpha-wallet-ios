@@ -32,7 +32,7 @@ class ConfirmButtonViewModel {
         self.title = title
         
         //NOTE: prev impl wanted some delay after changing transaction configuration
-        Publishers.Merge(configurator.gasLimit.mapToVoid(), configurator.gasPrice.mapToVoid())
+        Publishers.Merge(configurator.$gasLimit.mapToVoid(), configurator.gasPriceEstimator.gasPricePublisher.mapToVoid())
             .handleEvents(receiveOutput: { [weak self] _ in self?.isButtonEnabled = false })
             .delay(for: .milliseconds(300), scheduler: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] _ in self?.isButtonEnabled = true })

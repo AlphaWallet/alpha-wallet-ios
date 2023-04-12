@@ -254,7 +254,6 @@
 		5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CF1465A1DCB44371BA9 /* ConsoleViewController.swift */; };
 		5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewModel.swift */; };
 		5E7C7669BBE6255A2377E070 /* SetSellTokensCardExpiryDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7962AE417E12F13FF58E /* SetSellTokensCardExpiryDateViewController.swift */; };
-		5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */; };
 		5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77685B78D5372F6C7CB0 /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift */; };
 		5E7C767848E46E079557A039 /* SeedPhraseCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C717B39E95B653F384AA0 /* SeedPhraseCellViewModel.swift */; };
 		5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D913DAA3322F1C7DD46 /* OpenSeaNonFungibleTokenCardRowViewModel.swift */; };
@@ -475,7 +474,15 @@
 		8717DA3B273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */; };
 		8717DA3D273AB19E002D3D66 /* WalletConnectRequestConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */; };
 		8717DA40273AC5C7002D3D66 /* WalletConnectV1Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */; };
+		8719394F29DC13BE000D377C /* EditTransactionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719394E29DC13BE000D377C /* EditTransactionViewController.swift */; };
 		8719395129DC5F36000D377C /* GasSpeedViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395029DC5F36000D377C /* GasSpeedViewModelType.swift */; };
+		8719395629E03A4B000D377C /* EditLegacyGasPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395529E03A4B000D377C /* EditLegacyGasPriceView.swift */; };
+		8719395829E03B4D000D377C /* EditLegacyGasPriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395729E03B4D000D377C /* EditLegacyGasPriceViewModel.swift */; };
+		8719395A29E04420000D377C /* EditEip1559GasFeeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395929E04420000D377C /* EditEip1559GasFeeView.swift */; };
+		8719395C29E04541000D377C /* EditTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395B29E04541000D377C /* EditTransactionViewModel.swift */; };
+		8719395E29E068B3000D377C /* UpdateInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395D29E068B3000D377C /* UpdateInView.swift */; };
+		8719396029E068D6000D377C /* UpdateInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719395F29E068D6000D377C /* UpdateInViewModel.swift */; };
+		8719396229E0977D000D377C /* EditEip1559GasFeeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8719396129E0977D000D377C /* EditEip1559GasFeeViewModel.swift */; };
 		871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */; };
 		871CE2E927DF80C800B1E1CF /* SelectableSlippageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */; };
 		871CE2EB27DF810100B1E1CF /* EditableSlippageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2EA27DF810100B1E1CF /* EditableSlippageView.swift */; };
@@ -1283,7 +1290,6 @@
 		5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewModel.swift; sourceTree = "<group>"; };
 		5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateTransferMagicLinkViewModel.swift; sourceTree = "<group>"; };
 		5E7C7F1B07B1403E6382B21F /* PromptBackupWalletAfterIntervalViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletAfterIntervalViewViewModel.swift; sourceTree = "<group>"; };
-		5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditedTransactionConfiguration.swift; sourceTree = "<group>"; };
 		5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionsOverridesViewController.swift; sourceTree = "<group>"; };
 		5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntExtensionsTests.swift; sourceTree = "<group>"; };
 		5E7C7F4F9F57A4B1834EB723 /* WalletQrCodeDonation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletQrCodeDonation.swift; sourceTree = "<group>"; };
@@ -1371,7 +1377,15 @@
 		8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandlerToAvoidMemoryLeak.swift; sourceTree = "<group>"; };
 		8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestConverter.swift; sourceTree = "<group>"; };
 		8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Provider.swift; sourceTree = "<group>"; };
+		8719394E29DC13BE000D377C /* EditTransactionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransactionViewController.swift; sourceTree = "<group>"; };
 		8719395029DC5F36000D377C /* GasSpeedViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedViewModelType.swift; sourceTree = "<group>"; };
+		8719395529E03A4B000D377C /* EditLegacyGasPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLegacyGasPriceView.swift; sourceTree = "<group>"; };
+		8719395729E03B4D000D377C /* EditLegacyGasPriceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLegacyGasPriceViewModel.swift; sourceTree = "<group>"; };
+		8719395929E04420000D377C /* EditEip1559GasFeeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEip1559GasFeeView.swift; sourceTree = "<group>"; };
+		8719395B29E04541000D377C /* EditTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransactionViewModel.swift; sourceTree = "<group>"; };
+		8719395D29E068B3000D377C /* UpdateInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInView.swift; sourceTree = "<group>"; };
+		8719395F29E068D6000D377C /* UpdateInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInViewModel.swift; sourceTree = "<group>"; };
+		8719396129E0977D000D377C /* EditEip1559GasFeeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEip1559GasFeeViewModel.swift; sourceTree = "<group>"; };
 		871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageView.swift; sourceTree = "<group>"; };
 		871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageViewModel.swift; sourceTree = "<group>"; };
 		871CE2EA27DF810100B1E1CF /* EditableSlippageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableSlippageView.swift; sourceTree = "<group>"; };
@@ -2474,6 +2488,7 @@
 				8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */,
 				87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */,
 				5E7C75273010A92461EE5CD7 /* SendTransactionErrorViewController.swift */,
+				8719394E29DC13BE000D377C /* EditTransactionViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2497,7 +2512,6 @@
 				87E2555124F52E5700F025F7 /* SlidableTextFieldViewModel.swift */,
 				87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */,
 				87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */,
-				5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */,
 				8757E5DD25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift */,
 				874C6D8225E3FF3B00AD8380 /* ConfirmationHeaderViewModel.swift */,
 				874D098F25EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift */,
@@ -2505,6 +2519,10 @@
 				5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */,
 				876C25E529CC92AF009A5396 /* ConfirmButtonViewModel.swift */,
 				8719395029DC5F36000D377C /* GasSpeedViewModelType.swift */,
+				8719395729E03B4D000D377C /* EditLegacyGasPriceViewModel.swift */,
+				8719395B29E04541000D377C /* EditTransactionViewModel.swift */,
+				8719395F29E068D6000D377C /* UpdateInViewModel.swift */,
+				8719396129E0977D000D377C /* EditEip1559GasFeeViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3438,6 +3456,9 @@
 				874D099525EE33B600A58EF2 /* ScrollableStackView.swift */,
 				874D099725EE33E000A58EF2 /* SelfResizedTextView.swift */,
 				5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */,
+				8719395529E03A4B000D377C /* EditLegacyGasPriceView.swift */,
+				8719395929E04420000D377C /* EditEip1559GasFeeView.swift */,
+				8719395D29E068B3000D377C /* UpdateInView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5098,6 +5119,7 @@
 				290B2B5F1F9177860053C83E /* UIImage.swift in Sources */,
 				8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */,
 				8775728C282E8FDC00EAD907 /* SvgImageView.swift in Sources */,
+				8719394F29DC13BE000D377C /* EditTransactionViewController.swift in Sources */,
 				872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */,
 				87BC890E26B7EDC6005482F4 /* WalletSummaryView.swift in Sources */,
 				8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */,
@@ -5108,6 +5130,7 @@
 				87F15AF727F1EB7D00EB9787 /* SwapStepView.swift in Sources */,
 				879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */,
 				874ED69727DF3685001AB374 /* SlippageView.swift in Sources */,
+				8719395629E03A4B000D377C /* EditLegacyGasPriceView.swift in Sources */,
 				87BBF9962563DD7600FF4846 /* SignMessageCoordinatorBridgeToPromise.swift in Sources */,
 				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
 				8757E5E425DE5EC400812392 /* AcceptProposalCoordinator.swift in Sources */,
@@ -5298,6 +5321,7 @@
 				5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */,
 				87931AD22968571F00887810 /* WalletConnectV1Client.swift in Sources */,
 				5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */,
+				8719395E29E068B3000D377C /* UpdateInView.swift in Sources */,
 				874ED6A427DF53FD001AB374 /* SwapOptionsViewModel.swift in Sources */,
 				021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */,
 				874ED67527D79653001AB374 /* PupupAction.swift in Sources */,
@@ -5533,6 +5557,7 @@
 				8737850228DB5DBF00CE836F /* SwapToolCollectionViewCell.swift in Sources */,
 				5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */,
 				5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */,
+				8719396029E068D6000D377C /* UpdateInViewModel.swift in Sources */,
 				5E7C79284D45EF4C5440E546 /* EnabledServersCoordinator.swift in Sources */,
 				5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
@@ -5545,6 +5570,7 @@
 				874D099425EE339700A58EF2 /* TypedDataView.swift in Sources */,
 				5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */,
 				5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */,
+				8719395C29E04541000D377C /* EditTransactionViewModel.swift in Sources */,
 				8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */,
 				875F867F27ABC7A60071ABD1 /* NonFungibleTraitViewModel.swift in Sources */,
 				87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */,
@@ -5625,6 +5651,7 @@
 				8739BBCD26CD298B0045CFED /* NFTAssetSelectionViewModel.swift in Sources */,
 				875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */,
 				873784FE28DB5D3000CE836F /* SelectedSwapToolsCollectionView.swift in Sources */,
+				8719395829E03B4D000D377C /* EditLegacyGasPriceViewModel.swift in Sources */,
 				87E1A5EF2837ACC700E98555 /* TokenHistoryChartViewModel.swift in Sources */,
 				5E7C721B569E1CD1C68295F6 /* LayoutConstraintsWrapper.swift in Sources */,
 				871E684324E56A4200F220A7 /* TransactionConfirmationHeaderView.swift in Sources */,
@@ -5658,6 +5685,7 @@
 				5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */,
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				879FD3A1273BF64900D9747D /* WalletConnectV2Provider.swift in Sources */,
+				8719396229E0977D000D377C /* EditEip1559GasFeeViewModel.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,
 				8713401128B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift in Sources */,
 				02645122277206C0009260DC /* TableViewSection.swift in Sources */,
@@ -5671,7 +5699,6 @@
 				879E1E46264C072D006CD362 /* TokenInfoHeaderView.swift in Sources */,
 				5E7C710F30F8EAC43A706500 /* DefaultActivityViewModel.swift in Sources */,
 				8757E5DE25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift in Sources */,
-				5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
 				8757E5E025DE5A9D00812392 /* AcceptProposalViewController.swift in Sources */,
@@ -5697,6 +5724,7 @@
 				5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */,
 				02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */,
 				5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */,
+				8719395A29E04420000D377C /* EditEip1559GasFeeView.swift in Sources */,
 				8793A49E291A5DA100BCF849 /* ChangeCurrencyViewModel.swift in Sources */,
 				8737851428DD8A6B00CE836F /* SwapRouteSummaryViewModel.swift in Sources */,
 				879F185526E74042000602F2 /* NFTCollectionInfoPageView.swift in Sources */,
