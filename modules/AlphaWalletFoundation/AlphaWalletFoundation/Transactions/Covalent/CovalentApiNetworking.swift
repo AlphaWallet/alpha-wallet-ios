@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import SwiftyJSON 
+import SwiftyJSON
 import Combine
 import AlphaWalletCore
 
@@ -70,7 +70,7 @@ public class CovalentApiNetworking: ApiNetworking {
 }
 
 extension CovalentApiNetworking {
-    
+
     struct TransactionsRequest: URLRequestConvertible {
         let baseUrl: URL
         let walletAddress: AlphaWallet.Address

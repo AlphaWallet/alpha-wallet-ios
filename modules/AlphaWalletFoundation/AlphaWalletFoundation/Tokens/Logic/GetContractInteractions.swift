@@ -66,7 +66,7 @@ class TransactionsNetworkProvider {
     init(session: WalletSession,
          transporter: ApiTransporter,
          transactionBuilder: TransactionBuilder) {
-        
+
         self.walletAddress = session.account.address
         self.transactionBuilder = transactionBuilder
         self.transporter = transporter

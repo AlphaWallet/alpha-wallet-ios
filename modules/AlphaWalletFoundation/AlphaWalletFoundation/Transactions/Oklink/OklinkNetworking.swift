@@ -111,7 +111,7 @@ public class OklinkApiNetworking: ApiNetworking {
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
-        
+
         let request = TransactionsRequest(
             baseUrl: baseUrl,
             walletAddress: walletAddress,
@@ -307,7 +307,7 @@ public class OklinkApiNetworking: ApiNetworking {
                 return values
             }.eraseToAnyPublisher()
     }
-    
+
 }
 
 fileprivate extension TransactionState {
@@ -377,7 +377,7 @@ extension OklinkApiNetworking {
                 throw URLError(.badURL)
             }
             components.path = "/api/v5/explorer/address/transaction-list"
-            
+
             let url = try components.asURL()
             var headers = headers
             headers.add(name: "Ok-Access-Key", value: apiKey)
