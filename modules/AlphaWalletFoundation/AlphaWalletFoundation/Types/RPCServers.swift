@@ -861,7 +861,9 @@ public enum RPCServer: Hashable, CaseIterable {
     var rpcNodeBatchSupport: RpcNodeBatchSupport {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet: return .noBatching
-        case .xDai: return .batch(1000)
+        //Do not change more than 10 because rpc.ankr.com/gnosis doesn't support that many eth_getLogs in a batch despite it supporting batching up to 1000 for other RPC methods
+        //TODO: One improvement is to modify the batcher to check that it doesn't exclude X eth_getLogs, but still allow a higher batch limit for other RPC methods
+        case .xDai: return .batch(10)
         case .cronosMainnet: return .batch(5)
         //Infura's. Can do more, but way too slow
         case .main, .goerli, .polygon, .mumbai_testnet, .arbitrum, .arbitrumGoerli, .palm, .palmTestnet, .optimistic, .optimismGoerli, .okx: return .batch(100)
