@@ -36,9 +36,9 @@ class EditTransactionViewModel {
 
     lazy var gasLimitSliderViewModel: SlidableTextFieldViewModel = {
         return SlidableTextFieldViewModel(
-            value: (Decimal(bigUInt: configurator.gasLimit.value, decimals: 0) ?? .zero).floatValue ?? .zero,
-            minimumValue: (Decimal(bigUInt: GasLimitConfiguration.minGasLimit, decimals: 0) ?? .zero).floatValue ?? .zero,
-            maximumValue: (Decimal(bigUInt: GasLimitConfiguration.maxGasLimit(forServer: server), decimals: 0) ?? .zero).floatValue ?? .zero)
+            value: (Decimal(bigUInt: configurator.gasLimit.value, decimals: 0) ?? .zero).doubleValue,
+            minimumValue: (Decimal(bigUInt: GasLimitConfiguration.minGasLimit, decimals: 0) ?? .zero).doubleValue,
+            maximumValue: (Decimal(bigUInt: GasLimitConfiguration.maxGasLimit(forServer: server), decimals: 0) ?? .zero).doubleValue)
     }()
 
     lazy var nonceViewModel: TextFieldViewModel = {
@@ -83,9 +83,8 @@ class EditTransactionViewModel {
     }
 
     func transform(input: EditTransactionViewModelInput) -> EditTransactionViewModelOutput {
-
         let gasLimit = gasLimitSliderViewModel.$value
-            .map { Decimal(float: $0)?.toBigUInt(decimals: 0) ?? BigUInt() }
+            .map { Decimal($0).toBigUInt(decimals: 0) ?? BigUInt() }
 
         let nonce = nonceViewModel.$text
             .map { $0.flatMap { Int($0) } }
@@ -163,7 +162,7 @@ class EditTransactionViewModel {
 
     private func handleConfiguratorUpdates() {
         configurator.$gasLimit
-            .map { (Decimal(bigUInt: $0.value) ?? .zero).floatValue ?? .zero }
+            .map { Decimal(bigUInt: $0.value, decimals: 0, fallback: .zero).doubleValue }
             .sink { [weak gasLimitSliderViewModel] in gasLimitSliderViewModel?.set(value: $0) }
             .store(in: &cancellable)
 

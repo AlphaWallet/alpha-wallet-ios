@@ -37,7 +37,7 @@ class SlidableTextField: UIView {
 
         return textField
     }()
-    private let textSubject = PassthroughSubject<Float, Never>()
+    private let textSubject = PassthroughSubject<Double, Never>()
     private var cancellable = Set<AnyCancellable>()
 
     var returnKeyType: UIReturnKeyType {
@@ -61,8 +61,10 @@ class SlidableTextField: UIView {
     }
 
     weak var delegate: SlidableTextFieldDelegate?
+    private let viewModel: SlidableTextFieldViewModel
 
     init(viewModel: SlidableTextFieldViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
 
         let spacing: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
@@ -144,7 +146,8 @@ extension SlidableTextField: TextFieldDelegate {
         if newString.isEmpty {
             return true
         } else {
-            guard let value = DecimalParser().parseAnyDecimal(from: newString), let value = value.floatValue else { return false }
+
+            guard let value = viewModel.convertToDouble(string: newString) else { return false }
             textSubject.send(value)
             return true
         }

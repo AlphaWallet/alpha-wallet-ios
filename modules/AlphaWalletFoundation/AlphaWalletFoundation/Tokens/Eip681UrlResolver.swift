@@ -139,6 +139,14 @@ extension Decimal {
         self.init(bigUInt: bigUInt, decimals: units.decimals)
     }
 
+    public init(bigUInt: BigUInt, units: EthereumUnit, fallback: Double) {
+        if let significand = Decimal(string: bigUInt.description, locale: .en_US) {
+            self.init(sign: .plus, exponent: -units.decimals, significand: significand)
+        } else {
+            self.init(double: fallback)
+        }
+    }
+
     public init?(bigInt: BigInt, units: EthereumUnit) {
         self.init(bigInt: bigInt, decimals: units.decimals)
     }
@@ -148,6 +156,14 @@ extension Decimal {
             return nil
         }
         self.init(sign: .plus, exponent: -decimals, significand: significand)
+    }
+
+    public init(bigUInt: BigUInt, decimals: Int = 0, fallback: Double) {
+        if let significand = Decimal(string: bigUInt.description, locale: .en_US) {
+            self.init(sign: .plus, exponent: -decimals, significand: significand)
+        } else {
+            self.init(double: fallback)
+        }
     }
 
     public init(double: Double) {
