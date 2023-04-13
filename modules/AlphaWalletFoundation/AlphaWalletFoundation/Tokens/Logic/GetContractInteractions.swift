@@ -21,22 +21,11 @@ class GetContractInteractions {
         let request = GetContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20)
         return networkService
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { self.log(response: $0) })
+            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
             .receive(on: DispatchQueue.global())
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data)) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
-    }
-
-    private func log(response: URLRequest.Response) {
-        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
-        case .failure:
-            let json = try? JSON(response.data)
-            let message = json.flatMap { $0["message"].stringValue } ?? ""
-            infoLog("[API] request failure with status code: \(response.response.statusCode), message: \(message)")
-        case .success:
-            break
-        }
     }
 }
 
