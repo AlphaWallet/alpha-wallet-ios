@@ -13,7 +13,6 @@ extension Decimal {
     }
 }
 
-
 public extension Float {
     /// Max double value.
     static var max: Double {
