@@ -48,6 +48,7 @@ extension Constants {
         static let polygonScanExplorerApiKey: String? = env("POLYGONSCANEXPLORERAPIKEY")
         static let avalancheExplorerApiKey = env("AVALANCHEEXPLORERAPIKEY")
         static let arbiscanExplorerApiKey = env("ARBISCANEXPLORERAPIKEY")
+        static let xDaiExplorerKey = env("XDAIEXPLORERKEY")
         static let paperTrail = (host: env("PAPERTRAILHOST") ?? "", port: (env("PAPERTRAILPORT") ?? "").toInt() ?? 0)
         static let openseaKey = env("OPENSEAKEY") ?? nil
         static let rampApiKey = env("RAMPAPIKEY") ?? "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
