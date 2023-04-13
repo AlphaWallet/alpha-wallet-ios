@@ -258,7 +258,7 @@ public enum RPCServer: Hashable, CaseIterable {
             //TODO fix etherscan-compatible API endpoint
             case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/api"
             case .avalanche: return "https://api.snowtrace.io/api"
-            case .avalanche_testnet: return "https://api-testnet.snowtrace.io"
+            case .avalanche_testnet: return "https://api-testnet.snowtrace.io/api"
             case .polygon: return "https://api.polygonscan.com/api"
             case .mumbai_testnet: return "https://api-testnet.polygonscan.com/api"
             case .optimistic: return "https://api-optimistic.etherscan.io/api"
