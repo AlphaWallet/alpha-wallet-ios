@@ -64,7 +64,6 @@ fileprivate struct Erc1155TransferEvent: Comparable {
 public class Erc1155TokenIdsFetcher {
     private static let documentDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]).appendingPathComponent("erc1155TokenIds")
 
-    private let queue: DispatchQueue = .global(qos: .utility)
     //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
     private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [PassthroughSubject<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError>] = .init()
     private let blockNumberProvider: BlockNumberProvider

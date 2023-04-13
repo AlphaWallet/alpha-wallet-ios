@@ -175,8 +175,6 @@ final class EventSourceForActivities {
 
                     workers[request.token.contractAddress] = worker
                     self.workers[request.token.contractAddress] = worker
-
-                    worker.send(request: request)
                 }
             }
 
@@ -199,6 +197,7 @@ final class EventSourceForActivities {
                         return nil
                     case .update(let tokens, let deletionsIndices, let insertionsIndices, let modificationsIndices):
                         let insertions = insertionsIndices.map { tokens[$0] }
+                            .filter { $0.shouldDisplay }
                             .map { RequestOrCancellation.request(FetchRequest(token: $0, policy: .force)) }
 
                         let modifications = modificationsIndices.map { tokens[$0] }
@@ -265,15 +264,12 @@ final class EventSourceForActivities {
                 self.request = request
 
                 let timedFetch = timer.publisher.map { _ in self.request }.share()
-
-                let waitForCurrent = Publishers.Merge(timedFetch, subject)
-                    .filter { $0.policy == .waitForCurrent }
+                let timedOrWaitForCurrent = Publishers.Merge(timedFetch, subject.filter { $0.policy == .waitForCurrent })
                     .debounce(for: .seconds(debouce), scheduler: RunLoop.main)
+                let force = subject.filter { $0.policy == .force }
+                let initial = Just(request)
 
-                let force = Publishers.Merge(timedFetch, subject)
-                    .filter { $0.policy == .force }
-
-                cancellable = Publishers.Merge(waitForCurrent, force)
+                cancellable = Publishers.Merge3(initial, force, timedOrWaitForCurrent)
                     .receive(on: DispatchQueue.global())
                     .flatMap { [eventsFetcher] in eventsFetcher.fetchEvents(token: $0.token) }
                     .sink { _ in }
