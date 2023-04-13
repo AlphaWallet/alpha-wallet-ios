@@ -55,7 +55,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response in
@@ -94,7 +94,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -125,7 +125,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -156,7 +156,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in

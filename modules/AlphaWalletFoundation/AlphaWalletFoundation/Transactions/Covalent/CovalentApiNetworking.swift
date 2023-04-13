@@ -38,7 +38,7 @@ public class CovalentApiNetworking: ApiNetworking {
             blockSignedAtAsc: true)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { [server, paginationFilter] response -> TransactionsResponse<TransactionInstance> in
                 guard let json = try? JSON(data: response.data) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
