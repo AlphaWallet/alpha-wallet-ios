@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import SwiftyJSON 
+import SwiftyJSON
 import Combine
 import AlphaWalletCore
 
@@ -38,7 +38,7 @@ public class CovalentApiNetworking: ApiNetworking {
             blockSignedAtAsc: true)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { [server, paginationFilter] response -> TransactionsResponse<TransactionInstance> in
                 guard let json = try? JSON(data: response.data) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
@@ -70,7 +70,7 @@ public class CovalentApiNetworking: ApiNetworking {
 }
 
 extension CovalentApiNetworking {
-    
+
     struct TransactionsRequest: URLRequestConvertible {
         let baseUrl: URL
         let walletAddress: AlphaWallet.Address

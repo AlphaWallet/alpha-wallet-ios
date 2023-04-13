@@ -55,7 +55,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response in
@@ -94,7 +94,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -111,7 +111,7 @@ public class OklinkApiNetworking: ApiNetworking {
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
-        
+
         let request = TransactionsRequest(
             baseUrl: baseUrl,
             walletAddress: walletAddress,
@@ -125,7 +125,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -156,7 +156,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: TransactionsNetworkProvider.log)
+            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -307,7 +307,7 @@ public class OklinkApiNetworking: ApiNetworking {
                 return values
             }.eraseToAnyPublisher()
     }
-    
+
 }
 
 fileprivate extension TransactionState {
@@ -377,7 +377,7 @@ extension OklinkApiNetworking {
                 throw URLError(.badURL)
             }
             components.path = "/api/v5/explorer/address/transaction-list"
-            
+
             let url = try components.asURL()
             var headers = headers
             headers.add(name: "Ok-Access-Key", value: apiKey)
