@@ -210,7 +210,7 @@ public struct HomesteadSigner: TransactionSigner {
     }
 }
 
-func rlpHash(_ element: Any) -> Data? {
+fileprivate func rlpHash(_ element: Any) -> Data? {
     let sha3 = SHA3(variant: .keccak256)
     guard let data = RLP.encode(element) else {
         return nil
