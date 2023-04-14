@@ -27,7 +27,7 @@ open class BaseSessionsProvider: SessionsProvider {
     private let reachability: ReachabilityManagerProtocol
     private let wallet: Wallet
     private let eventsDataStore: NonActivityEventsDataStore
-
+    private let apiTransporterFactory: ApiTransporterFactory
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
     }
@@ -43,8 +43,10 @@ open class BaseSessionsProvider: SessionsProvider {
                 eventsDataStore: NonActivityEventsDataStore,
                 assetDefinitionStore: AssetDefinitionStore,
                 reachability: ReachabilityManagerProtocol,
-                wallet: Wallet) {
+                wallet: Wallet,
+                apiTransporterFactory: ApiTransporterFactory) {
 
+        self.apiTransporterFactory = apiTransporterFactory
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.reachability = reachability
@@ -109,6 +111,8 @@ open class BaseSessionsProvider: SessionsProvider {
             wallet: wallet,
             nftProvider: nftProvider)
 
+        let apiNetworking = buildApiNetworking(server: blockchain.server, wallet: wallet, ercTokenProvider: ercTokenProvider)
+
         return WalletSession(
             account: wallet,
             server: blockchain.server,
@@ -118,10 +122,66 @@ open class BaseSessionsProvider: SessionsProvider {
             importToken: importToken,
             blockchainProvider: blockchain,
             nftProvider: nftProvider,
-            tokenAdaptor: tokenAdaptor)
+            tokenAdaptor: tokenAdaptor,
+            apiNetworking: apiNetworking)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {
         sessionsSubject.value[safe: server]
+    }
+
+    private func buildApiNetworking(server: RPCServer, wallet: Wallet, ercTokenProvider: TokenProviderType) -> ApiNetworking {
+        let transporter = apiTransporterFactory.transporter(server: server)
+
+        switch server.transactionsSource {
+        case .etherscan:
+            let transactionBuilder = TransactionBuilder(
+                tokensDataStore: tokensDataStore,
+                server: server,
+                ercTokenProvider: ercTokenProvider)
+            
+            return EtherscanCompatibleApiNetworking(
+                server: server,
+                wallet: wallet,
+                transporter: transporter,
+                transactionBuilder: transactionBuilder)
+
+        case .covalent(let apiKey):
+            return CovalentApiNetworking(
+                server: server,
+                apiKey: apiKey,
+                transporter: transporter)
+
+        case .oklink(let apiKey):
+            let transactionBuilder = TransactionBuilder(
+                tokensDataStore: tokensDataStore,
+                server: server,
+                ercTokenProvider: ercTokenProvider)
+
+            return OklinkApiNetworking(
+                server: server,
+                apiKey: apiKey,
+                transporter: transporter,
+                ercTokenProvider: ercTokenProvider,
+                transactionBuilder: transactionBuilder)
+        }
+    }
+}
+
+public class ApiTransporterFactory {
+    private var transportes: [RPCServer: ApiTransporter] = [:]
+
+    public init(transportes: [RPCServer: ApiTransporter] = [:]) {
+        self.transportes = transportes
+    }
+
+    public func transporter(server: RPCServer) -> ApiTransporter {
+        if let transporter = transportes[server] {
+            return transporter
+        } else {
+            let transporter = BaseApiTransporter()
+            transportes[server] = transporter
+            return transporter
+        }
     }
 }

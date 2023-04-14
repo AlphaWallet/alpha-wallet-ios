@@ -39,17 +39,27 @@ struct UniqueNonEmptyContractsDecoder {
 }
 
 extension UniqueNonEmptyContracts {
-    init(json: JSON) {
-        let contracts: [(String, Int?)] = json["result"].map { _, transactionJson in
-            let blockNumber = transactionJson["blockNumber"].string.flatMap { Int($0) }
-            if transactionJson["input"] != "0x" {
+    init(json: JSON, tokenType: Eip20TokenType) {
+        let contracts: [(String, Int?)] = json["result"].compactMap { _, json -> (String, Int?)? in
+            let blockNumber = json["blockNumber"].string.flatMap { Int($0) }
+            //NOTE: safe check to avoid incompatible contract matching with token type, blockout api returns erc20 and erc721 for same url, so we need to filter retults
+            switch tokenType {
+            case .erc20:
+                guard json["tokenID"].string == nil else { return nil }
+            case .erc721:
+                guard json["tokenID"].stringValue.nonEmpty else { return nil }
+            case .erc1155:
+                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.nonEmpty else { return nil }
+            }
+
+            if json["input"] != "0x" {
                 //every transaction that has input is by default a transaction to a contract
                 //Note: etherscan API only returns contractAddress for this call
                 //if it is an initialisation of a contract
-                if transactionJson["contractAddress"].stringValue == "" {
-                    return (transactionJson["to"].stringValue, blockNumber)
+                if json["contractAddress"].stringValue == "" {
+                    return (json["to"].stringValue, blockNumber)
                 } else {
-                    return (transactionJson["contractAddress"].stringValue, blockNumber)
+                    return (json["contractAddress"].stringValue, blockNumber)
                 }
             }
             return ("", blockNumber)

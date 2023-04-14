@@ -33,4 +33,24 @@ public protocol ApiNetworking {
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+
+    func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
+                                startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+
+    func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
+                                 startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+
+    func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
+                                  startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
+
+    func normalTransactions(startBlock: Int,
+                            endBlock: Int,
+                            sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError>
+
+    func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
+
+    func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
+
+    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
 }
+

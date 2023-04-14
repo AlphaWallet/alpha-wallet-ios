@@ -15,6 +15,12 @@ public protocol TokensAutodetector: NSObjectProtocol {
     func start()
 }
 
+enum Eip20TokenType {
+    case erc20
+    case erc721
+    case erc1155
+}
+
 public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
@@ -23,9 +29,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let importToken: TokenImportable & TokenOrContractFetchable
     private let tokensDataStore: TokensDataStore
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
-    private lazy var getContractInteractions = GetContractInteractions(networkService: networkService)
     private let contractToImportStorage: ContractToImportStorage
-    private let networkService: NetworkService
     public var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
@@ -37,10 +41,8 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
          tokensDataStore: TokensDataStore,
          withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
          withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-         importToken: TokenImportable & TokenOrContractFetchable,
-         networkService: NetworkService) {
+         importToken: TokenImportable & TokenOrContractFetchable) {
 
-        self.networkService = networkService
         self.contractToImportStorage = contractToImportStorage
         self.importToken = importToken
         self.session = session
@@ -87,8 +89,15 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
         }
 
-        return getContractInteractions
-            .getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
+        func publisher(erc20: Bool, startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+            if erc20 {
+                return session.apiNetworking.erc20TokenInteractions(walletAddress: wallet, startBlock: startBlock)
+            } else {
+                return session.apiNetworking.erc721TokenInteractions(walletAddress: wallet, startBlock: startBlock)
+            }
+        }
+
+        return publisher(erc20: erc20, startBlock: startBlock)
             .map { data -> [AlphaWallet.Address] in
                 if let maxBlockNumber = data.maxBlockNumber {
                     if erc20 {

@@ -12,17 +12,17 @@ import Combine
 public final class TransactionBuilder {
     private typealias LocalizedOperation = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
 
-    private let tokensService: TokensService
-    private let ercProvider: TokenProviderType
+    private let tokensDataStore: TokensDataStore
+    private let ercTokenProvider: TokenProviderType
 
     let server: RPCServer
 
-    public init(tokensService: TokensService,
+    public init(tokensDataStore: TokensDataStore,
                 server: RPCServer,
-                tokenProvider: TokenProviderType) {
+                ercTokenProvider: TokenProviderType) {
 
-        self.ercProvider = tokenProvider
-        self.tokensService = tokensService
+        self.ercTokenProvider = ercTokenProvider
+        self.tokensDataStore = tokensDataStore
         self.server = server
     }
 
@@ -89,14 +89,14 @@ public final class TransactionBuilder {
     private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> {
         return Just(contract)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [tokensService, ercProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
-                if let token = tokensService.token(for: contract, server: server) {
+            .flatMap { [tokensDataStore, ercTokenProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
+                if let token = tokensDataStore.token(for: contract, server: server) {
                     return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
                 } else {
-                    let getContractName = ercProvider.getContractName(for: contract)
-                    let getContractSymbol = ercProvider.getContractSymbol(for: contract)
-                    let getDecimals = ercProvider.getDecimals(for: contract)
-                    let getTokenType = ercProvider.getTokenType(for: contract)
+                    let getContractName = ercTokenProvider.getContractName(for: contract)
+                    let getContractSymbol = ercTokenProvider.getContractSymbol(for: contract)
+                    let getDecimals = ercTokenProvider.getDecimals(for: contract)
+                    let getTokenType = ercTokenProvider.getTokenType(for: contract)
 
                     return Publishers.CombineLatest4(getContractName, getContractSymbol, getDecimals, getTokenType)
                         .map { (name: $0, symbol: $1, decimals: $2, tokenType: $3) }

@@ -110,49 +110,30 @@ public class TransactionsService {
                 tokensService: tokensService,
                 fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
                 ercTokenDetector: ercTokenDetector,
-                transporter: transporter)
+                apiNetworking: session.apiNetworking)
 
             provider.start()
 
             return provider
         case .covalent(let apiKey):
-            let transporter = BaseApiTransporter()
-            let networking = CovalentApiNetworking(
-                server: session.server,
-                apiKey: apiKey,
-                transporter: transporter)
-
             let provider = TransactionProvider(
                 session: session,
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
                 ercTokenDetector: ercTokenDetector,
-                networking: networking,
+                networking: session.apiNetworking,
                 defaultPagination: session.server.defaultTransactionsPagination)
 
             provider.start()
 
             return provider
         case .oklink(let apiKey):
-            let transporter = BaseApiTransporter()
-            let transactionBuilder = TransactionBuilder(
-                tokensService: tokensService,
-                server: session.server,
-                tokenProvider: session.tokenProvider)
-
-            let networking = OklinkApiNetworking(
-                server: session.server,
-                apiKey: apiKey,
-                transporter: transporter,
-                ercTokenProvider: session.tokenProvider,
-                transactionBuilder: transactionBuilder)
-
             let provider = TransactionProvider(
                 session: session,
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
                 ercTokenDetector: ercTokenDetector,
-                networking: networking,
+                networking: session.apiNetworking,
                 defaultPagination: session.server.defaultTransactionsPagination)
 
             provider.start()

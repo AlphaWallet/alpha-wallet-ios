@@ -136,8 +136,7 @@ public class AlphaWalletTokensService: TokensService {
             autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue,
             autoDetectTokensQueue: autoDetectTokensQueue,
             tokensDataStore: tokensDataStore,
-            balanceFetcher: balanceFetcher,
-            networkService: networkService)
+            balanceFetcher: balanceFetcher)
     }
 
     deinit {

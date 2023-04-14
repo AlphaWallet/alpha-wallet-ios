@@ -11,10 +11,9 @@ import Combine
 public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private lazy var tokensAutodetector: TokensAutodetector = {
         let contractToImportStorage = ContractToImportFileStorage(server: session.server)
-        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, tokensDataStore: tokensDataStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: session.importToken, networkService: networkService)
+        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, tokensDataStore: tokensDataStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: session.importToken)
         return autodetector
     }()
-    private let networkService: NetworkService
     private var cancelable = Set<AnyCancellable>()
     private let tokensDataStore: TokensDataStore
     private let autoDetectTransactedTokensQueue: OperationQueue
@@ -54,15 +53,13 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
                 autoDetectTransactedTokensQueue: OperationQueue,
                 autoDetectTokensQueue: OperationQueue,
                 tokensDataStore: TokensDataStore,
-                balanceFetcher: TokenBalanceFetcherType,
-                networkService: NetworkService) {
+                balanceFetcher: TokenBalanceFetcherType) {
 
         self.session = session
         self.tokensDataStore = tokensDataStore
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
         self.balanceFetcher = balanceFetcher
-        self.networkService = networkService
     }
 
     public func start() {

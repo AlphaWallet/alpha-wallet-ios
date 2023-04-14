@@ -22,6 +22,7 @@ public final class WalletSession: Equatable {
     public let blockchainProvider: BlockchainProvider
     public let nftProvider: NFTProvider
     public let tokenAdaptor: TokenAdaptor
+    public let apiNetworking: ApiNetworking
 
     public init(account: Wallet,
                 server: RPCServer,
@@ -31,8 +32,10 @@ public final class WalletSession: Equatable {
                 importToken: TokenImportable & TokenOrContractFetchable,
                 blockchainProvider: BlockchainProvider,
                 nftProvider: NFTProvider,
-                tokenAdaptor: TokenAdaptor) {
+                tokenAdaptor: TokenAdaptor,
+                apiNetworking: ApiNetworking) {
 
+        self.apiNetworking = apiNetworking
         self.tokenAdaptor = tokenAdaptor
         self.nftProvider = nftProvider
         self.analytics = analytics
