@@ -166,7 +166,8 @@ class FakeSessionsProvider: SessionsProvider {
             importToken: importToken,
             blockchainProvider: blockchain,
             nftProvider: FakeNftProvider(),
-            tokenAdaptor: tokenAdaptor)
+            tokenAdaptor: tokenAdaptor,
+            apiNetworking: FakeApiNetworking())
     }
 
     public func session(for server: RPCServer) -> WalletSession? {

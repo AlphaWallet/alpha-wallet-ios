@@ -223,8 +223,11 @@ class AppCoordinator: NSObject, Coordinator {
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
-
-    private lazy var tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher(), tokenGroupIdentifier: tokenGroupIdentifier, spamImage: R.image.spamSmall()!)
+    private let apiTransporterFactory = ApiTransporterFactory()
+    private lazy var tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(
+        networking: KingfisherImageFetcher(),
+        tokenGroupIdentifier: tokenGroupIdentifier,
+        spamImage: R.image.spamSmall()!)
 
     private let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
 
@@ -615,7 +618,8 @@ class AppCoordinator: NSObject, Coordinator {
             eventsDataStore: eventsDataStore,
             assetDefinitionStore: assetDefinitionStore,
             reachability: reachability,
-            wallet: wallet)
+            wallet: wallet,
+            apiTransporterFactory: apiTransporterFactory)
 
         sessionsProvider.start()
 

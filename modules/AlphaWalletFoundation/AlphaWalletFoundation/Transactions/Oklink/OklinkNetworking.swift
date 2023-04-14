@@ -55,7 +55,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
+            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response in
@@ -94,7 +94,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
+            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -125,7 +125,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
+            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -156,7 +156,7 @@ public class OklinkApiNetworking: ApiNetworking {
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { TransactionsNetworkProvider.log(response: $0) })
+            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
@@ -169,6 +169,37 @@ public class OklinkApiNetworking: ApiNetworking {
                         return TransactionsResponse<TransactionInstance>(transactions: transactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
+    }
+
+    public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+        return .empty()
+    }
+
+    public func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+        return .empty()
+    }
+
+    public func normalTransactions(startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
+        return .empty()
+    }
+
+    public func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), AlphaWalletCore.PromiseError> {
+        return .empty()
+    }
+
+    public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
+                                       startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+        return .empty()
+    }
+
+    public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
+                                        startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+        return .empty()
+    }
+
+    public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
+                                         startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+        return .empty()
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],

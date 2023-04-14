@@ -47,8 +47,7 @@ public class BaseApiTransporter: ApiTransporter {
 
     var maxPublishers: Int = 3//max concurrent tasks
 
-    public init(maxConcurrentOperationCount: Int = 10,
-                timeout: TimeInterval = 60) {
+    public init(timeout: TimeInterval = 60) {
 
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = timeout
