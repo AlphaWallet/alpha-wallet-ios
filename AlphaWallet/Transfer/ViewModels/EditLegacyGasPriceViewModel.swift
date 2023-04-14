@@ -40,9 +40,9 @@ class EditLegacyGasPriceViewModel: EditGasPriceViewModel {
 
     lazy var sliderViewModel: SlidableTextFieldViewModel = {
         return SlidableTextFieldViewModel(
-            value: (Decimal(bigUInt: gasPriceEstimator.gasPrice.value.max, units: UnitConfiguration.gasPriceUnit) ?? .zero).floatValue ?? .zero,
-            minimumValue: (Decimal(bigUInt: GasPriceConfiguration.minPrice, units: UnitConfiguration.gasPriceUnit) ?? .zero).floatValue ?? .zero,
-            maximumValue: (Decimal(bigUInt: GasPriceConfiguration.maxPrice(forServer: server), units: UnitConfiguration.gasPriceUnit) ?? .zero).floatValue ?? .zero)
+            value: Decimal(bigUInt: gasPriceEstimator.gasPrice.value.max, units: UnitConfiguration.gasPriceUnit, fallback: .zero).doubleValue,
+            minimumValue: Decimal(bigUInt: GasPriceConfiguration.minPrice, units: UnitConfiguration.gasPriceUnit, fallback: .zero).doubleValue,
+            maximumValue: Decimal(bigUInt: GasPriceConfiguration.maxPrice(forServer: server), units: UnitConfiguration.gasPriceUnit, fallback: .zero).doubleValue)
     }()
 
     init(gasPriceEstimator: LegacyGasPriceEstimator, server: RPCServer) {
@@ -59,29 +59,30 @@ class EditLegacyGasPriceViewModel: EditGasPriceViewModel {
         let gasPriceEstimator = gasPriceEstimator
 
         let gasPrice = sliderViewModel.$value
-            .map { Decimal(float: $0)?.toBigUInt(units: UnitConfiguration.gasPriceUnit) ?? BigUInt() }
+            .map { Decimal($0).toBigUInt(units: UnitConfiguration.gasPriceUnit) ?? BigUInt() }
             .map { [gasPriceEstimator] in gasPriceEstimator.validate(gasPrice: $0) }
 
         gasPrice.assign(to: \._gasPrice, on: self, ownership: .weak)
             .store(in: &cancellable)
 
-        gasPrice.compactMap { [weak self] in self?.mapGasPriceError(gasPrice: $0) }
+        gasPrice.compactMap { [weak self] in self?.buildTextFieldState($0) }
             .assign(to: \.status, on: sliderViewModel, ownership: .weak)
             .store(in: &cancellable)
 
         gasPriceEstimator.gasPricePublisher
-            .map { (Decimal(bigUInt: $0.value.max, units: UnitConfiguration.gasPriceUnit) ?? .zero).floatValue ?? .zero }
+            .map { Decimal(bigUInt: $0.value.max, units: UnitConfiguration.gasPriceUnit, fallback: .zero).doubleValue }
             .sink { [weak sliderViewModel] in sliderViewModel?.set(value: $0) }
             .store(in: &cancellable)
 
         return .init(title: Just(R.string.localizable.configureTransactionHeaderGasPrice()).eraseToAnyPublisher())
     }
 
-    private func mapGasPriceError(gasPrice: FillableValue<BigUInt>) -> TextField.TextFieldErrorState {
-        if let error = gasPrice.errors.first {
+    private func buildTextFieldState(_ value: FillableValue<BigUInt>) -> TextField.TextFieldErrorState {
+        if let error = value.errors.first {
             return .error(error.localizedDescription)
         }
-        if let _ = gasPrice.warnings.first {
+
+        if let _ = value.warnings.first {
             return .error("")
         }
         return .none

@@ -7,10 +7,11 @@
 
 import Foundation
 import Combine
+import AlphaWalletFoundation
 
 struct SlidableTextFieldViewModelInput {
     let sliderChanged: AnyPublisher<Float, Never>
-    let textChanged: AnyPublisher<Float, Never>
+    let textChanged: AnyPublisher<Double, Never>
 }
 
 struct SlidableTextFieldViewModelOutput {
@@ -20,30 +21,34 @@ struct SlidableTextFieldViewModelOutput {
 }
 
 class SlidableTextFieldViewModel {
-    @Published private var valueState: ValueState<Float>
-    private let defaultMinimumValue: Float
-    private let defaultMaximumValue: Float
-    private var overriddenMaxValue: Float?
-    private var maximumValue: Float { overriddenMaxValue ?? defaultMaximumValue }
-    private let setValueSubject = PassthroughSubject<Float, Never>()
+    @Published private var valueState: ValueState<Double>
+    private let defaultMinimumValue: Double
+    private let defaultMaximumValue: Double
+    private var overriddenMaxValue: Double?
+    private var maximumValue: Double { overriddenMaxValue ?? defaultMaximumValue }
+    private let setValueSubject = PassthroughSubject<Double, Never>()
     private var cancellable = Set<AnyCancellable>()
-    
-    @Published private (set) var value: Float
+    private let sliderFloatClosedRange = ClosedRange<Double>(uncheckedBounds: (lower: -Double(EthereumUnit.ether.rawValue), upper: Double(EthereumUnit.ether.rawValue)))
+    private var closedRange: ClosedRange<Float> {
+        ClosedRange<Float>(uncheckedBounds: (lower: Float(defaultMinimumValue), upper: Float(maximumValue)))
+    }
+
+    @Published private (set) var value: Double
     @Published var status: TextField.TextFieldErrorState = .none
 
-    init(value: Float,
-         minimumValue: Float,
-         maximumValue: Float) {
+    init(value: Double,
+         minimumValue: Double,
+         maximumValue: Double) {
 
         self.value = value
         self.valueState = .initial(value)
         self.defaultMinimumValue = minimumValue
         self.defaultMaximumValue = maximumValue
-        
+
         adjustUpperBound(value)
     }
 
-    func set(value: Float, changeBehaviour: ChangeBehaviour = .updateWhileInitial) {
+    func set(value: Double, changeBehaviour: ChangeBehaviour = .updateWhileInitial) {
         guard allowSetValue(changeBehaviour: changeBehaviour) else { return }
         adjustUpperBound(value)
         setValueSubject.send(value)
@@ -56,7 +61,7 @@ class SlidableTextFieldViewModel {
             .share()
 
         textChanged
-            .map { ValueState<Float>.changed($0) }
+            .map { ValueState<Double>.changed($0) }
             .assign(to: \.valueState, on: self, ownership: .weak)
             .store(in: &cancellable)
 
@@ -66,15 +71,16 @@ class SlidableTextFieldViewModel {
             .store(in: &cancellable)
 
         input.sliderChanged
-            .map { ValueState<Float>.changed($0) }
+            .map { ValueState<Double>.changed(Double($0)) }
             .assign(to: \.valueState, on: self, ownership: .weak)
             .store(in: &cancellable)
 
         let sliderViewState = Publishers.Merge(setValueSubject.prepend(valueState.value), textChanged)
-            .map { SliderViewState(value: $0, range: self.defaultMinimumValue ... self.maximumValue) }
+            .compactMap { self.safeSliderFloat(double: $0) }
+            .map { SliderViewState(value: $0, range: self.closedRange) }
             .removeDuplicates()
 
-        let text = Publishers.Merge(setValueSubject.prepend(valueState.value), input.sliderChanged)
+        let text = Publishers.Merge(setValueSubject.prepend(valueState.value), input.sliderChanged.map { Double($0) })
             .map { String($0).droppedTrailingZeros }
             .removeDuplicates()
 
@@ -84,12 +90,26 @@ class SlidableTextFieldViewModel {
             status: $status.eraseToAnyPublisher())
     }
 
-    private func adjustUpperBound(_ value: Float) {
+    private func adjustUpperBound(_ value: Double) {
         if value > defaultMaximumValue {
             overriddenMaxValue = value
         } else if value < defaultMinimumValue {
             overriddenMaxValue = nil
         }
+    }
+
+    func convertToDouble(string: String) -> Double? {
+        guard let value = DecimalParser().parseAnyDecimal(from: string), sliderFloatClosedRange.contains(value.doubleValue) else { return nil }
+
+        return value.doubleValue
+    }
+
+    private func safeSliderFloat(double: Double) -> Float? {
+        guard sliderFloatClosedRange.contains(double) else { return nil }
+        let float = Float(double)
+        guard !float.isNaN && !float.isInfinite else { return nil }
+
+        return float
     }
 
     private func allowSetValue(changeBehaviour: ChangeBehaviour) -> Bool {
