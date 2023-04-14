@@ -158,7 +158,7 @@ fileprivate extension EIP155Signer.functional {
             s: Data(bytes: data[32..<64]))
     }
 
-    static func signature(transaction: UnsignedTransaction, signatureData: Data, server: RPCServer) -> EthereumSignature {
+    internal static func signature(transaction: UnsignedTransaction, signatureData: Data, server: RPCServer) -> EthereumSignature {
         switch transaction.gasPrice {
         case .legacy:
             return signatureLegacy(from: signatureData, server: server)
