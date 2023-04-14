@@ -125,7 +125,7 @@ class ReplaceTransactionCoordinator: Coordinator {
             keystore: keystore,
             tokensService: tokensService,
             networkService: networkService)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -138,7 +138,12 @@ class ReplaceTransactionCoordinator: Coordinator {
     }
 
     private func computeGasPriceForReplacementTransaction(_ gasPrice: GasPrice) -> GasPrice {
-        return .legacy(gasPrice: gasPrice.max * 110 / 100)
+        switch gasPrice {
+        case .legacy(let gasPrice):
+            return .legacy(gasPrice: gasPrice * 110 / 100)
+        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
+            return .eip1559(maxFeePerGas: maxFeePerGas * 110 / 100, maxPriorityFeePerGas: maxPriorityFeePerGas)
+        }
     }
 }
 

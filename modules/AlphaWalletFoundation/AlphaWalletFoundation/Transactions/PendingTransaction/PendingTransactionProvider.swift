@@ -10,6 +10,12 @@ import BigInt
 import Combine
 
 final class PendingTransactionProvider {
+
+    enum PendingTransactionProviderError: Error {
+        case `internal`(Error)
+        case failureToRetrieveTransaction(hash: String, error: Error)
+    }
+
     private let session: WalletSession
     private let transactionDataStore: TransactionDataStore
     private let ercTokenDetector: ErcTokenDetector
@@ -22,8 +28,12 @@ final class PendingTransactionProvider {
 
         return queue
     }()
+    private let completeTransactionSubject = PassthroughSubject<Result<TransactionInstance, PendingTransactionProviderError>, Never>()
+    private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    private var store: [String: SchedulerProtocol] = [:]
+    var completeTransaction: AnyPublisher<Result<TransactionInstance, PendingTransactionProviderError>, Never> {
+        completeTransactionSubject.eraseToAnyPublisher()
+    }
 
     init(session: WalletSession,
          transactionDataStore: TransactionDataStore,
@@ -44,7 +54,7 @@ final class PendingTransactionProvider {
 
     func cancelScheduler() {
         queue.async {
-            for each in self.store {
+            for each in self.store.values {
                 each.value.cancel()
             }
         }
@@ -52,14 +62,14 @@ final class PendingTransactionProvider {
 
     func resumeScheduler() {
         queue.async {
-            for each in self.store {
+            for each in self.store.values {
                 each.value.resume()
             }
         }
     }
 
     deinit {
-        for each in self.store {
+        for each in self.store.values {
             each.value.cancel()
         }
     }
@@ -98,6 +108,10 @@ final class PendingTransactionProvider {
         transactionDataStore.update(state: .completed, for: transaction.primaryKey, pendingTransaction: pendingTransaction)
 
         ercTokenDetector.detect(from: [transaction])
+
+        if let transaction = transactionDataStore.transaction(withTransactionId: transaction.id, forServer: transaction.server) {
+            completeTransactionSubject.send(.success(transaction))
+        }
 
         cancelScheduler(transaction: transaction)
     }

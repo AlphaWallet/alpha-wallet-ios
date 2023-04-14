@@ -4,6 +4,7 @@ import Foundation
 import BigInt
 import AlphaWalletFoundation
 import Combine
+import AlphaWalletCore
 
 struct ConfigureTransactionViewModelInput {
     let saveSelected: AnyPublisher<Void, Never>
@@ -37,10 +38,12 @@ class ConfigureTransactionViewModel {
             gasPriceViewModel = EditLegacyGasPriceViewModel(
                 gasPriceEstimator: gasPriceEstimator,
                 server: configurator.session.server)
-        } else {
+        } else if let gasPriceEstimator = gasPriceEstimator as? Eip1559GasPriceEstimator {
             gasPriceViewModel = EditEip1559GasFeeViewModel(
-                estimator: gasPriceEstimator,
+                gasPriceEstimator: gasPriceEstimator,
                 server: configurator.session.server)
+        } else {
+            fatalError()
         }
 
         editTransactionViewModel = EditTransactionViewModel(
@@ -114,7 +117,6 @@ class ConfigureTransactionViewModel {
 
     private func etherCurrencyRate() -> AnyPublisher<CurrencyRate?, Never> {
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        struct NoRateError: Error {}
         return service.tokenViewModelPublisher(for: etherToken)
             .map { $0?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } }
             .eraseToAnyPublisher()
@@ -122,23 +124,38 @@ class ConfigureTransactionViewModel {
 
     private func buildGasViewModels(estimates: GasEstimates, gasLimit: BigUInt) -> [GasSpeedViewModel] {
         return allGasSpeeds.map { gasSpeed -> GasSpeedViewModel in
-            let gasPrice = estimates[gasSpeed].flatMap { GasPrice.legacy(gasPrice: $0) }
-            return (gasSpeed: gasSpeed, gasPrice: gasPrice, gasLimit: gasLimit)
+            return (gasSpeed: gasSpeed, gasPrice: estimates[gasSpeed], gasLimit: gasLimit)
         }
     }
 
     private func buildGasSpeedViewModel(viewModel: GasSpeedViewModel, selectedSpeed: GasSpeed, rate: CurrencyRate?) -> GasSpeedViewModelType {
         let isSelected = selectedSpeed == viewModel.gasSpeed
-        guard let gasPrice = viewModel.gasPrice else { return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed) }
 
-        return LegacyGasSpeedViewModel(
-            gasPrice: gasPrice.max,
-            gasLimit: viewModel.gasLimit,
-            gasSpeed: viewModel.gasSpeed,
-            rate: rate,
-            symbol: server.symbol,
-            isSelected: isSelected,
-            isHidden: false)
+        guard let gasPrice = viewModel.gasPrice else {
+            return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed, isSelected: false, isHidden: true)
+        }
+
+        switch gasPrice {
+        case .legacy(let gasPrice):
+            return LegacyGasSpeedViewModel(
+                gasPrice: gasPrice,
+                gasLimit: viewModel.gasLimit,
+                gasSpeed: viewModel.gasSpeed,
+                rate: rate,
+                symbol: server.symbol,
+                isSelected: isSelected,
+                isHidden: false)
+        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
+            return Eip1559GasSpeedViewModel(
+                gasSpeed: viewModel.gasSpeed,
+                maxFeePerGas: maxFeePerGas,
+                maxPriorityFeePerGas: maxPriorityFeePerGas,
+                gasLimit: viewModel.gasLimit,
+                rate: rate,
+                symbol: server.symbol,
+                isSelected: isSelected,
+                isHidden: false)
+        }
     }
 }
 

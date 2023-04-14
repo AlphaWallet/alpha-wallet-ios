@@ -51,6 +51,16 @@ extension NumberFormatter {
         return formatter
     }
 
+    public static func value(fractionDigits: Int = 0) -> NumberFormatter {
+        let formatter = basicCurrencyFormatter()
+        formatter.positiveFormat = ",###.#"
+        formatter.negativeFormat = "-,###.#"
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
+
+        return formatter
+    }
+
     public static func priceChange(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
         formatter.currencyCode = currency.code
