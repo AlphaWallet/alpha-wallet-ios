@@ -52,11 +52,26 @@ public struct EIP155Signer: TransactionSigner {
     public func sign(transaction: UnsignedTransaction, privateKey: Data) throws -> Data {
         let rlpEncodedHash = try rlpEncodedHash(transaction: transaction)
         let signatureData = try EthereumSigner().sign(hash: rlpEncodedHash, withPrivateKey: privateKey)
-        let signature = signature(transaction: transaction, signatureData: signatureData)
-        return try rlpEncoded(transaction: transaction, with: signature)
+        let signature = functional.signature(transaction: transaction, signatureData: signatureData, server: server)
+        return try functional.rlpEncoded(transaction: transaction, with: signature)
     }
 
-    func rlpEncoded(transaction: UnsignedTransaction, with signature: EthereumSignature) throws -> Data {
+    public func rlpEncodedHash(transaction: UnsignedTransaction) throws -> Data {
+        switch transaction.gasPrice {
+        case .legacy(let gasPrice):
+            return try functional.rlpEncodeForLegacyGasPriceHash(transaction: transaction, legacyGasPrice: gasPrice)
+        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
+            return try functional.rlpEncodeForEip1559Hash(transaction: transaction, maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
+        }
+    }
+}
+
+extension EIP155Signer {
+    enum functional {}
+}
+
+fileprivate extension EIP155Signer.functional {
+    static func rlpEncoded(transaction: UnsignedTransaction, with signature: EthereumSignature) throws -> Data {
         switch transaction.gasPrice {
         case .legacy(let legacyGasPrice):
             let values: [Any] = [
@@ -97,31 +112,7 @@ public struct EIP155Signer: TransactionSigner {
         }
     }
 
-    public func rlpEncodedHash(transaction: UnsignedTransaction) throws -> Data {
-        switch transaction.gasPrice {
-        case .legacy(let gasPrice):
-            return try rlpEncodeForLegacyGasPriceHash(transaction: transaction, legacyGasPrice: gasPrice)
-        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
-            return try rlpEncodeForEip1559Hash(transaction: transaction, maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
-        }
-    }
-
-    private func rlpEncodeForLegacyGasPriceHash(transaction: UnsignedTransaction, legacyGasPrice: BigUInt) throws -> Data {
-        let values: [Any] = [
-            transaction.nonce,
-            legacyGasPrice,
-            transaction.gasLimit,
-            transaction.to?.data ?? Data(),
-            transaction.value,
-            transaction.data,
-            transaction.server.chainID, 0, 0,
-        ]
-
-        guard let data = rlpHash(values) else { throw SignerError.rplEncodeFailure }
-        return data
-    }
-
-    private func rlpEncodeForEip1559Hash(transaction: UnsignedTransaction, maxFeePerGas: BigUInt, maxPriorityFeePerGas: BigUInt) throws -> Data {
+    static func rlpEncodeForEip1559Hash(transaction: UnsignedTransaction, maxFeePerGas: BigUInt, maxPriorityFeePerGas: BigUInt) throws -> Data {
         let values: [Any] = [
             transaction.server.chainID,
             transaction.nonce,
@@ -138,54 +129,54 @@ public struct EIP155Signer: TransactionSigner {
         return Data(bytes: ([0x02] + data.bytes).sha3(.keccak256))
     }
 
-    public func signature(transaction: UnsignedTransaction, signatureData: Data) -> EthereumSignature {
-        switch transaction.gasPrice {
-        case .legacy:
-            return signatureLegacy(from: signatureData)
-        case .eip1559:
-            return signatureEip1559(from: signatureData)
-        }
+    static func rlpEncodeForLegacyGasPriceHash(transaction: UnsignedTransaction, legacyGasPrice: BigUInt) throws -> Data {
+        let values: [Any] = [
+            transaction.nonce,
+            legacyGasPrice,
+            transaction.gasLimit,
+            transaction.to?.data ?? Data(),
+            transaction.value,
+            transaction.data,
+            transaction.server.chainID, 0, 0,
+        ]
+
+        guard let data = rlpHash(values) else { throw SignerError.rplEncodeFailure }
+        return data
     }
 
-    private func signatureLegacy(from data: Data) -> EthereumSignature {
+    static func signatureLegacy(from data: Data, server: RPCServer) -> EthereumSignature {
         return EthereumSignature(
             v: server.chainID == 0 ? data[64] + EthereumSigner.vitaliklizeConstant : data[64] + 35 + UInt8(server.chainID * 2),
             r: Data(bytes: data[..<32]),
             s: Data(bytes: data[32..<64]))
     }
 
-    private func signatureEip1559(from data: Data) -> EthereumSignature {
+    static func signatureEip1559(from data: Data) -> EthereumSignature {
         return EthereumSignature(
             v: data[64],
             r: Data(bytes: data[..<32]),
             s: Data(bytes: data[32..<64]))
     }
+
+    static func signature(transaction: UnsignedTransaction, signatureData: Data, server: RPCServer) -> EthereumSignature {
+        switch transaction.gasPrice {
+        case .legacy:
+            return signatureLegacy(from: signatureData, server: server)
+        case .eip1559:
+            return signatureEip1559(from: signatureData)
+        }
+    }
 }
 
 public struct HomesteadSigner: TransactionSigner {
+    public init() { }
 
     public func sign(transaction: UnsignedTransaction, privateKey: Data) throws -> Data {
         let rlpEncodedHash = try rlpEncodedHash(transaction: transaction)
         let signatureData = try EthereumSigner().sign(hash: rlpEncodedHash, withPrivateKey: privateKey)
-        let signature = signature(transaction: transaction, signatureData: signatureData)
-        return try rlpEncoded(transaction: transaction, with: signature)
+        let signature = functional.signature(transaction: transaction, signatureData: signatureData)
+        return try functional.rlpEncoded(transaction: transaction, with: signature)
     }
-
-    public func rlpEncoded(transaction: UnsignedTransaction, with signature: EthereumSignature) throws -> Data {
-        let values: [Any] = [
-            transaction.nonce,
-            transaction.gasPrice,
-            transaction.gasLimit,
-            transaction.to?.data ?? Data(),
-            transaction.value,
-            transaction.data,
-        ]
-
-        guard let data = RLP.encode(values) else { throw SignerError.rplEncodeFailure }
-        return data
-    }
-
-    public init() { }
 
     public func rlpEncodedHash(transaction: UnsignedTransaction) throws -> Data {
         let values: [Any] = [
@@ -200,8 +191,28 @@ public struct HomesteadSigner: TransactionSigner {
         guard let data = rlpHash(values) else { throw SignerError.rplEncodeFailure }
         return data
     }
+}
 
-    public func signature(transaction: UnsignedTransaction, signatureData data: Data) -> EthereumSignature {
+extension HomesteadSigner {
+    enum functional {}
+}
+
+fileprivate extension HomesteadSigner.functional {
+    static func rlpEncoded(transaction: UnsignedTransaction, with signature: EthereumSignature) throws -> Data {
+        let values: [Any] = [
+            transaction.nonce,
+            transaction.gasPrice,
+            transaction.gasLimit,
+            transaction.to?.data ?? Data(),
+            transaction.value,
+            transaction.data,
+        ]
+
+        guard let data = RLP.encode(values) else { throw SignerError.rplEncodeFailure }
+        return data
+    }
+
+    static func signature(transaction: UnsignedTransaction, signatureData data: Data) -> EthereumSignature {
         precondition(data.count == 65, "Wrong size for signature")
         return EthereumSignature(
             v: data[64] + EthereumSigner.vitaliklizeConstant,
