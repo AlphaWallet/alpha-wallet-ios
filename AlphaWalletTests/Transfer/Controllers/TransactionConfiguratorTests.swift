@@ -15,7 +15,7 @@ class TransactionConfiguratorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
 
-        XCTAssertEqual(gasPrice, configurator.gasPriceEstimator.gasPrice.value.max)
+        XCTAssertEqual(gasPrice, configurator.gasPriceEstimator.gasPrice.value)
     }
 
     func testMinGasPrice() {
@@ -48,7 +48,7 @@ class TransactionConfiguratorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
             configuration: .sendFungiblesTransaction(confirmType: .signThenSend))
         XCTAssertEqual(BigUInt(GasPriceConfiguration.defaultPrice), configurator.gasPriceEstimator.gasPrice.value.max)
-        
+
         //gas limit is always 21k for native ether transfers
         XCTAssertEqual(BigUInt(21000), configurator.gasLimit.value)
     }
