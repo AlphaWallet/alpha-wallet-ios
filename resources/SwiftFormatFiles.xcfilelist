@@ -1,0 +1,15 @@
+#  SwiftFormatFiles.xcfilelist
+#  Resources
+#
+#  Created by Jerome Chan on 17/4/23.
+#  
+
+# This file may be set as an input or output file list for a shell script build phase.
+# List file paths below; one per line. These paths will be considered inputs or outputs for the script phase.
+# Build settings will be expanded, e.g. $(SRCROOT)/fileName
+$(SRCROOT)/AlphaWalletTests/Foundation/EtherNumberFormatterTests.swift
+$(SRCROOT)/AlphaWalletTests/Core/HostBasedTokenUriMapperTests.swift
+$(SRCROOT)/AlphaWalletTests/Tokens/TokensDataStoreTest.swift
+$(SRCROOT)/AlphaWalletTests/Tokens/Helpers/TokenAdaptorTest.swift
+$(SRCROOT)/modules/AlphaWalletENS/AlphaWalletENS/ENS.swift
+$(SRCROOT)/modules/AlphaWalletFoundation/AlphaWalletFoundation/Types/RPCServers.swift

@@ -140,7 +140,7 @@ class EtherNumberFormatterTests: XCTestCase {
 
     func testMinMaxFormattedNumber() {
         Config.setLocale(.english)
-        
+
         let locale: Locale = Config.locale
 
         func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {

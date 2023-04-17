@@ -1,6 +1,11 @@
 #Disable all and explicitly enable them to avoid unintentionally activating new rules in newer versions of SwiftFormat
 --disable all
 
+--enable indent
+--indent 4
+
+--enable typeSugar
+
 #TODO enable
 #--enable redundantVoidReturnType
 #--closurevoid remove
@@ -22,7 +27,7 @@
 #--enable enumNamespaces
 #--enumnamespaces always
 
---enable genericExtensions
+#--enable genericExtensions
 
 #TODO enable
 #--enable indent
@@ -33,13 +38,13 @@
 #--tabwidth unspecified
 #--xcodeindentation disabled
 
---enable linebreaks
---linebreaks lf
+#--enable linebreaks
+#--linebreaks lf
 
---disable wrapSingleLineComments
+#--disable wrapSingleLineComments
 
 #TODO enable
-#--enable modifierorder 
+#--enable modifierorder
 #--modifierorder private,lazy
 
 #TODO enable
@@ -60,8 +65,8 @@
 #--enable typeSugar
 #--shortoptionals always
 
---enable unusedArguments
---stripunusedargs closure-only
+#--enable unusedArguments
+#--stripunusedargs closure-only
 
 #TODO enable
 #--enable trailingSpace
@@ -75,14 +80,14 @@
 #--enable void
 #--voidtype void
 
---enable yodaConditions
---yodaswap always
+#--enable yodaConditions
+#--yodaswap always
 
 --disable spaceInsideComments
 
 #Files
 
---exclude build,vendor
---exclude Pods,Generated
+#--exclude build,vendor
+#--exclude Pods,Generated
 #Excluded because of error while processing
---exclude AlphaWallet/Browser/ViewModel/Dapps.swift
+#--exclude AlphaWallet/Browser/ViewModel/Dapps.swift
