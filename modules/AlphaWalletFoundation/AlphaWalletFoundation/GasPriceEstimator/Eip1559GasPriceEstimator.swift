@@ -279,7 +279,7 @@ extension Eip1559GasPriceEstimator {
 
         public func estimateGasPrice() -> AnyPublisher<Eip1559FeeEstimates, PromiseError> {
             return AnyPublisher<Eip1559FeeEstimates, PromiseError>.create { [oracleProvider] seal in
-                return Task { @MainActor in
+                return Task {
                     do {
                         let estimates = try await oracleProvider.eip1559FeeEstimates()
                         seal.send(estimates)
