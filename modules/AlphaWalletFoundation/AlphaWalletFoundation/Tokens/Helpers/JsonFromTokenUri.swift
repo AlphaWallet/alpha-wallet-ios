@@ -23,6 +23,7 @@ final class JsonFromTokenUri {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let networkService: NetworkService
+    private let uriMapper: TokenUriMapper
 
     public init(blockchainProvider: BlockchainProvider,
                 tokensDataStore: TokensDataStore,
@@ -31,13 +32,12 @@ final class JsonFromTokenUri {
         self.networkService = networkService
         self.blockchainProvider = blockchainProvider
         self.tokensDataStore = tokensDataStore
-        self.getTokenUri = NonFungibleContract(
-            blockchainProvider: blockchainProvider,
-            uriMapper: TokenUriMapper(hostMappers: [
-                HostBasedTokenUriMapper(host: "api.mintkudos.xyz"),
-                HostBasedTokenUriMapper(host: "api.walletads.io"),
-                HostBasedTokenUriMapper(host: "gateway.pinata.cloud")
-            ]))
+        self.getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
+        self.uriMapper = TokenUriMapper(hostMappers: [
+            HostBasedTokenUriMapper(host: "api.mintkudos.xyz"),
+            HostBasedTokenUriMapper(host: "api.walletads.io"),
+            HostBasedTokenUriMapper(host: "gateway.pinata.cloud")
+        ])
     }
 
     func clear() {
@@ -81,6 +81,7 @@ final class JsonFromTokenUri {
 
         switch data {
         case .uri(let uri):
+            let uri = uriMapper.map(uri: uri) ?? uri
             return fetchTokenJson(for: tokenId, tokenType: tokenType, uri: uri, address: address)
         case .string(let str):
             return generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address)
