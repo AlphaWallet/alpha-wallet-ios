@@ -3,7 +3,6 @@
 import Foundation
 import BigInt
 import Kanna
-import PromiseKit
 
 public enum FunctionError: LocalizedError {
     case formPayload

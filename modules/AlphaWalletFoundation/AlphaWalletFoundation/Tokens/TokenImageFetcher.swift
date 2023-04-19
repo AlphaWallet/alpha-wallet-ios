@@ -82,6 +82,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     public init(networking: ImageFetcher,
                 tokenGroupIdentifier: TokenGroupIdentifierProtocol,
                 spamImage: UIImage) {
+        
         self.networking = networking
         self.tokenGroupsIdentifier = tokenGroupIdentifier
         self.spamImage = spamImage

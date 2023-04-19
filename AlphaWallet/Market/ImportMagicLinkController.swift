@@ -7,7 +7,6 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger

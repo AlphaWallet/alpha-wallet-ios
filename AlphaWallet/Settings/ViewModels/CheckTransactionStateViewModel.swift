@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PromiseKit
 import AlphaWalletFoundation
 import AlphaWalletWeb3
 

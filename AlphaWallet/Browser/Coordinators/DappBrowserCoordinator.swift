@@ -2,7 +2,6 @@
 
 import UIKit
 import WebKit
-import PromiseKit
 import AlphaWalletFoundation
 import Combine
 import AlphaWalletCore
