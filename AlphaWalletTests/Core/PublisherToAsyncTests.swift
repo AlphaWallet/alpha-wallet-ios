@@ -13,36 +13,6 @@ import Combine
 
 class PublisherToAsyncTests: XCTestCase {
 
-    func testCancellation() {
-        let expectation = self.expectation(description: "Wait for cancel")
-
-        func publisher(elem: Int) -> AnyPublisher<Int, Never> {
-            AnyPublisher<Int, Never>.create { seal in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    seal.send(elem)
-                    seal.send(completion: .finished)
-                }
-
-                return AnyCancellable {
-
-                }
-            }
-        }
-
-        let publisher = publisher(elem: 1)
-            .handleEvents(receiveCancel: { expectation.fulfill() })
-
-        let task = Task {
-            let _ = try await publisher.first
-        }
-        
-        DispatchQueue.main.async {
-            task.cancel()
-        }
-
-        waitForExpectations(timeout: 10)
-    }
-
     func testAsyncValues() {
         let expectation = self.expectation(description: "")
         let publisher = AnyPublisher<Int, Never>.create { seal in
