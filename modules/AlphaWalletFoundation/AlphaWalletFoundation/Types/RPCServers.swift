@@ -252,8 +252,8 @@ public enum RPCServer: Hashable, CaseIterable {
             case .heco: return "https://api.hecoinfo.com/api"
             case .custom(let custom):
                 return custom.explorerEndpoint
-                        .flatMap { URL(string: $0) }
-                        .flatMap { $0.appendingPathComponent("api").absoluteString }
+                    .flatMap { URL(string: $0) }
+                    .flatMap { $0.appendingPathComponent("api").absoluteString }
             case .fantom: return "https://api.ftmscan.com/api"
             //TODO fix etherscan-compatible API endpoint
             case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/api"
@@ -354,20 +354,20 @@ public enum RPCServer: Hashable, CaseIterable {
     }
 
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
-         etherscanURLForGeneralTransactionHistory.flatMap {
-             let apiKeyParameter: String
-             if let apiKey = etherscanApiKey {
-                 apiKeyParameter = "&apikey=\(apiKey)"
-             } else {
-                 apiKeyParameter = ""
-             }
-             let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
-             if let startBlock = startBlock {
-                 return url?.appendingQueryString("startblock=\(startBlock)")
-             } else {
-                 return url
-             }
-         }
+        etherscanURLForGeneralTransactionHistory.flatMap {
+            let apiKeyParameter: String
+            if let apiKey = etherscanApiKey {
+                apiKeyParameter = "&apikey=\(apiKey)"
+            } else {
+                apiKeyParameter = ""
+            }
+            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
+            if let startBlock = startBlock {
+                return url?.appendingQueryString("startblock=\(startBlock)")
+            } else {
+                return url
+            }
+        }
     }
 
     func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
@@ -913,12 +913,12 @@ extension RPCServer: Codable {
 
 extension URL {
     //Much better to use URLComponents, but this is much simpler for our use. This probably doesn't percent-escape probably, but we shouldn't need it for the URLs we access here
-	func appendingQueryString(_ queryString: String) -> URL? {
+    func appendingQueryString(_ queryString: String) -> URL? {
         let urlString = absoluteString
         if urlString.contains("?") {
             return URL(string: "\(urlString)&\(queryString)")
         } else {
             return URL(string: "\(urlString)?\(queryString)")
         }
-	}
+    }
 }
