@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import PromiseKit
 import AlphaWalletFoundation
 
 struct OpenSeaNonFungibleTokenCardRowViewModel {

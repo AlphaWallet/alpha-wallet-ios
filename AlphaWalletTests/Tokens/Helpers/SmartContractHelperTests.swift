@@ -4,7 +4,6 @@ import XCTest
 @testable import AlphaWallet
 import Foundation
 import AlphaWalletWeb3
-import PromiseKit
 
 class SmartContractHelperTests: XCTestCase {
 

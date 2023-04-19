@@ -6,7 +6,6 @@
 //
 
 import Combine
-import PromiseKit
 import Alamofire
 
 public enum PromiseError: Error {

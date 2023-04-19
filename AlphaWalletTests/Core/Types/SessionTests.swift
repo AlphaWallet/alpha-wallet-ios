@@ -8,7 +8,6 @@
 import XCTest
 import Foundation
 import Combine
-import PromiseKit
 @testable import AlphaWallet
 import AlphaWalletFoundation
 
