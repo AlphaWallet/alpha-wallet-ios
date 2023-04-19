@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-import WalletConnectSwiftV2
+import WalletConnectSign
 import AlphaWalletCore
 import AlphaWalletFoundation
 
@@ -39,7 +39,7 @@ class WalletConnectV2Storage {
         storage.value.remove(at: index)
     }
 
-    func addOrUpdate(session: WalletConnectSwiftV2.Session) {
+    func addOrUpdate(session: WalletConnectSign.Session) {
         if let index = try? indexOf(.topic(string: session.topic)) {
             storage.value[index].update(namespaces: session.namespaces)
         } else {
@@ -65,13 +65,21 @@ class WalletConnectV2Storage {
 
     @discardableResult func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws -> WalletConnectV2Session {
         let session = try session(for: topicOrUrl)
+        let blockchains = Set(servers.compactMap { server in Blockchain(server.eip155) })
+
         let namespaces = session.namespaces.mapValues { namespace -> SessionNamespace in
-            let blockchains = servers.compactMap { server in Blockchain(server.eip155) }
-            let accounts = Set(blockchains.flatMap { blockchain in
-                namespace.accounts.compactMap { account in Account(blockchain: blockchain, address: account.address) }
+            let newAccounts = Set(namespace.accounts.map { $0.address }.flatMap { account in
+                blockchains.compactMap { Account(blockchain: $0, address: account) }
             })
 
-            return SessionNamespace(accounts: accounts, methods: namespace.methods, events: namespace.events)
+            var namespace = namespace
+            if let chains = namespace.chains {
+                namespace.chains = chains.union(blockchains)
+            }
+
+            namespace.accounts = namespace.accounts.union(newAccounts)
+
+            return namespace
         }
 
         return try update(topicOrUrl, namespaces: namespaces)
@@ -80,7 +88,12 @@ class WalletConnectV2Storage {
     @discardableResult func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, accounts: Set<CAIP10Account>) throws -> WalletConnectV2Session {
         let session = try session(for: topicOrUrl)
 
-        let namespaces = session.namespaces.mapValues { SessionNamespace(accounts: accounts, methods: $0.methods, events: $0.events) }
+        let namespaces = session.namespaces.mapValues { namespace in
+            var namespace = namespace
+            namespace.accounts = accounts
+
+            return namespace
+        }
 
         return try update(topicOrUrl, namespaces: namespaces)
     }

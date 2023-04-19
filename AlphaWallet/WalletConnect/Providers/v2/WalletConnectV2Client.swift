@@ -6,11 +6,14 @@
 //
 
 import Foundation
-import WalletConnectSwiftV2
+import WalletConnectSign
+import WalletConnectSigner
 import AlphaWalletFoundation
 import Starscream
 import Combine
 import AlphaWalletWeb3
+import Web3Wallet
+import AlphaWalletLogger
 
 extension WebSocket: WebSocketConnecting { }
 
@@ -21,23 +24,23 @@ struct SocketFactory: WebSocketFactory {
 }
 
 struct DefaultEthereumSignerFactory: SignerFactory {
-    func createEthereumSigner() -> WalletConnectSwiftV2.EthereumSigner {
+    func createEthereumSigner() -> WalletConnectSigner.EthereumSigner {
         Web3Signer()
     }
 }
 
-struct Web3Signer: WalletConnectSwiftV2.EthereumSigner {
+struct Web3Signer: WalletConnectSigner.EthereumSigner {
     enum SignerError: Error {
         case recoverPubKeyFailure
     }
 
-    func sign(message: Data, with key: Data) throws -> WalletConnectSwiftV2.EthereumSignature {
+    func sign(message: Data, with key: Data) throws -> WalletConnectSigner.EthereumSignature {
         let hash = message.sha3(.keccak256)
         let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-        return WalletConnectSwiftV2.EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
+        return WalletConnectSigner.EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
     }
 
-    func recoverPubKey(signature: WalletConnectSwiftV2.EthereumSignature, message: Data) throws -> Data {
+    func recoverPubKey(signature: WalletConnectSigner.EthereumSignature, message: Data) throws -> Data {
         guard let data = Web3.Utils.recoverPublicKey(message: message, v: signature.v, r: signature.r, s: signature.s) else {
             throw SignerError.recoverPubKeyFailure
         }
@@ -114,26 +117,62 @@ final class WalletConnectV2NativeClient: WalletConnectV2Client {
     }
 
     func connect(uri: WalletConnectURI) {
-        Task(priority: .high) { try await Pair.instance.pair(uri: uri) }
+        Task(priority: .high) {
+            do {
+                try await Pair.instance.pair(uri: uri)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 
     func update(topic: String, namespaces: [String: SessionNamespace]) {
-        Task { try await client.update(topic: topic, namespaces: namespaces) }
+        Task {
+            do {
+                try await client.update(topic: topic, namespaces: namespaces)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 
     func disconnect(topic: String) {
-        Task { try await client.disconnect(topic: topic) }
+        Task {
+            do {
+                try await client.disconnect(topic: topic)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 
     func respond(topic: String, requestId: RPCID, response: RPCResult) {
-        Task { try await client.respond(topic: topic, requestId: requestId, response: response) }
+        Task {
+            do {
+                try await client.respond(topic: topic, requestId: requestId, response: response)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 
     func reject(proposalId: String, reason: RejectionReason) {
-        Task { try await client.reject(proposalId: proposalId, reason: reason) }
+        Task {
+            do {
+                try await client.reject(proposalId: proposalId, reason: reason)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 
     func approve(proposalId: String, namespaces: [String: SessionNamespace]) {
-        Task { try await client.approve(proposalId: proposalId, namespaces: namespaces) }
+        Task {
+            do {
+                try await client.approve(proposalId: proposalId, namespaces: namespaces)
+            } catch {
+                infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
+            }
+        }
     }
 }

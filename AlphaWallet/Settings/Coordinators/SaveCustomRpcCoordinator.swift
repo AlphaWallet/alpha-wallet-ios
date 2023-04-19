@@ -93,11 +93,11 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
 extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate {
 
     func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC) {
-        let explorerEndpoints: [String]?
+        let explorerEndpoints: [WalletAddEthereumChainObject.ExplorerUrl]?
         let defaultDecimals = 18
 
         if let endpoint = customRpc.explorerEndpoint {
-            explorerEndpoints = [endpoint]
+            explorerEndpoints = [.init(name: "", url: endpoint)]
         } else {
             explorerEndpoints = nil
         }

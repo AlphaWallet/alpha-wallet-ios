@@ -7,19 +7,19 @@
 
 import Foundation
 import Combine
-import WalletConnectSwiftV2
+import WalletConnectSign
 import AlphaWalletFoundation
 import AlphaWalletLogger
 
 enum ProposalOrServer {
     case server(RPCServer)
-    case proposal(WalletConnectSwiftV2.Session.Proposal)
+    case proposal(WalletConnectSign.Session.Proposal)
 }
 
 final class WalletConnectV2Provider: WalletConnectServer {
 
-    private var currentProposal: WalletConnectSwiftV2.Session.Proposal?
-    private var pendingProposals: [WalletConnectSwiftV2.Session.Proposal] = []
+    private var currentProposal: WalletConnectSign.Session.Proposal?
+    private var pendingProposals: [WalletConnectSign.Session.Proposal] = []
     private let storage: WalletConnectV2Storage
     private let serversProvider: ServersProvidable
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
@@ -135,7 +135,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func didReceive(proposal: WalletConnectSwiftV2.Session.Proposal) {
+    private func didReceive(proposal: WalletConnectSign.Session.Proposal) {
         guard currentProposal == nil else {
             return pendingProposals.append(proposal)
         }
@@ -146,13 +146,13 @@ final class WalletConnectV2Provider: WalletConnectServer {
         })
     }
 
-    private func reject(request: WalletConnectSwiftV2.Request, error: JsonRpcError) {
+    private func reject(request: WalletConnectSign.Request, error: JsonRpcError) {
         infoLog("[WalletConnect2] WC: Did reject session proposal: \(request) with error: \(error.message)")
 
         client.respond(topic: request.topic, requestId: request.id, response: .error(.init(code: error.code, message: error.message)))
     }
 
-    private func didReceive(request: WalletConnectSwiftV2.Request) {
+    private func didReceive(request: WalletConnectSign.Request) {
         infoLog("[WalletConnect2] WC: Did receive session request")
 
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
@@ -178,7 +178,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func didDelete(topic: String, reason: WalletConnectSwiftV2.Reason) {
+    private func didDelete(topic: String, reason: WalletConnectSign.Reason) {
         infoLog("[WalletConnect2] WC: Did receive session delete")
         storage.remove(for: .topic(string: topic))
     }
@@ -189,7 +189,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
         _ = try? storage.update(.topic(string: topic), namespaces: namespaces)
     }
 
-    private func didSettle(session: WalletConnectSwiftV2.Session) {
+    private func didSettle(session: WalletConnectSign.Session) {
 
         infoLog("[WalletConnect2] WC: Did settle session")
         for each in client.getSessions() {
@@ -197,10 +197,10 @@ final class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func _didReceive(proposal: WalletConnectSwiftV2.Session.Proposal, completion: @escaping () -> Void) {
+    private func _didReceive(proposal: WalletConnectSign.Session.Proposal, completion: @escaping () -> Void) {
         infoLog("[WalletConnect2] WC: Did receive session proposal")
 
-        func reject(proposal: WalletConnectSwiftV2.Session.Proposal, reason: RejectionReason) {
+        func reject(proposal: WalletConnectSign.Session.Proposal, reason: RejectionReason) {
             infoLog("[WalletConnect2] WC: Did reject session proposal: \(proposal), reason: \(reason)")
             client.reject(proposalId: proposal.id, reason: reason)
             completion()
@@ -238,18 +238,29 @@ final class WalletConnectV2Provider: WalletConnectServer {
 
 fileprivate extension AlphaWallet.WalletConnect.Proposal {
 
-    init?(proposal: WalletConnectSwiftV2.Session.Proposal) {
+    init?(proposal: WalletConnectSign.Session.Proposal) {
         name = proposal.proposer.name
         guard let dappUrl = URL(string: proposal.proposer.url) else { return nil }
         self.dappUrl = dappUrl
         description = proposal.proposer.description
         iconUrl = proposal.proposer.icons.compactMap { URL(string: $0) }.first
         //NOTE: prevent create proposals for non supported chains
-        let servers = proposal.requiredNamespaces.values.flatMap { RPCServer.decodeEip155Array(values: Set($0.chains.map { $0.absoluteString }) ) }
-        guard !servers.isEmpty else { return nil }
-        self.servers = servers
-        methods = Array(proposal.requiredNamespaces.values.flatMap { $0.methods })
-        serverEditing = .notSupporting
+        self.requiredNamespaces = proposal.requiredNamespaces.compactMap { AlphaWallet.WalletConnect.Proposal.mapToNative($0) }
+        self.optionalNamespaces = proposal.optionalNamespaces?.compactMap { AlphaWallet.WalletConnect.Proposal.mapToNative($0) } ?? []
 
+        serverEditing = .notSupporting
+    }
+
+    private static func mapToNative(_ each: Dictionary<String, ProposalNamespace>.Element) -> AlphaWallet.WalletConnect.Namespace? {
+        if let _ = SupportedSessionNamespace(rawValue: each.key) {
+            let strings = (each.value.chains ?? []).map { $0.absoluteString }
+            let chains = Set(RPCServer.decodeEip155Array(values: Set(strings)))
+            return AlphaWallet.WalletConnect.Namespace(chains: chains, methods: each.value.methods, events: each.value.events)
+        } else if let blockchain = Blockchain(each.key) {
+            guard let server = Eip155UrlCoder.decodeRpc(from: blockchain.absoluteString) else { return nil }
+            return AlphaWallet.WalletConnect.Namespace(chains: [server], methods: each.value.methods, events: each.value.events)
+        } else {
+            return nil
+        }
     }
 }
