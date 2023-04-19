@@ -105,8 +105,9 @@ public class ENS {
             } else {
                 throw ENSError(description: "Forward resolution of ENS name found by reverse look up doesn't match")
             }
-        }.mapError { e in SmartContractError.embeded(e) }
-            .eraseToAnyPublisher()
+        }.mapError { e in
+            SmartContractError.embeded(e)
+        }.eraseToAnyPublisher()
     }
 
     public func getTextRecord(forName name: String, recordKey: EnsTextRecordKey) -> AnyPublisher<String, SmartContractError> {
@@ -123,8 +124,9 @@ public class ENS {
             guard let record = result["0"] as? String else { throw ENSError(description: "interface doesn't support for chainId \(chainId)") }
             guard !record.isEmpty else { throw ENSError(description: "ENS text record not found for record: \(record) for chainId: \(chainId)") }
             return record
-        }.mapError { e in SmartContractError.embeded(e) }
-            .eraseToAnyPublisher()
+        }.mapError { e in
+            SmartContractError.embeded(e)
+        }.eraseToAnyPublisher()
     }
 
     private func isSupportEnsIp10(resolver: AlphaWallet.Address) -> AnyPublisher<Bool, SmartContractError> {
@@ -178,8 +180,9 @@ public class ENS {
             verboseLog("[ENS] called function \(function.name) for name: \(name) result: \(ensAddress.eip55String)")
             guard !ensAddress.isNull else { throw ENSError(description: "Null address returned") }
             return ensAddress
-        }.mapError { e in SmartContractError.embeded(e) }
-            .eraseToAnyPublisher()
+        }.mapError { e in
+            SmartContractError.embeded(e)
+        }.eraseToAnyPublisher()
     }
 
     private func getENSAddressFromResolverUsingResolve(forName name: String, node: String, resolver: AlphaWallet.Address) -> AnyPublisher<AlphaWallet.Address, SmartContractError> {
@@ -209,8 +212,9 @@ public class ENS {
             guard let address = AlphaWallet.Address(uncheckedAgainstNullAddress: addressString) else { throw ENSError(description: "Incorrect data output from ENS resolver") }
             guard !address.isNull else { throw ENSError(description: "Null address returned") }
             return address
-        }.mapError { e in SmartContractError.embeded(e) }
-            .eraseToAnyPublisher()
+        }.mapError { e in
+            SmartContractError.embeded(e)
+        }.eraseToAnyPublisher()
     }
 
     private func getENSRecordsContract(forChainId chainId: ChainId) -> AlphaWallet.Address {
