@@ -356,7 +356,6 @@
 		5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F846C598287230CFAB /* WhatsNewViews.swift */; };
 		5E7C7CCA2D436A940E874D47 /* VerifySeedPhraseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C739774984CDE1D3D7555 /* VerifySeedPhraseViewModel.swift */; };
 		5E7C7CD0269EBEF049E1E980 /* BCHardwareWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C777139162B0B82E763AC /* BCHardwareWallet.swift */; };
-		5E7C7CDE2814481CD7BC47AC /* PushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */; };
 		5E7C7CE29C74DF7FDDDB6A0D /* ERC721-TokenScript.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C7676A744239C4880A3ED /* ERC721-TokenScript.tsml */; };
 		5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */; };
 		5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */; };
@@ -614,7 +613,7 @@
 		875CA8F928BE403A0020FA48 /* RPCServer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA8F828BE403A0020FA48 /* RPCServer+Extensions.swift */; };
 		875CA90528BE49680020FA48 /* ActivitiesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA90428BE49680020FA48 /* ActivitiesViewModel.swift */; };
 		875CA90728BE4EA20020FA48 /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA90628BE4EA20020FA48 /* UIDevice.swift */; };
-		875CA90928BF2B720020FA48 /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA90828BF2B720020FA48 /* LocalNotificationService.swift */; };
+		875CA90928BF2B720020FA48 /* DefaultLocalNotificationDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA90828BF2B720020FA48 /* DefaultLocalNotificationDeliveryService.swift */; };
 		875CA92428BF8B9E0020FA48 /* DeepLinkRequesterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA92328BF8B9E0020FA48 /* DeepLinkRequesterViewModel.swift */; };
 		875CA92628BF8BAD0020FA48 /* DappRequesterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875CA92528BF8BAD0020FA48 /* DappRequesterViewModel.swift */; };
 		875E257B28CB1C8D001976F8 /* InputError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875E257A28CB1C8D001976F8 /* InputError.swift */; };
@@ -1325,7 +1324,6 @@
 		5E7C7FA63647CED0B0BA5A9C /* WalletConnectSessionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionCell.swift; sourceTree = "<group>"; };
 		5E7C7FB7C3FB2A9CC0CC51D7 /* TokensViewControllerTableViewSectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewControllerTableViewSectionHeader.swift; sourceTree = "<group>"; };
 		5E7C7FB99843529061368DA1 /* LocalesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalesViewModel.swift; sourceTree = "<group>"; };
-		5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsService.swift; sourceTree = "<group>"; };
 		5E7C7FCE2427A30ACD860DF8 /* ServerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStoreTests.swift; sourceTree = "<group>"; };
 		5E7C7FE5EEC96A7CDF62213F /* BrowserHomeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHomeHeaderView.swift; sourceTree = "<group>"; };
@@ -1534,7 +1532,7 @@
 		875CA8F828BE403A0020FA48 /* RPCServer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RPCServer+Extensions.swift"; sourceTree = "<group>"; };
 		875CA90428BE49680020FA48 /* ActivitiesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesViewModel.swift; sourceTree = "<group>"; };
 		875CA90628BE4EA20020FA48 /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
-		875CA90828BF2B720020FA48 /* LocalNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationService.swift; sourceTree = "<group>"; };
+		875CA90828BF2B720020FA48 /* DefaultLocalNotificationDeliveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocalNotificationDeliveryService.swift; sourceTree = "<group>"; };
 		875CA92328BF8B9E0020FA48 /* DeepLinkRequesterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkRequesterViewModel.swift; sourceTree = "<group>"; };
 		875CA92528BF8BAD0020FA48 /* DappRequesterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappRequesterViewModel.swift; sourceTree = "<group>"; };
 		875E257A28CB1C8D001976F8 /* InputError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputError.swift; sourceTree = "<group>"; };
@@ -4239,8 +4237,7 @@
 			children = (
 				02A96DFC29DB0B34002616A1 /* SpamTokenService.swift */,
 				87B1B5F228C8715F0072A5E2 /* Analytics */,
-				5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */,
-				875CA90828BF2B720020FA48 /* LocalNotificationService.swift */,
+				875CA90828BF2B720020FA48 /* DefaultLocalNotificationDeliveryService.swift */,
 				87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */,
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
 				878D255B298A701300C0CF5E /* MediaContentDownloader.swift */,
@@ -4936,6 +4933,7 @@
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletGoBack/AlphaWalletGoBack.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletHardwareWallet/AlphaWalletHardwareWallet.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletLogger/AlphaWalletLogger.framework",
+				"${BUILT_PRODUCTS_DIR}/AlphaWalletNotifications/AlphaWalletNotifications.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletOpenSea/AlphaWalletOpenSea.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletShareExtensionCore/AlphaWalletShareExtensionCore.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletTrackAPICalls/AlphaWalletTrackAPICalls.framework",
@@ -4952,9 +4950,10 @@
 				"${BUILT_PRODUCTS_DIR}/EthereumABI/EthereumABI.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
 				"${BUILT_PRODUCTS_DIR}/FloatingPanel/FloatingPanel.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
@@ -4999,6 +4998,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletGoBack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletHardwareWallet.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletLogger.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletNotifications.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletOpenSea.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletShareExtensionCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletTrackAPICalls.framework",
@@ -5015,9 +5015,10 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumABI.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreDiagnostics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FloatingPanel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
@@ -5535,7 +5536,6 @@
 				874D099825EE33E000A58EF2 /* SelfResizedTextView.swift in Sources */,
 				8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */,
 				8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */,
-				5E7C7CDE2814481CD7BC47AC /* PushNotificationsService.swift in Sources */,
 				5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */,
 				5E7C7FDCAE5ED2EEE02CE661 /* OpenSeaNonFungibleTokenCardRowView.swift in Sources */,
 				5E7C749B7C5CBC729B7E256F /* OpenSeaNonFungibleTokenTraitCell.swift in Sources */,
@@ -5582,7 +5582,7 @@
 				878D255C298A701300C0CF5E /* MediaContentDownloader.swift in Sources */,
 				87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */,
 				87300E892851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift in Sources */,
-				875CA90928BF2B720020FA48 /* LocalNotificationService.swift in Sources */,
+				875CA90928BF2B720020FA48 /* DefaultLocalNotificationDeliveryService.swift in Sources */,
 				87E4D65328B645E600E1A17E /* SelectServiceToSwapCoordinator.swift in Sources */,
 				76F1DD3DF34BCCFE9BE3CEBB /* BookmarksViewViewModel.swift in Sources */,
 				76F1D3B0E2CDBE82B764C0C7 /* MyDappCell.swift in Sources */,

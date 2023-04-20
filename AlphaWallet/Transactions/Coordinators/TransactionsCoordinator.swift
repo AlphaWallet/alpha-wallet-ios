@@ -45,11 +45,7 @@ class TransactionsCoordinator: Coordinator {
         navigationController.viewControllers = [rootViewController]
     }
 
-    func addSentTransaction(_ transaction: SentTransaction) {
-        transactionsService.addSentTransaction(transaction)
-    }
-
-    private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
+    func showTransaction(_ transactionRow: TransactionRow, navigationController: UINavigationController) {
         guard let session = sessionsProvider.session(for: transactionRow.server) else { return }
 
         let viewModel = TransactionDetailsViewModel(
@@ -72,7 +68,7 @@ class TransactionsCoordinator: Coordinator {
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
     func showTransaction(_ transactionRow: TransactionRow, inViewController viewController: UIViewController) {
         guard let navigationController = viewController.navigationController else { return }
-        showTransaction(transactionRow, on: navigationController)
+        showTransaction(transactionRow, navigationController: navigationController)
     }
 
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
@@ -89,7 +85,7 @@ class TransactionsCoordinator: Coordinator {
 
 extension TransactionsCoordinator: TransactionsViewControllerDelegate {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController) {
-        showTransaction(transactionRow, on: navigationController)
+        showTransaction(transactionRow, navigationController: navigationController)
     }
 }
 

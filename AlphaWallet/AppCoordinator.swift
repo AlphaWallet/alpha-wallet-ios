@@ -6,6 +6,8 @@ import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import AlphaWalletTrackAPICalls
+import AlphaWalletNotifications
 
 class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     private let navigationSubject = CurrentValueSubject<ApplicationNavigation, Never>(.onboarding)
@@ -24,7 +26,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
         return ProtectionCoordinator(lock: application.lock)
     }()
 
-    private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
+    private var latestActiveWalletCoordinator: ActiveWalletCoordinator?
 
     private lazy var accountsCoordinator: AccountsCoordinator = {
         let coordinator = AccountsCoordinator(
@@ -180,7 +182,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
             coinTickersFetcher: application.coinTickersFetcher,
             tokenActionsService: application.tokenActionsService,
             walletConnectCoordinator: walletConnectCoordinator,
-            notificationService: application.notificationService,
+            localNotificationsService: application.localNotificationsService,
             blockiesGenerator: application.blockiesGenerator,
             domainResolutionService: application.domainResolutionService,
             tokenSwapper: application.tokenSwapper,
@@ -197,7 +199,8 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
             caip10AccountProvidable: application.caip10AccountProvidable,
             tokenImageFetcher: application.tokenImageFetcher,
             serversProvider: application.serversProvider,
-            transactionsService: dep.transactionsService)
+            transactionsService: dep.transactionsService,
+            pushNotificationsService: application.pushNotificationsService)
 
         coordinator.delegate = self
 
@@ -237,28 +240,22 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     }
 
     func showActiveWalletIfNeeded() {
-        if activeWalletCoordinator != nil {
-            //no-op
-        } else if let pendingCoordinator = pendingActiveWalletCoordinator {
-            addCoordinator(pendingCoordinator)
-            pendingCoordinator.showTabBar(animated: false)
-            navigationSubject.send(.selectedWallet)
-            pendingActiveWalletCoordinator = .none
-        } else {
-            //NOTE: wait until presented
-        }
+        guard let _ = showActiveWallet() else { return }
     }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
-        activeWalletCoordinator?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
-        activeWalletCoordinator?.didPressViewContractWebPage(url, in: viewController)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.didPressViewContractWebPage(url, in: viewController)
     }
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
-        activeWalletCoordinator?.didPressOpenWebPage(url, in: viewController)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.didPressOpenWebPage(url, in: viewController)
     }
 
     func show(error: Error) {
@@ -280,7 +277,8 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     }
 
     func openUrlInDappBrowser(url: URL, animated: Bool) {
-        activeWalletCoordinator?.openUrlInBrowser(url: url, animated: animated)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.openUrlInBrowser(url: url, animated: animated)
     }
 
     func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl) {
@@ -288,8 +286,15 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     }
 
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer) {
-        activeWalletCoordinator?.showPaymentFlow(for: type, server: server)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.showPaymentFlow(for: type, server: server)
     }
+
+    func show(transaction: Transaction) {
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.show(transaction: transaction)
+    }
+
 }
 
 extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
@@ -321,7 +326,7 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
     }
 
     func showWallets(in coordinator: ActiveWalletCoordinator) {
-        pendingActiveWalletCoordinator = coordinator
+        latestActiveWalletCoordinator = coordinator
         removeCoordinator(coordinator)
 
         coordinator.navigationController.popViewController(animated: true)
@@ -335,10 +340,6 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
         reset()
     }
 
-    func didShowWallet(in coordinator: ActiveWalletCoordinator) {
-        application.notificationService.requestToEnableNotification()
-    }
-
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource) {
         application.handleUniversalLink(url: url, source: source)
     }
@@ -347,7 +348,8 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
 extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
 
     func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
-        activeWalletCoordinator?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: source)
+        guard let coordinator = showActiveWallet() else { return }
+        coordinator.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: source)
     }
 
     func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController? {
@@ -413,6 +415,17 @@ extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
     }
 }
 
+extension AppCoordinator: SystemSettingsRequestable {
+    func promptOpenSettings() async -> Result<Void, Error> {
+        switch await UIApplication.shared.presentedViewController(or: navigationController).confirm(title: "Open settings") {
+        case .success(let value):
+            return .success(value)
+        case .failure(let e):
+            return .failure(e)
+        }
+    }
+}
+
 extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
@@ -430,15 +443,32 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         //NOTE: Push existing view controller to the app navigation stack
-        if let pendingCoordinator = pendingActiveWalletCoordinator, keystore.currentWallet == account {
-            addCoordinator(pendingCoordinator)
-
-            pendingCoordinator.showTabBar(animated: true)
-            navigationSubject.send(.selectedWallet)
+        if let coordinator = latestActiveWalletCoordinator, keystore.currentWallet == account {
+            show(activeWalletCoordinator: coordinator, animated: true)
         } else {
             showActiveWallet(for: account, animated: true)
         }
 
-        pendingActiveWalletCoordinator = .none
+        latestActiveWalletCoordinator = .none
+    }
+
+    private func showActiveWallet(animated: Bool = false) -> ActiveWalletCoordinator? {
+        if let coordinator = activeWalletCoordinator {
+            return coordinator
+        } else if let coordinator = latestActiveWalletCoordinator {
+            show(activeWalletCoordinator: coordinator, animated: animated)
+
+            return coordinator
+        } else {
+            return nil
+        }
+    }
+
+    private func show(activeWalletCoordinator: ActiveWalletCoordinator, animated: Bool) {
+        addCoordinator(activeWalletCoordinator)
+
+        activeWalletCoordinator.showTabBar(animated: animated)
+        navigationSubject.send(.selectedWallet)
+        latestActiveWalletCoordinator = nil
     }
 }

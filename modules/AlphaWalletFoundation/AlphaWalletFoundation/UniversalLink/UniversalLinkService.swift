@@ -29,11 +29,11 @@ public protocol UniversalLinkNavigatable: AnyObject {
 public final class ApplicationNavigationHandler {
     private let subject: CurrentValueSubject<ApplicationNavigation, Never>
 
-    var value: ApplicationNavigation {
+    public var value: ApplicationNavigation {
         return subject.value
     }
 
-    var publisher: AnyPublisher<ApplicationNavigation, Never> {
+    public var publisher: AnyPublisher<ApplicationNavigation, Never> {
         subject.eraseToAnyPublisher()
     }
 

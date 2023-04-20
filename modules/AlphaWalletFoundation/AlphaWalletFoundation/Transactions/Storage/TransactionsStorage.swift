@@ -393,7 +393,7 @@ extension TransactionDataStore.functional {
         return NSPredicate(format: "nonce == '\(nonce)'")
     }
 
-    static func blockNumberPredicate(blockNumber: Int) -> NSPredicate {
+    public static func blockNumberPredicate(blockNumber: Int) -> NSPredicate {
         return NSPredicate(format: "blockNumber > \(blockNumber)")
     }
 
@@ -451,7 +451,7 @@ extension TransactionDataStore.functional {
 }
 
 extension TransactionState {
-    static func predicate(state: TransactionState) -> NSPredicate {
+    public static func predicate(state: TransactionState) -> NSPredicate {
         return NSPredicate(format: "internalState == \(state.rawValue)")
     }
 }

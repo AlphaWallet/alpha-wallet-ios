@@ -4,11 +4,11 @@ import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletCore
+import AlphaWalletNotifications
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ActiveWalletCoordinator)
-    func didShowWallet(in coordinator: ActiveWalletCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource)
     func showWallets(in coordinator: ActiveWalletCoordinator)
     func didRestart(in coordinator: ActiveWalletCoordinator, reason: RestartReason, wallet: Wallet)
@@ -48,16 +48,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             keystore: keystore,
             analytics: analytics)
     }()
-    private lazy var transactionNotificationService: NotificationSourceService = {
-        let service = TransactionNotificationSourceService(
-            transactionDataStore: transactionsDataStore,
-            config: config,
-            serversProvider: serversProvider)
-
-        service.delegate = promptBackup
-        return service
+    private lazy var transactionNotificationSource: LocalNotificationSource = {
+        return TransactionNotificationSource(
+            transactionsService: transactionsService,
+            config: WalletConfig(address: wallet.address),
+            wallet: wallet)
     }()
-    private let notificationService: NotificationService
+    private let localNotificationsService: LocalNotificationService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let tokenSwapper: TokenSwapper
@@ -69,6 +66,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let serversProvider: ServersProvidable
     private let transactionsService: TransactionsService
     private let tokensPipeline: TokensProcessingPipeline
+    private let pushNotificationsService: PushNotificationsService
 
     var transactionCoordinator: TransactionsCoordinator? {
         return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
@@ -145,7 +143,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          coinTickersFetcher: CoinTickersFetcher,
          tokenActionsService: TokenActionsService,
          walletConnectCoordinator: WalletConnectCoordinator,
-         notificationService: NotificationService,
+         localNotificationsService: LocalNotificationService,
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType,
          tokenSwapper: TokenSwapper,
@@ -162,9 +160,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          caip10AccountProvidable: CAIP10AccountProvidable,
          tokenImageFetcher: TokenImageFetcher,
          serversProvider: ServersProvidable,
-         transactionsService: TransactionsService) {
+         transactionsService: TransactionsService,
+         pushNotificationsService: PushNotificationsService) {
 
         self.transactionsService = transactionsService
+        self.pushNotificationsService = pushNotificationsService
         self.serversProvider = serversProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.promptBackup = promptBackup
@@ -198,7 +198,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             account: wallet,
             analytics: analytics,
             networkService: networkService)
-        self.notificationService = notificationService
+        self.localNotificationsService = localNotificationsService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
         //Disabled for now. Refer to function's comment
@@ -210,15 +210,16 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         self.keystore.recentlyUsedWallet = wallet
         crashlytics.trackActiveWallet(wallet: wallet)
         caip10AccountProvidable.set(activeWallet: wallet)
-        notificationService.register(source: transactionNotificationService)
+        localNotificationsService.register(source: transactionNotificationSource)
 
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
 
         addCoordinator(promptBackupCoordinator)
+        handleLocalNotifications()
     }
 
     deinit {
-        notificationService.unregister(source: transactionNotificationService)
+        localNotificationsService.unregister(source: transactionNotificationSource)
     }
 
     func start(animated: Bool) {
@@ -233,8 +234,29 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         showHelpUs()
 
         showWhatsNew()
-        notificationService.start(wallet: wallet)
+        localNotificationsService.start()
         spamTokenService.startMonitoring()
+    }
+
+    private func handleLocalNotifications() {
+        transactionNotificationSource.receiveNotification
+            .sink { [weak promptBackup, wallet] notification in
+                switch notification {
+                case .receiveEther(_, let amount, _, let server):
+                    switch server.serverWithEnhancedSupport {
+                    //TODO: make this work for other mainnets
+                    case .main:
+                        break
+                    case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
+                        return
+                    }
+
+                    guard let etherReceived = amount.toBigInt(decimals: server.decimals) else { return }
+                    promptBackup?.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(wallet: wallet, etherReceived: etherReceived)
+                case .receiveToken:
+                    break
+                }
+            }.store(in: &cancelable)
     }
 
     private func showHelpUs() {
@@ -385,7 +407,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
             networkService: networkService,
             promptBackup: promptBackup,
-            serversProvider: serversProvider)
+            serversProvider: serversProvider,
+            pushNotificationsService: pushNotificationsService)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
@@ -474,10 +497,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
                 navigationController.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
             }
         }
-    }
-
-    private func handlePendingTransaction(transaction: SentTransaction) {
-        transactionCoordinator?.addSentTransaction(transaction)
     }
 
     private func showTransactionSent(transaction: SentTransaction) {
@@ -619,7 +638,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
@@ -694,7 +713,6 @@ extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         //We are only showing the QR code and some text for this address. Maybe have to rework graphic design so that server isn't necessary
         showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: coordinator.navigationController)
-        delegate?.didShowWallet(in: self)
     }
 }
 
@@ -970,6 +988,28 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         }
     }
 
+    func show(transaction: Transaction) {
+        let nvc = NavigationController()
+        nvc.makePresentationFullScreenForiOS13Migration()
+
+        if transaction.localizedOperations.count > 1 {
+            transactionCoordinator?.showTransaction(.group(transaction), navigationController: nvc)
+        } else {
+            transactionCoordinator?.showTransaction(.standalone(transaction), navigationController: nvc)
+        }
+        
+        let viewController = nvc.viewControllers[0]
+
+        let leftBarButtonItem = UIBarButtonItem.closeBarButton()
+        leftBarButtonItem.selectionClosure = { [weak nvc] _ in nvc?.dismiss(animated: true) }
+
+        viewController.navigationItem.leftBarButtonItem = leftBarButtonItem
+        
+        UIApplication.shared
+            .presentedViewController(or: navigationController)
+            .present(nvc, animated: true)
+    }
+
     func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: TokensCoordinator) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
@@ -983,11 +1023,11 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
@@ -1054,7 +1094,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
@@ -1200,7 +1240,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     }
 
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
@@ -1263,7 +1303,7 @@ extension ActiveWalletCoordinator {
 
 extension ActiveWalletCoordinator: ReplaceTransactionCoordinatorDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator) {
-        handlePendingTransaction(transaction: transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator) {

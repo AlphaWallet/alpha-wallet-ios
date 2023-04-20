@@ -33,6 +33,7 @@ class SettingsViewController: UIViewController {
     private lazy var dataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let appProtectionSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
+    private let pushNotificationsSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: SettingsViewModel
@@ -91,6 +92,7 @@ class SettingsViewController: UIViewController {
         let input = SettingsViewModelInput(
             willAppear: willAppear.eraseToAnyPublisher(),
             appProtectionSelection: appProtectionSelection.eraseToAnyPublisher(),
+            pushNotificationsSelection: pushNotificationsSelection.eraseToAnyPublisher(),
             blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
@@ -149,7 +151,19 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
         guard let indexPath = cell.indexPath else { return }
 
-        appProtectionSelection.send((indexPath, isOn))
+        switch viewModel.sections[indexPath.section] {
+        case .system(let rows):
+            switch rows[indexPath.row] {
+            case .advanced, .selectActiveNetworks:
+                break
+            case .notifications:
+                pushNotificationsSelection.send((indexPath, isOn))
+            case .passcode:
+                appProtectionSelection.send((indexPath, isOn))
+            }
+        case .help, .wallet, .tokenStandard, .version:
+            break
+        }
     }
 }
 
@@ -168,7 +182,7 @@ fileprivate extension SettingsViewController {
                 return cell
             case .undefined:
                 return UITableViewCell()
-            case .passcode(let vm):
+            case .switch(let vm):
                 let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: vm)
                 cell.delegate = strongSelf

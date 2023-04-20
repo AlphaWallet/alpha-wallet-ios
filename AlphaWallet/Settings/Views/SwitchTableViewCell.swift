@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol SwitchTableViewCellDelegate: AnyObject {
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool)
@@ -32,6 +33,16 @@ class SwitchTableViewCell: UITableViewCell {
         return switchView
     }()
 
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+
+        return indicator
+    }()
+
+    private var cancellable = Set<AnyCancellable>()
+    
     var isOn: Bool {
         get { return switchView.isOn }
         set { switchView.isOn = newValue }
@@ -48,7 +59,7 @@ class SwitchTableViewCell: UITableViewCell {
         accessoryType = .none
 
         let stackView = [
-            iconImageView, titleLabel, .spacerWidth(flexible: true), switchView
+            iconImageView, titleLabel, .spacerWidth(flexible: true), loadingIndicator, switchView
         ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
@@ -70,10 +81,27 @@ class SwitchTableViewCell: UITableViewCell {
     }
 
     func configure(viewModel: SwitchTableViewCellViewModel) {
+        cancellable.cancellAll()
+
         titleLabel.text = viewModel.titleText
         titleLabel.font = viewModel.titleFont
         titleLabel.textColor = viewModel.titleTextColor
         iconImageView.image = viewModel.icon
-        switchView.isOn = viewModel.value
+
+        viewModel.value
+            .sink { [weak switchView, weak loadingIndicator] loadable in
+                switch loadable {
+                case .loading:
+                    loadingIndicator?.startAnimating()
+                    switchView?.isUserInteractionEnabled = false
+                case .failure:
+                    switchView?.isUserInteractionEnabled = true
+                    loadingIndicator?.stopAnimating()
+                case .done(let isOn):
+                    switchView?.isUserInteractionEnabled = true
+                    loadingIndicator?.stopAnimating()
+                    switchView?.isOn = isOn
+                }
+            }.store(in: &cancellable)
     }
 }

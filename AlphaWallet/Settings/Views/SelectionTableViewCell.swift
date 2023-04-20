@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
+import Combine
 
 class SelectionTableViewCell: UITableViewCell {
     private let iconImageView: UIImageView = {
@@ -16,7 +17,8 @@ class SelectionTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    private var cancellable = Set<AnyCancellable>()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -38,16 +40,37 @@ class SelectionTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: SwitchTableViewCellViewModel) {
+    func configure(viewModel: SelectionTableViewCellModel) {
+        cancellable.cancellAll()
+
         titleLabel.text = viewModel.titleText
         titleLabel.font = viewModel.titleFont
         titleLabel.textColor = viewModel.titleTextColor
         iconImageView.image = viewModel.icon
         selectionStyle = .default
-        if viewModel.value {
-            accessoryType = .checkmark
-        } else {
-            accessoryType = .none
-        }
+
+        viewModel.accessoryType
+            .assign(to: \.accessoryType, on: self)
+            .store(in: &cancellable)
+    }
+}
+
+struct SelectionTableViewCellModel {
+    let titleText: String
+    let icon: UIImage
+    let value: AnyPublisher<Bool, Never>
+
+    var titleFont: UIFont = Fonts.regular(size: 17)
+    var titleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
+
+    var accessoryType: AnyPublisher<UITableViewCell.AccessoryType, Never> {
+        value.map { $0 ? UITableViewCell.AccessoryType.checkmark : UITableViewCell.AccessoryType.none }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension SelectionTableViewCellModel: Hashable {
+   static func == (lhs: SelectionTableViewCellModel, rhs: SelectionTableViewCellModel) -> Bool {
+        return lhs.titleText == rhs.titleText && lhs.icon == rhs.icon && lhs.value == rhs.value
     }
 }

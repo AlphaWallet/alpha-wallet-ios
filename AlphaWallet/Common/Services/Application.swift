@@ -12,6 +12,7 @@ import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletTrackAPICalls
+import AlphaWalletNotifications
 
 extension TokenScript {
     static let baseTokenScriptFiles: [TokenType: String] = [
@@ -20,7 +21,7 @@ extension TokenScript {
     ]
 }
 
-protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityNavigatable, UniversalLinkNavigatable {
+protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityNavigatable, UniversalLinkNavigatable, SystemSettingsRequestable, PushNotificationNavigatable {
     var navigation: AnyPublisher<ApplicationNavigation, Never> { get }
     
     func showCreateWallet()
@@ -40,6 +41,8 @@ class Application: WalletDependenciesProvidable {
     private let navigationSubject: CurrentValueSubject<ApplicationNavigation, Never> = .init(.onboarding)
     private var navigationCancellable: Cancellable?
     private let donationUserActivityHandler: DonationUserActivityHandler
+    private let systemSettingsRequestableDelegate: SystemSettingsRequestableDelegate
+    private let notificationHandler: NotificationHandler
 
     let config: Config
     let legacyFileBasedKeystore: LegacyFileBasedKeystore
@@ -61,7 +64,8 @@ class Application: WalletDependenciesProvidable {
     let walletConnectProvider: WalletConnectProvider
     let blockiesGenerator: BlockiesGenerator
     let domainResolutionService: DomainResolutionServiceType
-    let notificationService: NotificationService
+    let localNotificationsService: LocalNotificationService
+    let pushNotificationsService: PushNotificationsService
     let blockchainsProvider: BlockchainsProvider
     let reachability = ReachabilityManager()
     let securedStorage: SecuredPasswordStorage & SecuredStorage
@@ -98,6 +102,7 @@ class Application: WalletDependenciesProvidable {
             legacyFileBasedKeystore: legacyFileBasedKeystore)
     }
 
+    // swiftlint:disable function_body_length
     init(analytics: AnalyticsServiceType,
          keystore: Keystore,
          securedStorage: SecuredPasswordStorage & SecuredStorage,
@@ -106,7 +111,7 @@ class Application: WalletDependenciesProvidable {
 
         self.config = config
         let addressStorage = FileAddressStorage()
-        register(addressStorage: addressStorage)
+        AlphaWalletAddress.register(addressStorage: addressStorage)
 
         self.appTracker = AppTracker()
         self.lock = SecuredLock(securedStorage: securedStorage)
@@ -115,15 +120,16 @@ class Application: WalletDependenciesProvidable {
         self.currencyService = CurrencyService(storage: config)
         self.walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
         self.networkService = BaseNetworkService(analytics: analytics)
+        let navigationHandler = ApplicationNavigationHandler(subject: navigationSubject)
         self.universalLinkService = BaseUniversalLinkService(
             analytics: analytics,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
             dependencies: dependencies,
             keystore: keystore,
-            navigationHandler: .init(subject: navigationSubject))
+            navigationHandler: navigationHandler)
 
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
-
+        self.systemSettingsRequestableDelegate = SystemSettingsRequestableDelegate()
         self.blockchainsProvider = BlockchainsProvider(
                 serversProvider: serversProvider,
                 blockchainFactory: BaseBlockchainFactory(
@@ -175,7 +181,15 @@ class Application: WalletDependenciesProvidable {
             blockchainProvider: blockchainProviderForResolvingEns)
 
         self.mediaContentDownloader = MediaContentDownloader.instance(reachability: reachability)
-        self.notificationService = NotificationService.instance(walletBalanceService: walletBalanceService)
+        self.localNotificationsService = LocalNotificationService.instance()
+        self.notificationHandler = AlphaWalletNotificationHandler.instance(
+            dependencies: dependencies,
+            navigationHandler: navigationHandler,
+            keystore: keystore)
+        self.pushNotificationsService = BasePushNotificationsService.instance(
+            keystore: keystore,
+            notificationHandler: notificationHandler,
+            systemSettingsRequestable: systemSettingsRequestableDelegate)
 
         self.walletConnectProvider = WalletConnectProvider.instance(
             serversProvider: serversProvider,
@@ -191,7 +205,8 @@ class Application: WalletDependenciesProvidable {
 
         self.shortcutHandler = ShortcutHandler()
         self.launchOptionsService = LaunchOptionsService(handlers: [
-            shortcutHandler
+            shortcutHandler,
+            PushNotificationLaunchOptionsHandler(pushNotificationsService: pushNotificationsService)
         ])
 
         self.donationUserActivityHandler = DonationUserActivityHandler(analytics: analytics)
@@ -202,6 +217,7 @@ class Application: WalletDependenciesProvidable {
         bindWalletAddressesStore()
         handleTokenScriptOverrideImport()
     }
+    // swiftlint:enable function_body_length
 
     //NOTE: subscribe for navigation state to keep its state in app
     private func didSetNavigation() {
@@ -212,6 +228,8 @@ class Application: WalletDependenciesProvidable {
         donationUserActivityHandler.navigation = nav
         shortcutHandler.navigation = self
         universalLinkService.navigation = nav
+        systemSettingsRequestableDelegate.delegate = nav
+        notificationHandler.navigation = nav
         navigationCancellable = nav.navigation
             .multicast(subject: navigationSubject)
             .connect()
@@ -294,7 +312,7 @@ class Application: WalletDependenciesProvidable {
         initializers()
         runServices()
         appTracker.start()
-        notificationService.registerForReceivingRemoteNotifications()
+        pushNotificationsService.requestToEnableNotification()
         tokenScriptOverridesFileManager.start()
         migrateToStoringRawPrivateKeysInKeychain()
         tokenActionsService.start()
@@ -496,6 +514,16 @@ extension Application: WalletApiCoordinatorDelegate {
             navigation?.openUrlInDappBrowser(url: redirectUrl, animated: true)
         }
     }
+
+    private class SystemSettingsRequestableDelegate: SystemSettingsRequestable {
+        weak var delegate: SystemSettingsRequestable?
+
+        @MainActor func promptOpenSettings() async -> Result<Void, Error> {
+            struct NoDelegateError: Error {}
+            guard let delegate = delegate else { return .failure(NoDelegateError()) }
+            return await delegate.promptOpenSettings()
+        }
+    }
 }
 
 extension Application: ShortcutNavigatable { }
@@ -504,16 +532,6 @@ extension AtomicDictionary: WalletDependenciesProvidable where Key == Wallet, Va
     public func walletDependencies(walletAddress: AlphaWallet.Address) -> WalletDependencies? {
         guard let wallet = values.keys.first(where: { $0.address == walletAddress }) else { return nil }
         return self[wallet]
-    }
-}
-
-extension NotificationService {
-    static func instance(walletBalanceService: WalletBalanceService) -> NotificationService {
-        NotificationService(
-            sources: [],
-            walletBalanceService: walletBalanceService,
-            notificationService: LocalNotificationService(),
-            pushNotificationsService: UNUserNotificationsService())
     }
 }
 
@@ -532,5 +550,48 @@ extension RpcBlockchainProvider {
             server: .forResolvingEns,
             analytics: analytics,
             params: .defaultParams(for: .forResolvingEns))
+    }
+}
+
+extension LocalNotificationService {
+    static func instance() -> LocalNotificationService {
+        let deliveryService = DefaultLocalNotificationDeliveryService(notificationCenter: .current())
+        return LocalNotificationService(
+            sources: [],
+            deliveryService: deliveryService)
+    }
+}
+
+extension AlphaWalletNotificationHandler {
+    static func instance(dependencies: WalletDependenciesProvidable,
+                         navigationHandler: ApplicationNavigationHandler,
+                         keystore: Keystore) -> NotificationHandler {
+
+        return AlphaWalletNotificationHandler(
+            application: .shared,
+            notificationCenter: .default,
+            walletsDependencies: dependencies,
+            navigationHandler: navigationHandler,
+            keystore: keystore)
+    }
+}
+
+extension BasePushNotificationsService {
+    static func instance(keystore: Keystore,
+                         notificationHandler: NotificationHandler,
+                         systemSettingsRequestable: SystemSettingsRequestable) -> PushNotificationsService {
+
+        let unUserNotificationService = UNUserNotificationsService(
+            application: .shared,
+            systemSettingsRequestable: systemSettingsRequestable)
+
+        return BasePushNotificationsService(
+            unUserNotificationService: unUserNotificationService,
+            keystore: keystore,
+            networking: BasePushNotificationsNetworking(
+                transporter: BaseApiTransporter(),
+                apiKey: Constants.Credentials.notificationsApiKey),
+            notificationHandler: notificationHandler,
+            isSubscribedStorage: BaseNotificationSubscribersStorage(defaults: .standard))
     }
 }

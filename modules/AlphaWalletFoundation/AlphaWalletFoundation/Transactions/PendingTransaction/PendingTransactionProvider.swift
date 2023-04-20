@@ -9,9 +9,9 @@ import Foundation
 import BigInt
 import Combine
 
-final class PendingTransactionProvider {
+public final class PendingTransactionProvider {
 
-    enum PendingTransactionProviderError: Error {
+    public enum PendingTransactionProviderError: Error {
         case `internal`(Error)
         case failureToRetrieveTransaction(hash: String, error: Error)
     }
@@ -31,20 +31,20 @@ final class PendingTransactionProvider {
     private let completeTransactionSubject = PassthroughSubject<Result<Transaction, PendingTransactionProviderError>, Never>()
     private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProviderError>, Never> {
+    public var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProviderError>, Never> {
         completeTransactionSubject.eraseToAnyPublisher()
     }
 
-    init(session: WalletSession,
-         transactionDataStore: TransactionDataStore,
-         ercTokenDetector: ErcTokenDetector) {
+    public init(session: WalletSession,
+                transactionDataStore: TransactionDataStore,
+                ercTokenDetector: ErcTokenDetector) {
 
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.ercTokenDetector = ercTokenDetector
     }
 
-    func start() {
+    public func start() {
         transactionDataStore
             .initialOrNewTransactionsPublisher(forServer: session.server, transactionState: .pending)
             .receive(on: queue)
@@ -52,7 +52,7 @@ final class PendingTransactionProvider {
             .store(in: &cancelable)
     }
 
-    func cancelScheduler() {
+    public func cancelScheduler() {
         queue.async {
             for each in self.store.values {
                 each.value.cancel()
@@ -60,7 +60,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    func resumeScheduler() {
+    public func resumeScheduler() {
         queue.async {
             for each in self.store.values {
                 each.value.restart()
