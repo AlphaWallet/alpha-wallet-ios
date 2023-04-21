@@ -4,11 +4,11 @@ import BigInt
 import CryptoSwift
 
 public struct EthereumSignature {
-    public let v: UInt8
+    public let v: BigUInt
     public let r: Data
     public let s: Data
 
-    public init(v: UInt8, r: Data, s: Data) {
+    public init(v: BigUInt, r: Data, s: Data) {
         self.v = v
         self.r = r
         self.s = s
@@ -26,7 +26,7 @@ public struct EthereumSignature {
             v -= 35
         }
 
-        self.v = v
+        self.v = BigUInt(v)
         self.r = Data(bytes: bytes[0..<32])
         self.s = Data(bytes: bytes[32..<64])
     }
@@ -146,14 +146,14 @@ fileprivate extension EIP155Signer.functional {
 
     static func signatureLegacy(from data: Data, server: RPCServer) -> EthereumSignature {
         return EthereumSignature(
-            v: server.chainID == 0 ? data[64] + EthereumSigner.vitaliklizeConstant : data[64] + 35 + UInt8(server.chainID * 2),
+            v: server.chainID == 0 ? BigUInt(data[64]) + BigUInt(EthereumSigner.vitaliklizeConstant) : BigUInt(data[64]) + BigUInt(35 + server.chainID * 2),
             r: Data(bytes: data[..<32]),
             s: Data(bytes: data[32..<64]))
     }
 
     static func signatureEip1559(from data: Data) -> EthereumSignature {
         return EthereumSignature(
-            v: data[64],
+            v: BigUInt(data[64]),
             r: Data(bytes: data[..<32]),
             s: Data(bytes: data[32..<64]))
     }
@@ -215,7 +215,7 @@ fileprivate extension HomesteadSigner.functional {
     static func signature(transaction: UnsignedTransaction, signatureData data: Data) -> EthereumSignature {
         precondition(data.count == 65, "Wrong size for signature")
         return EthereumSignature(
-            v: data[64] + EthereumSigner.vitaliklizeConstant,
+            v: BigUInt(data[64] + EthereumSigner.vitaliklizeConstant),
             r: Data(bytes: data[..<32]),
             s: Data(bytes: data[32..<64]))
     }
