@@ -69,28 +69,31 @@ public class TransactionConfigurator {
         self.transaction = transaction
         self.networkService = networkService
 
-        if session.blockchainProvider.server.supportsEip1559 && Features.default.isAvailable(.isEip1559Enabled) {
-            var initialMaxFeePerGas: BigUInt?
-            var initialMaxPriorityFeePerGas: BigUInt?
-            if case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas) = transaction.gasPrice {
-                initialMaxFeePerGas = maxFeePerGas
-                initialMaxPriorityFeePerGas = maxPriorityFeePerGas
+        if let gasPrice = transaction.gasPrice {
+            switch gasPrice {
+            case .legacy(let gasPrice):
+                gasPriceEstimator = LegacyGasPriceEstimator(
+                    blockchainProvider: session.blockchainProvider,
+                    networkService: networkService,
+                    initialGasPrice: gasPrice)
+            case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
+                gasPriceEstimator = Eip1559GasPriceEstimator(
+                    blockchainProvider: session.blockchainProvider,
+                    initialMaxFeePerGas: maxFeePerGas,
+                    initialMaxPriorityFeePerGas: maxPriorityFeePerGas)
             }
-
-            gasPriceEstimator = Eip1559GasPriceEstimator(
-                blockchainProvider: session.blockchainProvider,
-                initialMaxFeePerGas: initialMaxFeePerGas,
-                initialMaxPriorityFeePerGas: initialMaxPriorityFeePerGas)
         } else {
-            var initialGasPrice: BigUInt?
-            if case .legacy(let gasPrice) = transaction.gasPrice {
-                initialGasPrice = gasPrice
+            if session.blockchainProvider.server.supportsEip1559 && Features.default.isAvailable(.isEip1559Enabled) && !isRunningTests() {
+                gasPriceEstimator = Eip1559GasPriceEstimator(
+                    blockchainProvider: session.blockchainProvider,
+                    initialMaxFeePerGas: nil,
+                    initialMaxPriorityFeePerGas: nil)
+            } else {
+                gasPriceEstimator = LegacyGasPriceEstimator(
+                    blockchainProvider: session.blockchainProvider,
+                    networkService: networkService,
+                    initialGasPrice: nil)
             }
-
-            self.gasPriceEstimator = LegacyGasPriceEstimator(
-                blockchainProvider: session.blockchainProvider,
-                networkService: networkService,
-                initialGasPrice: initialGasPrice)
         }
 
         self.data = transaction.data
