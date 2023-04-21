@@ -58,7 +58,10 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private lazy var currencyService = CurrencyService(storage: config)
-    private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(transporter: BaseApiTransporter())
+    private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(
+        transporter: BaseApiTransporter(),
+        analytics: analytics)
+    
     private let dependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
     private lazy var walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
