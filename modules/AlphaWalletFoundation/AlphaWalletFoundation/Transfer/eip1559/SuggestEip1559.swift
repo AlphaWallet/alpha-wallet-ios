@@ -106,12 +106,12 @@ actor SuggestEip1559 {
         }
 
         var maxBaseFee: Decimal = .zero
+        var maxPriorityFee: Decimal = .zero
         var result: [Int: Eip1559FeeOracleResult] = [:]
 
         for timeFactor in (0...maxTimeFactor).reversed() {
             var bf = try predictMinBaseFee(baseFee: baseFee, order: order, timeFactor: timeFactor)
             var t = priorityFee
-            bf = max(bf, maxBaseFee)
 
             if bf > maxBaseFee {
                 maxBaseFee = bf
@@ -120,7 +120,11 @@ actor SuggestEip1559 {
                 // In this case getting included with a low priority fee is not guaranteed; instead we use the higher base fee suggestion
                 // and also offer extra priority fee to increase the chance of getting included in the base fee dip.
                 t += (maxBaseFee - bf) * extraPriorityFeeRatio
+                bf = maxBaseFee
             }
+            //We want the priority fee to be monotonically increasing
+            maxPriorityFee = max(maxPriorityFee, t)
+            t = maxPriorityFee
 
             infoLog("[Eip1559] estimate: \(timeFactor) maxFeePerGas: \(bf + t), maxPriorityFeePerGas: \(t)")
 
