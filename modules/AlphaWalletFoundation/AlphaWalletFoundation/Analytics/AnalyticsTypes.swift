@@ -113,6 +113,7 @@ public enum Analytics {
         case lifiFetchSwapRouteError
         case lifiFetchSupportedToolsError
         case lifiFetchSupportedChainsError
+        case coinGeckoRateLimited
     }
 
     public enum Properties: String {

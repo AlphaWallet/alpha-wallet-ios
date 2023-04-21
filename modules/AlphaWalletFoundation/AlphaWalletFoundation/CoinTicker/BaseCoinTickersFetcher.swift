@@ -20,7 +20,10 @@ public class BaseCoinTickersFetcher {
     /// Resolving ticker ids operations
     private var tickerResolvers: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
 
-    public init(networking: CoinTickerNetworking, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
+    public init(networking: CoinTickerNetworking,
+                storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage,
+                tickerIdsFetcher: TickerIdsFetcher) {
+
         self.networking = networking
         self.tickerIdsFetcher = tickerIdsFetcher
         self.storage = storage
@@ -174,6 +177,11 @@ public class BaseCoinTickersFetcher {
             .flatMap { [networking] tickerIds -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], PromiseError> in
                 let tickerIds = tickerIds.compactMap { $0 }
                 let ids = tickerIds.compactMap { $0.tickerId }
+
+                guard !ids.isEmpty else {
+                    return .just([:])
+                }
+
                 return networking.fetchTickers(for: ids, currency: currency).map { tickers in
                     var result: [AssignedCoinTickerId: CoinTicker] = [:]
 

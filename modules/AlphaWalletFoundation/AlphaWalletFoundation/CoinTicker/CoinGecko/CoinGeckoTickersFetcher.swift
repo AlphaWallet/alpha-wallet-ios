@@ -10,23 +10,38 @@ import Foundation
 import AlphaWalletCore
 
 public final class CoinGeckoTickersFetcher: BaseCoinTickersFetcher, CoinTickersFetcherProvider {
-    public convenience init(storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, transporter: ApiTransporter) {
+
+    public convenience init(storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage,
+                            transporter: ApiTransporter,
+                            analytics: AnalyticsLogger) {
+
         let networking: CoinTickerNetworking
         if isRunningTests() {
             networking = FakeCoinTickerNetworking()
         } else {
-            networking = BaseCoinTickerNetworking(transporter: transporter)
+            networking = CoinGeckoCoinTickerNetworking(
+                transporter: transporter,
+                analytics: analytics)
         }
 
-        let supportedTickerIdsFetcher = SupportedTickerIdsFetcher(networking: networking, storage: storage, config: Config())
+        let supportedTickerIdsFetcher = SupportedTickerIdsFetcher(
+            networking: networking,
+            storage: storage,
+            config: Config())
+
         let fileTokenEntriesProvider = FileTokenEntriesProvider()
 
         let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
             InMemoryTickerIdsFetcher(storage: storage),
             supportedTickerIdsFetcher,
-            AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: supportedTickerIdsFetcher)
+            AlphaWalletRemoteTickerIdsFetcher(
+                provider: fileTokenEntriesProvider,
+                tickerIdsFetcher: supportedTickerIdsFetcher)
         ])
 
-        self.init(networking: networking, storage: storage, tickerIdsFetcher: tickerIdsFetcher)
+        self.init(
+            networking: networking,
+            storage: storage,
+            tickerIdsFetcher: tickerIdsFetcher)
     }
 }

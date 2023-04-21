@@ -1,5 +1,5 @@
 //
-//  BaseCoinTickerNetworking.swift
+//  CoinGeckoCoinTickerNetworking.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 24.05.2022.
@@ -26,12 +26,21 @@ public class FakeCoinTickerNetworking: CoinTickerNetworking {
     }
 }
 
-public class BaseCoinTickerNetworking: CoinTickerNetworking {
+public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
+
+    static var allHTTPHeaderFields: [String: String]? = [
+        "Content-type": "application/json",
+        "client": Bundle.main.bundleIdentifier ?? "",
+        "client-build": Bundle.main.buildNumber ?? "",
+    ]
+
     private let decoder = JSONDecoder()
     private let transporter: ApiTransporter
+    private let analytics: AnalyticsLogger
 
-    init(transporter: ApiTransporter) {
+    init(transporter: ApiTransporter, analytics: AnalyticsLogger) {
         self.transporter = transporter
+        self.analytics = analytics
     }
 
     private func log(response: URLRequest.Response) {
@@ -40,6 +49,13 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
             let error = try? decoder.decode(CoinGeckoErrorResponse.self, from: response.data)
             let message = error?.status.message ?? ""
             infoLog("[CoinGecko] request failure with status code: \(response.response.statusCode), message: \(message)")
+
+            switch CoinGeckoApiError(statusCode: response.response.statusCode) {
+            case .rateLimited:
+                analytics.log(error: Analytics.WebApiErrors.coinGeckoRateLimited)
+            case .internal:
+                break
+            }
         case .success:
             break
         }
@@ -111,7 +127,7 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
         let status: CoinGeckoError
     }
 
-    struct CoinGeckoError: Decodable, Error {
+    private struct CoinGeckoError: Decodable, Error {
         enum CodingKeys: String, CodingKey {
             case code = "error_code"
             case message = "error_message"
@@ -119,5 +135,74 @@ public class BaseCoinTickerNetworking: CoinTickerNetworking {
 
         let code: Int
         let message: String
+    }
+
+    private enum CoinGeckoApiError: Error {
+        case rateLimited
+        case `internal`
+
+        init(statusCode: Int) {
+            switch statusCode {
+            case 428:
+                self = .rateLimited
+            default:
+                self = .internal
+            }
+        }
+    }
+}
+
+extension CoinGeckoCoinTickerNetworking {
+    struct TokensThatHasPricesRequest: URLRequestConvertible {
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: Constants.Coingecko.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v3/coins/list"
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = CoinGeckoCoinTickerNetworking.allHTTPHeaderFields
+
+            return try URLEncoding().encode(request, with: ["include_platform": "true"])
+        }
+    }
+
+    struct PricesOfTokensRequest: URLRequestConvertible {
+        let ids: String
+        let currency: String
+        let page: Int
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: Constants.Coingecko.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v3/coins/markets"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = CoinGeckoCoinTickerNetworking.allHTTPHeaderFields
+
+            return try URLEncoding().encode(request, with: [
+                "vs_currency": currency,
+                "ids": ids,
+                "price_change_percentage": "24h",
+                "page": page,
+                //Max according to https://www.coingecko.com/en/api
+                "per_page": 250,
+            ])
+        }
+    }
+
+    struct PriceHistoryOfTokenRequest: URLRequestConvertible {
+        let id: String
+        let currency: String
+        let days: Int
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: Constants.Coingecko.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v3/coins/\(id)/market_chart"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = CoinGeckoCoinTickerNetworking.allHTTPHeaderFields
+
+            return try URLEncoding().encode(request, with: [
+                "vs_currency": currency,
+                "days": days
+            ])
+        }
     }
 }
