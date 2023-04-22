@@ -219,7 +219,7 @@ public final class Eip1559GasPriceEstimator: NSObject, GasPriceEstimator {
     }
 
     public func shouldUseEstimatedGasPrice(_ oracleResult: Eip1559FeeOracleResult?) -> Bool {
-        guard let oracleResult = oracleResult, let specifiedMaxFee = initialMaxFeePerGas, let specifiedPriorityFee = initialMaxPriorityFeePerGas else { return false }
+        guard let oracleResult = oracleResult, let specifiedMaxFee = initialMaxFeePerGas, let specifiedPriorityFee = initialMaxPriorityFeePerGas else { return true }
         //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
         if specifiedMaxFee > oracleResult.maxFeePerGas && specifiedPriorityFee > oracleResult.maxPriorityFeePerGas {
             return false
