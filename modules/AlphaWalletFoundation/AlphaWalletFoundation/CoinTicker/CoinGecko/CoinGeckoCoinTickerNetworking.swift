@@ -143,7 +143,7 @@ public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
 
         init(statusCode: Int) {
             switch statusCode {
-            case 428:
+            case 429:
                 self = .rateLimited
             default:
                 self = .internal
