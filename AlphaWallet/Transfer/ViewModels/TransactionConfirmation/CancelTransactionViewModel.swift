@@ -154,7 +154,7 @@ extension GasSpeed {
     }
 }
 
-extension TransactionConfigurator.GasPriceWarning {
+extension TransactionConfigurator.GasPriceWarning: LocalizedWarning {
     public var shortTitle: String {
         switch self {
         case .tooHighCustomGasPrice, .networkCongested:
@@ -173,7 +173,7 @@ extension TransactionConfigurator.GasPriceWarning {
         }
     }
 
-    var description: String {
+    public var warningDescription: String? {
         switch self {
         case .tooHighCustomGasPrice:
             return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()

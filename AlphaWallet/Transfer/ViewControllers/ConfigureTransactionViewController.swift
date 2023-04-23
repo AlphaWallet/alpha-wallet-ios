@@ -168,7 +168,7 @@ class ConfigureTransactionViewController: UIViewController {
         descriptionLabel.isScrollEnabled = false
         descriptionLabel.dataDetectorTypes = .link
         descriptionLabel.font = Fonts.regular(size: 15)
-        descriptionLabel.text = gasPriceWarning.description
+        descriptionLabel.text = gasPriceWarning.localizedDescription
 
         let row0 = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
         let row1 = descriptionLabel
