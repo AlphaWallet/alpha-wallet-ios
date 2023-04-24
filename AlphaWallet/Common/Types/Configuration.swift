@@ -89,8 +89,6 @@ struct Configuration {
             static let blockChainPoa = UIColor(red: 88, green: 56, blue: 163)
             static let blockChainGoerli = UIColor(red: 187, green: 174, blue: 154)
             static let blockChainXDai = UIColor(red: 253, green: 176, blue: 61)
-            static let blockChainArtisSigma1 = UIColor(red: 83, green: 162, blue: 113)
-            static let blockChainArtisTau1 = UIColor(red: 255, green: 117, blue: 153)
             static let blockChainBinanceSmartChain = UIColor(red: 255, green: 211, blue: 0)
             static let blockChainFantom = UIColor.red
             static let blockChainFantomTestnet = UIColor.red

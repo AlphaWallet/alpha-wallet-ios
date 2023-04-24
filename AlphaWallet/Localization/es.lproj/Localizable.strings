@@ -466,8 +466,6 @@
 "signMessage.validation.walletConnect.v2.requestedChainUnavailable" = "You were requested to sign a message for the %@ chain. Make sure the %@ chain is enabled";
 "recent.transactions" = "Transacciones recientes";
 "blockchain.XDAI" = "Cadena xDAI";
-"blockchain.ARTIS.sigma1" = "Red ARTIS sigma1";
-"blockchain.ARTIS.tau1" = "Red ARTIS tau1";
 "blockchain.Binance" = "Binance (BSC) Network";
 "blockchain.Binance.test" = "Binance (BSC) Testnet Network";
 "blockchain.Heco" = "Heco Network";

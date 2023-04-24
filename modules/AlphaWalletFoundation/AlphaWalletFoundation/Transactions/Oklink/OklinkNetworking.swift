@@ -429,8 +429,6 @@ private extension RPCServer {
     var okLinkChainShortName: String {
         switch self {
         case .xDai: return ""
-        case .artis_sigma1: return ""
-        case .artis_tau1: return ""
         case .binance_smart_chain: return ""
         case .binance_smart_chain_testnet: return ""
         case .heco: return ""
