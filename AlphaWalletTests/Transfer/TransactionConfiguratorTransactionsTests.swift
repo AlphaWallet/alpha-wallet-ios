@@ -17,7 +17,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let walletConnectTransaction = WalletConnectTransaction(contract: address)
 
         let transaction = try TransactionType.prebuilt(.main).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
-        let analytics = FakeAnalyticsService()
 
         let configurator = TransactionConfigurator(
             session: .make(),
@@ -33,7 +32,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let address = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!
         let address2 = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000002")!
         let token = Token(contract: address, server: .main, value: "0", type: .erc721)
-        let analytics = FakeAnalyticsService()
 
         let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token, tokenHolders: []), value: BigUInt(0), recipient: address2, contract: address)
 
@@ -51,7 +49,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
     func testNativeCryptoTokenRecipientAddress() {
         let address = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!
         let token = Token(contract: address, server: .main, value: "0", type: .nativeCryptocurrency)
-        let analytics = FakeAnalyticsService()
 
         let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: .notSet), value: BigUInt(0), recipient: address, contract: nil)
 
