@@ -178,13 +178,13 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
 
 extension EthTokenViewCellViewModel: Hashable { }
 
-extension TokenImagePublisher: Equatable {
-    public static func == (lhs: TokenImagePublisher, rhs: TokenImagePublisher) -> Bool {
+extension AnyPublisher: Equatable {
+    public static func == (lhs: AnyPublisher, rhs: AnyPublisher) -> Bool {
         return true
     }
 }
 
-extension TokenImagePublisher: Hashable {
+extension AnyPublisher: Hashable {
     public func hash(into hasher: inout Hasher) {
         //no-op
     }
