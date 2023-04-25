@@ -29,7 +29,7 @@ public class AlphaWalletTokensService: TokensService {
     private let tokensDataStore: TokensDataStore
     private let transactionsStorage: TransactionDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let networkService: NetworkService
+    private let transporter: ApiTransporter
 
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
@@ -61,9 +61,9 @@ public class AlphaWalletTokensService: TokensService {
                 analytics: AnalyticsLogger,
                 transactionsStorage: TransactionDataStore,
                 assetDefinitionStore: AssetDefinitionStore,
-                networkService: NetworkService) {
+                transporter: ApiTransporter) {
 
-        self.networkService = networkService
+        self.transporter = transporter
         self.sessionsProvider = sessionsProvider
         self.tokensDataStore = tokensDataStore
         self.analytics = analytics
@@ -127,7 +127,7 @@ public class AlphaWalletTokensService: TokensService {
             etherToken: MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server),
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
-            networkService: networkService)
+            transporter: transporter)
 
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
 
