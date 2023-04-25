@@ -179,11 +179,6 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
     }
 }
 
-public protocol TokenGroupIdentifieble {
-    var isCollectibles: Bool { get }
-    var tokenGroupKey: String { get }
-}
-
 extension TokenGroupIdentifier {
     enum functional {}
 }
