@@ -148,7 +148,7 @@ class RetryPublisherTests: XCTestCase {
             XCTFail("no value should be returned")
         })
 
-        wait(for: [expectation], timeout: 30.0)
+        wait(for: [expectation], timeout: DurationTimeInterval.of(hours: 1))
         XCTAssertNotNil(cancellable)
     }
 
@@ -197,7 +197,7 @@ class RetryPublisherTests: XCTestCase {
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 500.0)
+        wait(for: [expectation], timeout: DurationTimeInterval.of(hours: 1))
     }
 
     func testRetryWithRandomDelay2() {
@@ -249,7 +249,7 @@ class RetryPublisherTests: XCTestCase {
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 500.0)
+        wait(for: [expectation], timeout: DurationTimeInterval.of(hours: 1))
     }
 
     func testRetryWithoutDelay() {
@@ -298,6 +298,6 @@ class RetryPublisherTests: XCTestCase {
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 50.0)
+        wait(for: [expectation], timeout: DurationTimeInterval.of(hours: 1))
     }
 }

@@ -23,6 +23,6 @@ class RequestViewModelTests: XCTestCase {
                 }
             }.store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 20)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 }

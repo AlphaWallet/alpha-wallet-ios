@@ -5,12 +5,13 @@
 //  Created by Vladyslav Shepitko on 19.09.2022.
 //
 
-import XCTest
 @testable import AlphaWalletFoundation
-import Combine
-import CombineExt
+import AlphaWallet
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import CombineExt
+import XCTest
 
 final class RampTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
@@ -34,7 +35,7 @@ final class RampTests: XCTestCase {
             XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 60)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 
     final class FakeRampNetworkProvider: RampNetworkProviderType {

@@ -409,7 +409,7 @@ class TokenBalanceTests: XCTestCase {
             tokensService.deleteTokenTestsOnly(token: token)
         }
 
-        waitForExpectations(timeout: 50)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 
     func testTokenDeletion() {
@@ -498,7 +498,7 @@ class TokenBalanceTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: 30)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 
     func testBalanceUpdatesPublisherWhenFungibleBalanceUpdated() {

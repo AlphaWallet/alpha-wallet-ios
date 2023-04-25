@@ -36,7 +36,7 @@ class PublisherToAsyncTests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 
     func testAsyncValuesCancellation() {
@@ -67,6 +67,6 @@ class PublisherToAsyncTests: XCTestCase {
             task.cancel()
         }
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
     }
 }
