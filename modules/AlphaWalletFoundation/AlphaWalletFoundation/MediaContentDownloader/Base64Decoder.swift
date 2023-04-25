@@ -35,7 +35,7 @@ public struct Base64Decoder {
 
             let startBase64Index = string.index(index, offsetBy: 1)
             let supposeBase64 = String(string[startBase64Index ..< string.endIndex])
-            let isBase64 = predicate.evaluate(with: supposeBase64)
+            let isBase64 = predicate.evaluate(with: supposeBase64) || Data(base64Encoded: supposeBase64) != nil
             if isBase64 {
                 guard let data = Data(base64Encoded: supposeBase64) else { return nil }
                 //data:application/json;base64,
@@ -53,7 +53,7 @@ public struct Base64Decoder {
                 return nil
             }
         } else {
-            let isBase64 = predicate.evaluate(with: string)
+            let isBase64 = predicate.evaluate(with: string) || Data(base64Encoded: string) != nil
             if isBase64, let data = Data(base64Encoded: string) {
                 return (nil, nil, data)
             }
