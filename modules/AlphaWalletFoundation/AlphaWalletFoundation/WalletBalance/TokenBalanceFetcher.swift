@@ -37,7 +37,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         return JsonFromTokenUri(
             blockchainProvider: session.blockchainProvider,
             tokensDataStore: tokensDataStore,
-            networkService: networkService)
+            transporter: transporter)
     }()
     
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
@@ -65,7 +65,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     }()
     private let session: WalletSession
     private let etherToken: Token
-    private let networkService: NetworkService
+    private let transporter: ApiTransporter
     private var cancellable = AtomicDictionary<String, AnyCancellable>()
     
     weak public var delegate: TokenBalanceFetcherDelegate?
@@ -76,10 +76,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 etherToken: Token,
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,
-                networkService: NetworkService) {
+                transporter: ApiTransporter) {
 
         self.session = session
-        self.networkService = networkService
+        self.transporter = transporter
         self.nftProvider = session.nftProvider
         self.etherToken = etherToken
         self.tokensDataStore = tokensDataStore

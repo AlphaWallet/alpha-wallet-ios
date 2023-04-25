@@ -11,6 +11,7 @@ import Combine
 
 public protocol ApiTransporter {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
+    func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<DataResponsePublisher<Data>.Output, SessionTaskError>
 }
 
 final class ApiTransporterRetryPolicy: RetryPolicy {
@@ -97,6 +98,17 @@ public class BaseApiTransporter: ApiTransporter {
                             throw SessionTaskError(error: NonHttpUrlResponseError(request: request))
                         }
                     }.mapError { SessionTaskError(error: $0) }
+            }.eraseToAnyPublisher()
+    }
+
+    public func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<DataResponsePublisher<Data>.Output, SessionTaskError> {
+        Just(request)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap(maxPublishers: .max(maxPublishers)) { [session, rootQueue] request in
+                session.request(request)
+                    .validate()
+                    .publishData(queue: rootQueue)
+                    .mapError { SessionTaskError(error: $0) }
             }.eraseToAnyPublisher()
     }
 }

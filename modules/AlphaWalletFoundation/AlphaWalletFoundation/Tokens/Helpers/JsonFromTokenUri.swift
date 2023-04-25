@@ -22,14 +22,14 @@ final class JsonFromTokenUri {
     private var inFlightPublishers: [String: Publisher] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
-    private let networkService: NetworkService
+    private let transporter: ApiTransporter
     private let uriMapper: TokenUriMapper
 
     public init(blockchainProvider: BlockchainProvider,
                 tokensDataStore: TokensDataStore,
-                networkService: NetworkService) {
+                transporter: ApiTransporter) {
 
-        self.networkService = networkService
+        self.transporter = transporter
         self.blockchainProvider = blockchainProvider
         self.tokensDataStore = tokensDataStore
         self.getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
@@ -169,11 +169,11 @@ final class JsonFromTokenUri {
         //TODO check this doesn't print duplicates, including unnecessary fetches
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
 
-        return networkService
-            .dataTaskPublisher(UrlRequest(url: uri))
+        return transporter
+            .dataPublisher(UrlRequest(url: uri))
             .receive(on: queue)
-            .flatMap { data -> Publisher in
-                if let json = try? JSON(data: data.data) {
+            .flatMap { response -> Publisher in
+                if let data = response.data, let json = try? JSON(data: data) {
                     do {
                         return .just(try self.fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: uri, address: address))
                     } catch {

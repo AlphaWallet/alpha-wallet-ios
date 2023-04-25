@@ -212,8 +212,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var blockchainFactory: BlockchainFactory = {
         return BaseBlockchainFactory(
             config: config,
-            analytics: analytics,
-            networkService: networkService)
+            analytics: analytics)
     }()
 
     private lazy var blockchainsProvider: BlockchainsProvider = {
@@ -631,7 +630,7 @@ class AppCoordinator: NSObject, Coordinator {
             analytics: analytics,
             transactionsStorage: transactionsDataStore,
             assetDefinitionStore: assetDefinitionStore,
-            networkService: networkService)
+            transporter: BaseApiTransporter())
 
         let tokensPipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
