@@ -36,7 +36,15 @@ final class OneinchTests: XCTestCase {
         infoLog("[Oneinch] Start")
         oneinch.start()
 
-        waitForExpectations(timeout: DurationTimeInterval.of(hours: 1))
+        var done = false
+        while !done {
+            waitForExpectations(timeout: DurationTimeInterval.of(minutes: 1)) { result in
+                done = result == nil
+                if !done {
+                    NSLog("Timed out waiting: Error is %s", result!.localizedDescription)
+                }
+            }
+        }
     }
 
     final class FakeOneinchNetworkProvider: OneinchNetworkProviderType {
