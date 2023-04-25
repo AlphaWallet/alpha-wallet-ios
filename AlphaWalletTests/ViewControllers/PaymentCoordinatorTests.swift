@@ -53,7 +53,7 @@ extension WalletDataProcessingPipeline {
             analytics: fas,
             transactionsStorage: transactionsDataStore,
             assetDefinitionStore: .make(),
-            networkService: FakeNetworkService())
+            transporter: FakeApiTransporter())
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
