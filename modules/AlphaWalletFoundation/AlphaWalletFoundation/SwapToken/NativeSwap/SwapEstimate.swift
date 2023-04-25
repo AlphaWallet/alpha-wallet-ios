@@ -36,7 +36,6 @@ public struct SwapEstimate {
     }
 
     public struct SwapStep {
-        public let unsignedSwapTransaction: UnsignedSwapTransaction
         public let estimate: SwapEstimate
         public let action: SwapQuote.Action
         public let tool: String
@@ -83,7 +82,6 @@ extension SwapEstimate.SwapStep: Decodable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
-        unsignedSwapTransaction = try container.decode(UnsignedSwapTransaction.self, forKey: .transactionRequest)
         estimate = try container.decode(SwapEstimate.self, forKey: .estimate)
         action = try container.decode(SwapQuote.Action.self, forKey: .action)
         tool = try container.decode(String.self, forKey: .tool)
