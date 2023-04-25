@@ -138,3 +138,16 @@ extension RPCServer {
         }
     }
 }
+
+extension RPCServer: Comparable {
+    public static func < (lhs: RPCServer, rhs: RPCServer) -> Bool {
+        switch (lhs.isTestnet, rhs.isTestnet) {
+        case (true, false):
+            return false
+        case (false, true):
+            return true
+        default:
+            return lhs.displayOrderPriority < rhs.displayOrderPriority
+        }
+    }
+}

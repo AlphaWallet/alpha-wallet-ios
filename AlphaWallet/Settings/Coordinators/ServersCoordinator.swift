@@ -11,38 +11,7 @@ protocol ServersCoordinatorDelegate: AnyObject {
 class ServersCoordinator: Coordinator {
     //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
     static var serversOrdered: [RPCServer] {
-        return [
-            .main,
-            .xDai,
-            .polygon,
-            .classic,
-            .goerli,
-            .binance_smart_chain,
-            .binance_smart_chain_testnet,
-            .callisto,
-            .heco,
-            .heco_testnet,
-            .fantom,
-            .fantom_testnet,
-            .avalanche,
-            .avalanche_testnet,
-            .mumbai_testnet,
-            .optimismGoerli,
-            .arbitrumGoerli,
-            .optimistic,
-            .cronosMainnet,
-            .cronosTestnet,
-            .arbitrum,
-            .klaytnCypress,
-            .klaytnBaobabTestnet,
-            //Need to update Covalent.NetworkProvider.isSupport() if we enable .ioTeX and/or .ioTeXTestnet
-            //.ioTeX,
-            //.ioTeXTestnet,
-            .palm,
-            .palmTestnet,
-            .okx,
-            .sepolia
-        ] + RPCServer.customServers
+        return RPCServer.availableServers.sorted()
     }
 
     let viewModel: ServersViewModel
