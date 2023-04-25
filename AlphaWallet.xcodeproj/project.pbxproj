@@ -514,6 +514,7 @@
 		8728FFEA2743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */; };
 		8729389029A6074500705EFF /* AVPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8729388F29A6074500705EFF /* AVPlayerViewModel.swift */; };
 		8729389229A612EC00705EFF /* WebImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8729389129A612EC00705EFF /* WebImageViewModel.swift */; };
+		8729D3BC29F7D79700117F2F /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
 		872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */ = {isa = PBXBuildFile; fileRef = 872A98652862EC0C00196EA3 /* base64_image_example.txt */; };
 		872A987128645EF100196EA3 /* SectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A987028645EF100196EA3 /* SectionProtocol.swift */; };
 		872A987328645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A987228645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift */; };
@@ -4734,6 +4735,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8729D3BC29F7D79700117F2F /* tokens.json in Resources */,
 				872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */,
 				87831C842849E4E0002E856E /* tikersForTest.json in Resources */,
 			);

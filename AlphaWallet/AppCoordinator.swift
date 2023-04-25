@@ -231,7 +231,7 @@ class AppCoordinator: NSObject, Coordinator {
         tokenGroupIdentifier: tokenGroupIdentifier,
         spamImage: R.image.spamSmall()!)
 
-    private let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
+    private let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
 
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
     static func create() throws -> AppCoordinator {
