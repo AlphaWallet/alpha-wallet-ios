@@ -1,5 +1,5 @@
 //
-//  LiQuestTokenSwapperNetworkProvider.swift
+//  LiQuestTokenSwapperNetworking.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 11.05.2022.
@@ -11,7 +11,7 @@ import SwiftyJSON
 import BigInt
 import AlphaWalletCore
 
-public protocol TokenSwapperNetworkProvider {
+public protocol TokenSwapperNetworking {
     func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError>
     func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError>
     func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError>
@@ -19,7 +19,7 @@ public protocol TokenSwapperNetworkProvider {
     func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<SwapQuote, SwapError>
 }
 
-public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
+public final class LiQuestTokenSwapperNetworking: TokenSwapperNetworking {
     //NOTE: for debug using: testnet URL(string: "https://staging.li.quest")!
     private static let baseUrl = URL(string: "https://li.quest")!
     private let networkService: NetworkService
@@ -99,12 +99,12 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     }
 }
 
-fileprivate extension LiQuestTokenSwapperNetworkProvider {
+fileprivate extension LiQuestTokenSwapperNetworking {
 
     struct ToolsRequest: URLRequestConvertible {
 
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: LiQuestTokenSwapperNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/tools"
             return try URLRequest(url: components.asURL(), method: .get)
         }
@@ -119,7 +119,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
         let exchanges: [String]
         
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: LiQuestTokenSwapperNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/advanced/routes"
             var request = try URLRequest(url: components.asURL(), method: .post)
             var options: Parameters = ["slippage": slippage.doubleValue]
@@ -147,7 +147,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
         let exchange: String
 
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: LiQuestTokenSwapperNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/quote"
             var request = try URLRequest(url: components.asURL(), method: .get)
 
@@ -170,7 +170,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
         let server: RPCServer
 
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: LiQuestTokenSwapperNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/connections"
             var request = try URLRequest(url: components.asURL(), method: .post)
 
@@ -183,7 +183,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
 
     struct SupportedChainsRequest: URLRequestConvertible {
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: LiQuestTokenSwapperNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/chains"
             return try URLRequest(url: components.asURL(), method: .get)
         }

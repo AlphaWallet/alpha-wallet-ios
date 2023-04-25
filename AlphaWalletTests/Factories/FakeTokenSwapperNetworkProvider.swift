@@ -1,5 +1,5 @@
 //
-//  FakeTokenSwapperNetworkProvider.swift
+//  FakeTokenSwapperNetworking.swift
 //  AlphaWalletTests
 //
 //  Created by Vladyslav Shepitko on 11.05.2022.
@@ -11,7 +11,7 @@ import BigInt
 import AlphaWalletCore
 import AlphaWalletFoundation
 
-final class FakeTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
+final class FakeTokenSwapperNetworking: TokenSwapperNetworking {
     func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {
         return .fail(SwapError.unknownError)
     }

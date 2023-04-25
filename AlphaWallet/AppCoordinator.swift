@@ -87,9 +87,8 @@ class AppCoordinator: NSObject, Coordinator {
         TokenSwapper(
             reachabilityManager: ReachabilityManager(),
             serversProvider: serversProvider,
-            networkProvider: LiQuestTokenSwapperNetworkProvider(networkService: networkService),
-            analyticsLogger: analytics
-        )
+            networking: LiQuestTokenSwapperNetworking(networkService: networkService),
+            analyticsLogger: analytics)
     }()
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
