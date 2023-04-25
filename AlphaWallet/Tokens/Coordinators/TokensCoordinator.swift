@@ -226,8 +226,7 @@ class TokensCoordinator: Coordinator {
 
         let coordinator = QRCodeResolutionCoordinator(
             coordinator: scanQRCodeCoordinator,
-            usage: .all(tokensService: tokensService, sessionsProvider: sessionsProvider),
-            account: wallet)
+            usage: .all(tokensService: tokensService, sessionsProvider: sessionsProvider))
 
         coordinator.delegate = self
 

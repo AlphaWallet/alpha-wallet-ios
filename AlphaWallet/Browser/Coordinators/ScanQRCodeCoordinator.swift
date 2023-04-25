@@ -47,7 +47,11 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ScanQRCodeCoordinatorDelegate?
 
-    init(analytics: AnalyticsLogger, navigationController: UINavigationController, account: Wallet?, domainResolutionService: DomainResolutionServiceType) {
+    init(analytics: AnalyticsLogger,
+         navigationController: UINavigationController,
+         account: Wallet?,
+         domainResolutionService: DomainResolutionServiceType) {
+        
         self.analytics = analytics
         self.account = account
         self.domainResolutionService = domainResolutionService
