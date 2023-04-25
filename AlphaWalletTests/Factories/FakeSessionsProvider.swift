@@ -13,15 +13,13 @@ import Combine
 
 extension BlockchainsProvider {
     static func make(servers: [RPCServer]) -> BlockchainsProvider {
-        let networkService = FakeNetworkService()
         let analytics = FakeAnalyticsService()
 
         let config = Config.make(defaults: .standardOrForTests, enabledServers: servers)
 
         let blockchainFactory = BaseBlockchainFactory(
             config: config,
-            analytics: analytics,
-            networkService: networkService)
+            analytics: analytics)
 
         let serversProvider = BaseServersProvider(config: config)
 

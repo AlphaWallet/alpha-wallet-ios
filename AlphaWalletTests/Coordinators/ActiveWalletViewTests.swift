@@ -5,6 +5,17 @@ import XCTest
 import AlphaWalletFoundation
 import Combine
 import AlphaWalletCore
+import Alamofire
+
+final class FakeApiTransporter: ApiTransporter {
+    func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+        return .empty()
+    }
+
+    func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<Alamofire.DataResponsePublisher<Data>.Output, SessionTaskError> {
+        return .empty()
+    }
+}
 
 final class FakeNetworkService: NetworkService {
     func dataTask(_ request: AlphaWalletFoundation.URLRequestConvertible) async throws -> URLRequest.Response {
