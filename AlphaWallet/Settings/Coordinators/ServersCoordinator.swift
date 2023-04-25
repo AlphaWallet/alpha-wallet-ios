@@ -22,8 +22,6 @@ class ServersCoordinator: Coordinator {
             .callisto,
             .heco,
             .heco_testnet,
-            .artis_sigma1,
-            .artis_tau1,
             .fantom,
             .fantom_testnet,
             .avalanche,

@@ -12,8 +12,6 @@ public struct Constants {
     static let callistoMagicLinkHost = "callisto.aw.app"
     static let xDaiMagicLinkHost = "xdai.aw.app"
     static let goerliMagicLinkHost = "goerli.aw.app"
-    static let artisSigma1MagicLinkHost = "artis_sigma1.aw.app"
-    static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
     static let binanceMagicLinkHost = "binance.aw.app"
     static let binanceTestMagicLinkHost = "test-binance.aw.app"
     static let hecoMagicLinkHost = "heco.aw.app"
