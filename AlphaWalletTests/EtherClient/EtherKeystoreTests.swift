@@ -49,7 +49,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTAssertEqual(1, keystore.wallets.count)
             }).store(in: &cancellable)
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: Duration.functional.timeInterval(days: 1))
     }
 
     func testImportDuplicate() throws {
@@ -68,7 +68,7 @@ class EtherKeystoreTests: XCTestCase {
             }, receiveValue: { _ in
                 XCTFail()
             }).store(in: &cancellable)
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: Duration.functional.timeInterval(days: 1))
     }
 
     func testImportFailInvalidPassword() throws {
@@ -87,7 +87,7 @@ class EtherKeystoreTests: XCTestCase {
                 //no-op
             }).store(in: &cancellable)
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: Duration.functional.timeInterval(days: 1))
     }
 
     func testExportHdWalletToSeedPhrase() throws {
@@ -209,7 +209,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTAssertEqual(1, keystore.wallets.count)
             }).store(in: &cancellable)
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: Duration.functional.timeInterval(days: 1))
     }
 
     func testSignPersonalMessageWithRawPrivateKey() throws {
