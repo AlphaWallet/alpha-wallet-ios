@@ -42,17 +42,16 @@ public class TokenJsonReader {
 
     private var decodedTokenEntries: [TokenEntry] = [TokenEntry]()
 
-    public init?(fromLocalFileNameWithoutSuffix fileName: String) {
+    public init?(tokenJsonUrl: URL) {
         do {
-            try readAndDecodeData(fileName: fileName)
+            try readAndDecodeData(tokenJsonUrl: tokenJsonUrl)
         } catch {
             return nil
         }
     }
 
-    private func readAndDecodeData(fileName: String) throws {
-        guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
-        guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
+    private func readAndDecodeData(tokenJsonUrl: URL) throws {
+        let jsonData = try Data(contentsOf: tokenJsonUrl)
         do {
             decodedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
         } catch DecodingError.dataCorrupted {
@@ -124,7 +123,7 @@ public protocol TokenGroupIdentifiable {
 }
 
 public protocol TokenGroupIdentifierProtocol {
-    static func identifier(fromFileName: String) -> TokenGroupIdentifierProtocol?
+    static func identifier(tokenJsonUrl: URL) -> TokenGroupIdentifierProtocol?
     func identify(token: TokenGroupIdentifiable) -> TokenGroup
     func hasContract(address: String, chainID: Int) -> Bool
     func isSpam(address: String, chainID: Int) -> Bool
@@ -135,8 +134,8 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
     private var decodedTokenEntries: TokenGroupDictionary = TokenGroupDictionary()
     private var spamTokenEntries: Set<String> = Set<String>()
 
-    public static func identifier(fromFileName fileName: String) -> TokenGroupIdentifierProtocol? {
-        guard let reader = TokenJsonReader(fromLocalFileNameWithoutSuffix: fileName) else { return nil }
+    public static func identifier(tokenJsonUrl: URL) -> TokenGroupIdentifierProtocol? {
+        guard let reader = TokenJsonReader(tokenJsonUrl: tokenJsonUrl) else { return nil }
         do {
             let decodedTokenEntries = try reader.tokenGroupDictionary()
             var spamTokenEntries: Set<String> = Set<String>()

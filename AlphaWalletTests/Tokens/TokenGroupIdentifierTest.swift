@@ -18,22 +18,22 @@ class TokenGroupIdentifierTest: XCTestCase {
     }
 
     func testReadingExistingFile() throws {
-        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssertNotNil(reader)
     }
 
     func testReadingExistingNonJsonFile() throws {
-        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "schema")
+        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssertNil(reader)
     }
 
     func testReadingNonExistingFile() throws {
-        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "Not present at all")
+        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: URL(string: "no-file-url")!)
         XCTAssertNil(reader)
     }
 
     func testDetectDefi() throws {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssert(tokenGroupIdentifier != nil)
         // match address and id in contract
         let t1 = Token(contract: AlphaWallet.Address(string: "0xF0A5717Ec0883eE56438932b0fe4A20822735fBa")!, server: RPCServer.custom(chainId: 42161))
@@ -50,7 +50,7 @@ class TokenGroupIdentifierTest: XCTestCase {
     }
 
     func testDetectGoverance() throws {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssert(tokenGroupIdentifier != nil)
         // match address and id in contract
         let t1 = Token(contract: AlphaWallet.Address(string: "0x596fa47043f99a4e0f122243b841e55375cde0d2")!, server: RPCServer.custom(chainId: 43114))
@@ -67,7 +67,7 @@ class TokenGroupIdentifierTest: XCTestCase {
     }
 
     func testDetectAssets() throws {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssert(tokenGroupIdentifier != nil)
         let t1 = Token(contract: AlphaWallet.Address(string: "0xfc82bb4ba86045af6f327323a46e80412b91b27d")!, server: RPCServer.custom(chainId: 1))
         XCTAssertEqual(tokenGroupIdentifier!.identify(token: t1), TokenGroup.assets)
@@ -80,7 +80,7 @@ class TokenGroupIdentifierTest: XCTestCase {
     }
 
     func testDetectCollectible() throws {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssert(tokenGroupIdentifier != nil)
         let t1 = Token(type: .erc721)
         XCTAssertEqual(tokenGroupIdentifier!.identify(token: t1), TokenGroup.collectibles)
@@ -91,7 +91,7 @@ class TokenGroupIdentifierTest: XCTestCase {
     }
 
     func testDetectSpam() throws {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssert(tokenGroupIdentifier != nil)
         XCTAssertFalse(tokenGroupIdentifier!.hasContract(address: "0xD7f1d4F5A1B44D827a7C3cC5dd46a80fADe55558", chainID: 137))
         XCTAssertTrue(tokenGroupIdentifier!.hasContract(address: "0x596fa47043f99a4e0f122243b841e55375cde0d2", chainID: 43114))
