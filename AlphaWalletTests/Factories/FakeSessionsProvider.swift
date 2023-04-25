@@ -27,8 +27,6 @@ extension BlockchainsProvider {
             serversProvider: serversProvider,
             blockchainFactory: blockchainFactory)
 
-        blockchainsProvider.start()
-
         return blockchainsProvider
     }
 }

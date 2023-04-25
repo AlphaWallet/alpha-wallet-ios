@@ -9,7 +9,7 @@ extension WalletConnectCoordinator {
 
     static func fake() -> WalletConnectCoordinator {
         let keystore = FakeEtherKeystore(wallets: [.make()])
-        let dependencies = AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>(value: [
+        let dependencies = AtomicDictionary<Wallet, WalletDependencies>(value: [
             .make(): WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
         ])
 
@@ -77,17 +77,19 @@ class ConfigTests: XCTestCase {
 
     func testTabBarItemTitle() {
         Config.setLocale(AppLocale.english)
-
-        let coordinator_1 = AppCoordinator(
-            window: .init(),
+        let app1 = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator_1 = AppCoordinator(
+            window: .init(),
+            navigationController: FakeNavigationController(),
+            application: app1)
 
         coordinator_1.start()
 
@@ -96,16 +98,19 @@ class ConfigTests: XCTestCase {
 
         Config.setLocale(AppLocale.simplifiedChinese)
 
-        let coordinator_2 = AppCoordinator(
-            window: .init(),
+        let app2 = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator_2 = AppCoordinator(
+            window: .init(),
+            navigationController: FakeNavigationController(),
+            application: app2)
 
         coordinator_2.start()
 

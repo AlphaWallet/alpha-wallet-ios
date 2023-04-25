@@ -50,9 +50,10 @@ public class BlockchainsProvider {
 
         self.blockchainFactory = blockchainFactory
         self.serversProvider = serversProvider
+        start()
     }
 
-    public func start() {
+    private func start() {
         serversProvider.enabledServersPublisher
             .map { [blockchainsSubject, blockchainFactory] servers -> ServerDictionary<BlockchainProvider> in
                 var blockchains: ServerDictionary<BlockchainProvider> = .init()

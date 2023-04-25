@@ -14,13 +14,16 @@ extension KeychainStorage {
 class AppCoordinatorTests: XCTestCase {
 
     func testStart() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: UIWindow(),
+            navigationController: FakeNavigationController(),
+            application: app)
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0].isSplashScreen)
         coordinator.start()
@@ -28,16 +31,19 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testStartWithAccounts() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: UIWindow(),
+            navigationController: FakeNavigationController(),
+            application: app)
 
         coordinator.start()
 
@@ -48,16 +54,19 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testReset() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: UIWindow(),
+            navigationController: FakeNavigationController(),
+            application: app)
         coordinator.start()
         coordinator.reset()
 
@@ -65,16 +74,19 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testImportWalletCoordinator() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: UIWindow(),
+            navigationController: FakeNavigationController(),
+            application: app)
 
         coordinator.start()
         coordinator.showInitialWalletCoordinator()
@@ -83,16 +95,19 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testShowTransactions() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: UIWindow(),
+            navigationController: FakeNavigationController(),
+            application: app)
         coordinator.start()
 
         coordinator.showActiveWallet(for: .make(), animated: true)
@@ -103,16 +118,19 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testHasInCoordinatorWithWallet() {
-        let coordinator = AppCoordinator(
-            window: .init(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: .init(),
+            navigationController: FakeNavigationController(),
+            application: app)
 
         coordinator.start()
 
@@ -120,13 +138,16 @@ class AppCoordinatorTests: XCTestCase {
     }
 
     func testHasNoInCoordinatorWithoutWallets() {
-        let coordinator = AppCoordinator(
-            window: .init(),
+        let app = Application(
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(),
-            navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
+
+        let coordinator = AppCoordinator(
+            window: .init(),
+            navigationController: FakeNavigationController(),
+            application: app)
 
         coordinator.start()
 

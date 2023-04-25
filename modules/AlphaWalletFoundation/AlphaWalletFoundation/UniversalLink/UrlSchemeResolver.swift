@@ -14,17 +14,9 @@ public enum UrlSource {
     case others
 }
 
-public protocol UrlSchemeResolver: AnyObject {
-    var presentationNavigationController: UINavigationController { get }
-
-    func openURLInBrowser(url: URL)
-    func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl)
-    func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController)
-}
-
 public protocol UniversalLinkServiceDelegate: AnyObject {
-    func handle(url: DeepLink, for resolver: UrlSchemeResolver)
-    func resolve(for coordinator: UniversalLinkService) -> UrlSchemeResolver?
+    func handle(url: DeepLink)
+    func canHandleUniversalLink(for coordinator: UniversalLinkService) -> Bool
 }
 
 open class UniversalLinkService {
@@ -47,8 +39,8 @@ open class UniversalLinkService {
         if let universalLink = DeepLink(url: url) {
             logDeeplinkUsage(source: source, universalLink: universalLink, url: url)
 
-            if let resolver = delegate?.resolve(for: self) {
-                handle(url: universalLink, with: resolver)
+            if let canHandle = delegate?.canHandleUniversalLink(for: self), canHandle {
+                handle(url: universalLink)
             } else {
                 pendingUniversalLinkUrl = universalLink
             }
@@ -59,14 +51,14 @@ open class UniversalLinkService {
         }
     }
 
-    open func handlePendingUniversalLink(in resolver: UrlSchemeResolver) {
+    open func handlePendingUniversalLink() {
         guard let url = pendingUniversalLinkUrl else { return }
 
-        handle(url: url, with: resolver)
+        handle(url: url)
     }
 
-    private func handle(url: DeepLink, with resolver: UrlSchemeResolver) {
-        delegate?.handle(url: url, for: resolver)
+    private func handle(url: DeepLink) {
+        delegate?.handle(url: url)
 
         pendingUniversalLinkUrl = .none
     }
@@ -74,8 +66,8 @@ open class UniversalLinkService {
 
 extension UniversalLinkService: UniversalLinkInPasteboardServiceDelegate {
     public func importUniversalLink(url: DeepLink, for service: UniversalLinkInPasteboardService) {
-        if let service = delegate?.resolve(for: self) {
-            self.handle(url: url, with: service)
+        if let canHandle = delegate?.canHandleUniversalLink(for: self), canHandle {
+            self.handle(url: url)
         } else {
             pendingUniversalLinkUrl = url
         }

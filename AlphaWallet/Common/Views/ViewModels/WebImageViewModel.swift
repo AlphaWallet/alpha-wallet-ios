@@ -9,26 +9,6 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-//TODO: move later most of logic from app coordinator here
-class App {
-    let mediaContentDownloader: MediaContentDownloader = {
-        let networking = MediaContentNetworkingImpl()
-        let cache = KingfisherImageCacheStorage()
-        let reachability = ReachabilityManager()
-
-        return MediaContentDownloader(
-            networking: networking,
-            cache: cache,
-            contentResponseInterceptor: GenerateVideoStillInterceptor(cache: cache),
-            reachability: reachability)
-    }()
-    let reachability: ReachabilityManagerProtocol = ReachabilityManager()
-
-    static let shared: App = App()
-
-    private init() { }
-}
-
 struct WebImageViewModelInput {
     let loadUrl: AnyPublisher<WebImageViewModel.SetContentEvent, Never>
     let viewLoading: AnyPublisher<ViewLoading, Never>
@@ -44,8 +24,8 @@ class WebImageViewModel {
     private let mediaContentDownloader: MediaContentDownloader
     let avPlayerViewModel: AVPlayerViewModel
 
-    init(mediaContentDownloader: MediaContentDownloader = App.shared.mediaContentDownloader,
-         reachability: ReachabilityManagerProtocol = App.shared.reachability) {
+    init(mediaContentDownloader: MediaContentDownloader = Application.shared.mediaContentDownloader,
+         reachability: ReachabilityManagerProtocol = Application.shared.reachability) {
 
         self.mediaContentDownloader = mediaContentDownloader
         self.avPlayerViewModel = .init(reachability: reachability)

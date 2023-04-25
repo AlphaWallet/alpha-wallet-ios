@@ -29,7 +29,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private weak var sessionsViewController: WalletConnectSessionsViewController?
     private let assetDefinitionStore: AssetDefinitionStore
     private let networkService: NetworkService
-    private let dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>
+    private let dependencies: WalletDependenciesProvidable
     private let restartHandler: RestartQueueHandler
     private let serversProvider: ServersProvidable
 
@@ -46,7 +46,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          networkService: NetworkService,
          walletConnectProvider: WalletConnectProvider,
-         dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>,
+         dependencies: WalletDependenciesProvidable,
          restartHandler: RestartQueueHandler,
          serversProvider: ServersProvidable) {
 
