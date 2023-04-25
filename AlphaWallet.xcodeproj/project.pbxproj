@@ -34,6 +34,7 @@
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
 		025F5D1C2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1A2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift */; };
 		025F5D1F2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */; };
+		0260C5B029F774FA00017241 /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0260C5AF29F774FA00017241 /* Duration.swift */; };
 		026340912850C7D50033E51B /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026340902850C7D50033E51B /* Configuration.swift */; };
 		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
@@ -945,6 +946,7 @@
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
 		025F5D1A2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewController.swift; sourceTree = "<group>"; };
 		025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileView.swift; sourceTree = "<group>"; };
+		0260C5AF29F774FA00017241 /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		026340902850C7D50033E51B /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
@@ -4229,6 +4231,7 @@
 				87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */,
 				5E7C7504B9B8C2B31F952B68 /* Error.swift */,
 				8772D77128D1F03600615803 /* Constants.swift */,
+				0260C5AF29F774FA00017241 /* Duration.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -5814,6 +5817,7 @@
 				5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */,
 				5E7C78621C94C8AC509067AC /* ActiveWalletSessionView.swift in Sources */,
 				872A987328645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift in Sources */,
+				0260C5B029F774FA00017241 /* Duration.swift in Sources */,
 				5E7C7FA36B12D00E131398CF /* TokenScriptOverrides+Extensions.swift in Sources */,
 				5E7C731E718A557B7B04B37E /* Error.swift in Sources */,
 				5E7C75B277F1E0CC2356DA7B /* NoViewCardTokenScriptActionCoordinator.swift in Sources */,
