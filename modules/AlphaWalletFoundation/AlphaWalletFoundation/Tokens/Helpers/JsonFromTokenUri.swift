@@ -19,7 +19,7 @@ final class JsonFromTokenUri {
     private let tokensDataStore: TokensDataStore
     private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
-    private var inFlightPromises: [String: Publisher] = [:]
+    private var inFlightPublishers: [String: Publisher] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let networkService: NetworkService
@@ -41,7 +41,7 @@ final class JsonFromTokenUri {
     }
 
     func clear() {
-        inFlightPromises.removeAll()
+        inFlightPublishers.removeAll()
     }
 
     func fetchJsonFromTokenUri(for tokenId: String,
@@ -55,21 +55,20 @@ final class JsonFromTokenUri {
                 guard let strongSelf = self, let getTokenUri = getTokenUri else { return .empty() }
                 let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
 
-                if let promise = strongSelf.inFlightPromises[key] {
-                    return promise
+                if let publisher = strongSelf.inFlightPublishers[key] {
+                    return publisher
                 } else {
-                    let promise = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
+                    let publisher = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
                         .receive(on: queue)
                         .flatMap { strongSelf.handleUriData(data: $0, tokenId: tokenId, tokenType: tokenType, address: address) }
                         .catch { _ in return strongSelf.generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address) }
-                        .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPromises[key] = .none })
+                        .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPublishers[key] = .none })
                         .share()
                         .eraseToAnyPublisher()
 
-                    strongSelf.inFlightPromises[key] = promise
+                    strongSelf.inFlightPublishers[key] = publisher
 
-                    return promise
+                    return publisher
                 }
             }.eraseToAnyPublisher()
     }
