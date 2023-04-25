@@ -39,16 +39,14 @@ final class QRCodeResolutionCoordinator: Coordinator {
         scanQRCodeCoordinator.parentNavigationController
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
-    private let account: Wallet
     private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
+    init(coordinator: ScanQRCodeCoordinator, usage: Usage) {
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
-        self.account = account
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
