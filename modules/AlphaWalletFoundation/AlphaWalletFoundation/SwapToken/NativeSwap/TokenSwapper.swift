@@ -28,7 +28,7 @@ open class TokenSwapper: ObservableObject {
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var loadingStateSubject: CurrentValueSubject<TokenSwapper.LoadingState, Never> = .init(.pending)
     private let reachabilityManager: ReachabilityManagerProtocol
-    private let networkProvider: TokenSwapperNetworkProvider
+    private let networking: TokenSwapperNetworking
     private let queue = RunLoop.main
 
     public var loadingStatePublisher: AnyPublisher<TokenSwapper.LoadingState, Never> {
@@ -46,9 +46,13 @@ open class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public init(reachabilityManager: ReachabilityManagerProtocol, serversProvider: ServersProvidable, networkProvider: TokenSwapperNetworkProvider, analyticsLogger: AnalyticsLogger) {
+    public init(reachabilityManager: ReachabilityManagerProtocol,
+                serversProvider: ServersProvidable,
+                networking: TokenSwapperNetworking,
+                analyticsLogger: AnalyticsLogger) {
+        
         self.reachabilityManager = reachabilityManager
-        self.networkProvider = networkProvider
+        self.networking = networking
         self.serversProvider = serversProvider
         self.analyticsLogger = analyticsLogger
     }
@@ -100,9 +104,9 @@ open class TokenSwapper: ObservableObject {
                 .eraseToAnyPublisher()
         } else {
             return fetchSupportedChains()
-                .flatMap { [networkProvider] servers -> AnyPublisher<SwapPairs, PromiseError> in
+                .flatMap { [networking] servers -> AnyPublisher<SwapPairs, PromiseError> in
                     if servers.contains(server) {
-                        return networkProvider.fetchSupportedTokens(for: server)
+                        return networking.fetchSupportedTokens(for: server)
                     } else {
                         return Empty().eraseToAnyPublisher()
                     }
@@ -121,7 +125,7 @@ open class TokenSwapper: ObservableObject {
     }
 
     public func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<Result<SwapQuote, SwapError>, Never> {
-        return networkProvider.fetchSwapQuote(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange)
+        return networking.fetchSwapQuote(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange)
             .receive(on: RunLoop.main)
             .map { value -> Result<SwapQuote, SwapError> in
                 self.storage.set(swapQuote: value)
@@ -134,7 +138,7 @@ open class TokenSwapper: ObservableObject {
     }
 
     public func fetchSwapRoute(fromToken: TokenToSwap, toToken: TokenToSwap, slippage: String, fromAmount: BigUInt, exchanges: [String]) -> AnyPublisher<String?, Never> {
-        return networkProvider.fetchSwapRoutes(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges)
+        return networking.fetchSwapRoutes(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges)
             .receive(on: RunLoop.main)
             .map { swapRoutes -> String? in
                 guard !swapRoutes.isEmpty else { return nil }
@@ -171,7 +175,7 @@ open class TokenSwapper: ObservableObject {
     private func fetchAllSupportedTools() -> AnyPublisher<[SwapTool], Never> {
         if let pendingPublisher = inflightFetchSupportedToolsPublisher { return pendingPublisher }
 
-        let publisher = networkProvider.fetchSupportedTools()
+        let publisher = networking.fetchSupportedTools()
             .receive(on: queue)
             .handleEvents(receiveOutput: { _ in
                 self.inflightFetchSupportedToolsPublisher = nil
@@ -199,7 +203,7 @@ open class TokenSwapper: ObservableObject {
     @discardableResult private func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
         if let pendingPublisher = inflightFetchSupportedServersPublisher { return pendingPublisher }
 
-        let publisher = networkProvider.fetchSupportedChains()
+        let publisher = networking.fetchSupportedChains()
             .receive(on: queue)
             .handleEvents(receiveOutput: { _ in
                 self.inflightFetchSupportedServersPublisher = nil
