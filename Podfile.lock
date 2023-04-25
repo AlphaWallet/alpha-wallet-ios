@@ -222,7 +222,7 @@ DEPENDENCIES:
   - MBProgressHUD
   - Mixpanel-swift (~> 3.1)
   - PromiseKit/CorePromise
-  - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
+  - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `09da2d4b835589972ecacd022a75bc27b2c1d1bd`)
   - R.swift
   - SAMKeychain
   - Starscream (= 3.1.1)
@@ -321,7 +321,7 @@ EXTERNAL SOURCES:
     :commit: b797d40a9d08ec509db4335140cf2259b226e6a2
     :git: https://github.com/AlphaWallet/keychain-swift.git
   QRCodeReaderViewController:
-    :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
+    :commit: 09da2d4b835589972ecacd022a75bc27b2c1d1bd
     :git: https://github.com/AlphaWallet/QRCodeReaderViewController.git
   TrezorCrypto:
     :commit: 50c16ba5527e269bbc838e80aee5bac0fe304cc7
@@ -347,7 +347,7 @@ CHECKOUT OPTIONS:
     :commit: b797d40a9d08ec509db4335140cf2259b226e6a2
     :git: https://github.com/AlphaWallet/keychain-swift.git
   QRCodeReaderViewController:
-    :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
+    :commit: 09da2d4b835589972ecacd022a75bc27b2c1d1bd
     :git: https://github.com/AlphaWallet/QRCodeReaderViewController.git
   TrezorCrypto:
     :commit: 50c16ba5527e269bbc838e80aee5bac0fe304cc7
@@ -427,6 +427,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 6708b1d8aea7c6fe832a34255b67c64d00244230
+PODFILE CHECKSUM: cd1a058fd92101d519029a17b7cbf211eab037a8
 
 COCOAPODS: 1.11.3
