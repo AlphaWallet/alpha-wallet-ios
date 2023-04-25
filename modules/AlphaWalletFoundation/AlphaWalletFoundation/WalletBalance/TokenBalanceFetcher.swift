@@ -34,8 +34,12 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
     private lazy var jsonFromTokenUri: JsonFromTokenUri = {
-        return JsonFromTokenUri(blockchainProvider: session.blockchainProvider, tokensDataStore: tokensDataStore, networkService: networkService)
+        return JsonFromTokenUri(
+            blockchainProvider: session.blockchainProvider,
+            tokensDataStore: tokensDataStore,
+            networkService: networkService)
     }()
+    
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
         analytics: analytics,
         blockNumberProvider: session.blockNumberProvider,
