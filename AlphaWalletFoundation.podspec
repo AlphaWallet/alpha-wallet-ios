@@ -25,7 +25,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'BigInt', '~> 3.1'
   spec.dependency 'JSONRPCKit', '~> 2.0.0'
   spec.dependency 'APIKit', '5.1.0'
-  spec.dependency 'RealmSwift', '10.27.0'
+  spec.dependency 'RealmSwift', '10.36.0'
   spec.dependency 'CryptoSwift', '~> 1.4' 
   spec.dependency 'AlphaWalletWeb3Provider'
   spec.dependency 'TrezorCrypto'
