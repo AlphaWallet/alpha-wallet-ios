@@ -15,6 +15,7 @@ import XCTest
 
 fileprivate class ExpectationHolder {
     var expectation: XCTestExpectation?
+    var done: Bool = false
     func fulfill() {
         expectation?.fulfill()
     }
@@ -25,8 +26,7 @@ final class OneinchTests: XCTestCase {
 
     func testOneinch() {
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
-        let eh: ExpectationHolder = ExpectationHolder()
-        eh.expectation = self.expectation(description: "Wait for failure")
+        let expectation = self.expectation(description: "Wait for failure")
 
         let networkProvider = FakeOneinchNetworkProvider()
         let retries: UInt = 3
@@ -35,25 +35,20 @@ final class OneinchTests: XCTestCase {
 
         oneinch.objectWillChange.sink { [weak oneinch, networkProvider] _ in
             infoLog("[Oneinch] objectWillChange")
-            guard let oneinch = oneinch else { return XCTFail() }
-            guard case .failure = oneinch.assets else { return XCTFail() }
-            eh.fulfill()
+            guard let oneinch = oneinch else {
+                return XCTFail()
+            }
+            guard case .failure = oneinch.assets else {
+                return XCTFail()
+            }
+            expectation.fulfill()
             XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
 
         infoLog("[Oneinch] Start")
         oneinch.start()
 
-        var done = false
-        while !done {
-            waitForExpectations(timeout: DurationTimeInterval.of(minutes: 1)) { result in
-                done = result == nil
-                if !done {
-                    NSLog("Error is %s", result!.localizedDescription)
-                    eh.expectation = self.expectation(description: "Wait for failure")
-                }
-            }
-        }
+        waitForExpectations(timeout: DurationTimeInterval.of(minutes: 10))
     }
 
     final class FakeOneinchNetworkProvider: OneinchNetworkProviderType {
