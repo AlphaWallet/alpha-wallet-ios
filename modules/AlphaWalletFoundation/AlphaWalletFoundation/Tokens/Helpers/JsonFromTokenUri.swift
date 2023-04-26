@@ -59,6 +59,15 @@ final class JsonFromTokenUri {
                     return publisher
                 } else {
                     let publisher = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
+                        .breakpoint(receiveOutput: { value in
+                            guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                            print("xxx.getUriOrTokenUri: \(value)")
+                            return false
+                        }, receiveCompletion: { res in
+                            guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                            print("xxx.getUriOrTokenUri: \(res)")
+                            return false
+                        })
                         .receive(on: queue)
                         .flatMap { strongSelf.handleUriData(data: $0, tokenId: tokenId, tokenType: tokenType, address: address) }
                         .catch { _ in return strongSelf.generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address) }
@@ -70,7 +79,15 @@ final class JsonFromTokenUri {
 
                     return publisher
                 }
-            }.eraseToAnyPublisher()
+            }.breakpoint(receiveOutput: { value in
+                guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                print("xxx.fetchJsonFromTokenUri: \(value)")
+                return false
+            }, receiveCompletion: { res in
+                guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                print("xxx.fetchJsonFromTokenUri: \(res)")
+                return false
+            }).eraseToAnyPublisher()
     }
 
     private func handleUriData(data: TokenUriData,
@@ -171,6 +188,15 @@ final class JsonFromTokenUri {
 
         return transporter
             .dataPublisher(UrlRequest(url: uri))
+            .breakpoint(receiveOutput: { value in
+                guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                print("xxx.fetchTokenJson: \(value)")
+                return false
+            }, receiveCompletion: { res in
+                guard address.eip55String == "0xC9419ebd3DcBdFf2FaD35a8e13AcA24C26E9A38d" else { return false }
+                print("xxx.fetchTokenJson: \(res)")
+                return false
+            })
             .receive(on: queue)
             .flatMap { response -> Publisher in
                 if let data = response.data, let json = try? JSON(data: data) {
