@@ -36,7 +36,7 @@ PODS:
     - Kanna
     - PaperTrailLumberjack/Swift
     - PromiseKit/CorePromise
-    - RealmSwift (= 10.27.0)
+    - RealmSwift (= 10.36.0)
     - SwiftProtobuf (~> 1.18.0)
     - SwiftyJSON (= 5.0.0)
     - TrezorCrypto
@@ -163,11 +163,11 @@ PODS:
   - R.swift (5.4.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
-  - Realm (10.27.0):
-    - Realm/Headers (= 10.27.0)
-  - Realm/Headers (10.27.0)
-  - RealmSwift (10.27.0):
-    - Realm (= 10.27.0)
+  - Realm (10.36.0):
+    - Realm/Headers (= 10.36.0)
+  - Realm/Headers (10.36.0)
+  - RealmSwift (10.36.0):
+    - Realm (= 10.36.0)
   - Result (3.2.4)
   - SAMKeychain (1.5.3)
   - secp256k1_ios (0.1.3)
@@ -364,7 +364,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: ad96bd240255db44aaeaecc10928e82a24ef54c3
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: 80c660e30d0e85e29b408ed5ba6e45ffb831b0b2
+  AlphaWalletFoundation: 2dd6c8680e552ef51943237f1304cc4285a41063
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletHardwareWallet: 033da65fb8488c3a77b3438ac642618227c17d48
   AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
@@ -408,8 +408,8 @@ SPEC CHECKSUMS:
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
-  Realm: 9ca328bd7e700cc19703799785e37f77d1a130f2
-  RealmSwift: 271de77b09a73c5e46ee3252283878153bd5d288
+  Realm: 3fd136cb4c83a927482a7f1612496d37beed3cf5
+  RealmSwift: 513d4dcbf5bfc4d573454088b592685fc48dd716
   Result: d2d07204ce72856f1fd9130bbe42c35a7b0fea10
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   secp256k1_ios: ac9ef04e761f43c58012b28548afa91493761f17
