@@ -167,7 +167,13 @@ extension BookmarksViewController: UITableViewDelegate {
         let title = R.string.localizable.dappBrowserClearMyDapps()
         let deleteAction = UIContextualAction(style: .destructive, title: title) { [dataSource, deleteBookmark, headerView] _, _, completion in
             let bookmark = dataSource.item(at: indexPath).bookmark
-            self.confirm(title: title, message: bookmark.title, okTitle: R.string.localizable.removeButtonTitle(), okStyle: .destructive) { result in
+            Task { @MainActor in
+                let result = await self.confirm(
+                    title: title,
+                    message: bookmark.title,
+                    okTitle: R.string.localizable.removeButtonTitle(),
+                    okStyle: .destructive)
+
                 switch result {
                 case .success:
                     deleteBookmark.send(bookmark)

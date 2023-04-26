@@ -179,21 +179,21 @@ extension AccountsViewController: UITableViewDelegate {
         nil
     }
 
-    private func askDeleteWallet(indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
-        confirm(title: R.string.localizable.accountsConfirmDeleteTitle(),
-                message: R.string.localizable.accountsConfirmDeleteMessage(),
-                okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
-                okStyle: .destructive) { [deleteWallet, dataSource] result in
+    private func askDeleteWallet(indexPath: IndexPath) async -> Bool {
+        let result = await confirm(
+            title: R.string.localizable.accountsConfirmDeleteTitle(),
+            message: R.string.localizable.accountsConfirmDeleteMessage(),
+            okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
+            okStyle: .destructive)
 
-            switch result {
-            case .success:
-                dataSource.delete(at: indexPath)
+        switch result {
+        case .success:
+            dataSource.delete(at: indexPath)
 
-                deleteWallet.send(indexPath)
-                completion(true)
-            case .failure:
-                completion(false)
-            }
+            deleteWallet.send(indexPath)
+            return true
+        case .failure:
+            return false
         }
     }
 
@@ -205,7 +205,10 @@ extension AccountsViewController: UITableViewDelegate {
                     copyToClipboard.send(indexPath)
                     complete(true)
                 case .deleteWallet:
-                    self.askDeleteWallet(indexPath: indexPath, completion: complete)
+                    Task { @MainActor in
+                        let result = await self.askDeleteWallet(indexPath: indexPath)
+                        complete(result)
+                    }
                 }
             }
 
