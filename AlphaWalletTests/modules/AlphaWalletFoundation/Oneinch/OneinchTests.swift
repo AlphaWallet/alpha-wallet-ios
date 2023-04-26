@@ -13,12 +13,20 @@ import Combine
 import CombineExt
 import XCTest
 
+fileprivate class ExpectationHolder {
+    var expectation: XCTestExpectation?
+    func fulfill() {
+        expectation?.fulfill()
+    }
+}
+
 final class OneinchTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
 
     func testOneinch() {
-        let expectation = self.expectation(description: "Wait for failure")
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
+        let eh: ExpectationHolder = ExpectationHolder()
+        eh.expectation = self.expectation(description: "Wait for failure")
 
         let networkProvider = FakeOneinchNetworkProvider()
         let retries: UInt = 3
@@ -29,7 +37,7 @@ final class OneinchTests: XCTestCase {
             infoLog("[Oneinch] objectWillChange")
             guard let oneinch = oneinch else { return XCTFail() }
             guard case .failure = oneinch.assets else { return XCTFail() }
-            expectation.fulfill()
+            eh.fulfill()
             XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
 
@@ -41,7 +49,8 @@ final class OneinchTests: XCTestCase {
             waitForExpectations(timeout: DurationTimeInterval.of(minutes: 1)) { result in
                 done = result == nil
                 if !done {
-                    NSLog("Timed out waiting: Error is %s", result!.localizedDescription)
+                    NSLog("Error is %s", result!.localizedDescription)
+                    eh.expectation = self.expectation(description: "Wait for failure")
                 }
             }
         }
