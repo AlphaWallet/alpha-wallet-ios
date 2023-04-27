@@ -130,7 +130,8 @@ class ActiveWalletViewTests: XCTestCase {
             promptBackup: .make(),
             caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            transactionsService: dep.transactionsService)
 
         coordinator.start(animated: false)
 
@@ -215,7 +216,8 @@ class ActiveWalletViewTests: XCTestCase {
             promptBackup: .make(),
             caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            transactionsService: dep1.transactionsService)
 
         c1.start(animated: false)
 
@@ -254,7 +256,8 @@ class ActiveWalletViewTests: XCTestCase {
             promptBackup: .make(),
             caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            transactionsService: dep2.transactionsService)
 
         c1.start(animated: false)
 
@@ -311,7 +314,8 @@ class ActiveWalletViewTests: XCTestCase {
                 promptBackup: .make(),
                 caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
                 tokenImageFetcher: FakeTokenImageFetcher(),
-                serversProvider: BaseServersProvider())
+                serversProvider: BaseServersProvider(),
+                transactionsService: dep.transactionsService)
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(
@@ -372,7 +376,8 @@ class ActiveWalletViewTests: XCTestCase {
             promptBackup: .make(),
             caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            transactionsService: dep.transactionsService)
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -430,7 +435,8 @@ class ActiveWalletViewTests: XCTestCase {
             promptBackup: .make(),
             caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            transactionsService: dep.transactionsService)
 
         coordinator.start(animated: false)
 
@@ -511,7 +517,8 @@ class ActiveWalletViewTests: XCTestCase {
                         promptBackup: .make(),
                         caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
                         tokenImageFetcher: FakeTokenImageFetcher(),
-                        serversProvider: BaseServersProvider())
+                        serversProvider: BaseServersProvider(),
+                        transactionsService: dep.transactionsService)
 
                 coordinator.start(animated: false)
 

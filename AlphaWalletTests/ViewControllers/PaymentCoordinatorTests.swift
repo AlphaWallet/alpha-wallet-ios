@@ -24,7 +24,10 @@ extension CurrencyService {
 }
 
 extension WalletDataProcessingPipeline {
-    static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> AppCoordinator.WalletDependencies {
+    static func make(wallet: Wallet = .make(),
+                     server: RPCServer = .main,
+                     coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl.make(),
+                     currencyService: CurrencyService = .make()) -> WalletDependencies {
         let fas = FakeAnalyticsService()
 
         let tokensDataStore = FakeTokensDataStore(account: wallet, servers: [server])
@@ -44,9 +47,7 @@ extension WalletDataProcessingPipeline {
 
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
-        let coinTickersFetcher = CoinTickersFetcherImpl.make()
-        let currencyService: CurrencyService = .make()
-
+        
         let tokensService = AlphaWalletTokensService(
             sessionsProvider: sessionsProvider,
             tokensDataStore: tokensDataStore,
@@ -80,7 +81,16 @@ extension WalletDataProcessingPipeline {
             eventsActivityDataStore: eventsActivityDataStore,
             eventsDataStore: eventsDataStore)
 
-        let dep = AppCoordinator.WalletDependencies(
+        let transactionsService = TransactionsService(
+            sessionsProvider: sessionsProvider,
+            transactionDataStore: transactionsDataStore,
+            analytics: fas,
+            tokensService: tokensService,
+            networkService: FakeNetworkService(),
+            config: .make(),
+            assetDefinitionStore: .make())
+
+        let dep = WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,
             transactionsDataStore: transactionsDataStore,
             tokensDataStore: tokensDataStore,
@@ -89,8 +99,7 @@ extension WalletDataProcessingPipeline {
             fetcher: fetcher,
             sessionsProvider: sessionsProvider,
             eventsDataStore: eventsDataStore,
-            currencyService: currencyService,
-            coinTickersFetcher: coinTickersFetcher)
+            transactionsService: transactionsService)
         
         dep.sessionsProvider.start()
         dep.fetcher.start()

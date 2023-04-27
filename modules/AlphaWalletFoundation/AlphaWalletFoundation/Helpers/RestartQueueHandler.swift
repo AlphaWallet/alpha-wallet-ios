@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol LoadUrlInDappBrowserProvider: AnyObject {
+public protocol RestartQueueNavigatable: AnyObject {
     func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler)
 }
 
@@ -15,7 +15,7 @@ public final class RestartQueueHandler {
     private let restartQueue: RestartTaskQueue
     private let serversProvider: ServersProvidable
 
-    public weak var provider: LoadUrlInDappBrowserProvider?
+    public weak var navigation: RestartQueueNavigatable?
 
     public convenience init() {
         self.init(
@@ -60,7 +60,7 @@ public final class RestartQueueHandler {
                 Config.setChainId(server.chainID)
             case .loadUrlInDappBrowser(let url):
                 restartQueue.remove(each)
-                provider?.didLoadUrlInDappBrowser(url: url, in: self)
+                navigation?.didLoadUrlInDappBrowser(url: url, in: self)
             case .reloadServers(let servers):
                 restartQueue.remove(each)
                 serversProvider.enabledServers = servers

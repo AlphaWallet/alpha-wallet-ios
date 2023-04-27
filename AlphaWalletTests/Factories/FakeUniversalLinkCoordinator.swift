@@ -12,7 +12,7 @@ import AlphaWalletFoundation
 
 class FakeUniversalLinkCoordinator: UniversalLinkService {
     override func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }
-    override func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
+    override func handlePendingUniversalLink() {}
     override func handleUniversalLinkInPasteboard() {}
 
     static func make() -> FakeUniversalLinkCoordinator {

@@ -63,6 +63,18 @@ class GenerateVideoStillInterceptor: MediaContentDownloaderContentResponseInterc
     }
 }
 
+extension MediaContentDownloader {
+    static func instance(reachability: ReachabilityManager) -> MediaContentDownloader {
+        let mediaContentCache = KingfisherImageCacheStorage()
+
+        return MediaContentDownloader(
+            networking: MediaContentNetworkingImpl(),
+            cache: mediaContentCache,
+            contentResponseInterceptor: GenerateVideoStillInterceptor(cache: mediaContentCache),
+            reachability: reachability)
+    }
+}
+
 final class MediaContentDownloader {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.imageLoader.processingQueue", qos: .utility)
     private var inFlightPublishers: [URLRequest: LoadContentPublisher] = [:]

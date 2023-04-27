@@ -34,7 +34,7 @@ final class WalletConnectProvider: NSObject {
     private var cancellable = Set<AnyCancellable>()
     private let keystore: Keystore
     private let config: Config
-    private let dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>
+    private let dependencies: WalletDependenciesProvidable
 
     var sessions: [AlphaWallet.WalletConnect.Session] {
         return sessionsSubject.value
@@ -48,7 +48,7 @@ final class WalletConnectProvider: NSObject {
 
     init(keystore: Keystore,
          config: Config,
-         dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>) {
+         dependencies: WalletDependenciesProvidable) {
 
         self.dependencies = dependencies
         self.keystore = keystore
@@ -125,7 +125,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         do {
             let wallet = try wallet(session: session, action: action)
 
-            guard let dep = dependencies[wallet] else { throw WalletConnectError.cancelled }
+            guard let dep = dependencies.walletDependencies(walletAddress: wallet.address) else { throw WalletConnectError.cancelled }
             guard let walletSession = request.server.flatMap({ dep.sessionsProvider.session(for: $0) }) else { throw WalletConnectError.cancelled }
 
             let requester = DappRequesterViewModel(requester: Requester(walletConnectSession: session, request: request))
@@ -216,7 +216,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
     private func switchChain(object targetChain: WalletSwitchEthereumChainObject,
                              request: AlphaWallet.WalletConnect.Session.Request,
                              walletConnectSession: AlphaWallet.WalletConnect.Session,
-                             dep: AppCoordinator.WalletDependencies) -> ResponsePublisher {
+                             dep: WalletDependencies) -> ResponsePublisher {
 
         guard let dappRequestProvider = delegate else { return .fail(.cancelled) }
 
@@ -269,7 +269,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
     // swiftlint:disable function_body_length
     private func buildOperation(for action: AlphaWallet.WalletConnect.Action,
                                 walletSession: WalletSession,
-                                dep: AppCoordinator.WalletDependencies,
+                                dep: WalletDependencies,
                                 request: AlphaWallet.WalletConnect.Session.Request,
                                 session: AlphaWallet.WalletConnect.Session,
                                 requester: DappRequesterViewModel) -> ResponsePublisher {
@@ -396,5 +396,39 @@ extension AlphaWallet.WalletConnect.Action.ActionType {
         case .getTransactionCount:
             return false
         }
+    }
+}
+
+extension WalletConnectProvider {
+    static func instance(serversProvider: ServersProvidable,
+                         keystore: Keystore,
+                         dependencies: WalletDependenciesProvidable,
+                         config: Config,
+                         caip10AccountProvidable: CAIP10AccountProvidable) -> WalletConnectProvider {
+
+        let provider = WalletConnectProvider(
+            keystore: keystore,
+            config: config,
+            dependencies: dependencies)
+        let decoder = WalletConnectRequestDecoder()
+
+        let v1Provider = WalletConnectV1Provider(
+            caip10AccountProvidable: caip10AccountProvidable,
+            client: WalletConnectV1NativeClient(),
+            storage: WalletConnectV1Storage(),
+            decoder: decoder,
+            config: config)
+
+        let v2Provider = WalletConnectV2Provider(
+            caip10AccountProvidable: caip10AccountProvidable,
+            storage: WalletConnectV2Storage(),
+            serversProvider: serversProvider,
+            decoder: decoder,
+            client: WalletConnectV2NativeClient())
+
+        provider.register(service: v1Provider)
+        provider.register(service: v2Provider)
+
+        return provider
     }
 }
