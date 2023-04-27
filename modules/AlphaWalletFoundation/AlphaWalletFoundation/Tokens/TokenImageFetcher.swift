@@ -81,7 +81,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     public init(networking: ImageFetcher,
                 tokenGroupIdentifier: TokenGroupIdentifierProtocol,
                 spamImage: UIImage) {
-        
+
         self.networking = networking
         self.tokenGroupsIdentifier = tokenGroupIdentifier
         self.spamImage = spamImage
@@ -175,7 +175,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
                       staticOverlayIcon: UIImage?,
                       blockChainNameColor: UIColor,
                       serverIconImage: UIImage?) -> TokenImagePublisher {
-        
+
         let subject: CurrentValueSubject<TokenImage?, Never>
         let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
         if let sub = subscribables[key] {
@@ -260,7 +260,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             throw ImageAvailabilityError.notAvailable
         }
 
-        return await try networking.retrieveImage(with: url)
+        return try await networking.retrieveImage(with: url)
     }
 }
 
