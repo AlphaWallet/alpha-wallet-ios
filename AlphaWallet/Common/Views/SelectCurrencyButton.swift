@@ -17,6 +17,9 @@ class SelectCurrencyButton: UIControl {
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.font = Configuration.Font.amountTextField
+        label.lineBreakMode = .byTruncatingTail
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.6
 
         return label
     }()
