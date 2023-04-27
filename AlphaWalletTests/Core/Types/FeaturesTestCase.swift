@@ -20,10 +20,6 @@ class FeaturesTestCase: XCTestCase {
         }
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
     func testCreate() throws {
         let features = Features(fileName: fileName)!
         features.setAvailable(.isAlertsEnabled, true)

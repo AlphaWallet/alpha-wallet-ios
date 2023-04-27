@@ -23,17 +23,12 @@ class CachedERC1155ContractDictionaryTestCase: XCTestCase {
     private let address3: AlphaWallet.Address = AlphaWallet.Address(string: "0xbDd147D953c400318bac7316519885688C3C9e07")!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
         try FileNames.allCases.forEach {
             let url = try cacheUrlFor(fileName: $0.rawValue)
             if FileManager.default.fileExists(atPath: url.path) && FileManager.default.isDeletableFile(atPath: url.path) {
                 try FileManager.default.removeItem(at: url)
             }
         }
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     func testCacheHit() throws {
