@@ -102,7 +102,7 @@ public class BaseNetworkService: NetworkService {
     }
 
     public func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response {
-        let response = await try session.request(request).serializingData().response
+        let response = try await session.request(request).serializingData().response
         if let data = response.data, let response = response.response {
             return (data, response)
         } else {
