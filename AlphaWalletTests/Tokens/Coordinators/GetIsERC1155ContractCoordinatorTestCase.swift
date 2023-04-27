@@ -23,10 +23,6 @@ import AlphaWalletFoundation
 //        }
 //    }
 //
-//    override func tearDownWithError() throws {
-//        // Put teardown code here. This method is called after the invocation of each test method in the class.
-//    }
-//
 //    func testgetIsErc1155Contract() throws {
 //        let coordinator = IsErc1155Contract(forServer: .main, cacheName: fileName)
 //        let expectation = expectation(description: "Waiting for server response")
