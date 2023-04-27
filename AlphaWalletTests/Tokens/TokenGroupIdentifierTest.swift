@@ -11,19 +11,13 @@ import AlphaWalletFoundation
 
 class TokenGroupIdentifierTest: XCTestCase {
 
-    override func setUpWithError() throws {
-    }
-
-    override func tearDownWithError() throws {
-    }
-
     func testReadingExistingFile() throws {
         let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssertNotNil(reader)
     }
 
     func testReadingExistingNonJsonFile() throws {
-        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
+        let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.chainsZip()!)
         XCTAssertNil(reader)
     }
 
