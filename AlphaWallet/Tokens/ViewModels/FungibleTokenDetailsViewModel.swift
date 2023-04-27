@@ -19,7 +19,7 @@ final class FungibleTokenDetailsViewModel {
     private let chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
     private let coinTickersFetcher: CoinTickersFetcher
     private let tokensService: TokensProcessingPipeline
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var chartHistories: [ChartHistoryPeriod: ChartHistory] { chartHistoriesSubject.value }
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
         return tokensService.tokenViewModelPublisher(for: token)
@@ -77,7 +77,7 @@ final class FungibleTokenDetailsViewModel {
         input.willAppear.flatMapLatest { [coinTickersFetcher, token, currencyService] _ in
             coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: false, periods: ChartHistoryPeriod.allCases, currency: currencyService.currency)
         }.assign(to: \.value, on: chartHistoriesSubject)
-        .store(in: &cancelable)
+        .store(in: &cancellable)
 
         let viewTypes = Publishers.CombineLatest(coinTicker, chartHistoriesSubject)
             .compactMap { [weak self] ticker, _ in self?.buildViewTypes(for: ticker) }

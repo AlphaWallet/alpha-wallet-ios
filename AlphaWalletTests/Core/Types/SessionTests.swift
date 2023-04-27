@@ -42,7 +42,7 @@ extension APIKitSession {
 }
 
 class SessionTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     func testSessionRetry() throws {
         var callbackCallCounter: Int = 0
@@ -65,7 +65,7 @@ class SessionTests: XCTestCase {
             .sink { _ in
                 callCompletionExpectation.fulfill()
                 XCTAssertEqual(callbackCallCounter, 3)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 10)
     }
@@ -81,7 +81,7 @@ class SessionTests: XCTestCase {
         }
 
         let publisher = APIKitSession.sendPublisherTestsOnly(closure: testExampleClosure)
-        let cancelable = publisher
+        let cancellable = publisher
             .retry(times: 2, when: {
                 retryCallbackCallCounter += 1
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
@@ -94,10 +94,10 @@ class SessionTests: XCTestCase {
                 //no-op
             })
 
-        cancelable.store(in: &self.cancelable)
+        cancellable.store(in: &self.cancellable)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            cancelable.cancel()
+            cancellable.cancel()
             failureExpectation.fulfill()
             XCTAssertEqual(retryCallbackCallCounter, 1)
         }

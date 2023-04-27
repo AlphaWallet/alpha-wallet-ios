@@ -51,7 +51,7 @@ class EditBookmarkViewController: UIViewController {
         return buttonsBar
     }()
     private let viewModel: EditBookmarkViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let deleteBookmark = PassthroughSubject<IndexPath, Never>()
 
     weak var delegate: EditBookmarkViewControllerDelegate?
@@ -123,11 +123,11 @@ class EditBookmarkViewController: UIViewController {
                 titleTextField.value = viewState.bookmarkTitle
                 urlTextField.value = viewState.bookmarkUrl
                 imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.bookmarkSaved
             .sink { _ in self.delegate?.didSave(in: self) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     override func viewDidLayoutSubviews() {

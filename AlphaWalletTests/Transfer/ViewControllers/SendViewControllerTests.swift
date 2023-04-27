@@ -262,7 +262,7 @@ class SendViewControllerTests: XCTestCase {
 }
 
 class TokenBalanceTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
     func testTokenViewModelChanges() {
@@ -285,7 +285,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
         
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")!), for: token)
 
@@ -317,11 +317,11 @@ class TokenBalanceTests: XCTestCase {
 
         let isNotNilInitialValueExpectation = self.expectation(description: "Non nil value when subscribe for publisher")
 
-        var _cancelable1: AnyCancellable?
-        _cancelable1 = pipeline.tokenViewModelPublisher(for: token)
+        var _cancellable1: AnyCancellable?
+        _cancellable1 = pipeline.tokenViewModelPublisher(for: token)
             .receive(on: RunLoop.main)
             .sink { _ in
-                _cancelable1?.cancel()
+                _cancellable1?.cancel()
 
                 isNotNilInitialValueExpectation.fulfill()
             }
@@ -334,11 +334,11 @@ class TokenBalanceTests: XCTestCase {
         XCTAssertNotNil(balance)
 
         let hasInitialValueExpectation = self.expectation(description: "Initial value  when subscribe for publisher")
-        var _cancelable2: AnyCancellable?
-        _cancelable2 = pipeline.tokenViewModelPublisher(for: token)
-            .receive(on: RunLoop.main) //NOTE: async to wait for cancelable being assigned
+        var _cancellable2: AnyCancellable?
+        _cancellable2 = pipeline.tokenViewModelPublisher(for: token)
+            .receive(on: RunLoop.main) //NOTE: async to wait for cancellable being assigned
             .sink { _ in
-                _cancelable2?.cancel()
+                _cancellable2?.cancel()
 
                 hasInitialValueExpectation.fulfill()
             }
@@ -375,7 +375,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
         let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
@@ -429,7 +429,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         tokensService.deleteTokenTestsOnly(token: token)
 
@@ -444,7 +444,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount2 == callbackCount2Expectation {
                     tokenBalanceUpdateCallback2Expectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -477,7 +477,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         for each in 1 ... 10 {
             if each % 2 == 0 {
@@ -516,7 +516,7 @@ class TokenBalanceTests: XCTestCase {
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         for each in 1 ... 10 {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(each)) {

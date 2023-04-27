@@ -21,7 +21,7 @@ struct SwapOptionsViewModelOutput {
 
 class SwapOptionsViewModel {
     private let configurator: SwapOptionsConfigurator
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.swapOptions.processingQueue", qos: .utility)
     private var anyError: AnyPublisher<TokenSwapper.TokenSwapperError, Never> {
         configurator.error
@@ -43,14 +43,14 @@ class SwapOptionsViewModel {
     func transform(input: SwapOptionsViewModelInput) -> SwapOptionsViewModelOutput {
         anyError.sink { [weak self, configurator] _ in
             self?.set(selectedServer: configurator.activeValidServer)
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
 
         input.selection
             .sink { [configurator] indexPath in
                 let server = configurator.sessions[indexPath.row].server
                 guard configurator.isAvailable(server: server) else { return }
                 configurator.set(server: server)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let sessions = Publishers.CombineLatest(configurator.$sessions, configurator.$server)
                 .receive(on: queue)

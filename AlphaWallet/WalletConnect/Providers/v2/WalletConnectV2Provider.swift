@@ -25,7 +25,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
     private let caip10AccountProvidable: CAIP10AccountProvidable
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let decoder: WalletConnectRequestDecoder
     private let client: WalletConnectV2Client
 
@@ -51,27 +51,27 @@ final class WalletConnectV2Provider: WalletConnectServer {
 
         caip10AccountProvidable.accounts
             .sink { self.reloadSessions(accounts: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         client.sessionProposalPublisher
             .sink { self.didReceive(proposal: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         client.sessionRequestPublisher
             .sink { self.didReceive(request: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         client.sessionDeletePublisher
             .sink { self.didDelete(topic: $0.0, reason: $0.1) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         client.sessionSettlePublisher
             .sink { self.didSettle(session: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         client.sessionUpdatePublisher
             .sink { self.didUpgrade(topic: $0.sessionTopic, namespaces: $0.namespaces) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     private func reloadSessions(accounts: Set<CAIP10Account>) {
@@ -232,7 +232,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
                     //NOTE: for now we dont throw any error, just rejecting connection proposal
                     reject(proposal: proposal, reason: .userRejected)
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

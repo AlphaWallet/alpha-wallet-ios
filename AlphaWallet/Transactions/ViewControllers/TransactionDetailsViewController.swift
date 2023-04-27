@@ -36,7 +36,7 @@ class TransactionDetailsViewController: UIViewController {
     private let header = TransactionHeaderView()
     private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
     private var moreButton: UIButton { buttonsBar.buttons[0] }
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: TransactionDetailsViewControllerDelegate?
 
@@ -109,17 +109,17 @@ class TransactionDetailsViewController: UIViewController {
                 self?.network.configure(server: viewState.server)
                 self?.moreButton.setTitle(viewState.moreButtonTitle, for: .normal)
                 self?.footerBar.isHidden = viewState.barIsHidden
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.copiedToClipboard
             .sink(receiveValue: { [weak self] in self?.view.showCopiedToClipboard(title: $0) })
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.openUrl
             .sink(receiveValue: { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.didPressOpenWebPage($0, in: strongSelf)
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
     }
 
     @objc private func shareButtonSelected(_ sender: UIBarButtonItem) {

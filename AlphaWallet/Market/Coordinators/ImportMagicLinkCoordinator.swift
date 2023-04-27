@@ -20,7 +20,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let networkService: NetworkService
     private let controller: ImportMagicLinkController
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: ImportMagicLinkCoordinatorDelegate?
@@ -56,11 +56,11 @@ class ImportMagicLinkCoordinator: Coordinator {
 
         controller.claimPaidSignedOrderPublisher
             .sink { [weak self] in self?.claimPaidOrder($0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         controller.displayViewPublisher
             .sink { [weak self] in self?.displayImportUniversalLinkView() }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         controller.viewStatePublisher
             .sink { [weak self] viewState in
@@ -76,7 +76,7 @@ class ImportMagicLinkCoordinator: Coordinator {
                 viewModel.cost = viewState.cost
 
                 vc.configure(viewModel: viewModel)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func claimPaidOrder(_ data: (signedOrder: SignedOrder, token: Token)) {

@@ -48,7 +48,7 @@ final class SwapQuoteDetailsView: UIView {
     }()
 
     private let viewModel: SwapQuoteDetailsViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var toggleFeesBackgroundView: UIView = [toggleFeesButton, .spacerWidth(ScreenChecker.size(big: 20, medium: 20, small: 16))].asStackView()
 
     weak var delegate: SwapQuoteDetailsViewDelegate?
@@ -89,12 +89,12 @@ final class SwapQuoteDetailsView: UIView {
         let stepsOutput = viewModel.swapStepsViewModel.transform(input: .init())
         stepsOutput.areFeesHidden
             .sink { [toggleFeesBackgroundView] in toggleFeesBackgroundView.isHidden = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let output = viewModel.transform(input: .init())
         output.isHidden
             .sink { [weak self] in self?.isHidden = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     } 
 
     required init?(coder: NSCoder) {

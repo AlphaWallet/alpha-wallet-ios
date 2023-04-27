@@ -15,7 +15,7 @@ protocol FungibleTokenTabViewControllerDelegate: AnyObject, CanOpenURL2 {
 
 class FungibleTokenTabViewController: TopTabBarViewController {
     private let viewModel: FungibleTokenTabViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let willAppear = PassthroughSubject<Void, Never>()
 
     weak var delegate: FungibleTokenTabViewControllerDelegate?
@@ -45,7 +45,7 @@ class FungibleTokenTabViewController: TopTabBarViewController {
         output.viewState
             .map { $0.title }
             .assign(to: \.title, on: navigationItem, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {

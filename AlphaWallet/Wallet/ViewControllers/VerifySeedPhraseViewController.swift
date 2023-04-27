@@ -31,7 +31,7 @@ class VerifySeedPhraseViewController: UIViewController {
             }
         }
     }
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var viewModel: VerifySeedPhraseViewModel
     private let keystore: Keystore
     private let account: AlphaWallet.Address
@@ -214,7 +214,7 @@ class VerifySeedPhraseViewController: UIViewController {
                     self.state = .errorDisplaySeedPhrase(error)
                     self.delegate?.biometricsFailed(for: self.account, inViewController: self)
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     func configure() {
@@ -275,7 +275,7 @@ class VerifySeedPhraseViewController: UIViewController {
                     self.reflectError(error)
                     self.delegate?.biometricsFailed(for: self.account, inViewController: self)
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func updateStateWithVerificationResult(_ isMatched: Bool) {

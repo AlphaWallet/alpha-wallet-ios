@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 import Combine
 
 class RequestViewModelTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     func testMyAddressText() {
         let account: Wallet = .make()
@@ -21,7 +21,7 @@ class RequestViewModelTests: XCTestCase {
                 if viewState.qrCode != nil {
                     expectation.fulfill()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         wait(for: [expectation], timeout: 20)
     }

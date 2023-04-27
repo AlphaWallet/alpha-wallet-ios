@@ -51,7 +51,7 @@ class SwapRouteSummaryView: UIView {
         return iconView
     }()
 
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(edgeInsets: UIEdgeInsets, viewModel: SwapRouteSummaryViewModel) {
         super.init(frame: .zero)
@@ -90,6 +90,6 @@ class SwapRouteSummaryView: UIView {
             self?.currentPriceLabel.attributedText = state.currentPrice
             self?.timeoutLabel.isHidden = true
             self?.toTokenServerImageView.image = state.serverImage
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
     }
 }

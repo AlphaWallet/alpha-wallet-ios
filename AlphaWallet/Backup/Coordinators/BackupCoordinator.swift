@@ -14,7 +14,7 @@ class BackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let account: Wallet
     private let analytics: AnalyticsLogger
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let promptBackup: PromptBackup
     private var lastVisibleViewController: UIViewController?
 
@@ -68,7 +68,7 @@ class BackupCoordinator: Coordinator {
             .sink { [weak self] result in
                 guard let strongSelf = self else { return }
                 strongSelf.handleExport(result: result, completion: completion)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, Error>) -> Void) {

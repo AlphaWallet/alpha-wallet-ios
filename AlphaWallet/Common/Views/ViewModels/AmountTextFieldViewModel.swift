@@ -31,7 +31,7 @@ final class AmountTextFieldViewModel {
     private (set) var cryptoToFiatRate = CurrentValueSubject<AmountTextFieldViewModel.CurrencyRate, Never>(.init(value: nil, currency: .default))
     private (set) var currentPair = CurrentValueSubject<AmountTextField.Pair?, Never>(nil)
     private let amountChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let decimalParser = DecimalParser()
 
     ///Returns raw (calculated) value based on selected currency
@@ -107,7 +107,7 @@ final class AmountTextFieldViewModel {
                 case .fiatCurrency: strongSelf.recalculate(amountValue: strongSelf.fiatRawValue)
                 case .none: break
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let cryptoAmountToSend = cryptoValueOrPairChanged
             .filter { $0.0.shouldChangeText }

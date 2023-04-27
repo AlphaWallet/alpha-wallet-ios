@@ -111,7 +111,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         return textField
     }()
 
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let service: TokensProcessingPipeline
     private let containerView: ScrollableStackView = {
         let containerView = ScrollableStackView()
@@ -240,7 +240,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
                 return AmountTextFieldViewModel.CurrencyRate(value: ticker.price_usd, currency: ticker.currency)
             }.sink { [weak pricePerTokenField] value in
                 pricePerTokenField?.viewModel.cryptoToFiatRate.value = value
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         pricePerTokenField.delegate = self
 

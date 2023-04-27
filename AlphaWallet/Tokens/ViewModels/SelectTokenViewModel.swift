@@ -21,7 +21,7 @@ struct SelectTokenViewModelOutput {
 final class SelectTokenViewModel {
     private let filter: WalletFilter
     private let tokensPipeline: TokensProcessingPipeline
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokensFilter: TokensFilter
     private let whenFilterHasChanged: AnyPublisher<Void, Never>
     private let tokenImageFetcher: TokenImageFetcher

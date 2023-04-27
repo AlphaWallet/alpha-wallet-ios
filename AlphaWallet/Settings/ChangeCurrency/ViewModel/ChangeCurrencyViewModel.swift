@@ -21,7 +21,7 @@ struct ChangeCurrencyViewModelOutput {
 
 class ChangeCurrencyViewModel {
     private let currencyService: CurrencyService
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(currencyService: CurrencyService) {
         self.currencyService = currencyService

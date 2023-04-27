@@ -18,7 +18,7 @@ protocol NFTCollectionInfoPageViewDelegate: AnyObject {
 class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
     private var previewView: NFTPreviewViewRepresentable
     private let viewModel: NFTCollectionInfoPageViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let selection = PassthroughSubject<IndexPath, Never>()
 
     weak var delegate: NFTCollectionInfoPageViewDelegate?
@@ -90,11 +90,11 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
                 self?.generateSubviews(for: state.viewTypes)
                 previewView?.configure(params: state.previewViewParams)
                 previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.attributeAction
             .sink { [weak self] in self?.handle(action: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {

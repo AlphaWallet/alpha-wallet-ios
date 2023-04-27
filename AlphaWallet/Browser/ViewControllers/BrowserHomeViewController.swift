@@ -80,7 +80,7 @@ class BrowserHomeViewController: UIViewController {
     }()
 
     private lazy var dataSource = makeDataSource()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let deleteBookmark = PassthroughSubject<BookmarkObject, Never>()
 
     weak var delegate: BrowserHomeViewControllerDelegate?
@@ -133,7 +133,7 @@ class BrowserHomeViewController: UIViewController {
         output.viewState
             .sink { [dataSource] viewState in
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     @objc private func showMyDappsViewController() {

@@ -52,7 +52,7 @@ class AccountsCoordinator: Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let viewModel: AccountsCoordinatorViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let promptBackup: PromptBackup
 
     let navigationController: UINavigationController

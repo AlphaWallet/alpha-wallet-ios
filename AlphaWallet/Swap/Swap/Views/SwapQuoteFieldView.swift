@@ -23,7 +23,7 @@ final class SwapQuoteFieldView: UIView {
 
         return label
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let viewModel: SwapQuoteFieldViewModel
 
     init(edgeInsets: UIEdgeInsets, viewModel: SwapQuoteFieldViewModel) {
@@ -51,7 +51,7 @@ final class SwapQuoteFieldView: UIView {
     } 
 
     private func bind(viewModel: SwapQuoteFieldViewModel) {
-        cancelable.cancellAll()
+        cancellable.cancellAll()
 
         titleLabel.attributedText = viewModel.titleAttributedString
         backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
@@ -59,10 +59,10 @@ final class SwapQuoteFieldView: UIView {
         let output = viewModel.transform(input: .init())
         output.value
             .sink { [weak valueLabel] in valueLabel?.attributedText = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.isHidden
             .sink { [weak self] in self?.isHidden = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 }

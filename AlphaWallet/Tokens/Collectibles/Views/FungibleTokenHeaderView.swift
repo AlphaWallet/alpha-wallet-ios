@@ -38,7 +38,7 @@ class FungibleTokenHeaderView: UIView {
     }()
     private let toggleValue = PassthroughSubject<Void, Never>()
     private var blockChainTagLabel = BlockchainTagLabel()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     let viewModel: FungibleTokenHeaderViewModel
 
@@ -87,7 +87,7 @@ class FungibleTokenHeaderView: UIView {
             .sink { [weak titleLabel, weak valueLabel] state in
                 titleLabel?.attributedText = state.title
                 valueLabel?.attributedText = state.value
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     @objc private func showContractWebPage() {

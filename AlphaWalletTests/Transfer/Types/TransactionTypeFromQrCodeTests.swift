@@ -13,7 +13,7 @@ import AlphaWalletWeb3
 import Combine
 
 class ImportTokenTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     func testImportUnknownErc20Token() throws {
         let tokensDataStore = FakeTokensDataStore()
@@ -36,7 +36,7 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.symbol, "erc20")
                 XCTAssertEqual(token.decimals, 6)
                 XCTAssertEqual(token, tokensDataStore.token(for: address, server: server), "Token has added to storage")
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -59,7 +59,7 @@ class ImportTokenTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { _ in
 
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -84,7 +84,7 @@ class ImportTokenTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { token in
                 XCTAssertEqual(token.value, .zero)
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -97,7 +97,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
     private let transactionTypeSupportable = FakeTransactionTypeSupportable()
     private let tokensDataStore = FakeTokensDataStore()
     private lazy var fakeFakeImportToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var provider: TransactionTypeFromQrCode = {
         let sessions = FakeSessionsProvider(servers: [.main])
         sessions.importToken[.main] = fakeFakeImportToken
@@ -138,7 +138,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 XCTAssertEqual(transactionType.recipient?.contract, AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!)
 
                 expectation.fulfill()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -164,7 +164,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 XCTAssertEqual(transactionType.recipient?.contract, AlphaWallet.Address(string: "0x8e23ee67d1332ad560396262c48ffbb01f93d052")!)
 
                 expectation.fulfill()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -190,7 +190,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 XCTAssertEqual(transactionType.recipient?.contract, AlphaWallet.Address(string: "0x8e23ee67d1332ad560396262c48ffbb01f93d052")!)
 
                 expectation.fulfill()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }
@@ -209,7 +209,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 guard case .failure(let error) = result else { fatalError() }
                 guard case .tokenTypeNotSupported = error else { fatalError() }
                 expectation.fulfill()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         waitForExpectations(timeout: 30)
     }

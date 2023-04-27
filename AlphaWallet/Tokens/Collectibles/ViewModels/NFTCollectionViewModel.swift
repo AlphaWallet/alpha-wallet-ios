@@ -23,7 +23,7 @@ struct NFTCollectionViewModelOutput {
 }
 
 final class NFTCollectionViewModel {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokensProcessingPipeline
     private let nftProvider: NFTProvider
@@ -86,7 +86,7 @@ final class NFTCollectionViewModel {
 
         tokensService.tokenHoldersPublisher(for: token)
             .assign(to: \.value, on: tokenHolders)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let pullToRefreshState = refreshTokenHolders(input: input.pullToRefresh)
         let tokenHolder = tokenHolders.map { $0.first }.eraseToAnyPublisher()

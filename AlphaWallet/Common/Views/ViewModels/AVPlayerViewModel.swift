@@ -36,7 +36,7 @@ struct AVPlayerViewModelOutput {
 }
 
 class AVPlayerViewModel {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let reachability: ReachabilityManagerProtocol
     private (set) lazy var player: AVPlayer = {
         let player = AVPlayer()
@@ -59,7 +59,7 @@ class AVPlayerViewModel {
     func transform(input: AVPlayerViewModelInput) -> AVPlayerViewModelOutput {
         NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)
             .sink { [player] _ in player.seek(to: CMTime.zero) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         input.playPause
             .filter { [player] _ in player.currentItem != nil }
@@ -71,7 +71,7 @@ class AVPlayerViewModel {
                 } else {
                     //no-op
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let playButtonImage = player.publisher(for: \.timeControlStatus)
             .map { $0.playButtonImage }
@@ -109,7 +109,7 @@ class AVPlayerViewModel {
                         return .just(())
                     }.eraseToAnyPublisher()
             }.sink(receiveValue: { _ in })
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         return .init(
             playPauseImage: playButtonImage,

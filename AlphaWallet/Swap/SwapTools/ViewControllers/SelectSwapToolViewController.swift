@@ -26,7 +26,7 @@ final class SelectSwapToolViewController: UIViewController {
     private let willAppear = PassthroughSubject<Void, Never>()
     private let disappear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<SelectSwapToolViewModel.SwapToolSelection, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(viewModel: SelectSwapToolViewModel) {
         self.viewModel = viewModel
@@ -72,7 +72,7 @@ final class SelectSwapToolViewController: UIViewController {
                 navigationItem.title = state.title
                 dataSource.apply(state.snapshot, animatingDifferences: false)
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

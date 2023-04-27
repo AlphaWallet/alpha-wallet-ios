@@ -40,7 +40,7 @@ class RequestViewController: UIViewController {
     }()
 
     private let viewModel: RequestViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: RequestViewControllerDelegate?
 
@@ -90,11 +90,11 @@ class RequestViewController: UIViewController {
                 ensNameView.configure(viewModel: .init(text: viewState.ensName))
                 addressView.configure(viewModel: .init(text: viewState.address))
                 navigationItem.title = viewState.title
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.copiedToClipboard
             .sink { [weak self] in self?.view.showCopiedToClipboard(title: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {

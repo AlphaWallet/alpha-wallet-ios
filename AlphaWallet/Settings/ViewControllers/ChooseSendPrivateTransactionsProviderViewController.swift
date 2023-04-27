@@ -17,7 +17,7 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private lazy var dataSource: ChooseSendPrivateTransactionsProviderViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
         self.viewModel = viewModel
@@ -54,7 +54,7 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
                 navigationItem.title = state.title
 
                 dataSource.apply(state.snapshot, animatingDifferences: false)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {

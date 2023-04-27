@@ -26,7 +26,7 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
     }()
     private var exportJsonButton: UIButton { buttonsBar.buttons[0] }
     private let text = PassthroughSubject<String?, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     private lazy var buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
@@ -88,13 +88,13 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
                 exportJsonButton.setTitle(viewState.buttonTitle, for: .normal)
                 exportJsonButton.isEnabled = viewState.exportJsonButtonEnabled
                 navigationItem.title = viewState.title
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.validatedPassword
             .sink { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.exportKeystoreButtonSelected(with: $0, in: strongSelf)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

@@ -21,7 +21,7 @@ class FungibleTokenTabViewModel {
     private let token: Token
     private let tokensPipeline: TokensProcessingPipeline
     private let assetDefinitionStore: AssetDefinitionStore
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokensService: TokensService
     lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
 
@@ -53,7 +53,7 @@ class FungibleTokenTabViewModel {
         input.willAppear
             .sink { [tokensService, token] _ in
                 tokensService.refreshBalance(updatePolicy: .token(token: token))
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let viewState = tokensPipeline
             .tokenViewModelPublisher(for: token)

@@ -43,7 +43,7 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    private var cancelable: AnyCancellable?
+    private var cancellable: AnyCancellable?
 
     let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
@@ -136,8 +136,8 @@ class AddressOrEnsNameLabel: UILabel {
 
         let promise = Promise<BlockieAndAddressOrEnsResolution> { seal in
             if let address = AlphaWallet.Address(string: value) {
-                cancelable?.cancel()
-                cancelable = domainResolutionService.resolveEnsAndBlockie(address: address)
+                cancellable?.cancel()
+                cancellable = domainResolutionService.resolveEnsAndBlockie(address: address)
                     .sink(receiveCompletion: { _ in
                         seal.fulfill((nil, .resolved(.none)))
                     }, receiveValue: { value in
@@ -145,8 +145,8 @@ class AddressOrEnsNameLabel: UILabel {
                         seal.fulfill(value)
                     })
             } else if value.contains(".") {
-                cancelable?.cancel()
-                cancelable = domainResolutionService.resolveAddressAndBlockie(string: value)
+                cancellable?.cancel()
+                cancellable = domainResolutionService.resolveAddressAndBlockie(string: value)
                     .sink(receiveCompletion: { _ in
                         seal.fulfill((nil, .resolved(.none)))
                     }, receiveValue: { value in

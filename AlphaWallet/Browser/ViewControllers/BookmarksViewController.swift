@@ -28,7 +28,7 @@ final class BookmarksViewController: UIViewController {
     private lazy var headerView = BookmarksHeaderView()
     private let viewModel: BookmarksViewViewModel
     private lazy var dataSource = makeDataSource()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let deleteBookmark = PassthroughSubject<BookmarkObject, Never>()
     private let reorderBookmarks = PassthroughSubject<(from: IndexPath, to: IndexPath), Never>()
 
@@ -94,7 +94,7 @@ final class BookmarksViewController: UIViewController {
             .sink { [dataSource, weak self] viewState in
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func buildTableViewHeader() {

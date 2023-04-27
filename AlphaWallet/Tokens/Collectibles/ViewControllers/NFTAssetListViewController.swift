@@ -25,7 +25,7 @@ class NFTAssetListViewController: UIViewController {
         return tableView
     }()
     private let tokenCardViewFactory: TokenCardViewFactory
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let viewModel: NFTAssetListViewModel
@@ -77,7 +77,7 @@ class NFTAssetListViewController: UIViewController {
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self.reload()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

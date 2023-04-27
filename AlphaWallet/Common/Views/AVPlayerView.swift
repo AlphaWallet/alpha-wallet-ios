@@ -19,7 +19,7 @@ class AVPlayerView: UIView, ViewRoundingSupportable {
         layer as! AVPlayerLayer
     }
 
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let urlSubject = PassthroughSubject<URL?, Never>()
     private let viewModel: AVPlayerViewModel
 
@@ -93,11 +93,11 @@ class AVPlayerView: UIView, ViewRoundingSupportable {
 
         output.playPauseImage
             .sink { [playStopButton] in playStopButton.setImage($0, for: .normal) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.viewState
             .sink { [weak self] in self?.update(viewState: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     override func layoutSubviews() {

@@ -54,7 +54,7 @@ class EditPriceAlertViewController: UIViewController {
 
     private let viewModel: EditPriceAlertViewModel
     private let willAppear = PassthroughSubject<Void, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var saveButton: UIButton { return buttonsBar.buttons[0] }
 
     weak var delegate: EditPriceAlertViewControllerDelegate?
@@ -109,19 +109,19 @@ class EditPriceAlertViewController: UIViewController {
 
         output.cryptoToFiatRate
             .assign(to: \.value, on: amountTextField.viewModel.cryptoToFiatRate, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.cryptoInitial
             .sink { [weak amountTextField] in amountTextField?.set(amount: .amount($0)) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.marketPrice
             .sink { [weak amountTextField] in amountTextField?.statusLabel.text = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.isEnabled
             .sink { [weak self] in self?.saveButton.isEnabled = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.createOrUpdatePriceAlert
             .sink {
@@ -129,7 +129,7 @@ class EditPriceAlertViewController: UIViewController {
                 case .success: self.delegate?.didUpdateAlert(in: self)
                 case .failure: break
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {

@@ -17,7 +17,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenImageFetcher: TokenImageFetcher
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: ActivitiesCoordinatorDelegate?
     lazy var rootViewController: ActivitiesViewController = {
@@ -72,7 +72,7 @@ extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
             .receive(on: RunLoop.main)
             .sink { [weak rootViewController] activities in
                 rootViewController?.configure(viewModel: .init(collection: .init(activities: activities)))
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {

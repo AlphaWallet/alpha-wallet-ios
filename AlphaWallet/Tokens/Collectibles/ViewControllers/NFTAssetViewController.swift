@@ -23,7 +23,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
     private let action = PassthroughSubject<TokenInstanceAction, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
@@ -120,15 +120,15 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
                 previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
                 self?.generateSubviews(for: state.viewTypes)
                 self?.configureActionButtons(state.actionButtons)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.nftAssetAction
             .sink { [weak self] in self?.handle(action: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.attributeSelectionAction
             .sink { [weak self] in self?.handle(attributeSelectionAction: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     private func handle(attributeSelectionAction action: NFTAssetViewModel.AttributeSelectionAction) {

@@ -13,7 +13,7 @@ import AlphaWalletCore
 import AlphaWalletLogger
 
 final class RampTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     func testRamp() {
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
@@ -32,7 +32,7 @@ final class RampTests: XCTestCase {
             guard case .failure = ramp.assets else { return XCTFail() }
             expectation.fulfill()
             XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
 
         waitForExpectations(timeout: 60)
     }

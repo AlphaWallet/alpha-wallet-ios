@@ -29,7 +29,7 @@ struct SwapTokensViewModelOutput {
 }
 
 final class SwapTokensViewModel: NSObject {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
     private let tokensPipeline: TokensProcessingPipeline
 
@@ -110,7 +110,7 @@ final class SwapTokensViewModel: NSObject {
             .prepend(configurator.swapPair)
             .multicast(subject: swapPair)
             .connect()
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     func transform(input: SwapTokensViewModelInput) -> SwapTokensViewModelOutput {
@@ -120,11 +120,11 @@ final class SwapTokensViewModel: NSObject {
 
         self.buildBigUIntValue(amount: amountToSwap)
             .sink { [configurator] in configurator.set(fromAmount: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         input.togglePair
             .sink { [configurator] _ in configurator.togglePair() }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let isContinueButtonEnabled = isContinueButtonEnabled(amountToSwap: amountToSwap)
         let amountValidation = amountValidation(amountToSwap: amountToSwap)

@@ -36,7 +36,7 @@ class AddHideTokensViewController: UIViewController {
     }()
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let sortTokensParam = PassthroughSubject<SortTokensParam, Never>()
     private let searchText = PassthroughSubject<String?, Never>()
     private let isSearchActive = PassthroughSubject<Bool, Never>()
@@ -111,7 +111,7 @@ class AddHideTokensViewController: UIViewController {
         let output = viewModel.transform(input: input)
         output.viewState
             .sink { [weak self] _ in self?.reload() }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     private func reload() {
@@ -194,7 +194,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
                 self.hideLoading()
             }, receiveValue: { _ in
                 //no-op
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
         }
     }
 

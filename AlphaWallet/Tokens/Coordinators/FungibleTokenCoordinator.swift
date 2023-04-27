@@ -33,7 +33,7 @@ class FungibleTokenCoordinator: Coordinator {
     private let tokensPipeline: TokensProcessingPipeline
     private let token: Token
     private let navigationController: UINavigationController
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let currencyService: CurrencyService
     private let tokenImageFetcher: TokenImageFetcher
     private let tokensService: TokensService
@@ -124,7 +124,7 @@ class FungibleTokenCoordinator: Coordinator {
             .receive(on: RunLoop.main)
             .sink { [viewController] in
                 viewController.configure(viewModel: $0.activitiesViewModel)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
         
         activitiesService.start()
 

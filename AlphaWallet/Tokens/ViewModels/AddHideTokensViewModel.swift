@@ -22,7 +22,7 @@ final class AddHideTokensViewModel {
     private var popularTokens: [PopularToken] = []
     private let sessionsProvider: SessionsProvider
     private let popularTokensCollection: PopularTokensCollectionType
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokenCollection: TokensProcessingPipeline
     private let addToken = PassthroughSubject<Void, Never>()
     private (set) var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending)
@@ -58,7 +58,7 @@ final class AddHideTokensViewModel {
     func transform(input: AddHideTokensViewModelInput) -> AddHideTokensViewModelOutput {
         input.isSearchActive
             .sink { [weak self] in self?.isSearchActive = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let whenTokensHasChanged = PassthroughSubject<Void, Never>()
         tokenCollection.tokenViewModels
@@ -66,7 +66,7 @@ final class AddHideTokensViewModel {
             .sink { [weak self] tokens in
                 self?.tokens = tokens
                 whenTokensHasChanged.send(())
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         popularTokensCollection.fetchTokens()
             .sink(receiveCompletion: { _ in
@@ -74,7 +74,7 @@ final class AddHideTokensViewModel {
             }, receiveValue: { [weak self] tokens in
                 self?.allPopularTokens = tokens
                 whenTokensHasChanged.send(())
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
 
         let searchText = input.searchText
             .handleEvents(receiveOutput: { [weak self] in self?.searchText = $0 })

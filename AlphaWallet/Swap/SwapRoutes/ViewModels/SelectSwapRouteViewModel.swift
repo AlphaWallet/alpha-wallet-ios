@@ -20,7 +20,7 @@ struct SelectSwapRouteViewModelOutput {
 
 final class SelectSwapRouteViewModel {
     private var storage: SwapRouteStorage
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     lazy var summaryViewModel: SwapRouteSummaryViewModel = {
         SwapRouteSummaryViewModel(route: storage.swapRoutes.map { $0.first }.eraseToAnyPublisher())

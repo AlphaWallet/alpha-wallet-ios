@@ -26,7 +26,7 @@ final class BrowserHistoryViewController: UIViewController {
     private let viewModel: BrowserHistoryViewModel
     private lazy var headerView = BrowserHistoryHeaderView()
     private lazy var dataSource = makeDataSource()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let deleteRecord = PassthroughSubject<BrowserHistoryViewModel.DeleteRecordAction, Never>()
 
     weak var delegate: BrowserHistoryViewControllerDelegate?
@@ -68,7 +68,7 @@ final class BrowserHistoryViewController: UIViewController {
             .sink { [dataSource, weak self] viewState in
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {

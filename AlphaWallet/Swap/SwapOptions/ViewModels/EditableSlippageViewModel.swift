@@ -19,7 +19,7 @@ struct EditableSlippageViewModelOutput {
 
 class EditableSlippageViewModel {
     private let selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     var titleAttributedString: NSAttributedString {
         return .init(string: "Custom: ", attributes: [
@@ -45,7 +45,7 @@ class EditableSlippageViewModel {
             .compactMap { $0.flatMap { Double($0) } }
             .map { SwapSlippage.custom(from: $0) }
             .assign(to: \.value, on: selectedSlippage, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let shouldResignActive: AnyPublisher<Void, Never> = selectedSlippage
             .filter { $0.shouldResignActiveTextFieldWhenOtherSelected }

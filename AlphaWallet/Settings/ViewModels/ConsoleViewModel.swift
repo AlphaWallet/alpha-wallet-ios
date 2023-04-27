@@ -20,7 +20,7 @@ struct ConsoleViewModelOutput {
 
 class ConsoleViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore

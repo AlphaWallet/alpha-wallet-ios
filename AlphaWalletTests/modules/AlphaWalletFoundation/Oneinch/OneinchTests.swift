@@ -13,7 +13,7 @@ import AlphaWalletCore
 import AlphaWalletLogger
 
 final class OneinchTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     func testOneinch() {
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
@@ -32,7 +32,7 @@ final class OneinchTests: XCTestCase {
             guard case .failure = oneinch.assets else { return XCTFail() }
             expectation.fulfill()
             XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
 
         waitForExpectations(timeout: 60)
     }

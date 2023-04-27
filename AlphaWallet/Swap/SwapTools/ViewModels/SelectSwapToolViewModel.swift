@@ -22,7 +22,7 @@ struct SelectSwapToolViewModelOutput {
 final class SelectSwapToolViewModel {
     private var storage: SwapToolStorage & SwapRouteStorage
     private var selectedTools: [SwapTool] = []
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(storage: SwapToolStorage & SwapRouteStorage) {
         self.storage = storage
@@ -43,13 +43,13 @@ final class SelectSwapToolViewModel {
             .sink {
                 self.storage.addOrUpdate(selectedTools: $0)
                 self.storage.invalidatePrefferedSwapRoute()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         storage.selectedTools
             .filter { !$0.isEmpty }
             .first()
             .sink { [weak self] in self?.selectedTools = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let viewState = Publishers.CombineLatest(allSupportedTools, selection)
             .handleEvents(receiveOutput: { self.addOrRemoveSwapTool(for: $0.1) })

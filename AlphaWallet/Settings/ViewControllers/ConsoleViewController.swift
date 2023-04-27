@@ -19,7 +19,7 @@ class ConsoleViewController: UIViewController {
         return tableView
     }()
     private let viewModel: ConsoleViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource: ConsoleViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
 
@@ -62,7 +62,7 @@ class ConsoleViewController: UIViewController {
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self?.endLoading(animated: false)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

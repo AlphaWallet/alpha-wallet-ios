@@ -32,7 +32,7 @@ class WalletConnectSessionsViewController: UIViewController {
 
         return view
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource = WalletConnectSessionsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, session in
         let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
 
@@ -96,7 +96,7 @@ class WalletConnectSessionsViewController: UIViewController {
                 }
 
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

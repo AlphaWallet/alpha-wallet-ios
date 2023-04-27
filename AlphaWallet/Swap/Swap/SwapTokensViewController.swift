@@ -71,7 +71,7 @@ class SwapTokensViewController: UIViewController {
 
         return view
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let viewModel: SwapTokensViewModel
     private let tokenImageFetcher: TokenImageFetcher
 
@@ -143,11 +143,11 @@ class SwapTokensViewController: UIViewController {
 
         output.anyErrorString
             .sink { [weak self] in self?.displayError(message: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.isContinueButtonEnabled
             .assign(to: \.isEnabled, on: buttonsBar.buttons[0])
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.isConfiguratorInUpdatingState
             .sink { [weak loadingIndicatorView] isLoading in
@@ -156,33 +156,33 @@ class SwapTokensViewController: UIViewController {
                 } else {
                     loadingIndicatorView?.stopAnimating()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.convertedValue
             .sink { [weak toAmountTextField] in toAmountTextField?.set(amount: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.amountValidation
             .sink { [weak fromAmountTextField] in fromAmountTextField?.viewModel.errorState = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.tokens
             .sink { [weak fromAmountTextField, weak toAmountTextField] tokens in
                 fromAmountTextField?.viewModel.set(token: tokens.from)
                 toAmountTextField?.viewModel.set(token: tokens.to)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.fromTokenBalance
             .sink { [weak fromAmountTextField] in fromAmountTextField?.statusLabel.text = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.toTokenBalance
             .sink { [weak toAmountTextField] in toAmountTextField?.statusLabel.text = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.allFunds
             .sink { [weak fromAmountTextField] in fromAmountTextField?.set(amount: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     @objc private func chooseTokenSelected(_ sender: UIButton) {

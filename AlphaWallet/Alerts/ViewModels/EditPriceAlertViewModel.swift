@@ -29,7 +29,7 @@ final class EditPriceAlertViewModel {
     private var cryptoValue: Double?
     private let tokensService: TokensProcessingPipeline
     private let alertService: PriceAlertServiceType
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let currencyService: CurrencyService
 
     var title: String { configuration.title } 
@@ -61,7 +61,7 @@ final class EditPriceAlertViewModel {
                 case .notSet, .allFunds: return nil
                 }
             }.sink(receiveValue: { self.cryptoValue = $0 })
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let createOrUpdatePriceAlert = input.save
             .map { _ -> (crypto: Double, marketPrice: Double)? in

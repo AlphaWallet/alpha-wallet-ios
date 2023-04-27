@@ -22,7 +22,7 @@ struct AssetDefinitionsOverridesViewModelOutput {
 class AssetDefinitionsOverridesViewModel {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let fileExtension: String
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(tokenScriptOverridesFileManager: TokenScriptOverridesFileManager, fileExtension: String) {
         self.fileExtension = fileExtension
@@ -32,7 +32,7 @@ class AssetDefinitionsOverridesViewModel {
     func transform(input: AssetDefinitionsOverridesViewModelInput) -> AssetDefinitionsOverridesViewModelOutput {
         input.deletion
             .sink { [tokenScriptOverridesFileManager] in tokenScriptOverridesFileManager.remove(overrideFile: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let viewModels = input.willAppear
             .flatMapLatest { [tokenScriptOverridesFileManager] _ in tokenScriptOverridesFileManager.overrides }

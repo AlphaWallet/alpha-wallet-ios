@@ -30,7 +30,7 @@ class TokenScriptCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokensService: TokensProcessingPipeline
     private let networkService: NetworkService
 
@@ -114,7 +114,7 @@ class TokenScriptCoordinator: Coordinator {
     private func subscribeForEthereumEventChanges() {
         tokensService.tokenViewModelPublisher(for: token).sink { [weak self] _ in
             self?.viewController.configure()
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
     }
 }
 

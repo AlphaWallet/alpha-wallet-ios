@@ -60,7 +60,7 @@ class WalletConnectSessionViewController: UIViewController {
         view.stackView.spacing = 20
         return view
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var disconnectButton: UIButton { buttonsBar.buttons[0] }
     private var changeNetworksButton: UIButton { buttonsBar.buttons[1] }
 
@@ -147,12 +147,12 @@ class WalletConnectSessionViewController: UIViewController {
 
                 self?.changeNetworksButton.isEnabled = viewState.isSwitchServerEnabled
                 self?.changeNetworksButton.setTitle(viewState.changeNetworksButtonText, for: .normal)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.didDisconnect
             .compactMap { _ in self.navigationController }
             .sink { $0.popViewController(animated: true) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     @objc private func switchNetworkButtonSelected(_ sender: UIButton) {

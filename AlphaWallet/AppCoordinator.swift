@@ -166,7 +166,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let sharedEnsRecordsStorage: EnsRecordsStorage = {
         let storage: EnsRecordsStorage = RealmStore.shared
         return storage
@@ -309,7 +309,7 @@ class AppCoordinator: NSObject, Coordinator {
                 legacyFileBasedKeystore.delete(wallet: account)
                 WalletConfig(address: account.address).clear()
                 self.destroy(for: account)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         keystore.didAddWallet
             .sink { [promptBackup] in
@@ -319,7 +319,7 @@ class AppCoordinator: NSObject, Coordinator {
                 case .keystore, .mnemonic, .privateKey:
                     promptBackup.markWalletAsImported(wallet: $0.wallet)
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         keystore.walletsPublisher
             .receive(on: RunLoop.main) //NOTE: async to avoid `swift_beginAccess` crash
@@ -333,7 +333,7 @@ class AppCoordinator: NSObject, Coordinator {
 
                 return fetchers
             }.sink { [walletBalanceService] in walletBalanceService.start(fetchers: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     func start(launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) {
@@ -552,7 +552,7 @@ class AppCoordinator: NSObject, Coordinator {
     @discardableResult private func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
         keystore.createWalletIfMissing()
             .sink(receiveValue: { _ in self.showActiveWalletIfNeeded() })
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         return universalLinkService.handleUniversalLink(url: url, source: source)
     }

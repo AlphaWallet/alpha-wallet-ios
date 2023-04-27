@@ -24,7 +24,7 @@ final class AmountTextField: UIControl {
     private lazy var statusLabelContainer: UIView = [statusLabel].asStackView(axis: .horizontal)
     private lazy var allFundsContainer: UIView = [allFundsButton].asStackView(axis: .horizontal)
     private lazy var alternativeAmountLabelContainer: UIView = [alternativeAmountLabel].asStackView(axis: .horizontal)
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokenImageFetcher: TokenImageFetcher
 
     private(set) lazy var textField: UITextField = {
@@ -206,7 +206,7 @@ final class AmountTextField: UIControl {
                 textField?.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
                     .font: Configuration.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
                 ])
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.currentPair
             .sink { [weak selectCurrencyButton, weak self] in
@@ -221,15 +221,15 @@ final class AmountTextField: UIControl {
                 }
 
                 self.delegate?.changeType(in: self)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.alternativeAmount
             .assign(to: \.text, on: alternativeAmountLabel)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.text
             .assign(to: \.text, on: textField)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
     
     @discardableResult override func becomeFirstResponder() -> Bool {

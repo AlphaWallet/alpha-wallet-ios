@@ -23,7 +23,7 @@ final class FungibleTokenHeaderViewModel {
     private let token: Token
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private let tokensService: TokensProcessingPipeline
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let tokenImageFetcher: TokenImageFetcher
 
     let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
@@ -57,7 +57,7 @@ final class FungibleTokenHeaderViewModel {
                 self?.tiggleIsShowingValue()
                 self?.invalidateRefreshHeaderTimer()
                 self?.runRefreshHeaderTimer()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let viewState = tokensService.tokenViewModelPublisher(for: token)
             .combineLatest(isShowingValueSubject, { tokenViewModel, _ in return tokenViewModel })

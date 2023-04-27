@@ -33,7 +33,7 @@ class FungibleTokenDetailsViewController: UIViewController {
     }()
 
     private let viewModel: FungibleTokenDetailsViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let action = PassthroughSubject<TokenInstanceAction, Never>()
 
@@ -125,11 +125,11 @@ class FungibleTokenDetailsViewController: UIViewController {
 
                 strongSelf.layoutSubviews(strongSelf.buildSubviews(for: viewState.views))
                 strongSelf.configureActionButtons(with: viewState.actionButtons)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.action
             .sink { [weak self] action in self?.perform(action: action) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {

@@ -52,7 +52,7 @@ class NFTAssetsPageView: UIView, PageViewType {
 
     private lazy var dataSource: DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     var title: String { viewModel.title }
     let viewModel: NFTAssetsPageViewModel
@@ -112,11 +112,11 @@ class NFTAssetsPageView: UIView, PageViewType {
                 dataSource.apply(state.snapshot, animatingDifferences: state.animatingDifferences)
                 self?.invalidateLayout()
                 self?.endLoading(animated: false)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.layout
             .sink { [weak self] in self?.configureLayout(layout: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     private func configureLayout(layout: GridOrListLayout) {

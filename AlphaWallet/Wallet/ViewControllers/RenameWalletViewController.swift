@@ -15,7 +15,7 @@ protocol RenameWalletViewControllerDelegate: AnyObject {
 
 class RenameWalletViewController: UIViewController {
     private let viewModel: RenameWalletViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var nameTextField: TextField = {
         let textField = TextField.buildTextField()
         textField.delegate = self
@@ -92,11 +92,11 @@ class RenameWalletViewController: UIViewController {
                 nameTextField.textField.placeholder = viewState.placeholder
                 nameTextField.textField.text = viewState.text
                 navigationItem.title = viewState.title
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.walletNameSaved
             .sink { _ in self.delegate?.didFinish(in: self) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 }
 

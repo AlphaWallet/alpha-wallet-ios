@@ -21,7 +21,7 @@ struct PriceAlertsViewModelOutput {
 class PriceAlertsViewModel {
     private let alertService: PriceAlertServiceType
     private let token: Token
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     
     init(alertService: PriceAlertServiceType, token: Token) {
         self.alertService = alertService
@@ -31,11 +31,11 @@ class PriceAlertsViewModel {
     func transform(input: PriceAlertsViewModelInput) -> PriceAlertsViewModelOutput {
         input.removeAlert
             .sink { [alertService] in alertService.remove(indexPath: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         input.updateAlert
             .sink { [alertService] in alertService.update(indexPath: $0.indexPath, update: .enabled($0.value)) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let viewState = alertService.alertsPublisher(forStrategy: .token(token))
             .map { $0.map { PriceAlertTableViewCellViewModel(alert: $0) } }

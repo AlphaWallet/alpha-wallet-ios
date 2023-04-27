@@ -36,7 +36,7 @@ final class SendViewModel: TransactionTypeSupportable {
     private let session: WalletSession
     private let tokensPipeline: TokensProcessingPipeline
     private let transactionTypeSubject: CurrentValueSubject<TransactionType, Never>
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private (set) lazy var amountTextFieldViewModel = AmountTextFieldViewModel(token: nil, debugName: "")
     private (set) var amountToSend: FungibleAmount = .notSet
     private var recipient: AlphaWallet.Address?
@@ -111,7 +111,7 @@ final class SendViewModel: TransactionTypeSupportable {
 
                 return self.overrideTransactionType(with: amount)
             }.assign(to: \.value, on: transactionTypeSubject, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         input.recipient
             .map { AlphaWallet.Address(string: $0) }
@@ -120,7 +120,7 @@ final class SendViewModel: TransactionTypeSupportable {
 
                 return self.overrideTransactionType(with: recipient)
             }.assign(to: \.value, on: transactionTypeSubject, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let scanQrCode = input.qrCode
             .handleEvents(receiveOutput: { self.latestQrCode = $0 })

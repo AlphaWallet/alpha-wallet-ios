@@ -14,7 +14,7 @@ struct BrowserHistoryViewModelOutput {
 
 class BrowserHistoryViewModel {
     private let browserHistoryStorage: BrowserHistoryStorage
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(browserHistoryStorage: BrowserHistoryStorage) {
         self.browserHistoryStorage = browserHistoryStorage
@@ -29,7 +29,7 @@ class BrowserHistoryViewModel {
                 case .all:
                     browserHistoryStorage.deleteAllRecords()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let snapshot = browserHistoryStorage.historiesChangeset
             .map { changeSet -> [BrowserHistoryRecord] in

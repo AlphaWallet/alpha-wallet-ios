@@ -15,7 +15,7 @@ protocol SupportViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class SupportViewController: UIViewController {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource: SupportViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
@@ -70,13 +70,13 @@ class SupportViewController: UIViewController {
             .sink { [dataSource, navigationItem] viewState in
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.supportAction
             .sink { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.supportActionSelected(in: strongSelf, action: $0)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

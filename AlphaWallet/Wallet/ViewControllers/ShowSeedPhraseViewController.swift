@@ -21,7 +21,7 @@ class ShowSeedPhraseViewController: UIViewController {
         case errorDisplaySeedPhrase(KeystoreError)
         case done
     }
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     private var viewModel: ShowSeedPhraseViewModel {
         didSet {
@@ -175,7 +175,7 @@ class ShowSeedPhraseViewController: UIViewController {
                     self.state = .errorDisplaySeedPhrase(error)
                     self.delegate?.biometricsFailed(for: self.account, inViewController: self)
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     func configure() {

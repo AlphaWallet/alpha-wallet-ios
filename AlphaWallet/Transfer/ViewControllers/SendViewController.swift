@@ -27,7 +27,7 @@ class SendViewController: UIViewController {
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     private let domainResolutionService: DomainResolutionServiceType
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let qrCode = PassthroughSubject<String, Never>()
     private let didAppear = PassthroughSubject<Void, Never>()
     private var sendButton: UIButton { buttonsBar.buttons[0] }
@@ -129,34 +129,34 @@ class SendViewController: UIViewController {
 
         output.scanQrCodeError
             .sink { [weak self] in self?.showError(message: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.activateAmountInput
             .sink { [weak self] _ in self?.activateAmountView() }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.token
             .sink { [weak amountTextField] in amountTextField?.viewModel.set(token: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.confirmTransaction
             .receive(on: RunLoop.main)
             .sink { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.didPressConfirm(transaction: $0, in: strongSelf)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.amountTextFieldState
             .sink { [weak amountTextField] in amountTextField?.set(amount: $0.amount) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.cryptoErrorState
             .sink { [weak amountTextField] in amountTextField?.viewModel.errorState = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.recipientErrorState
             .sink { [weak targetAddressTextField] in targetAddressTextField?.errorState = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.viewState
             .sink { [navigationItem, amountTextField, targetAddressTextField] viewState in
@@ -171,7 +171,7 @@ class SendViewController: UIViewController {
                     targetAddressTextField.value = recipient
                 }
 
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func activateAmountView() {

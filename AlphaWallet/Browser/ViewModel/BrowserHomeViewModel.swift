@@ -15,7 +15,7 @@ struct DappsHomeViewViewModelOutput {
 
 class BrowserHomeViewModel {
     private let bookmarksStore: BookmarksStore
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(bookmarksStore: BookmarksStore) {
         self.bookmarksStore = bookmarksStore
@@ -24,7 +24,7 @@ class BrowserHomeViewModel {
     func transform(input: DappsHomeViewViewModelInput) -> DappsHomeViewViewModelOutput {
         input.deleteBookmark
             .sink { [bookmarksStore] in bookmarksStore.delete(bookmark: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         let viewState = bookmarksStore.bookmarksChangeset
             .map { changeSet -> [BookmarkObject] in

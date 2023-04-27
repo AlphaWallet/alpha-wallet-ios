@@ -24,7 +24,7 @@ class ChangeCurrencyViewController: UIViewController {
         return tableView
     }()
     private let viewModel: ChangeCurrencyViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource: ChangeCurrencyViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
@@ -65,11 +65,11 @@ class ChangeCurrencyViewController: UIViewController {
             .sink { [dataSource, navigationItem] viewState in
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.selectedCurrency
             .sink(receiveValue: { self.delegate?.controller(self, didSelectCurrency: $0) })
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     override func viewWillAppear(_ animated: Bool) {

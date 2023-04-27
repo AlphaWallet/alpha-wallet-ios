@@ -12,7 +12,7 @@ protocol AccountsViewControllerDelegate: AnyObject {
 }
 
 class AccountsViewController: UIViewController {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var refreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
         return control
@@ -67,7 +67,7 @@ class AccountsViewController: UIViewController {
             .sink { [navigationItem, dataSource] viewState in
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.reloadBalanceState
             .sink { [refreshControl] state in
@@ -77,18 +77,18 @@ class AccountsViewController: UIViewController {
                 case .done, .failure:
                     refreshControl.endRefreshing()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.walletDelated
             .sink { [weak self] wallet in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.didDeleteAccount(account: wallet, in: strongSelf)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.copiedToClipboard
             .sink(receiveValue: { [weak self] in
                 self?.view.showCopiedToClipboard(title: $0)
-            }).store(in: &cancelable)
+            }).store(in: &cancellable)
     }
 
     override func viewWillAppear(_ animated: Bool) {

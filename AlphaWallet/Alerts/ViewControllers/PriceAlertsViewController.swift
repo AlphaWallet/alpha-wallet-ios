@@ -27,7 +27,7 @@ class PriceAlertsViewController: UIViewController {
     }()
     private let updateAlert = PassthroughSubject<(value: Bool, indexPath: IndexPath), Never>()
     private let removeAlert = PassthroughSubject<IndexPath, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     private lazy var addNotificationView: AddHideTokensView = {
         let view = AddHideTokensView()
@@ -80,7 +80,7 @@ class PriceAlertsViewController: UIViewController {
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 addNotificationView.configure(viewModel: viewState.addNewAlertViewModel)
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

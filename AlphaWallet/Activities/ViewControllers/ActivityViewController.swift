@@ -45,7 +45,7 @@ class ActivityViewController: UIViewController {
     private var isFirstLoad = true
     private let defaultErc20ActivityView = DefaultActivityView()
     private let service: ActivitiesServiceType
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var server: RPCServer {
         viewModel.activity.token.server
     }
@@ -134,7 +134,7 @@ class ActivityViewController: UIViewController {
                 guard let strongSelf = self, strongSelf.isForActivity(activity) else { return }
 
                 strongSelf.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {

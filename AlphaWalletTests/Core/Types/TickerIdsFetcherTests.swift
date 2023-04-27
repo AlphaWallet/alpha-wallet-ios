@@ -24,7 +24,7 @@ class FakeTickerIdsFetcher: TickerIdsFetcher {
 }
 
 class TickerIdsFetcherTests: XCTestCase {
-    var cancelable = Set<AnyCancellable>()
+    var cancellable = Set<AnyCancellable>()
 
     func testExample() throws {
         let s1 = PassthroughSubject<TickerIdString?, Never>()
@@ -39,7 +39,7 @@ class TickerIdsFetcherTests: XCTestCase {
             .sink { tickerId in
                 XCTAssertEqual(tickerId, "1")
                 expectation.fulfill()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             s1.send("1")

@@ -20,7 +20,7 @@ struct WalletConnectSessionsViewModelIOutput {
 
 class WalletConnectSessionsViewModel {
     private let walletConnectProvider: WalletConnectProvider
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let stateSubject: CurrentValueSubject<State, Never>
 
     init(walletConnectProvider: WalletConnectProvider, state: State = .sessions) {

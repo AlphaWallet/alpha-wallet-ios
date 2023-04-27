@@ -17,7 +17,7 @@ class WalletConnectV1Provider: WalletConnectServer {
     private let client: WalletConnectV1Client
     private let storage: WalletConnectV1Storage
     private let caip10AccountProvidable: CAIP10AccountProvidable
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let decoder: WalletConnectRequestDecoder
     private let config: Config
 
@@ -44,7 +44,7 @@ class WalletConnectV1Provider: WalletConnectServer {
         caip10AccountProvidable
             .accounts
             .sink { [weak self] in self?.reloadSessions(accounts: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         for each in storage.value {
             try? client.reconnect(to: each.session)
@@ -204,7 +204,7 @@ extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
                     }
 
                     completion(session.walletInfo!)
-                }.store(in: &cancelable)
+                }.store(in: &cancellable)
         } else {
             completion(nil)
         }

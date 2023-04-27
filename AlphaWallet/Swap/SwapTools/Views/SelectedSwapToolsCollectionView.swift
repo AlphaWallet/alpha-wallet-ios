@@ -25,7 +25,7 @@ final class SelectedSwapToolsCollectionView: UIView {
         return collectionView
     }()
     private lazy var dataSource: SelectedSwapToolsCollectionViewModel.DataSource = makeDataSource()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private static let fallbackHeight: CGFloat = 60
     lazy private var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
     private let viewModel: SelectedSwapToolsCollectionViewModel
@@ -46,7 +46,7 @@ final class SelectedSwapToolsCollectionView: UIView {
             .map { $0.height == .zero ? SelectedSwapToolsCollectionView.fallbackHeight : $0.height }
             .removeDuplicates()
             .sink { [collectionViewHeightConstraint] in collectionViewHeightConstraint.constant = $0 }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         bind(viewModel: viewModel)
         emptyView = EmptyView.selectedSwapToolsEmptyView()
@@ -71,7 +71,7 @@ final class SelectedSwapToolsCollectionView: UIView {
                 self?.dataSource.apply($0.snapshot, animatingDifferences: false)
                 self?.collectionView.flashScrollIndicators()
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

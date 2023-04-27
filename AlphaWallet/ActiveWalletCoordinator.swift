@@ -141,7 +141,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let tokensService: TokensService
     private let lock: Lock
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let networkService: NetworkService
     private let serversProvider: ServersProvidable
 
@@ -271,7 +271,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
                         self?.show(openedURL: override.filename)
                     }
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func showHelpUs() {

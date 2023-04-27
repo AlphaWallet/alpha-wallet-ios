@@ -20,7 +20,7 @@ final class EditableSlippageView: UIControl {
         return textField
     }()
 
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let viewModel: EditableSlippageViewModel
 
     init(viewModel: EditableSlippageViewModel) {
@@ -62,7 +62,7 @@ final class EditableSlippageView: UIControl {
             .sink { [weak textField] _ in
                 guard let target = textField else { return }
                 target.resignFirstResponder()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

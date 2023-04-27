@@ -28,7 +28,7 @@ class ExportJsonKeystoreFileViewController: UIViewController {
         return buttonsBar
     }()
     private let willAppear = PassthroughSubject<Void, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private var exportButton: UIButton { buttonsBar.buttons[0] }
 
     weak var delegate: ExportJsonKeystoreFileDelegate?
@@ -77,7 +77,7 @@ class ExportJsonKeystoreFileViewController: UIViewController {
         let output = viewModel.transform(input: input)
         output.error
             .sink { [weak self] in self?.displayError(message: $0) }
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         output.viewState
             .sink { [navigationItem, exportButton, textView] viewState in
@@ -85,13 +85,13 @@ class ExportJsonKeystoreFileViewController: UIViewController {
                 exportButton.setTitle(viewState.buttonTitle, for: .normal)
                 exportButton.isEnabled = viewState.isActionButtonEnabled
                 textView.value = viewState.exportedJsonString
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.fileUrl
             .sink { [weak self] url in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.didExport(fileUrl: url, in: strongSelf)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         output.loadingState
             .sink { [weak self] state in
@@ -99,6 +99,6 @@ class ExportJsonKeystoreFileViewController: UIViewController {
                 case .beginLoading: self?.displayLoading()
                 case .endLoading: self?.hideLoading()
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }

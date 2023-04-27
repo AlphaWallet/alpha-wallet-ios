@@ -65,7 +65,7 @@ class TokenHistoryChartView: UIView {
     }()
     private let selection = PassthroughSubject<Int, Never>()
     private let viewModel: TokenHistoryChartViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(viewModel: TokenHistoryChartViewModel) {
         self.viewModel = viewModel
@@ -103,7 +103,7 @@ class TokenHistoryChartView: UIView {
                 self?.valueFormatter.set(currency: viewState.currency)
                 self?.marker.set(currency: viewState.currency)
                 self?.buildChartView(with: viewState.lineChartDataSet)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 
     private func buildChartView(with dataSet: LineChartDataSet?) {

@@ -54,7 +54,7 @@ extension FakeSessionsProvider {
 class FakeSessionsProvider: SessionsProvider {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init())
     private let config: Config
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private let blockchainsProvider: BlockchainsProvider
     private let analytics: AnalyticsLogger
     private let tokensDataStore: TokensDataStore
@@ -122,7 +122,7 @@ class FakeSessionsProvider: SessionsProvider {
                 }
                 return sessions
             }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
     }
 
     private func buildSession(blockchain: BlockchainProvider) -> WalletSession {

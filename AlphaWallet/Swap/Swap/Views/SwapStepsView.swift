@@ -20,7 +20,7 @@ final class SwapStepsView: UIView {
         return view
     }()
     private var stackView: UIStackView = [UIView]([]).asStackView(axis: .vertical)
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(viewModel: SwapStepsViewModel) {
         self.viewModel = viewModel
@@ -56,7 +56,7 @@ final class SwapStepsView: UIView {
             stackView.addArrangedSubviews(views)
 
             NSLayoutConstraint.activate(self.buildContraints(for: views))
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
     }
 
     private func buildContraints(for views: [UIView]) -> [NSLayoutConstraint] {

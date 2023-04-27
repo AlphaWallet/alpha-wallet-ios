@@ -25,7 +25,7 @@ final class SelectSwapRouteViewController: UIViewController {
     private lazy var dataSource: SelectSwapRouteViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     private lazy var swapRouteSummaryView: SwapRouteSummaryView = {
         let view = SwapRouteSummaryView(edgeInsets: .init(top: 20, left: 15, bottom: 15, right: 20), viewModel: viewModel.summaryViewModel)
@@ -75,7 +75,7 @@ final class SelectSwapRouteViewController: UIViewController {
                 navigationItem.title = state.title
                 dataSource.apply(state.snapshot, animatingDifferences: false)
                 self?.endLoading()
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

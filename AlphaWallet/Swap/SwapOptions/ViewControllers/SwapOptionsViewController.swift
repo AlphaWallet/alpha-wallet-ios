@@ -50,7 +50,7 @@ class SwapOptionsViewController: UIViewController {
     private lazy var swapToolsView: SelectedSwapToolsCollectionView = {
         return SelectedSwapToolsCollectionView(viewModel: viewModel.selectedSwapToolsViewModel, willAppear: willAppear.eraseToAnyPublisher())
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource: SwapOptionsViewModel.DataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
@@ -121,7 +121,7 @@ class SwapOptionsViewController: UIViewController {
             .sink { [weak dataSource, navigationItem] viewState in
                 navigationItem.title = viewState.title
                 dataSource?.apply(viewState.sessions, animatingDifferences: false)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         //TODO: need to resolve error displaying, uncommenting this string causes displaying an error when screen in loading for first time
         // and for unavailable networks it shows error
@@ -129,7 +129,7 @@ class SwapOptionsViewController: UIViewController {
         //    .receive(on: RunLoop.main)
         //    .sink { [weak self] error in
         //        self?.displayError(message: error)
-        //    }.store(in: &cancelable)
+        //    }.store(in: &cancellable)
     }
 }
 

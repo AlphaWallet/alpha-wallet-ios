@@ -14,7 +14,7 @@ import AlphaWalletFoundation
 import AlphaWalletLogger
 
 class RetryPublisherTests: XCTestCase {
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     enum TestFailureCondition: Error {
         case invalidServerResponse
@@ -195,7 +195,7 @@ class RetryPublisherTests: XCTestCase {
         }, receiveValue: { value in
             infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
-        }).store(in: &cancelable)
+        }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 500.0)
     }
@@ -247,7 +247,7 @@ class RetryPublisherTests: XCTestCase {
         }, receiveValue: { value in
             infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
-        }).store(in: &cancelable)
+        }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 500.0)
     }
@@ -296,7 +296,7 @@ class RetryPublisherTests: XCTestCase {
         }, receiveValue: { value in
             infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
-        }).store(in: &cancelable)
+        }).store(in: &cancellable)
 
         wait(for: [expectation], timeout: 50.0)
     }

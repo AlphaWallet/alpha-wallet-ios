@@ -39,7 +39,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     private var lastTokenHolder: TokenHolder?
     private var actionProperties: TokenScript.SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     var server: RPCServer
     var isWebViewInteractionEnabled: Bool = false {
@@ -84,7 +84,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
             .removeDuplicates()
             .map { $0.height }
             .assign(to: \.constant, on: heightConstraint, ownership: .weak)
-            .store(in: &cancelable)
+            .store(in: &cancellable)
 
         NSLayoutConstraint.activate([
             webView.anchorsConstraint(to: self),

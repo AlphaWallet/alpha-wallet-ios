@@ -22,7 +22,7 @@ class SlippageView: UIView {
             }
         }
     }
-    private lazy var cancelable = Set<AnyCancellable>()
+    private lazy var cancellable = Set<AnyCancellable>()
     private let viewModel: SlippageViewModel
     private var slippageViews: [SlippageInputType] = []
     private let stackView: UIStackView = [UIView]().asStackView(axis: .horizontal, spacing: 8)
@@ -61,7 +61,7 @@ class SlippageView: UIView {
                     case _: break//no-op
                     }
                 }
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         let views = output.views.map { [self] views -> [SlippageInputType] in
             views.map { each in self.buildView(for: each) }
@@ -72,7 +72,7 @@ class SlippageView: UIView {
 
             stackView.removeAllArrangedSubviews()
             stackView.addArrangedSubviews(views)
-        }.store(in: &cancelable)
+        }.store(in: &cancellable)
     }
 
     private func buildView(for each: SwapSlippage) -> SlippageInputType {
@@ -83,7 +83,7 @@ class SlippageView: UIView {
             view.actionButton.publisher(forEvent: .touchUpInside)
                 .map { _ -> SwapSlippage in return each }
                 .sink(receiveValue: { [weak viewModel] value in viewModel?.set(slippage: value) })
-                .store(in: &cancelable)
+                .store(in: &cancellable)
 
             return .selectableView(view, each: each)
         case .editingTextField:

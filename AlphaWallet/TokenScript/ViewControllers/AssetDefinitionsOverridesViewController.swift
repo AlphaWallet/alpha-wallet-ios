@@ -20,7 +20,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
     }()
 
     private let viewModel: AssetDefinitionsOverridesViewModel
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let deletion = PassthroughSubject<URL, Never>()
@@ -67,7 +67,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
                 navigationItem.title = viewState.title
                 dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self?.endLoading(animated: false)
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
     }
 }
 

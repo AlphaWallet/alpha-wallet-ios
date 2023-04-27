@@ -33,7 +33,7 @@ class SignatureConfirmationViewController: UIViewController {
     private lazy var heightConstraint: NSLayoutConstraint = {
         return view.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
     }()
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: SignatureConfirmationViewControllerDelegate?
 
@@ -93,7 +93,7 @@ class SignatureConfirmationViewController: UIViewController {
                     strongSelf.heightConstraint.constant = newHeight
                 }
 
-            }.store(in: &cancelable)
+            }.store(in: &cancellable)
 
         generateSubviews()
     }
