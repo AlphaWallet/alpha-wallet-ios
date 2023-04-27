@@ -5,11 +5,11 @@
 //  Created by Hwee-Boon Yar on Apr/7/22.
 //
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletWeb3
 import Combine
+import Foundation
 
 public typealias ChainId = Int
 
@@ -40,7 +40,7 @@ public class ENS {
 
     public static var isLoggingEnabled = false
 
-    weak private var delegate: ENSDelegate?
+    private weak var delegate: ENSDelegate?
     private let chainId: ChainId
 
     public init(delegate: ENSDelegate, chainId: ChainId) {

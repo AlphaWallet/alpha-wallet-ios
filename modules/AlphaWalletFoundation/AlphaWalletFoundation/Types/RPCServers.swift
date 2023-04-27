@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
 extension RPCServer {
     public static func custom(chainId: Int) -> RPCServer {
@@ -646,7 +646,7 @@ public enum RPCServer: Hashable, CaseIterable {
 
     //We'll have to manually new cases here
     //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
-    static public var allCases: [RPCServer] {
+    public static var allCases: [RPCServer] {
         return [
             .main,
             .classic,
@@ -676,7 +676,7 @@ public enum RPCServer: Hashable, CaseIterable {
             .optimismGoerli,
             .arbitrumGoerli,
             .okx,
-            .sepolia
+            .sepolia,
         ]
     }
 
@@ -851,7 +851,7 @@ public enum RPCServer: Hashable, CaseIterable {
         case .callisto: return .batch(1000)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .batch(100)
         case .heco, .heco_testnet: return .batch(1000)
-        case .fantom:  return .batch(1000)
+        case .fantom: return .batch(1000)
         case .fantom_testnet: return .batch(1000)
         case .ioTeX, .ioTeXTestnet: return .batch(200)
         case .cronosTestnet, .avalanche, .avalanche_testnet, .custom, .sepolia: return .batch(32)

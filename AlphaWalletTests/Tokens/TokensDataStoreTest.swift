@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
-import Foundation
 import AlphaWalletFoundation
+import Foundation
+import XCTest
 
 class TokensDataStoreTest: XCTestCase {
     private let storage = FakeTokensDataStore()
