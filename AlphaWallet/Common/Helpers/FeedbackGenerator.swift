@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import PromiseKit
 
 enum NotificationFeedbackType {
     case success
@@ -34,14 +33,6 @@ extension UINotificationFeedbackGenerator {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             feedbackGenerator.notificationOccurred(result.feedbackType)
             completion()
-        }
-    }
-    
-    static func showFeedbackPromise<T>(value: T, feedbackType: NotificationFeedbackType) -> Promise<T> {
-        return Promise { seal in
-            UINotificationFeedbackGenerator.show(feedbackType: feedbackType) {
-                seal.fulfill(value)
-            }
         }
     }
 }

@@ -1184,10 +1184,9 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
             case .signedTransaction, .sentTransaction:
                 throw JsonRpcError.requestRejected
             case .sentRawTransaction(let transactionId, _):
+                UINotificationFeedbackGenerator.show(feedbackType: .success)
                 return transactionId
             }
-        }.then { callback -> Promise<String> in
-            return UINotificationFeedbackGenerator.showFeedbackPromise(value: callback, feedbackType: .success)
         }.get { _ in
             TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
         }.publisher(queue: .main)

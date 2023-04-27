@@ -88,13 +88,10 @@ class PromptBackupWalletView: UIView {
     }
 
     @objc private func remindMeLater() {
-        delegate?.viewControllerToShowBackupLaterAlert(forView: self)?.confirm(message: R.string.localizable.backupPromptBackupRemindLater()) { result in
-            switch result {
-            case .success:
-                self.delegate?.didChooseBackupLater(inView: self)
-            case .failure:
-                break
-            }
+        guard let presenter = delegate?.viewControllerToShowBackupLaterAlert(forView: self) else { return }
+        Task { @MainActor in
+            guard case .success = await presenter.confirm(message: R.string.localizable.backupPromptBackupRemindLater()) else { return }
+            self.delegate?.didChooseBackupLater(inView: self)
         }
     }
 

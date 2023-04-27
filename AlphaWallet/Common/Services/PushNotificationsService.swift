@@ -26,20 +26,21 @@ final class UNUserNotificationsService: NSObject, PushNotificationsService {
     }
 
     func requestToEnableNotification() {
-        authorizationNotDetermined { [weak self] in
-            self?.presentationViewController?.confirm(
+        authorizationNotDetermined {
+            guard let presenter = self.presentationViewController else { return }
+            Task { @MainActor in
+                let result = await presenter.confirm(
                     //TODO We'll just say "Ether" in the prompt. Note that this is not the push notification itself. We could refer to it as "native cryptocurrency", but that's vague. Could be xDai!
                     title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(RPCServer.main.cryptoCurrencyName),
                     message: nil,
                     okTitle: R.string.localizable.oK(),
-                    okStyle: .default
-            ) { result in
+                    okStyle: .default)
+
                 switch result {
                 case .success:
                     //Give some time for the view controller to show up first. We don't have to be precise, so no need to complicate things with hooking up to the view controller's animation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.requestForAuthorization()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.requestForAuthorization()
                     }
                 case .failure:
                     break

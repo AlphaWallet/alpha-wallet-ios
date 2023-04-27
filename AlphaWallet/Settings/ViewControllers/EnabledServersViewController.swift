@@ -70,9 +70,14 @@ class EnabledServersViewController: UIViewController {
     }
 
     private func confirmDelete(customRpc: CustomRPC) {
-        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(), okTitle: R.string.localizable.delete(), okStyle: .destructive) { [deleteCustomRpc] result in
-            guard case .success = result else { return }
-            deleteCustomRpc.send(customRpc)
+        Task { @MainActor in
+            guard case .success = await confirm(
+                title: R.string.localizable.settingsEnabledNetworksDeleteTitle(),
+                message: R.string.localizable.settingsEnabledNetworksDeleteMessage(),
+                okTitle: R.string.localizable.delete(),
+                okStyle: .destructive) else { return }
+
+                deleteCustomRpc.send(customRpc)
         }
     }
 

@@ -203,13 +203,14 @@ extension BrowserHomeViewController: DappViewCellDelegate {
 
         let cell = dataSource.item(at: indexPath)
 
-        confirm(
-            title: R.string.localizable.dappBrowserClearMyDapps(),
-            message: cell.title,
-            okTitle: R.string.localizable.removeButtonTitle(),
-            okStyle: .destructive) { [deleteBookmark] result in
-                guard case .success = result else { return }
-                deleteBookmark.send(cell.bookmark)
+        Task { @MainActor in
+            guard case .success = await confirm(
+                title: R.string.localizable.dappBrowserClearMyDapps(),
+                message: cell.title,
+                okTitle: R.string.localizable.removeButtonTitle(),
+                okStyle: .destructive) else { return }
+            
+            deleteBookmark.send(cell.bookmark)
         }
     }
 

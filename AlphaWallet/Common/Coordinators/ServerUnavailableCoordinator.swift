@@ -50,17 +50,19 @@ class ServerUnavailableCoordinator: Coordinator {
             return
         }
 
-        UIApplication.shared
-            .presentedViewController(or: navigationController)
-            .confirm(message: message, okTitle: "Enable and Connect", completion: { result in
-                switch result {
-                case .success:
-                    self.enabledDisabledServers()
-                    self.delegate?.didDismiss(in: self, result: .success(()))
-                case .failure:
-                    self.delegate?.didDismiss(in: self, result: .failure(ServerUnavailableError.cancelled))
-                }
-            })
+        Task { @MainActor in
+            let result = await UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .confirm(message: message, okTitle: "Enable and Connect")
+
+            switch result {
+            case .success:
+                self.enabledDisabledServers()
+                self.delegate?.didDismiss(in: self, result: .success(()))
+            case .failure:
+                self.delegate?.didDismiss(in: self, result: .failure(ServerUnavailableError.cancelled))
+            }
+        }
     }
 
     private func enabledDisabledServers() {

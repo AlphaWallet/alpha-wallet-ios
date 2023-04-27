@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import AVFoundation
-import class PromiseKit.Promise
 import Foundation
 import MBProgressHUD
 import SafariServices
@@ -68,28 +67,28 @@ extension UIViewController {
         return alertController
     }
 
-    func confirm(
-        title: String? = .none,
-        message: String? = .none,
-        okTitle: String = R.string.localizable.oK(),
-        okStyle: UIAlertAction.Style = .default,
-        completion: @escaping (Result<Void, ConfirmationError>) -> Void
-    ) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alertController.popoverPresentationController?.sourceView = view
-        alertController.addAction(UIAlertAction(title: okTitle, style: okStyle, handler: { _ in
-            completion(.success(()))
-        }))
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
-            completion(.failure(ConfirmationError.cancel))
-        }))
-        present(alertController, animated: true, completion: nil)
+    @MainActor func confirm(title: String? = nil,
+                            message: String? = nil,
+                            okTitle: String = R.string.localizable.oK(),
+                            okStyle: UIAlertAction.Style = .default) async -> Result<Void, ConfirmationError> {
+
+        return await withUnsafeContinuation { continuation in
+            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alertController.popoverPresentationController?.sourceView = view
+            alertController.addAction(UIAlertAction(title: okTitle, style: okStyle, handler: { _ in
+                continuation.resume(returning: .success(()))
+            }))
+            alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+                continuation.resume(returning: .failure(ConfirmationError.cancel))
+            }))
+
+            present(alertController, animated: true)
+        }
     }
 
     func displayLoading(
         text: String = R.string.localizable.loadingDots(),
-        animated: Bool = true
-    ) {
+        animated: Bool = true) {
         let hud = MBProgressHUD.showAdded(to: view, animated: animated)
         hud.label.text = text
     }
@@ -149,44 +148,28 @@ extension UIViewController {
         modalPresentationStyle = .fullScreen
     }
 
-    func displayErrorPromise(message: String) -> Promise<Void> {
-        let (promise, seal) = Promise<Void>.pending()
-
-        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alertController.popoverPresentationController?.sourceView = view
-        let action = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
-            seal.fulfill(())
-        }
-
-        alertController.addAction(action)
-
-        present(alertController, animated: true)
-
-        return promise
-    }
-
     func ensureHasDeviceAuthorization() -> Bool {
         guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
-            promptUserOpenSettingsToChangeCameraPermission()
+            Task {
+                await promptUserOpenSettingsToChangeCameraPermission()
+            }
             return false
         }
         return true
     }
 
-    func promptUserOpenSettingsToChangeCameraPermission() {
+    @MainActor func promptUserOpenSettingsToChangeCameraPermission() async {
         //TODO app will be killed by iOS after user changes camera permission. Ideally, we should note that the user has reached here and on app launch, prompt user if they want to resume
-        confirm(
-            title: R.string.localizable.cameraQrCodeDeniedPromptTitle(),
+        let result = await confirm(title: R.string.localizable.cameraQrCodeDeniedPromptTitle(),
             message: R.string.localizable.cameraQrCodeDeniedPromptMessage(),
             okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(),
-            okStyle: .default
-        ) { result in
-            switch result {
-            case .success:
-                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
-            case .failure:
-                break
-            }
+            okStyle: .default)
+
+        switch result {
+        case .success:
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+        case .failure:
+            break
         }
     }
 
