@@ -13,10 +13,6 @@ class EtherscanGasPriceEstimator {
         self.networkService = networkService
     }
 
-    static func supports(server: RPCServer) -> Bool {
-        return server.etherscanGasPriceEstimatesURL != nil
-    }
-
     func gasPriceEstimates(server: RPCServer) -> AnyPublisher<LegacyGasEstimates, PromiseError> {
         return networkService
             .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
