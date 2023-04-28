@@ -96,8 +96,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         return button
     }()
 
-    lazy var tabBarController: UITabBarController = {
-        let tabBarController: UITabBarController = .withOverridenBarAppearence()
+    lazy var tabBarController: TabBarController = {
+        let tabBarController: TabBarController = .withOverridenBarAppearence()
         tabBarController.delegate = self
 
         if Environment.isDebug && Features.default.isAvailable(.isSwapEnabled) {

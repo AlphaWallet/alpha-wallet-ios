@@ -82,9 +82,9 @@ extension UITabBarAppearance {
     }
 }
 
-extension UITabBarController {
-    static func withOverridenBarAppearence(appearence tabBarAppearance: UITabBarAppearance = .defaultAppearence) -> UITabBarController {
-        let tabBarController = UITabBarController()
+extension TabBarController {
+    static func withOverridenBarAppearence(appearence tabBarAppearance: UITabBarAppearance = .defaultAppearence) -> TabBarController {
+        let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.tabBar.tintColor = Configuration.Color.Semantic.tabBarTint
         tabBarController.tabBar.standardAppearance = tabBarAppearance
@@ -96,6 +96,12 @@ extension UITabBarController {
         }
 
         return tabBarController
+    }
+}
+
+class TabBarController: UITabBarController, PopInteractable {
+    func shouldBeginPopInteraction() -> Bool {
+        return false
     }
 }
 

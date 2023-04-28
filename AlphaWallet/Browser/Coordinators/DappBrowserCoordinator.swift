@@ -116,7 +116,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserViewController() -> BrowserViewController {
-        let viewModel = BrowserViewModel(wallet: wallet, server: server)
+        let viewModel = BrowserViewModel(
+            wallet: wallet,
+            server: server,
+            browserOnly: browserOnly)
+        
         let browserViewController = BrowserViewController(viewModel: viewModel)
         browserViewController.delegate = self
         browserViewController.webView.uiDelegate = self

@@ -13,7 +13,7 @@ protocol PushNotifiable {
 }
 
 @objc protocol PopInteractable {
-    func shouldBePopped() -> Bool
+    func shouldBeginPopInteraction() -> Bool
 }
 
 @objc protocol PopNotifiable {
@@ -93,9 +93,10 @@ class NavigationController: UINavigationController, UIGestureRecognizerDelegate 
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         isPopActionInterractive = true
-
+        guard viewControllers.count > 1 else { return false }
+        
         if let canPreventPop = topViewController as? PopInteractable {
-            return !canPreventPop.shouldBePopped()
+            return canPreventPop.shouldBeginPopInteraction()
         }
 
         return true
