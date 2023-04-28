@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import BigInt
+import XCTest
 
 class EtherNumberFormatterTests: XCTestCase {
     let fullFormatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))
@@ -67,7 +67,7 @@ class EtherNumberFormatterTests: XCTestCase {
             formatter.maximumFractionDigits = 4
             return formatter
         }()
-        XCTAssertEqual(formatter2.string(from: BigInt(1)), "0.0000") 
+        XCTAssertEqual(formatter2.string(from: BigInt(1)), "0.0000")
     }
 
     func testDigits() {

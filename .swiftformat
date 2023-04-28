@@ -6,88 +6,84 @@
 
 --enable typeSugar
 
-#TODO enable
-#--enable redundantVoidReturnType
-#--closurevoid remove
+--enable redundantVoidReturnType
+--closurevoid remove
 
-#TODO enable
-#--enable trailingCommas
-#--commas always
+--enable trailingCommas
+--commas always
 
-#TODO enable
-#--enable elseOnSameLine
-#--elseposition same-line
-#--guardelse "same-line"
+--enable elseOnSameLine
+--elseposition same-line
+--guardelse "same-line"
 
-#TODO enable
-#--enable emptyBraces
-#--emptybraces no-space
+--enable emptyBraces
+--emptybraces no-space
 
-#TODO enable
-#--enable enumNamespaces
-#--enumnamespaces always
+--enable enumNamespaces
+--enumnamespaces always
 
-#--enable genericExtensions
+--enable genericExtensions
 
-#TODO enable
-#--enable indent
-#--ifdef indent
-#--indent 4
-#--indentcase false
-#--indentstrings true
-#--tabwidth unspecified
-#--xcodeindentation disabled
+--ifdef indent
+--indentcase false
+--indentstrings true
+--tabwidth unspecified
+--xcodeindentation disabled
 
-#--enable linebreaks
-#--linebreaks lf
+--enable linebreaks
+--linebreaks lf
 
-#--disable wrapSingleLineComments
+--disable wrapSingleLineComments
 
-#TODO enable
-#--enable modifierorder
-#--modifierorder private,lazy
+--enable modifierorder
+--modifierorder private,lazy
 
-#TODO enable
-#--enable spaceAroundOperators
-#--operatorfunc spaced
-#--nospaceoperators ...,..<
-#--ranges "no-space"
+--enable spaceAroundOperators
+--operatorfunc spaced
+--nospaceoperators ...,..<
+--ranges "no-space"
 
-#TODO enable
-#--enable hoistPatternLet
-#--patternlet inline
+--enable hoistPatternLet
+--patternlet inline
 
-#TODO enable
-#--enable semicolons
-#--semicolons inline
+--enable semicolons
+--semicolons inline
 
-#TODO enable
-#--enable typeSugar
-#--shortoptionals always
+--enable typeSugar
+--shortoptionals always
 
-#--enable unusedArguments
-#--stripunusedargs closure-only
+--enable unusedArguments
+--stripunusedargs closure-only
 
-#TODO enable
-#--enable trailingSpace
-#--trimwhitespace always
+--enable trailingSpace
+--trimwhitespace always
 
-#TODO enable
-#--enable blankLinesAtStartOfScope
-#--typeblanklines remove
+--enable blankLinesAtStartOfScope
+--typeblanklines remove
 
-#TODO enable
-#--enable void
-#--voidtype void
+--enable void
+--voidtype void
 
-#--enable yodaConditions
-#--yodaswap always
+--enable yodaConditions
+--yodaswap always
 
 --disable spaceInsideComments
 
+--enable braces
+--allman false
+
+--enable sortedImports
+--enable duplicateImports
+--enable consecutiveBlankLines
+--enable consecutiveSpaces
+
 #Files
 
-#--exclude build,vendor
-#--exclude Pods,Generated
+--exclude build,vendor
+--exclude Pods,Generated
+--exclude modules/AlphaWalletFoundation/AlphaWalletFoundation/NFT/Enjin/API.swift
+--exclude AlphaWallet/R.generated.swift
+
 #Excluded because of error while processing
-#--exclude AlphaWallet/Browser/ViewModel/Dapps.swift
+#But we still need to keep this file
+--exclude AlphaWallet/Browser/ViewModel/Dapps.swift
