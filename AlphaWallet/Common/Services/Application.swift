@@ -416,7 +416,9 @@ class Application: WalletDependenciesProvidable {
         services = [
             ReportUsersWalletAddresses(keystore: keystore),
             ReportUsersActiveChains(serversProvider: serversProvider),
-            MigrateToSupportEip1559Transactions(serversProvider: serversProvider, keychain: keystore)
+            MigrateToSupportEip1559Transactions(
+                serversProvider: serversProvider,
+                keychain: keystore)
         ]
         services.forEach { $0.perform() }
     }

@@ -63,7 +63,7 @@ extension RealmStore {
     public static var shared: RealmStore = RealmStore(realm: Realm.shared())
 
     public class func storage(for wallet: Wallet) -> RealmStore {
-        RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
+        return RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
     } 
 }
 
@@ -72,10 +72,8 @@ extension Realm {
     public static func realm(for account: Wallet) -> Realm {
         let migration = DatabaseMigration(account: account)
         migration.perform()
-
-        let realm = try! Realm(configuration: migration.config)
-
-        return realm
+        
+        return try! Realm(configuration: migration.config)
     }
 
     public static func shared(_ name: String = "Shared") -> Realm {
