@@ -50,7 +50,7 @@ class AddHideTokensViewController: UIViewController {
 
         searchController.delegate = self
 
-        emptyView = EmptyView.filterTokensEmptyView(completion: { [weak self] in
+        emptyView = EmptyView.addHideTokensEmptyView(completion: { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
             let addressString = strongSelf.searchController.searchBar.text ?? ""
             delegate.didPressAddToken(in: strongSelf, with: addressString)
