@@ -18,8 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        self.application.applicationPerformActionFor(shortcutItem, completionHandler: completionHandler)
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem) async -> Bool {
+        await self.application.applicationPerformActionFor(shortcutItem)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

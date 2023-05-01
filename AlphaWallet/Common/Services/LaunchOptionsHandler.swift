@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 
 public protocol LaunchOptionsHandler {
-    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) -> Bool
+    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool
 }
 
 protocol ShortcutLaunchOptionsHandlerDelegate: AnyObject {
@@ -23,10 +23,16 @@ class LaunchOptionsService {
         self.handlers = handlers
     }
 
-    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) {
-        for each in handlers where each.handle(launchOptions: launchOptions) {
-            break
+    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool {
+        var result = false
+        for each in handlers {
+            let isHandled = await each.handle(launchOptions: launchOptions)
+            if isHandled {
+                result = true
+            }
         }
+
+        return result
     }
 }
 
@@ -34,28 +40,24 @@ class ShortcutHandler: LaunchOptionsHandler {
 
     weak var delegate: ShortcutLaunchOptionsHandlerDelegate?
 
-    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) -> Bool {
-        if let shortcutItem = launchOptions[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, canHandle(shortcutItem: shortcutItem) {
+    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool {
+        if let shortcutItem = launchOptions[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
             //Delay needed to work because app is launching..
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.handle(shortcutItem: shortcutItem)
-            }
-            return true
+            try? await Task.sleep(seconds: 0.3)
+            return await self.handle(shortcutItem: shortcutItem)
         } else {
             return false
         }
     }
 
-    func canHandle(shortcutItem: UIApplicationShortcutItem) -> Bool {
-        Shortcut(type: shortcutItem.type) != nil
-    }
-
-    func handle(shortcutItem: UIApplicationShortcutItem) {
+    func handle(shortcutItem: UIApplicationShortcutItem) async -> Bool {
         switch Shortcut(type: shortcutItem.type) {
         case .qrCodeScanner:
-            delegate?.launchUniversalScannerFromQuickAction()
+            await MainActor.run { delegate?.launchUniversalScannerFromQuickAction() }
+
+            return true
         case .none:
-            break
+            return false
         }
     }
 }
@@ -72,5 +74,12 @@ extension ShortcutHandler {
                 return nil
             }
         }
+    }
+}
+
+extension Task where Success == Never, Failure == Never {
+    static func sleep(seconds: Double) async throws {
+        let duration = UInt64(seconds * 1_000_000_000)
+        try await Task.sleep(nanoseconds: duration)
     }
 }
