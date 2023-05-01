@@ -202,6 +202,12 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 }
 
+extension BrowserViewController: PopInteractable {
+    func shouldBeginPopInteraction() -> Bool {
+        return viewModel.shouldBeginPopInteraction()
+    }
+}
+
 extension BrowserViewController: BrowserErrorViewDelegate {
     func didTapReload(_ sender: Button) {
         reload()

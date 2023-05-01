@@ -51,10 +51,12 @@ class BrowserViewModel: NSObject {
         config.websiteDataStore = WKWebsiteDataStore.default()
         return config
     }()
+    let browserOnly: Bool
     
-    init(wallet: Wallet, server: RPCServer) {
+    init(wallet: Wallet, server: RPCServer, browserOnly: Bool) {
         self.wallet = wallet
         self.server = server
+        self.browserOnly = browserOnly
         super.init()
     }
 
@@ -75,6 +77,10 @@ class BrowserViewModel: NSObject {
             recordUrl: recordUrlSubject.eraseToAnyPublisher(),
             dappAction: dappActionSubject.eraseToAnyPublisher(),
             keyboardAction: keyboardAction.eraseToAnyPublisher())
+    }
+
+    func shouldBeginPopInteraction() -> Bool {
+        return !browserOnly
     }
 
     private func handle(decidePolicy: BrowserViewModel.DecidePolicy) {
