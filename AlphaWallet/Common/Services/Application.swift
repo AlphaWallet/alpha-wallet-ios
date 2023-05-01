@@ -355,18 +355,15 @@ class Application: WalletDependenciesProvidable {
 
     private func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         guard let launchOptions = launchOptions else { return }
-        launchOptionsService.handle(launchOptions: launchOptions)
+        Task { await launchOptionsService.handle(launchOptions: launchOptions) }
     }
 
     deinit {
         tokenScriptOverridesFileManager.stop()
     }
 
-    func applicationPerformActionFor(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        let result = shortcutHandler.canHandle(shortcutItem: shortcutItem)
-        shortcutHandler.handle(shortcutItem: shortcutItem)
-
-        completionHandler(result)
+    func applicationPerformActionFor(_ shortcutItem: UIApplicationShortcutItem) async -> Bool {
+        return await shortcutHandler.handle(shortcutItem: shortcutItem)
     }
 
     func applicationDidBecomeActive() {
