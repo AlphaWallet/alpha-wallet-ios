@@ -139,10 +139,10 @@ final class FilterTokensHoldersEmptyViewDefaultPlacement: EmptyViewPlacement {
 
     func resolveContraints(superView: UIView, container: UIView) -> [NSLayoutConstraint] {
         return [
-            container.trailingAnchor.constraint(equalTo: superView.trailingAnchor),
-            container.leadingAnchor.constraint(equalTo: superView.leadingAnchor),
-            container.centerXAnchor.constraint(equalTo: superView.centerXAnchor),
-            container.centerYAnchor.constraint(equalTo: superView.centerYAnchor, constant: verticalOffset)
+            container.trailingAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.trailingAnchor),
+            container.leadingAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.leadingAnchor),
+            container.centerXAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.centerXAnchor),
+            container.centerYAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.centerYAnchor, constant: verticalOffset)
         ]
     }
 }
@@ -204,6 +204,15 @@ extension EmptyView {
             .configure(title: "Alerts will appear here")
             .configure(spacing: 0)
             .configure(insets: .init(top: DataEntry.Metric.Tokens.Filter.height, left: 0, bottom: 0, right: 0))
+    }
+
+    static func addHideTokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
+        EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
+            .configure(image: R.image.empty_list())
+            .configure(title: R.string.localizable.seachTokenNoresultsTitle())
+            .configure(buttonTitle: R.string.localizable.addCustomTokenTitle(), width: 240, buttonSelectionClosure: completion)
+            .configure(spacing: 30)
+            .configure(insets: .zero)
     }
 
     static func filterTokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
