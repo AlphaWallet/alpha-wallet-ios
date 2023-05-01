@@ -55,12 +55,21 @@ public enum EstimatedValue<T> {
     }
 }
 
-public protocol Warning {
-    var description: String { get }
+public protocol Warning {}
+
+extension Warning {
+    public var localizedDescription: String {
+        //Bit of a tight coupling here, checking for a child type, but it makes implementation of `LocalizedWarning.warningDescription` mirror that of `LocalizedError.errorDescription`
+        if let localizedWarning = self as? LocalizedWarning {
+            return localizedWarning.warningDescription ?? "\(self)"
+        } else {
+            return "\(self)"
+        }
+    }
 }
 
-public extension Warning {
-    var description: String { String(describing: self) }
+public protocol LocalizedWarning: Warning {
+    var warningDescription: String? { get }
 }
 
 public struct FillableValue<T> {
