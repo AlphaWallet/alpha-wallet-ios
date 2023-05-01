@@ -22,9 +22,11 @@ class UserActivityService: UserActivityHandler {
 
     func handle(_ userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         var result: Bool = false
-        for each in handlers where each.handle(userActivity, restorationHandler: restorationHandler) {
-            result = true
-            break
+        for each in handlers {
+            let isHandled = each.handle(userActivity, restorationHandler: restorationHandler)
+            if isHandled {
+                result = true
+            }
         }
 
         return result
