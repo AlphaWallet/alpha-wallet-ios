@@ -225,54 +225,6 @@ extension DatabaseMigration {
             }
         }
     }
-
-    public func oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: AssetDefinitionStore) {
-        let migration = self
-
-        debugLog("Database filepath: \(migration.config.fileURL!)")
-        debugLog("Database directory: \(migration.config.fileURL!.deletingLastPathComponent())")
-
-        let exists: Bool
-        if let path = migration.config.fileURL?.path {
-            exists = FileManager.default.fileExists(atPath: path)
-        } else {
-            exists = false
-        }
-        guard !exists else { return }
-
-        migration.perform()
-        let realm = try! Realm(configuration: migration.config)
-
-        do {
-            try realm.write {
-                for each in RPCServer.availableServers {
-                    let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
-                    migration.perform()
-                    let oldPerChainDatabase = try! Realm(configuration: migration.config)
-                    for each in oldPerChainDatabase.objects(DelegateContract.self) {
-                        realm.create(DelegateContract.self, value: each)
-                    }
-                    for each in oldPerChainDatabase.objects(DeletedContract.self) {
-                        realm.create(DeletedContract.self, value: each)
-                    }
-                    for each in oldPerChainDatabase.objects(HiddenContract.self) {
-                        realm.create(HiddenContract.self, value: each)
-                    }
-                    for each in oldPerChainDatabase.objects(TokenObject.self) {
-                        realm.create(TokenObject.self, value: each)
-                    }
-                }
-            }
-            for each in RPCServer.availableServers {
-                let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
-                for each in DatabaseMigration.realmFilesUrls(config: migration.config) {
-                    try? FileManager.default.removeItem(at: each)
-                }
-            }
-        } catch {
-            //no-op
-        }
-    }
 }
 
 fileprivate extension Config {
