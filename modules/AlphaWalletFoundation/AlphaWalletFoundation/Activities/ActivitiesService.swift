@@ -219,7 +219,7 @@ public class ActivitiesService: ActivitiesServiceType {
         }
     }
 
-    private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance], wallet: Wallet) -> Bool {
+    private func isSwap(activities: [Activity], operations: [LocalizedOperation], wallet: Wallet) -> Bool {
         //Might have other transactions like approved embedded, so we can't check for all send and receives.
         let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: wallet.address) }
         let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: wallet.address) }
@@ -259,7 +259,7 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 }
 
-fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+fileprivate func == (activity: Activity, operation: LocalizedOperation) -> Bool {
     func isSameFrom() -> Bool {
         guard let from = activity.values.card["from"]?.addressValue, from.sameContract(as: operation.from) else { return false }
         return true
@@ -301,7 +301,7 @@ fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInst
     return true
 }
 
-fileprivate func != (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+fileprivate func != (activity: Activity, operation: LocalizedOperation) -> Bool {
     !(activity == operation)
 }
 

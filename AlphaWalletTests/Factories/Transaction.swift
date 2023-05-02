@@ -18,7 +18,7 @@ extension Transaction {
         gasUsed: String = "0x1",
         nonce: String = "0",
         date: Date = Date(),
-        localizedOperations: [LocalizedOperationObjectInstance] = [],
+        localizedOperations: [LocalizedOperation] = [],
         state: TransactionState = .completed,
         server: RPCServer = .main
     ) -> Transaction {

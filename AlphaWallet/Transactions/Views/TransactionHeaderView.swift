@@ -27,7 +27,7 @@ struct TransactionHeaderViewModel {
         self.tokensService = tokensService
     }
 
-    private var operation: LocalizedOperationObjectInstance? {
+    private var operation: LocalizedOperation? {
         switch transactionViewModel.transactionRow {
         case .standalone(let transaction): return transaction.operation
         case .group: return nil

@@ -16,7 +16,7 @@ struct TransactionRowCellViewModel {
     }
 
     private var operationTitle: String? {
-        let operation: LocalizedOperationObjectInstance?
+        let operation: LocalizedOperation?
         switch transactionRow {
         case .standalone(let transaction):
             operation = transaction.operation

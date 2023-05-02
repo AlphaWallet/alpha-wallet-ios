@@ -10,7 +10,7 @@ import BigInt
 import Combine
 
 public final class TransactionBuilder {
-    private typealias LocalizedOperation = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
+    private typealias ContractData = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
 
     private let tokensDataStore: TokensDataStore
     private let ercTokenProvider: TokenProviderType
@@ -65,12 +65,12 @@ public final class TransactionBuilder {
                                          from: String,
                                          contract: AlphaWallet.Address,
                                          to recipient: AlphaWallet.Address,
-                                         functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
+                                         functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperation], Never> {
 
         fetchLocalizedOperation(contract: contract)
-            .map { token -> [LocalizedOperationObjectInstance] in
+            .map { token -> [LocalizedOperation] in
                 let operationType = self.mapTokenTypeToTransferOperationType(token.tokenType, functionCall: functionCall)
-                let result = LocalizedOperationObjectInstance(
+                let result = LocalizedOperation(
                     from: from,
                     to: recipient.eip55String,
                     contract: contract,
@@ -86,10 +86,10 @@ public final class TransactionBuilder {
             .eraseToAnyPublisher()
     }
 
-    private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> {
+    private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.ContractData, SessionTaskError> {
         return Just(contract)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [tokensDataStore, ercTokenProvider, server] contract -> AnyPublisher<TransactionBuilder.LocalizedOperation, SessionTaskError> in
+            .flatMap { [tokensDataStore, ercTokenProvider, server] contract -> AnyPublisher<TransactionBuilder.ContractData, SessionTaskError> in
                 if let token = tokensDataStore.token(for: contract, server: server) {
                     return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
                 } else {
@@ -105,7 +105,7 @@ public final class TransactionBuilder {
             }.eraseToAnyPublisher()
     }
 
-    private func buildOperationForTokenTransfer(for transaction: NormalTransaction) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
+    private func buildOperationForTokenTransfer(for transaction: NormalTransaction) -> AnyPublisher<[LocalizedOperation], Never> {
         guard let contract = transaction.toAddress else {
             return .just([])
         }

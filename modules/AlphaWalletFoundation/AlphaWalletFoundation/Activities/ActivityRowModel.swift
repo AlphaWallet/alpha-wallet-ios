@@ -5,12 +5,12 @@ import Foundation
 public enum ActivityRowModel {
     enum PseudoActivityOrTransaction {
         case activity(activity: Activity)
-        case childTransaction(transaction: Transaction, operation: LocalizedOperationObjectInstance)
+        case childTransaction(transaction: Transaction, operation: LocalizedOperation)
     }
 
     case parentTransaction(transaction: Transaction, isSwap: Bool, activities: [Activity])
     case childActivity(transaction: Transaction, activity: Activity)
-    case childTransaction(transaction: Transaction, operation: LocalizedOperationObjectInstance, activity: Activity?)
+    case childTransaction(transaction: Transaction, operation: LocalizedOperation, activity: Activity?)
     case standaloneTransaction(transaction: Transaction, activity: Activity?)
     case standaloneActivity(activity: Activity)
 
