@@ -48,21 +48,21 @@ public final class BrowserHistoryStorage {
     }
 
     func add(records: [BrowserHistoryRecord]) {
-        try? realm.write {
+        try? realm.safeWrite {
             let records = records.map { History(historyRecord: $0) }
             realm.add(records, update: .all)
         }
     }
 
     public func delete(record: BrowserHistoryRecord) {
-        try? realm.write {
+        try? realm.safeWrite {
             guard let record = realm.object(ofType: History.self, forPrimaryKey: record.id) else { return }
             realm.delete(record)
         }
     }
 
     public func deleteAllRecords() {
-        try? realm.write {
+        try? realm.safeWrite {
             let histories = realm.objects(History.self)
             realm.delete(histories)
         }

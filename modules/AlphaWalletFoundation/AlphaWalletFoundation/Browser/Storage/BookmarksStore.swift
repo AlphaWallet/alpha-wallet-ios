@@ -32,7 +32,7 @@ public final class BookmarksStore {
     }
 
     public func update(bookmark: BookmarkObject, title: String, url: String) {
-        try? realm.write {
+        try? realm.safeWrite {
             let bookmark = Bookmark(bookmark: bookmark)
             bookmark.title = title
             bookmark.url = url
@@ -43,7 +43,7 @@ public final class BookmarksStore {
 
     public func add(bookmarks: [BookmarkObject]) {
         var bookmarkOrder = self.bookmarks.count
-        try? realm.write {
+        try? realm.safeWrite {
             let bookmarks = bookmarks.map { Bookmark(bookmark: $0) }
             for each in bookmarks {
                 each.order = bookmarkOrder
@@ -54,7 +54,7 @@ public final class BookmarksStore {
     }
 
     public func delete(bookmark: BookmarkObject) {
-        try? realm.write {
+        try? realm.safeWrite {
             guard let bookmark = realm.object(ofType: Bookmark.self, forPrimaryKey: bookmark.id) else { return }
             realm.delete(bookmark)
             for (index, each) in Array(bookmarks).enumerated() {
@@ -64,7 +64,7 @@ public final class BookmarksStore {
     }
 
     public func moveBookmark(fromIndex from: Int, toIndex to: Int) {
-        try? realm.write {
+        try? realm.safeWrite {
             let bookmarkMoved = bookmarks[from]
             if from < to {
                 let changed = bookmarks[(from+1)...to]
