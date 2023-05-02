@@ -20,11 +20,19 @@ extension TokenScript {
     ]
 }
 
-protocol ApplicationNavigatable: AnyObject {
+enum ApplicationNavigation {
+    case selectedWallet
+    case walletList
+    case walletCreation
+    case onboarding
+}
+
+protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityHandlerDelegate {
+    var navigation: AnyPublisher<ApplicationNavigation, Never> { get }
+    
+    func showCreateWallet()
+    func showActiveWallet(wallet: Wallet)
     func showActiveWalletIfNeeded()
-    func launchUniversalScanner(fromSource: Analytics.ScanQRCodeSource)
-    func showQrCode()
-    func openUrlInDappBrowser(url: URL, animated: Bool)
     func show(error: Error)
     func showTokenScriptFileImported(filename: String)
     func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl)
@@ -43,6 +51,9 @@ class Application: WalletDependenciesProvidable {
     private let launchOptionsService: LaunchOptionsService
     private let userActivityService: UserActivityService
     private let shortcutHandler: ShortcutHandler
+    private let navigationSubject: CurrentValueSubject<ApplicationNavigation, Never> = .init(.onboarding)
+    private var navigationCancellable: Cancellable?
+    private let donationUserActivityHandler: DonationUserActivityHandler
 
     let config: Config
     let legacyFileBasedKeystore: LegacyFileBasedKeystore
@@ -75,7 +86,7 @@ class Application: WalletDependenciesProvidable {
     let promptBackup: PromptBackup
     let mediaContentDownloader: MediaContentDownloader
 
-    weak var navigation: ApplicationNavigatable?
+    weak var navigation: ApplicationNavigatable? { didSet { didSetNavigation() } }
 
     static let shared: Application = try! Application()
 
@@ -194,17 +205,28 @@ class Application: WalletDependenciesProvidable {
             shortcutHandler
         ])
 
-        let donationUserActivityHandler = DonationUserActivityHandler(analytics: analytics)
+        self.donationUserActivityHandler = DonationUserActivityHandler(analytics: analytics)
         self.userActivityService = UserActivityService(handlers: [
             donationUserActivityHandler
         ])
 
+        universalLinkService.delegate = self
         bindWalletAddressesStore()
         handleTokenScriptOverrideImport()
-        restartHandler.navigation = self
+    }
 
+    //NOTE: subscribe for navigation state to keep its state in app
+    private func didSetNavigation() {
+        navigationCancellable?.cancel()
+        guard let nav = navigation else { return }
+
+        restartHandler.navigation = nav
+        donationUserActivityHandler.delegate = nav
         shortcutHandler.delegate = self
-        donationUserActivityHandler.delegate = self
+
+        navigationCancellable = nav.navigation
+            .multicast(subject: navigationSubject)
+            .connect()
     }
 
     private func handleTokenScriptOverrideImport() {
@@ -350,6 +372,12 @@ class Application: WalletDependenciesProvidable {
         migrateToStoringRawPrivateKeysInKeychain()
         tokenActionsService.start()
 
+        if let wallet = keystore.currentWallet, keystore.hasWallets {
+            navigation?.showActiveWallet(wallet: wallet)
+        } else {
+            navigation?.showCreateWallet()
+        }
+
         handle(launchOptions: launchOptions)
     }
 
@@ -437,12 +465,12 @@ class Application: WalletDependenciesProvidable {
     }
 
     func launchUniversalScannerFromQuickAction() {
-        launchUniversalScanner(fromSource: .quickAction)
+        showUniversalScanner(fromSource: .quickAction)
     }
 
-    func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
+    func showUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         navigation?.showActiveWalletIfNeeded()
-        navigation?.launchUniversalScanner(fromSource: source)
+        navigation?.showUniversalScanner(fromSource: source)
     }
 
     func buildDependencies(for wallet: Wallet) -> WalletDependencies {
@@ -539,19 +567,22 @@ class Application: WalletDependenciesProvidable {
 }
 // swiftlint:enable type_body_length
 
-extension Application: RestartQueueNavigatable {
-    func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler) {
-        navigation?.openUrlInDappBrowser(url: url, animated: false)
-    }
-}
-
-extension Application: DonationUserActivityHandlerDelegate {
-    func showQrCode() {
-        navigation?.showQrCode()
+extension Application: WalletApiCoordinatorDelegate {
+    func didOpenUrl(in service: WalletApiCoordinator, redirectUrl: URL) {
+        if UIApplication.shared.canOpenURL(redirectUrl) {
+            UIApplication.shared.open(redirectUrl)
+        } else {
+            navigation?.openUrlInDappBrowser(url: redirectUrl, animated: true)
+        }
     }
 }
 
 extension Application: ShortcutLaunchOptionsHandlerDelegate { }
+extension Application: UniversalLinkServiceDelegate {
+    func canHandleUniversalLink(for coordinator: UniversalLinkService) -> Bool {
+        return navigationSubject.value == .selectedWallet
+    }
+}
 
 extension AtomicDictionary: WalletDependenciesProvidable where Key == Wallet, Value == WalletDependencies {
     public func walletDependencies(walletAddress: AlphaWallet.Address) -> WalletDependencies? {

@@ -89,7 +89,7 @@ class AppCoordinatorTests: XCTestCase {
             application: app)
 
         coordinator.start()
-        coordinator.showInitialWalletCoordinator()
+        coordinator.showCreateWallet()
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
     }

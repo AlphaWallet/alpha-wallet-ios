@@ -152,7 +152,7 @@ class TokensCoordinator: Coordinator {
                 walletConnectCoordinator.openSession(url: url)
             }
         } else {
-            launchUniversalScanner(fromSource: .walletScreen)
+            showUniversalScanner(fromSource: .walletScreen)
         }
     }
 
@@ -217,7 +217,7 @@ class TokensCoordinator: Coordinator {
         return singleChainTokenCoordinators.first { $0.isServer(server) }
     }
 
-    func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
+    func showUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         let scanQRCodeCoordinator = ScanQRCodeCoordinator(
             analytics: analytics,
             navigationController: navigationController,
