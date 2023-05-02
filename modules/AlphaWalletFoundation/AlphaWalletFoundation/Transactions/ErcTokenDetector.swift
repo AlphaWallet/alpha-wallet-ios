@@ -25,7 +25,7 @@ public final class ErcTokenDetector {
         self.server = server
     }
 
-    func detect(from transactions: [TransactionInstance]) {
+    func detect(from transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
 
         filterTransactionsToPullContracts(from: transactions)
@@ -37,7 +37,7 @@ public final class ErcTokenDetector {
             })
     }
 
-    private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
+    private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         let ercTokens = ErcTokenDetector.functional.buildErcTokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
         let contractsAndServers = Array(Set(ercTokens.map { AddressAndRPCServer(address: $0.contract, server: $0.server) }))
 
@@ -58,7 +58,7 @@ public final class ErcTokenDetector {
         return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
     }
 
-    private func filterTransactionsToPullContracts(from transactions: [TransactionInstance]) -> AnyPublisher<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType]), Never> {
+    private func filterTransactionsToPullContracts(from transactions: [Transaction]) -> AnyPublisher<(transactions: [Transaction], contractTypes: [AlphaWallet.Address: TokenType]), Never> {
         let filteredTransactions = ErcTokenDetector.functional.filter(transactions: transactions, contractsToAvoid: contractsToAvoid)
 
         //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
@@ -89,7 +89,7 @@ extension ErcTokenDetector {
 
 extension ErcTokenDetector.functional {
 
-    static func filter(transactions: [TransactionInstance], contractsToAvoid: [AlphaWallet.Address]) -> [TransactionInstance] {
+    static func filter(transactions: [Transaction], contractsToAvoid: [AlphaWallet.Address]) -> [Transaction] {
         return transactions.filter {
             if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {
                 return false
@@ -101,7 +101,7 @@ extension ErcTokenDetector.functional {
         }
     }
 
-    static func buildErcTokens(from transactions: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [ErcToken] {
+    static func buildErcTokens(from transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [ErcToken] {
         let tokens: [ErcToken] = transactions.flatMap { transaction -> [ErcToken] in
             let tokenUpdates: [ErcToken] = transaction.localizedOperations.compactMap { operation in
                 guard let contract = operation.contractAddress else { return nil }

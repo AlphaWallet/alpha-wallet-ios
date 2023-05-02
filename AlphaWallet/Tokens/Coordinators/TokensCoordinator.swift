@@ -10,7 +10,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
     func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didTap(suggestedPaymentFlow: SuggestedPaymentFlow, viewController: UIViewController?, in coordinator: TokensCoordinator)
-    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator)
+    func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: TokensCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
@@ -536,7 +536,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didTap(activity: activity, viewController: viewController, in: self)
     }
 
-    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+    func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didTap(transaction: transaction, viewController: viewController, in: self)
     }
 

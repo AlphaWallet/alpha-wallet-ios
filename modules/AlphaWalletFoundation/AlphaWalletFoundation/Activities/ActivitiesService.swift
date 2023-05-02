@@ -144,7 +144,7 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], with transactions: [TransactionInstance]) -> [ActivityRowModel] {
+    private func combine(activities: [Activity], with transactions: [Transaction]) -> [ActivityRowModel] {
         let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactions.map { .transaction($0) }
         let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
         let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
@@ -161,7 +161,7 @@ public class ActivitiesService: ActivitiesServiceType {
         } else if activityOrTransactions.count > 1 {
             let activities: [Activity] = activityOrTransactions.compactMap(\.activity)
             //TODO will we ever have more than 1 transaction object (not activity/event) in the database for the same block number? Maybe if we get 1 from normal Etherscan endpoint and another from Etherscan ERC20 history endpoint?
-            if let transaction: TransactionInstance = activityOrTransactions.compactMap(\.transaction).first {
+            if let transaction: Transaction = activityOrTransactions.compactMap(\.transaction).first {
                 var results: [ActivityRowModel] = .init()
                 let activities: [Activity] = activities.filter { activity in
                     let operations = transaction.localizedOperations

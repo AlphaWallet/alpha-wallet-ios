@@ -25,7 +25,7 @@ class TransactionObject: Object {
     @objc dynamic var isERC20Interaction: Bool = false
     var localizedOperations = List<LocalizedOperationObject>()
 
-    convenience init(transaction: TransactionInstance) {
+    convenience init(transaction: Transaction) {
         self.init()
 
         self.primaryKey = transaction.primaryKey
@@ -66,15 +66,15 @@ class TransactionObject: Object {
     }
 }
 
-extension TransactionInstance {
+extension Transaction {
 
-    static func from(from: AlphaWallet.Address, transaction: SentTransaction, token: Token?) -> TransactionInstance {
+    static func from(from: AlphaWallet.Address, transaction: SentTransaction, token: Token?) -> Transaction {
         let (operations: operations, isErc20Interaction: isErc20Interaction) = decodeOperations(
             data: transaction.original.data,
             from: transaction.original.account,
             token: token)
 
-        return TransactionInstance(
+        return Transaction(
                 id: transaction.id,
                 server: transaction.original.server,
                 blockNumber: 0,
@@ -111,7 +111,7 @@ extension TransactionInstance {
     }
 }
 
-public struct TransactionInstance: Equatable, Hashable {
+public struct Transaction: Equatable, Hashable {
     public let primaryKey: String
     public let chainId: Int
     public let id: String
@@ -175,7 +175,7 @@ public struct TransactionInstance: Equatable, Hashable {
         return .init(chainID: chainId)
     }
 
-    public static func == (lhs: TransactionInstance, rhs: TransactionInstance) -> Bool {
+    public static func == (lhs: Transaction, rhs: Transaction) -> Bool {
         return lhs.primaryKey == rhs.primaryKey &&
             lhs.chainId == rhs.chainId &&
             lhs.id == rhs.id &&
@@ -196,7 +196,7 @@ public struct TransactionInstance: Equatable, Hashable {
 
 }
 
-extension TransactionInstance {
+extension Transaction {
     init(transaction: TransactionObject) {
         self.primaryKey = transaction.primaryKey
         self.id = transaction.id

@@ -26,7 +26,7 @@ public class CovalentApiNetworking: ApiNetworking {
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
-                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -39,7 +39,7 @@ public class CovalentApiNetworking: ApiNetworking {
 
         return transporter.dataTaskPublisher(request)
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
-            .tryMap { [server, paginationFilter] response -> TransactionsResponse<TransactionInstance> in
+            .tryMap { [server, paginationFilter] response -> TransactionsResponse<Transaction> in
                 guard let json = try? JSON(data: response.data) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
                 let response = try Covalent.TransactionsResponse(json: json)
@@ -47,23 +47,23 @@ public class CovalentApiNetworking: ApiNetworking {
                 let transactions = Covalent.ToNativeTransactionMapper.mapCovalentToNativeTransaction(transactions: data.transactions, server: server)
                 let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
 
-                return TransactionsResponse<TransactionInstance>(transactions: mergedTransactions, pagination: data.pagination)
+                return TransactionsResponse<Transaction>(transactions: mergedTransactions, pagination: data.pagination)
             }.mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
@@ -82,19 +82,19 @@ public class CovalentApiNetworking: ApiNetworking {
         return .empty()
     }
     
-    public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    public func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    public func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    public func normalTransactions(startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    public func normalTransactions(startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
         return .empty()
     }
 
-    public func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), AlphaWalletCore.PromiseError> {
+    public func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
         return .empty()
     }
 

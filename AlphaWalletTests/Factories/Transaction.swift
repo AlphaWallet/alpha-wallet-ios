@@ -5,7 +5,7 @@ import Foundation
 import AlphaWalletFoundation
 import BigInt
 
-extension TransactionInstance {
+extension Transaction {
     static func make(
         id: String = "0x1",
         blockNumber: Int = 1,
@@ -21,8 +21,8 @@ extension TransactionInstance {
         localizedOperations: [LocalizedOperationObjectInstance] = [],
         state: TransactionState = .completed,
         server: RPCServer = .main
-    ) -> TransactionInstance {
-        return TransactionInstance(
+    ) -> Transaction {
+        return Transaction(
             id: id,
             server: server,
             blockNumber: blockNumber,

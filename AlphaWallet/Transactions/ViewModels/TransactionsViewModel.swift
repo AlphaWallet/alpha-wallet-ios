@@ -90,7 +90,7 @@ extension TransactionsViewModel.functional {
         return snapshot
     }
 
-    fileprivate static func buildSectionViewModels(for transactions: [TransactionInstance]) -> [TransactionsViewModel.SectionViewModel] {
+    fileprivate static func buildSectionViewModels(for transactions: [Transaction]) -> [TransactionsViewModel.SectionViewModel] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
@@ -100,9 +100,9 @@ extension TransactionsViewModel.functional {
             newItems[date] = currentItems
         }
         let tuple = newItems.map { each in
-            (date: each.key, transactions: (each.value as? [TransactionInstance] ?? []).sorted { $0.date > $1.date })
+            (date: each.key, transactions: (each.value as? [Transaction] ?? []).sorted { $0.date > $1.date })
         }
-        let collapsedTransactions: [(date: String, transactions: [TransactionInstance])] = tuple.sorted { (o1, o2) -> Bool in
+        let collapsedTransactions: [(date: String, transactions: [Transaction])] = tuple.sorted { (o1, o2) -> Bool in
             guard let d1 = formatter.date(from: o1.date), let d2 = formatter.date(from: o2.date) else {
                 return false
             }

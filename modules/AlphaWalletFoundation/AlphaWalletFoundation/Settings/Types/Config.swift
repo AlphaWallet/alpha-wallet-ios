@@ -331,7 +331,7 @@ extension Config {
 
 extension Config {
 
-    private static func notificationKey(for transaction: TransactionInstance) -> String {
+    private static func notificationKey(for transaction: Transaction) -> String {
         String(format: "%@-%d", transaction.id, transaction.chainId)
     }
 
@@ -339,7 +339,7 @@ extension Config {
         return "presentedNotifications-\(wallet.address.eip55String)"
     }
 
-    func hasScheduledNotification(for transaction: TransactionInstance, in wallet: Wallet) -> Bool {
+    func hasScheduledNotification(for transaction: Transaction, in wallet: Wallet) -> Bool {
         let key = Config.notificationKey(for: transaction)
         return notifications(wallet: wallet).contains(key)
     }
@@ -353,7 +353,7 @@ extension Config {
         }
     }
 
-    func markScheduledNotification(transaction: TransactionInstance, in wallet: Wallet) {
+    func markScheduledNotification(transaction: Transaction, in wallet: Wallet) {
         let key = Config.notificationKey(for: transaction)
         let notifications = notifications(wallet: wallet)
         let updatedNotifications = Array(Set(notifications + [key]))

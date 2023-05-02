@@ -12,7 +12,7 @@ import AlphaWalletFoundation
 
 protocol ActivitiesViewDelegate: AnyObject {
     func didPressActivity(activity: Activity, in view: ActivitiesView)
-    func didPressTransaction(transaction: TransactionInstance, in view: ActivitiesView)
+    func didPressTransaction(transaction: Transaction, in view: ActivitiesView)
 }
 
 class ActivitiesView: UIView {

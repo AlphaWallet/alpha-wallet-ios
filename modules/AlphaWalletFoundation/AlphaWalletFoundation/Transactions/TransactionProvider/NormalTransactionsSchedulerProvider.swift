@@ -12,7 +12,7 @@ import AlphaWalletCore
 import BigInt
 
 protocol NormalTransactionsSchedulerProviderDelegate: AnyObject {
-    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], PromiseError>, in provider: NormalTransactionsSchedulerProvider)
+    func didReceiveResponse(_ response: Swift.Result<[Transaction], PromiseError>, in provider: NormalTransactionsSchedulerProvider)
 }
 
 /// Newly added transactions provider, performs fetching transaction from frist page until it find some of latest existed stored transaction. Once transaction has found the cycle starts from 0 page again
@@ -59,7 +59,7 @@ final class NormalTransactionsSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response: TransactionsResponse<TransactionInstance>) {
+    private func handle(response: TransactionsResponse<Transaction>) {
         storage.set(
             transactionsPagination: response.pagination,
             fetchType: .normal,

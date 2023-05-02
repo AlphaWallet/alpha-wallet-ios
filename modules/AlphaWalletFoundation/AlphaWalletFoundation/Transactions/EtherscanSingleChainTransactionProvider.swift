@@ -139,7 +139,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             })
     }
 
-    private func addOrUpdate(transactions: [TransactionInstance]) {
+    private func addOrUpdate(transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
 
         transactionDataStore.addOrUpdate(transactions: transactions)

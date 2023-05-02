@@ -16,7 +16,7 @@ import AlphaWalletFoundation
 protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator)
-    func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator)
+    func didTap(transaction: Transaction, in coordinator: NFTCollectionCoordinator)
     func didTap(activity: Activity, in coordinator: NFTCollectionCoordinator)
 }
 
@@ -146,7 +146,7 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         showTokenCardSelection(tokenHolders: viewController.viewModel.tokenHolders.value)
     }
 
-    func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController) {
+    func didTap(transaction: Transaction, in viewController: NFTCollectionViewController) {
         delegate?.didTap(transaction: transaction, in: self)
     }
 

@@ -5,7 +5,7 @@ import Combine
 import AlphaWalletFoundation
 
 protocol ActivitiesCoordinatorDelegate: AnyObject {
-    func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
+    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController)
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController)
 }
 
@@ -79,7 +79,7 @@ extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
         delegate?.didPressActivity(activity: activity, in: viewController)
     }
 
-    func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController) {
+    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController) {
         delegate?.didPressTransaction(transaction: transaction, in: viewController)
     }
 }

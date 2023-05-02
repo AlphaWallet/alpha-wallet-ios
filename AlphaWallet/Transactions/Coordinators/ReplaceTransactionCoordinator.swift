@@ -23,7 +23,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let keystore: Keystore
     private let presentingViewController: UIViewController
     private let session: WalletSession
-    private let transaction: TransactionInstance
+    private let transaction: Transaction
     private let mode: Mode
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let networkService: NetworkService
@@ -85,7 +85,7 @@ class ReplaceTransactionCoordinator: Coordinator {
           keystore: Keystore,
           presentingViewController: UIViewController,
           session: WalletSession,
-          transaction: TransactionInstance,
+          transaction: Transaction,
           mode: Mode,
           tokensService: TokensProcessingPipeline,
           networkService: NetworkService) {
