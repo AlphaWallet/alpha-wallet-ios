@@ -28,10 +28,10 @@ final class PendingTransactionProvider {
 
         return queue
     }()
-    private let completeTransactionSubject = PassthroughSubject<Result<TransactionInstance, PendingTransactionProviderError>, Never>()
+    private let completeTransactionSubject = PassthroughSubject<Result<Transaction, PendingTransactionProviderError>, Never>()
     private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    var completeTransaction: AnyPublisher<Result<TransactionInstance, PendingTransactionProviderError>, Never> {
+    var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProviderError>, Never> {
         completeTransactionSubject.eraseToAnyPublisher()
     }
 
@@ -74,7 +74,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    private func runPendingTransactionWatchers(transactions: [TransactionInstance]) {
+    private func runPendingTransactionWatchers(transactions: [Transaction]) {
         for each in transactions {
             guard store[each.id] == nil else { continue }
 
@@ -104,7 +104,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    private func handle(transaction: TransactionInstance, pendingTransaction: EthereumTransaction) {
+    private func handle(transaction: Transaction, pendingTransaction: EthereumTransaction) {
         transactionDataStore.update(state: .completed, for: transaction.primaryKey, pendingTransaction: pendingTransaction)
 
         ercTokenDetector.detect(from: [transaction])
@@ -116,13 +116,13 @@ final class PendingTransactionProvider {
         cancelScheduler(transaction: transaction)
     }
 
-    private func cancelScheduler(transaction: TransactionInstance) {
+    private func cancelScheduler(transaction: Transaction) {
         guard let scheduler = store[transaction.id] else { return }
         scheduler.cancel()
         store[transaction.id] = nil
     }
 
-    private func handle(error: SessionTaskError, transaction: TransactionInstance) {
+    private func handle(error: SessionTaskError, transaction: Transaction) {
         switch error {
         case .responseError(let error):
             // TODO: Think about the logic to handle pending transactions.
@@ -146,7 +146,7 @@ final class PendingTransactionProvider {
 }
 
 extension TransactionDataStore {
-    func initialOrNewTransactionsPublisher(forServer server: RPCServer, transactionState: TransactionState) -> AnyPublisher<[TransactionInstance], Never> {
+    func initialOrNewTransactionsPublisher(forServer server: RPCServer, transactionState: TransactionState) -> AnyPublisher<[Transaction], Never> {
         let predicate = TransactionDataStore.functional.transactionPredicate(server: server, transactionState: .pending)
         return transactionsChangeset(filter: .predicate(predicate), servers: [server])
             .map { changeset in

@@ -46,7 +46,7 @@ final class Erc1155TransferTransactionProvider {
         scheduler.cancel()
     }
 
-    private func handle(transactions: [TransactionInstance]) {
+    private func handle(transactions: [Transaction]) {
         let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
         ercTokenDetector.detect(from: newOrUpdatedTransactions)
     }
@@ -57,7 +57,7 @@ final class Erc1155TransferTransactionProvider {
 }
 
 extension Erc1155TransferTransactionProvider: Erc1155TransferTransactionSchedulerDelegate {
-    func didReceiveResponse(_ response: Result<[TransactionInstance], PromiseError>, in provider: Erc1155TransferTransactionSchedulerProvider) {
+    func didReceiveResponse(_ response: Result<[Transaction], PromiseError>, in provider: Erc1155TransferTransactionSchedulerProvider) {
         switch response {
         case .success(let transactions):
             handle(transactions: transactions)

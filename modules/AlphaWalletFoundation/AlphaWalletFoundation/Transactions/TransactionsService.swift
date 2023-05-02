@@ -18,13 +18,13 @@ public class TransactionsService {
         return queue
     }()
 
-    public var transactionsChangeset: AnyPublisher<[TransactionInstance], Never> {
+    public var transactionsChangeset: AnyPublisher<[Transaction], Never> {
         return sessionsProvider.sessions
-            .flatMapLatest { [transactionDataStore] sessions -> AnyPublisher<[TransactionInstance], Never> in
+            .flatMapLatest { [transactionDataStore] sessions -> AnyPublisher<[Transaction], Never> in
                 let servers = sessions.values.map { $0.server }
                 return transactionDataStore
                     .transactionsChangeset(filter: .all, servers: servers)
-                    .map { change -> [TransactionInstance] in
+                    .map { change -> [Transaction] in
                         switch change {
                         case .initial(let transactions): return transactions
                         case .update(let transactions, _, _, _): return transactions
@@ -156,13 +156,13 @@ public class TransactionsService {
         }
     }
 
-    public func transactionPublisher(for transactionId: String, server: RPCServer) -> AnyPublisher<TransactionInstance?, Never> {
+    public func transactionPublisher(for transactionId: String, server: RPCServer) -> AnyPublisher<Transaction?, Never> {
         transactionDataStore.transactionPublisher(for: transactionId, server: server)
             .replaceError(with: nil)
             .eraseToAnyPublisher()
     }
 
-    public func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> TransactionInstance? {
+    public func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> Transaction? {
         transactionDataStore.transaction(withTransactionId: transactionId, forServer: server)
     }
 
@@ -171,7 +171,7 @@ public class TransactionsService {
 
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensService.token(for: $0, server: transaction.original.server) }
-        let transaction = TransactionInstance.from(from: session.account.address, transaction: transaction, token: token)
+        let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
         
         transactionDataStore.add(transactions: [transaction])
     }

@@ -23,16 +23,16 @@ public struct TransactionsResponse<T> {
 
 public protocol ApiNetworking {
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                 startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
@@ -45,12 +45,12 @@ public protocol ApiNetworking {
 
     func normalTransactions(startBlock: Int,
                             endBlock: Int,
-                            sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError>
+                            sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError>
 
-    func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
+    func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
 
-    func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
+    func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
 
-    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError>
+    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
 }
 

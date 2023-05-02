@@ -11,7 +11,7 @@ import CombineExt
 import AlphaWalletCore
 
 protocol Erc721TransferTransactionSchedulerDelegate: AnyObject {
-    func didReceiveResponse(_ response: Result<[TransactionInstance], PromiseError>, in provider: Erc721TransferTransactionSchedulerProvider)
+    func didReceiveResponse(_ response: Result<[Transaction], PromiseError>, in provider: Erc721TransferTransactionSchedulerProvider)
 }
 
 /// Newly added transactions provider, performs fetching transaction from frist page until it find some of latest existed stored transaction. Once transaction has found the cycle starts from 0 page again
@@ -58,7 +58,7 @@ final class Erc721TransferTransactionSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response: TransactionsResponse<TransactionInstance>) {
+    private func handle(response: TransactionsResponse<Transaction>) {
         storage.set(
             transactionsPagination: response.pagination,
             fetchType: .erc721,

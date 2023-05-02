@@ -64,9 +64,9 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    func erc20TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    func erc20TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
-            .flatMap { transactions -> AnyPublisher<([TransactionInstance], Int), PromiseError> in
+            .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
                 let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map { ($0, maxBlockNumber) }
@@ -74,9 +74,9 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
-    func erc721TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    func erc721TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
-            .flatMap { transactions -> AnyPublisher<([TransactionInstance], Int), PromiseError> in
+            .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
                 let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map { ($0, maxBlockNumber) }
@@ -84,12 +84,12 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
-    func normalTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    func normalTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
         return transporter
             .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .mapError { PromiseError(error: $0) }
-            .flatMap { [transactionBuilder] result -> AnyPublisher<[TransactionInstance], PromiseError> in
+            .flatMap { [transactionBuilder] result -> AnyPublisher<[Transaction], PromiseError> in
                 if result.response.statusCode == 404 {
                     return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
                 }
@@ -109,32 +109,32 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
-    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), AlphaWalletCore.PromiseError> {
+    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
         return .empty()
     }
 
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }
 
     //TODO: rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
-    private func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    private func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
         return transporter
             .dataTaskPublisher(GetErc20TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
@@ -143,7 +143,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
         return transporter
             .dataTaskPublisher(GetErc721TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
@@ -152,12 +152,12 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    private func backFillTransactionGroup(_ transactions: [TransactionInstance], startBlock: Int, endBlock: Int) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    private func backFillTransactionGroup(_ transactions: [Transaction], startBlock: Int, endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
         guard !transactions.isEmpty else { return .just([]) }
 
         return normalTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
-            .map { filledTransactions -> [TransactionInstance] in
-                var results: [TransactionInstance] = .init()
+            .map { filledTransactions -> [Transaction] in
+                var results: [Transaction] = .init()
                 for each in transactions {
                     //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
                     guard !each.localizedOperations.isEmpty else { continue }
@@ -237,7 +237,7 @@ extension EtherscanCompatibleApiNetworking {
 
 extension EtherscanCompatibleApiNetworking.functional {
 
-    static func extractBoundingBlockNumbers(fromTransactions transactions: [TransactionInstance]) -> (transactions: [TransactionInstance], min: Int, max: Int) {
+    static func extractBoundingBlockNumbers(fromTransactions transactions: [Transaction]) -> (transactions: [Transaction], min: Int, max: Int) {
         let blockNumbers = transactions.map(\.blockNumber)
         if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
             return (transactions: transactions, min: minBlockNumber, max: maxBlockNumber)
@@ -246,10 +246,10 @@ extension EtherscanCompatibleApiNetworking.functional {
         }
     }
 
-    static func decodeTransactions(json: JSON, server: RPCServer) -> [TransactionInstance] {
+    static func decodeTransactions(json: JSON, server: RPCServer) -> [Transaction] {
         let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
 
-        let transactions: [TransactionInstance] = filteredResult.map { result in
+        let transactions: [Transaction] = filteredResult.map { result in
             let transactionJson = result.1
             //Blockscout (and compatible like Polygon's) includes ERC721 transfers
             let operationType: OperationType
@@ -273,7 +273,7 @@ extension EtherscanCompatibleApiNetworking.functional {
 
             let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
 
-            return TransactionInstance(
+            return Transaction(
                     id: transactionJson["hash"].stringValue,
                     server: server,
                     blockNumber: transactionJson["blockNumber"].intValue,
@@ -295,8 +295,8 @@ extension EtherscanCompatibleApiNetworking.functional {
         return mergeTransactionOperationsIntoSingleTransaction(transactions)
     }
 
-    static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
-        var results: [TransactionInstance] = .init()
+    static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [Transaction]) -> [Transaction] {
+        var results: [Transaction] = .init()
         for each in transactions {
             if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
                 var found = results[index]

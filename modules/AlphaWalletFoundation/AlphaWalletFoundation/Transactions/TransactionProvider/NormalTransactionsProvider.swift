@@ -55,7 +55,7 @@ final class NormalTransactionsProvider {
         scheduler.cancel()
     }
 
-    private func handle(transactions: [TransactionInstance]) {
+    private func handle(transactions: [Transaction]) {
         let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
         ercTokenDetector.detect(from: newOrUpdatedTransactions)
     }
@@ -66,7 +66,7 @@ final class NormalTransactionsProvider {
 }
 
 extension NormalTransactionsProvider: NormalTransactionsSchedulerProviderDelegate {
-    func didReceiveResponse(_ response: Result<[TransactionInstance], PromiseError>, in provider: NormalTransactionsSchedulerProvider) {
+    func didReceiveResponse(_ response: Result<[Transaction], PromiseError>, in provider: NormalTransactionsSchedulerProvider) {
         switch response {
         case .success(let transactions):
             handle(transactions: transactions)

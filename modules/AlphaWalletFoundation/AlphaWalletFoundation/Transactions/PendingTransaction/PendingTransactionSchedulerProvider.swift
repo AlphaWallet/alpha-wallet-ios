@@ -21,14 +21,14 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
         return fetchPublisher()
     }
 
-    let transaction: TransactionInstance
+    let transaction: Transaction
 
     var responsePublisher: AnyPublisher<Swift.Result<EthereumTransaction, SessionTaskError>, Never> {
         responseSubject.eraseToAnyPublisher()
     }
 
     init(blockchainProvider: BlockchainProvider,
-         transaction: TransactionInstance,
+         transaction: Transaction,
          fetchPendingTransactionsQueue: OperationQueue) {
 
         self.blockchainProvider = blockchainProvider

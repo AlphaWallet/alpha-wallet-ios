@@ -16,7 +16,7 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didTapBridge(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didTapBuy(token: Token, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
-    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
+    func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
     func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator)
@@ -159,7 +159,7 @@ extension SingleChainTokenCoordinator: FungibleTokenCoordinatorDelegate {
         delegate?.didPress(for: type, viewController: viewController, in: self)
     }
 
-    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: FungibleTokenCoordinator) {
+    func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: FungibleTokenCoordinator) {
         delegate?.didTap(transaction: transaction, viewController: viewController, in: self)
     }
 
@@ -173,7 +173,7 @@ extension SingleChainTokenCoordinator: FungibleTokenCoordinatorDelegate {
 }
 
 extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
-    func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator) {
+    func didTap(transaction: Transaction, in coordinator: NFTCollectionCoordinator) {
         delegate?.didTap(transaction: transaction, viewController: coordinator.rootViewController, in: self)
     }
 

@@ -15,7 +15,7 @@ class TransactionsStorageTests: XCTestCase {
 
     func testAddItem() {
         let storage = FakeTransactionsStorage()
-        let item: TransactionInstance = .make()
+        let item: Transaction = .make()
 
         storage.add(transactions: [item])
 
@@ -47,8 +47,8 @@ class TransactionsStorageTests: XCTestCase {
 
     func testDelete() {
         let storage = FakeTransactionsStorage()
-        let one: TransactionInstance = .make(id: "0x1")
-        let two: TransactionInstance = .make(id: "0x2")
+        let one: Transaction = .make(id: "0x1")
+        let two: Transaction = .make(id: "0x2")
 
         storage.add(transactions: [
             one,

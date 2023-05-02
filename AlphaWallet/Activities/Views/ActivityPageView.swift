@@ -23,7 +23,7 @@ struct ActivityPageViewModel {
 
 protocol ActivitiesPageViewDelegate: AnyObject {
     func didTap(activity: Activity, in view: ActivitiesPageView)
-    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView)
+    func didTap(transaction: Transaction, in view: ActivitiesPageView)
 }
 
 class ActivitiesPageView: UIView, PageViewType {
@@ -86,7 +86,7 @@ extension ActivitiesPageView: ActivitiesViewDelegate {
         delegate?.didTap(activity: activity, in: self)
     }
 
-    func didPressTransaction(transaction: TransactionInstance, in view: ActivitiesView) {
+    func didPressTransaction(transaction: Transaction, in view: ActivitiesView) {
         delegate?.didTap(transaction: transaction, in: self)
     }
 }

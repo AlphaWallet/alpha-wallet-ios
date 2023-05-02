@@ -972,7 +972,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         }
     }
 
-    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator) {
+    func didTap(transaction: Transaction, viewController: UIViewController, in coordinator: TokensCoordinator) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
         } else {
@@ -1220,7 +1220,7 @@ extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
         showActivity(activity, navigationController: navigationController)
     }
 
-    func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController) {
+    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
         } else {

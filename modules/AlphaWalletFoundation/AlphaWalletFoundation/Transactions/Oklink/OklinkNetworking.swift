@@ -40,7 +40,7 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
-                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -61,14 +61,14 @@ public class OklinkApiNetworking: ApiNetworking {
             .flatMap { response in
                 self.buildTransactions(transactions: response.transactions)
                     .map {
-                        return TransactionsResponse<TransactionInstance>(
+                        return TransactionsResponse<Transaction>(
                             transactions: Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction($0),
                             pagination: response.pagination)
                     }
             }.eraseToAnyPublisher()
     }
 
-    private func buildTransactions(transactions: [NormalTransaction]) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    private func buildTransactions(transactions: [NormalTransaction]) -> AnyPublisher<[Transaction], PromiseError> {
         let publishers = transactions.map { transactionBuilder.buildTransaction(from: $0) }
 
         return Publishers.MergeMany(publishers)
@@ -79,7 +79,7 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -97,20 +97,20 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<TransactionInstance> in
+                    .map { operations -> TransactionsResponse<Transaction> in
                         let transactions = self.map(erc20TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<TransactionInstance>(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse<Transaction>(transactions: mergedTransactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -128,20 +128,20 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<TransactionInstance> in
+                    .map { operations -> TransactionsResponse<Transaction> in
                         let transactions = self.map(erc721TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<TransactionInstance>(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse<Transaction>(transactions: mergedTransactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -159,31 +159,31 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<TransactionInstance>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<TransactionInstance> in
+                    .map { operations -> TransactionsResponse<Transaction> in
                         let transactions = self.map(erc1155TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<TransactionInstance>(transactions: transactions, pagination: response.pagination)
+                        return TransactionsResponse<Transaction>(transactions: transactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    public func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), PromiseError> {
+    public func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    public func normalTransactions(startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
+    public func normalTransactions(startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
         return .empty()
     }
 
-    public func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([TransactionInstance], Int), AlphaWalletCore.PromiseError> {
+    public func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
         return .empty()
     }
 
@@ -203,9 +203,9 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [TransactionInstance] {
+                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
 
-        return transactions.compactMap { tx -> TransactionInstance? in
+        return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
@@ -220,7 +220,7 @@ public class OklinkApiNetworking: ApiNetworking {
                 name: operation?.name ?? "",
                 decimals: operation?.decimals ?? 18)
 
-            return TransactionInstance(
+            return Transaction(
                 id: tx.hash,
                 server: server,
                 blockNumber: tx.height,
@@ -240,9 +240,9 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc721TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [TransactionInstance] {
+                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
 
-        return transactions.compactMap { tx -> TransactionInstance? in
+        return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
@@ -257,7 +257,7 @@ public class OklinkApiNetworking: ApiNetworking {
                 name: operation?.name ?? "",
                 decimals: operation?.decimals ?? 0)
 
-            return TransactionInstance(
+            return Transaction(
                 id: tx.hash,
                 server: server,
                 blockNumber: tx.height,
@@ -277,9 +277,9 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc1155TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [TransactionInstance] {
+                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
 
-        return transactions.compactMap { tx -> TransactionInstance? in
+        return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
@@ -295,7 +295,7 @@ public class OklinkApiNetworking: ApiNetworking {
                 name: operation?.name ?? "",
                 decimals: operation?.decimals ?? 0)
 
-            return TransactionInstance(
+            return Transaction(
                 id: tx.hash,
                 server: server,
                 blockNumber: tx.height,

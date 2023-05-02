@@ -19,11 +19,11 @@ extension Covalent {
             return dateFormatter
         }()
 
-        func mapToNativeTransactions(transactions: [Covalent.Transaction], server: RPCServer) -> [TransactionInstance] {
+        func mapToNativeTransactions(transactions: [Covalent.Transaction], server: RPCServer) -> [Transaction] {
             transactions.compactMap { covalentTxToNativeTx(tx: $0, server: server) }
         }
 
-        private func covalentTxToNativeTx(tx: Covalent.Transaction, server: RPCServer) -> TransactionInstance? {
+        private func covalentTxToNativeTx(tx: Covalent.Transaction, server: RPCServer) -> Transaction? {
             let gas = tx.gasOffered.flatMap { String($0) } ?? ""
             let gasPrice = tx.gasPrice.flatMap { String($0) }.flatMap { BigUInt($0.drop0x) }.flatMap { GasPrice.legacy(gasPrice: $0) }
             let gasSpent = tx.gasSpent.flatMap { String($0) } ?? ""
@@ -60,7 +60,7 @@ extension Covalent {
 
             let transactionIndex = tx.logEvents.first?.txOffset ?? 0
 
-            return TransactionInstance(
+            return Transaction(
                 id: tx.txHash,
                 server: server,
                 blockNumber: tx.blockHeight,
@@ -78,14 +78,14 @@ extension Covalent {
                 isErc20Interaction: true)
         }
 
-        static func mapCovalentToNativeTransaction(transactions: [Covalent.Transaction], server: RPCServer) -> [TransactionInstance] {
-            let transactions: [TransactionInstance] = Covalent.ToNativeTransactionMapper()
+        static func mapCovalentToNativeTransaction(transactions: [Covalent.Transaction], server: RPCServer) -> [Transaction] {
+            let transactions: [Transaction] = Covalent.ToNativeTransactionMapper()
                 .mapToNativeTransactions(transactions: transactions, server: server)
             return mergeTransactionOperationsIntoSingleTransaction(transactions)
         }
 
-        static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
-            var results: [TransactionInstance] = .init()
+        static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [Transaction]) -> [Transaction] {
+            var results: [Transaction] = .init()
             for each in transactions {
                 if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
                     var found = results[index]

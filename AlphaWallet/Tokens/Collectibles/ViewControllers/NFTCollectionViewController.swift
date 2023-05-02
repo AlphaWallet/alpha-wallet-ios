@@ -13,7 +13,7 @@ import AlphaWalletFoundation
 
 protocol NFTCollectionViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectAssetSelection(in viewController: NFTCollectionViewController)
-    func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController)
+    func didTap(transaction: Transaction, in viewController: NFTCollectionViewController)
     func didTap(activity: Activity, in viewController: NFTCollectionViewController)
     func didSelectTokenHolder(in viewController: NFTCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder)
     func didClose(in viewController: NFTCollectionViewController)
@@ -284,7 +284,7 @@ extension NFTCollectionViewController: ActivitiesPageViewDelegate {
         delegate?.didTap(activity: activity, in: self)
     }
 
-    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
+    func didTap(transaction: Transaction, in view: ActivitiesPageView) {
         delegate?.didTap(transaction: transaction, in: self)
     }
 }

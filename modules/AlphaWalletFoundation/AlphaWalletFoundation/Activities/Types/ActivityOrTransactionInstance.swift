@@ -9,7 +9,7 @@ import Foundation
 
 public enum ActivityOrTransactionInstance {
     case activity(Activity)
-    case transaction(TransactionInstance)
+    case transaction(Transaction)
 
     public var blockNumber: Int {
         switch self {
@@ -20,7 +20,7 @@ public enum ActivityOrTransactionInstance {
         }
     }
 
-    public var transaction: TransactionInstance? {
+    public var transaction: Transaction? {
         switch self {
         case .activity:
             return nil

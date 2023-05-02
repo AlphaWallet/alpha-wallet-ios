@@ -26,7 +26,7 @@ public final class TransactionBuilder {
         self.server = server
     }
 
-    func buildTransaction(from transaction: NormalTransaction) -> AnyPublisher<TransactionInstance?, Never> {
+    func buildTransaction(from transaction: NormalTransaction) -> AnyPublisher<Transaction?, Never> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return .just(nil)
         }
@@ -41,8 +41,8 @@ public final class TransactionBuilder {
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
 
         return buildOperationForTokenTransfer(for: transaction)
-            .map { [server] operations -> TransactionInstance? in
-                return TransactionInstance(
+            .map { [server] operations -> Transaction? in
+                return Transaction(
                         id: transaction.hash,
                         server: server,
                         blockNumber: Int(transaction.blockNumber)!,

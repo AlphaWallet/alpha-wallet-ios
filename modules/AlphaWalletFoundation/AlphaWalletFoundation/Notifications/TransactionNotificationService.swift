@@ -38,7 +38,7 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
         serversProvider.enabledServersPublisher
             .flatMapLatest { [transactionDataStore] in
                 return transactionDataStore.transactionsChangeset(filter: .predicate(predicate), servers: Array($0))
-            }.map { changeset -> ServerDictionary<[TransactionInstance]> in
+            }.map { changeset -> ServerDictionary<[Transaction]> in
                 switch changeset {
                 case .initial(let transactions):
                     return TransactionNotificationSourceService.mappedByServer(transactions: transactions)
@@ -59,8 +59,8 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
             }.store(in: &cancelable)
     }
 
-    private static func mappedByServer(transactions: [TransactionInstance]) -> ServerDictionary<[TransactionInstance]> {
-        var serverFilteredTransactions = ServerDictionary<[TransactionInstance]>()
+    private static func mappedByServer(transactions: [Transaction]) -> ServerDictionary<[Transaction]> {
+        var serverFilteredTransactions = ServerDictionary<[Transaction]>()
         let tsx = transactions
         for each in tsx {
             if let value = serverFilteredTransactions[safe: each.server] {
@@ -83,9 +83,9 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
     }
 
     //TODO notify user of received tokens too
-    private func notifyUserEtherReceived(inNewTransactions transactions: [TransactionInstance], server: RPCServer, wallet: Wallet) {
+    private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction], server: RPCServer, wallet: Wallet) {
         //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
-        let newIncomingEthTransactions: [TransactionInstance] = filterUniqueTransactions(transactions.suffix(TransactionNotificationSourceService.maximumNumberOfNotifications))
+        let newIncomingEthTransactions: [Transaction] = filterUniqueTransactions(transactions.suffix(TransactionNotificationSourceService.maximumNumberOfNotifications))
 
         for each in newIncomingEthTransactions {
             guard !config.hasScheduledNotification(for: each, in: wallet) else { continue }
@@ -109,8 +109,8 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
     }
 
     //Etherscan for Ropsten returns the same transaction twice. Normally Realm will take care of this, but since we are showing user a notification, we don't want to show duplicates
-    private func filterUniqueTransactions(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
-        var results = [TransactionInstance]()
+    private func filterUniqueTransactions(_ transactions: [Transaction]) -> [Transaction] {
+        var results = [Transaction]()
         for each in transactions where !results.contains(where: { each.id == $0.id }) {
             results.append(each)
         }
