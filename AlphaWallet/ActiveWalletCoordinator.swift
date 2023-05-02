@@ -228,7 +228,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     func start(animated: Bool) {
         donateWalletShortcut()
 
-        oneTimeCreationOfOneDatabaseToHoldAllChains()
         walletConnectCoordinator.delegate = self
         setupTabBarController()
 
@@ -269,11 +268,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         tokensCoordinator?.launchUniversalScanner(fromSource: source)
-    }
-
-    private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
-        let migration = DatabaseMigration(account: wallet)
-        migration.oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: assetDefinitionStore)
     }
 
     func showTabBar(animated: Bool) {
