@@ -5,7 +5,7 @@ public enum TransactionRow {
     case standalone(Transaction)
     //TODO this seems to overlap with the `ActivityRowModel.parentTransaction`
     case group(Transaction)
-    case item(transaction: Transaction, operation: LocalizedOperationObjectInstance)
+    case item(transaction: Transaction, operation: LocalizedOperation)
 
     public var transaction: Transaction {
         switch self {
@@ -59,7 +59,7 @@ public enum TransactionRow {
     public var state: TransactionState { transaction.state }
     public var server: RPCServer { transaction.server }
 
-    public var operation: LocalizedOperationObjectInstance? {
+    public var operation: LocalizedOperation? {
         switch self {
         case .standalone(let transaction):
             return transaction.operation

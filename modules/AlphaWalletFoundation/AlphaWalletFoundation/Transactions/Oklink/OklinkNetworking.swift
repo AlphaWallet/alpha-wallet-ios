@@ -203,13 +203,13 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
+                     operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
 
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
-            let localizedOperation = LocalizedOperationObjectInstance(
+            let localizedOperation = LocalizedOperation(
                 from: tx.from,
                 to: tx.to,
                 contract: contract,
@@ -240,13 +240,13 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc721TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
+                     operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
 
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
-            let localizedOperation = LocalizedOperationObjectInstance(
+            let localizedOperation = LocalizedOperation(
                 from: tx.from,
                 to: tx.to,
                 contract: contract,
@@ -277,13 +277,13 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     private func map(erc1155TokenTransferTransactions transactions: [Oklink.Transaction],
-                     operations: [AlphaWallet.Address: LocalizedOperation]) -> [Transaction] {
+                     operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
 
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
 
-            let localizedOperation = LocalizedOperationObjectInstance(
+            let localizedOperation = LocalizedOperation(
                 from: tx.from,
                 to: tx.to,
                 contract: contract,
@@ -314,8 +314,8 @@ public class OklinkApiNetworking: ApiNetworking {
         }
     }
 
-    private typealias LocalizedOperation = (name: String, decimals: Int, symbol: String)
-    private func fetchMissingOperationData(contracts: [AlphaWallet.Address]) -> AnyPublisher<[AlphaWallet.Address: LocalizedOperation], Never> {
+    private typealias ContractData = (name: String, decimals: Int, symbol: String)
+    private func fetchMissingOperationData(contracts: [AlphaWallet.Address]) -> AnyPublisher<[AlphaWallet.Address: ContractData], Never> {
         let publishers = contracts.map { contract in
             let p1 = ercTokenProvider.getContractName(for: contract)
             let p2 = ercTokenProvider.getDecimals(for: contract)
@@ -331,8 +331,8 @@ public class OklinkApiNetworking: ApiNetworking {
         return Publishers.MergeMany(publishers)
             .collect()
             .map { $0.compactMap { $0 } }
-            .map { data -> [AlphaWallet.Address: LocalizedOperation] in
-                var values: [AlphaWallet.Address: LocalizedOperation] = [:]
+            .map { data -> [AlphaWallet.Address: ContractData] in
+                var values: [AlphaWallet.Address: ContractData] = [:]
                 for each in data { values[each.contract] = (name: each.name, decimals: each.decimals, symbol: each.symbol) }
 
                 return values

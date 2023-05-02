@@ -260,7 +260,7 @@ extension EtherscanCompatibleApiNetworking.functional {
                 operationType = .erc20TokenTransfer
             }
 
-            let localizedTokenObj = LocalizedOperationObjectInstance(
+            let localizedTokenObj = LocalizedOperation(
                     from: transactionJson["from"].stringValue,
                     to: transactionJson["to"].stringValue,
                     contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),

@@ -32,9 +32,9 @@ extension Covalent {
                 return nil
             }
 
-            let operations: [LocalizedOperationObjectInstance] = tx
+            let operations: [LocalizedOperation] = tx
                 .logEvents
-                .compactMap { logEvent -> LocalizedOperationObjectInstance? in
+                .compactMap { logEvent -> LocalizedOperation? in
                     guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: logEvent.senderAddress) else { return nil }
                     var params = logEvent.params
                     //TODO: Improve with adding more transaction types, approve and other
