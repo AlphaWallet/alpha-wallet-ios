@@ -335,12 +335,6 @@ class Application: WalletDependenciesProvidable {
             UserDefaults.standard.set(!isRunningTests(), forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         }
 
-        if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
-            Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-                infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
-            }
-        }
-
         DatabaseMigration.dropDeletedRealmFiles(excluding: keystore.wallets)
         initializers()
         runServices()
@@ -406,7 +400,9 @@ class Application: WalletDependenciesProvidable {
             CleanupWallets(keystore: keystore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
             CleanupPasscode(keystore: keystore, lock: lock),
-            KeyboardInitializer()
+            KeyboardInitializer(),
+            DatabasePathLog(),
+            TickerIdsMatchLog()
         ]
 
         initializers.forEach { $0.perform() }
