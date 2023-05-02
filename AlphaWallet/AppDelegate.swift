@@ -58,3 +58,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //no op
     }
 }
+
+extension UIApplicationShortcutItem: @unchecked Sendable {}
