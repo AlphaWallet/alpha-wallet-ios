@@ -8,23 +8,26 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol BuyCryptoUsingThirdPartyCoordinatorDelegate: AnyObject, CanOpenURL {
+protocol BuyCryptoUsingThirdPartyCoordinatorDelegate: AnyObject {
+    func openUrlInBrowser(url: URL, animated: Bool)
 }
 
 class BuyCryptoUsingThirdPartyCoordinator: Coordinator {
     private let service: BuyTokenURLProviderType & SupportedTokenActionsProvider
     private let token: TokenActionsIdentifiable
-    private let viewController: UIViewController
     private let source: Analytics.BuyCryptoSource
     private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
     weak var delegate: BuyCryptoUsingThirdPartyCoordinatorDelegate?
 
-    init(service: BuyTokenURLProviderType & SupportedTokenActionsProvider, token: TokenActionsIdentifiable, viewController: UIViewController, source: Analytics.BuyCryptoSource, analytics: AnalyticsLogger) {
+    init(service: BuyTokenURLProviderType & SupportedTokenActionsProvider,
+         token: TokenActionsIdentifiable,
+         source: Analytics.BuyCryptoSource,
+         analytics: AnalyticsLogger) {
+
         self.service = service
         self.token = token
-        self.viewController = viewController
         self.source = source
         self.analytics = analytics
     }
@@ -36,10 +39,11 @@ class BuyCryptoUsingThirdPartyCoordinator: Coordinator {
                 Analytics.Properties.source.rawValue: source.rawValue
             ])
 
-            delegate?.didPressOpenWebPage(url, in: viewController)
+            delegate?.openUrlInBrowser(url: url, animated: true)
         } else {
             let fallbackUrl = URL(string: "https://alphawallet.com/browser-item-category/utilities/")!
-            delegate?.didPressOpenWebPage(fallbackUrl, in: viewController)
+
+            delegate?.openUrlInBrowser(url: fallbackUrl, animated: true)
         }
     }
 }
