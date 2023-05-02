@@ -215,18 +215,9 @@ extension LegacyGasPriceEstimator {
         }
 
         public func estimateGasPrice() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-            if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
-                return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
-                    .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
-                    .eraseToAnyPublisher()
-            } else {
-                switch blockchainProvider.server.serverWithEnhancedSupport {
-                case .xDai:
-                    return .just(LegacyGasEstimates(standard: GasPriceConfiguration.xDaiGasPrice))
-                case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-                    return blockchainProvider.gasEstimates()
-                }
-            }
+            return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
+                .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
+                .eraseToAnyPublisher()
         }
 
         private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<LegacyGasEstimates, PromiseError> {

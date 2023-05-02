@@ -30,4 +30,13 @@ extension GasPriceConfiguration {
             return GasPriceConfiguration.maxPrice
         }
     }
+
+    public static func gasPriceSurchargeding(server: RPCServer) -> GasPriceBuffer {
+        switch server.serverWithEnhancedSupport {
+        case .xDai:
+            return GasPriceBuffer.percentage(10)
+        case .main, .klaytnCypress, .klaytnBaobabTestnet, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+            return GasPriceBuffer.fixed(GasPriceConfiguration.oneGwei)
+        }
+    }
 }

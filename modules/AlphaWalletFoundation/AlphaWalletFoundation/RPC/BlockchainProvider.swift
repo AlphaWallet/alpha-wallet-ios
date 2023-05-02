@@ -146,13 +146,15 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .handleEvents(receiveOutput: { [server] estimate in
                 infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
             }).map { [params] gasPrice in
-                if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
+                //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
+                let surchargedGasPrice = params.gasPriceSurchargeding.bufferedGasPrice(estimatedGasPrice: gasPrice)
+
+                if surchargedGasPrice.value > params.maxPrice {
                     // Guard against really high prices
                     return LegacyGasEstimates(standard: params.maxPrice)
                 } else {
-                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > GasPriceConfiguration.oneGwei {
-                        //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
-                        return LegacyGasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > surchargedGasPrice.surchargeding {
+                        return LegacyGasEstimates(standard: surchargedGasPrice.value)
                     } else {
                         return LegacyGasEstimates(standard: gasPrice)
                     }
@@ -232,5 +234,22 @@ extension JSONRPCKit.JSONRPCError: LocalizedError {
         case .nonArrayResponse:
             return "Non Array Response"
         }
+    }
+}
+
+public enum GasPriceBuffer {
+    case percentage(BigUInt)
+    case fixed(BigUInt)
+
+    public func bufferedGasPrice(estimatedGasPrice: BigUInt) -> (value: BigUInt, surchargeding: BigUInt) {
+        let surchargeding: BigUInt
+        switch self {
+        case .percentage(let gasPriceSurchargePercent):
+            surchargeding = estimatedGasPrice * gasPriceSurchargePercent / BigUInt(100)
+        case .fixed(let value):
+            surchargeding = value
+        }
+
+        return (estimatedGasPrice + surchargeding, surchargeding)
     }
 }
