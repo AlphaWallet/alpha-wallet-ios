@@ -236,8 +236,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         checkDevice()
         showHelpUs()
 
-        fetchXMLAssetDefinitions()
-
         showWhatsNew()
         notificationService.start(wallet: wallet)
         spamTokenService.startMonitoring()
@@ -492,15 +490,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
     private func showTransactionSent(transaction: SentTransaction) {
         UIAlertController.showTransactionSent(transaction: transaction, on: presentationViewController)
-    }
-
-    private func fetchXMLAssetDefinitions() {
-        let fetch = FetchTokenScriptFiles(
-            assetDefinitionStore: assetDefinitionStore,
-            tokensService: tokensService,
-            serversProvider: serversProvider)
-
-        fetch.start()
     }
 
     func show(error: Error) {

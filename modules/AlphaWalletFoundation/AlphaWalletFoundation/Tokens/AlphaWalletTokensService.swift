@@ -30,7 +30,8 @@ public class AlphaWalletTokensService: TokensService {
     private let transactionsStorage: TransactionDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let transporter: ApiTransporter
-
+    private let fetchTokenScriptFiles: FetchTokenScriptFiles
+    
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
@@ -69,6 +70,10 @@ public class AlphaWalletTokensService: TokensService {
         self.analytics = analytics
         self.transactionsStorage = transactionsStorage
         self.assetDefinitionStore = assetDefinitionStore
+        self.fetchTokenScriptFiles = FetchTokenScriptFiles(
+            assetDefinitionStore: assetDefinitionStore,
+            tokensDataStore: tokensDataStore,
+            sessionsProvider: sessionsProvider)
     }
 
     public func tokens(for servers: [RPCServer]) -> [Token] {
@@ -118,6 +123,8 @@ public class AlphaWalletTokensService: TokensService {
                 return providers
             }.assign(to: \.value, on: providers, ownership: .weak)
             .store(in: &cancelable)
+
+        fetchTokenScriptFiles.start()
     }
 
     private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
