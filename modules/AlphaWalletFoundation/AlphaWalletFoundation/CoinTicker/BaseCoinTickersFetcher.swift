@@ -178,9 +178,7 @@ public class BaseCoinTickersFetcher {
                 let tickerIds = tickerIds.compactMap { $0 }
                 let ids = tickerIds.compactMap { $0.tickerId }
 
-                guard !ids.isEmpty else {
-                    return .just([:])
-                }
+                guard !ids.isEmpty else { return .just([:]) }
 
                 return networking.fetchTickers(for: ids, currency: currency).map { tickers in
                     var result: [AssignedCoinTickerId: CoinTicker] = [:]

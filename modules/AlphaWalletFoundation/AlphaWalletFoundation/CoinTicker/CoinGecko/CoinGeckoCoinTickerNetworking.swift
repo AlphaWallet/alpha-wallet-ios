@@ -64,6 +64,7 @@ public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
     public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
         transporter
             .dataTaskPublisher(TokensThatHasPricesRequest())
+            .print("xxx.fetchSupportedTickerIds")
             .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
             .mapError { PromiseError.some(error: $0) }
@@ -96,6 +97,7 @@ public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
         return transporter
             .dataTaskPublisher(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
+            .print("xxx.fetchChartHistory")
             .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { try ChartHistory(json: try JSON(data: $0.data), currency: currency) }
             .mapError { PromiseError.some(error: $0) }
@@ -106,6 +108,7 @@ public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
     private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
         return transporter
             .dataTaskPublisher(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
+            .print("xxx.fetchPricesPage")
             .handleEvents(receiveOutput: { self.log(response: $0) })
             .tryMap { [decoder] in
                 do {

@@ -53,6 +53,7 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
                     .replaceError(with: nil)
                     .eraseToAnyPublisher()
             }.receive(on: RunLoop.main)
+            .print("xxx.tickerId")
             .eraseToAnyPublisher()
     }
 

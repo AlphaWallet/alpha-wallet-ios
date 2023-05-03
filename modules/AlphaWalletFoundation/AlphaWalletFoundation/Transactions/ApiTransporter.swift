@@ -15,8 +15,10 @@ public protocol ApiTransporter {
 }
 
 final class ApiTransporterRetryPolicy: RetryPolicy {
+    private let timeout: TimeInterval
 
-    init() {
+    init(timeout: TimeInterval) {
+        self.timeout = timeout
         super.init(retryableHTTPStatusCodes: Set([429, 408, 500, 502, 503, 504]))
     }
 
@@ -24,10 +26,18 @@ final class ApiTransporterRetryPolicy: RetryPolicy {
                         for session: Session,
                         dueTo error: Error,
                         completion: @escaping (RetryResult) -> Void) {
+        let d = request.cURLDescription()
+        if d.contains("api.coingeck") {
+            print("xxx.retry for \(request.cURLDescription()) error: \(error)")
+        }
 
         if request.retryCount < retryLimit, shouldRetry(request: request, dueTo: error) {
             if let httpResponse = request.response, let delay = ApiTransporterRetryPolicy.retryDelay(from: httpResponse) {
-                completion(.retryWithDelay(delay))
+                if delay <= timeout {
+                    completion(.retryWithDelay(delay))
+                } else {
+                    completion(.doNotRetry)
+                }
             } else {
                 completion(.retryWithDelay(pow(Double(exponentialBackoffBase), Double(request.retryCount)) * exponentialBackoffScale))
             }
@@ -45,17 +55,18 @@ public class BaseApiTransporter: ApiTransporter {
 
     private let rootQueue = DispatchQueue(label: "org.alamofire.customQueue")
     private let session: Session
+    private let timeout: TimeInterval
 
-    var maxPublishers: Int = 3//max concurrent tasks
+    var maxPublishers: Int = 10//max concurrent tasks
 
     public init(timeout: TimeInterval = 60) {
-
+        self.timeout = timeout
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = timeout
         configuration.timeoutIntervalForResource = timeout
         configuration.waitsForConnectivity = true
 
-        let policy = ApiTransporterRetryPolicy()
+        let policy = ApiTransporterRetryPolicy(timeout: timeout)
 
         let monitor = ClosureEventMonitor()
         monitor.requestDidCreateTask = { _, _ in
@@ -85,10 +96,10 @@ public class BaseApiTransporter: ApiTransporter {
     }
 
     public func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
-        Just(request)
+        return Just(request)
             .setFailureType(to: SessionTaskError.self)
             .flatMap(maxPublishers: .max(maxPublishers)) { [session, rootQueue] request in
-                session.request(request)
+                return session.request(request)
                     .validate()
                     .publishData(queue: rootQueue)
                     .tryMap { respose in
