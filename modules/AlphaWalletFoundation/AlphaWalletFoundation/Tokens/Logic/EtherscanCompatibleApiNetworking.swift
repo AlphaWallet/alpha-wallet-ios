@@ -177,8 +177,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
             let json = try? JSON(response.data)
-            let message = json?["message"].stringValue ?? ""
-            infoLog("[API] request failure with status code: \(response.response.statusCode), message: \(message), server: \(server)", callerFunctionName: caller)
+            infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
         case .success:
             break
         }
