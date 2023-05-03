@@ -565,7 +565,7 @@
 "token.transactionConfirmation.error.linkTitle.gasLimitTooLow" = "Learn more about Gas Limit";
 "token.transactionConfirmation.error.linkTitle.gasLimitTooHigh" = "Learn more about Gas Limit";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
-"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
+"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the %@. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
 "a.wallet.token.swap.button.title" = "Swap";
 "a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Swap using Uniswap";
@@ -634,7 +634,7 @@
 "transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
 "transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake";
 "transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
-"transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.";
+"transactionConfiguration.gasPrice.congested.description" = "The %@ network is very congested now. Fees might be higher than usual.";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -646,7 +646,7 @@
 "transactionConfirmation.Send.Section.Requester.title" = "Dapp";
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
-"transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
+"transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current %@ network load.";
 "walletConnect.title" = "WalletConnect";
 "walletConnect.statusPlaceholder" = "Status";
 "walletConnect.status.online" = "Online";

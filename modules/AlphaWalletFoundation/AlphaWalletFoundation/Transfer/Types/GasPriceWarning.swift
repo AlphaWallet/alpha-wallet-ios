@@ -8,9 +8,19 @@
 import Foundation
 
 extension TransactionConfigurator {
-    public enum GasPriceWarning: Warning {
-        case tooHighCustomGasPrice
-        case networkCongested
-        case tooLowCustomGasPrice
+    public struct GasPriceWarning: Warning {
+        public let server: RPCServer
+        public let warning: WarningType
+
+        public init(server: RPCServer, warning: WarningType) {
+            self.server = server
+            self.warning = warning
+        }
+
+        public enum WarningType {
+            case tooHighCustomGasPrice
+            case networkCongested
+            case tooLowCustomGasPrice
+        }
     }
 }
