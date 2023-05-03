@@ -14,7 +14,7 @@ extension TokenActionsService {
         let traitCollection = UINavigationController().traitCollection
         service.register(service: BuyTokenProvider(subProviders: [
             Coinbase(action: R.string.localizable.aWalletTokenBuyOnCoinbaseTitle()),
-            Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle(), networkProvider: RampNetworkProvider(networkService: networkService))
+            Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle(), networking: BaseRampNetworking(networkService: networkService))
         ], action: R.string.localizable.aWalletTokenBuyTitle()))
 
         let honeySwapService = HoneySwap(action: R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle())
@@ -25,7 +25,7 @@ extension TokenActionsService {
         var availableSwapProviders: [SupportedTokenActionsProvider & TokenActionProvider] = [
             honeySwapService,
             quickSwap,
-            Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle(), networkProvider: OneinchNetworkProvider(networkService: networkService)),
+            Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle(), networking: BaseOneinchNetworking(networkService: networkService)),
             //uniswap
         ]
         availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []

@@ -18,26 +18,26 @@ final class OneinchTests: XCTestCase {
     func testOneinch() {
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
 
-        let networkProvider = FakeOneinchNetworkProvider()
+        let networking = FakeBaseOneinchNetworking()
         let retries: UInt = 3
         let retryBehavior: RetryBehavior<RunLoop> = .randomDelayed(retries: retries, delayBeforeRetry: 1, delayUpperRangeValueFrom0To: 3)
-        let oneinch = Oneinch(action: "Buy with Oneinch", networkProvider: networkProvider, reachability: reachability, retryBehavior: retryBehavior)
+        let oneinch = Oneinch(action: "Buy with Oneinch", networking: networking, reachability: reachability, retryBehavior: retryBehavior)
         infoLog("[Oneinch] Start")
         oneinch.start()
 
         let expectation = self.expectation(description: "Wait for failure")
-        oneinch.objectWillChange.sink { [weak oneinch, networkProvider] _ in
+        oneinch.objectWillChange.sink { [weak oneinch, networking] _ in
             infoLog("[Oneinch] objectWillChange")
             guard let oneinch = oneinch else { return XCTFail() }
             guard case .failure = oneinch.assets else { return XCTFail() }
             expectation.fulfill()
-            XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
+            XCTAssertTrue(networking.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
 
         waitForExpectations(timeout: 60)
     }
 
-    final class FakeOneinchNetworkProvider: OneinchNetworkProviderType {
+    final class FakeBaseOneinchNetworking: OneinchNetworking {
         let msTimeFormatter: DateFormatter = {
             let msTimeFormatter = DateFormatter()
             msTimeFormatter.dateFormat = "[HH:mm:ss.SSSS] "

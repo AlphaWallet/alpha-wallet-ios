@@ -18,26 +18,26 @@ final class RampTests: XCTestCase {
     func testRamp() {
         let reachability: ReachabilityManagerProtocol = FakeReachabilityManager(true)
 
-        let networkProvider = FakeRampNetworkProvider()
+        let networking = FakeRampNetworkProvider()
         let retries: UInt = 3
         let retryBehavior: RetryBehavior<RunLoop> = .randomDelayed(retries: retries, delayBeforeRetry: 1, delayUpperRangeValueFrom0To: 3)
-        let ramp = Ramp(action: "Buy with Ramp", networkProvider: networkProvider, reachability: reachability, retryBehavior: retryBehavior)
+        let ramp = Ramp(action: "Buy with Ramp", networking: networking, reachability: reachability, retryBehavior: retryBehavior)
         infoLog("[Ramp] Start")
         ramp.start()
 
         let expectation = self.expectation(description: "Wait for failure")
-        ramp.objectWillChange.sink { [weak ramp, networkProvider] _ in
+        ramp.objectWillChange.sink { [weak ramp, networking] _ in
             infoLog("[Ramp] objectWillChange")
             guard let ramp = ramp else { return XCTFail() }
             guard case .failure = ramp.assets else { return XCTFail() }
             expectation.fulfill()
-            XCTAssertTrue(networkProvider.asyncAPICallCount == retries + 1)
+            XCTAssertTrue(networking.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
 
         waitForExpectations(timeout: 60)
     }
 
-    final class FakeRampNetworkProvider: RampNetworkProviderType {
+    final class FakeRampNetworkProvider: RampNetworking {
         let msTimeFormatter: DateFormatter = {
             let msTimeFormatter = DateFormatter()
             msTimeFormatter.dateFormat = "[HH:mm:ss.SSSS] "

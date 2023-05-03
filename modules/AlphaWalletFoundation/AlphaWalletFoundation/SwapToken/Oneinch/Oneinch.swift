@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletCore
 
 public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
-    private (set) public var assets: Swift.Result<[AlphaWallet.Address: Oneinch.Asset], Error> = .failure(OneinchError())
+    private (set) public var assets: Loadable<[AlphaWallet.Address: Oneinch.Asset], Error> = .loading
     private let queue = DispatchQueue(label: "org.alphawallet.swift.Oneinch")
     private var cancelable = Set<AnyCancellable>()
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
@@ -23,7 +23,7 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     private var predefinedAssets: [Oneinch.Asset] {
         [.init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: RPCServer.main.decimals)]
     }
-    private let networkProvider: OneinchNetworkProviderType
+    private let networking: OneinchNetworking
     private let reachability: ReachabilityManagerProtocol
     private let retryBehavior: RetryBehavior<RunLoop>
     public static let defaultRetryBehavior: RetryBehavior<RunLoop> = .randomDelayed(retries: 3, delayBeforeRetry: 5, delayUpperRangeValueFrom0To: 15)
@@ -37,9 +37,13 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     public let analyticsNavigation: Analytics.Navigation = .onOneinch
     public let analyticsName: String = "Oneinch"
 
-    public init(action: String, networkProvider: OneinchNetworkProviderType, reachability: ReachabilityManagerProtocol = ReachabilityManager(), retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
+    public init(action: String,
+                networking: OneinchNetworking,
+                reachability: ReachabilityManagerProtocol = ReachabilityManager(),
+                retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
+
         self.action = action
-        self.networkProvider = networkProvider
+        self.networking = networking
         self.reachability = reachability
         self.retryBehavior = retryBehavior
     }
@@ -48,8 +52,8 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         reachability.networkBecomeReachablePublisher
             .receive(on: queue)
             .setFailureType(to: PromiseError.self)
-            .flatMapLatest { [networkProvider, retryBehavior] _ -> AnyPublisher<[Asset], PromiseError> in
-                networkProvider.retrieveAssets()
+            .flatMapLatest { [networking, retryBehavior] _ -> AnyPublisher<[Asset], PromiseError> in
+                networking.retrieveAssets()
                     .retry(retryBehavior, scheduler: RunLoop.main)
                     .eraseToAnyPublisher()
             }.receive(on: queue)
@@ -57,14 +61,14 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
                 objectWillChangeSubject.send(())
 
                 guard case .failure(let error) = result else { return }
-                let request = RampNetworkProvider.RampRequest()
+                let request = BaseOneinchNetworking.OneInchAssetsRequest()
                 RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
             } receiveValue: { assets in
                 var newAssets: [AlphaWallet.Address: Oneinch.Asset] = [:]
                 for asset in self.predefinedAssets + assets {
                     newAssets[asset.address] = asset
                 }
-                self.assets = .success(newAssets)
+                self.assets = .done(newAssets)
             }.store(in: &cancelable)
     }
 
@@ -95,12 +99,8 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     }
 
     private func asset(for address: AlphaWallet.Address) -> Oneinch.Asset? {
-        switch assets {
-        case .success(let assets):
-            return assets[address]
-        case .failure:
-            return nil
-        }
+        guard let assets = assets.value else { return nil }
+        return assets[address]
     }
 
     private func subpath(inputAddress: AlphaWallet.Address) -> String {

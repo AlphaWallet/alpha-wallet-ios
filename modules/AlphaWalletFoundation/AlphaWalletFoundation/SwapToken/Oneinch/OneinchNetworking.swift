@@ -1,5 +1,5 @@
 //
-//  OneinchNetworkProvider.swift
+//  BaseOneinchNetworking.swift
 //  AlphaWalletFoundation
 //
 //  Created by Vladyslav Shepitko on 19.09.2022.
@@ -9,11 +9,11 @@ import Foundation
 import AlphaWalletCore
 import Combine
 
-public protocol OneinchNetworkProviderType {
+public protocol OneinchNetworking {
     func retrieveAssets() -> AnyPublisher<[Oneinch.Asset], PromiseError>
 }
 
-public final class OneinchNetworkProvider: OneinchNetworkProviderType {
+public final class BaseOneinchNetworking: OneinchNetworking {
     private let decoder = JSONDecoder()
     private let networkService: NetworkService
 
@@ -31,8 +31,8 @@ public final class OneinchNetworkProvider: OneinchNetworkProviderType {
     }
 }
 
-fileprivate extension OneinchNetworkProvider {
-    private struct OneInchAssetsRequest: URLRequestConvertible {
+extension BaseOneinchNetworking {
+    struct OneInchAssetsRequest: URLRequestConvertible {
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: Constants.OneInch.exchangeUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v3.0/1/tokens"

@@ -9,11 +9,11 @@ import Foundation
 import AlphaWalletCore
 import Combine
 
-public protocol RampNetworkProviderType {
+public protocol RampNetworking {
     func retrieveAssets() -> AnyPublisher<[Asset], PromiseError>
 }
 
-public final class RampNetworkProvider: RampNetworkProviderType {
+public final class BaseRampNetworking: RampNetworking {
     private let decoder = JSONDecoder()
     private let networkService: NetworkService
 
@@ -31,7 +31,7 @@ public final class RampNetworkProvider: RampNetworkProviderType {
     }
 }
 //NOTE: internal because we use it also for debugging
-extension RampNetworkProvider {
+extension BaseRampNetworking {
     struct RampRequest: URLRequestConvertible { 
 
         func asURLRequest() throws -> URLRequest {
