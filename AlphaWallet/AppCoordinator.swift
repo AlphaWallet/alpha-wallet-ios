@@ -140,7 +140,6 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
 
     func applicationDidBecomeActive() {
         protectionCoordinator.applicationDidBecomeActive()
-        application.handleUniversalLinkInPasteboard()
     }
 
     func applicationDidEnterBackground() {

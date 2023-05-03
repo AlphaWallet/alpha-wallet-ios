@@ -33,13 +33,13 @@ class UserActivityService: UserActivityHandler {
     }
 }
 
-protocol DonationUserActivityHandlerDelegate: AnyObject {
+protocol DonationUserActivityNavigatable: AnyObject {
     func showUniversalScanner(fromSource source: Analytics.ScanQRCodeSource)
     func showQrCode()
 }
 
 class DonationUserActivityHandler: UserActivityHandler {
-    weak var delegate: DonationUserActivityHandlerDelegate?
+    weak var navigation: DonationUserActivityNavigatable?
     private let analytics: AnalyticsLogger
 
     init(analytics: AnalyticsLogger) {
@@ -54,14 +54,14 @@ class DonationUserActivityHandler: UserActivityHandler {
                     Analytics.Properties.type.rawValue: Analytics.ShortcutType.camera.rawValue
                 ])
 
-                delegate?.showUniversalScanner(fromSource: .siriShortcut)
+                navigation?.showUniversalScanner(fromSource: .siriShortcut)
                 return true
             }
             if type == WalletQrCodeDonation.userInfoTypeValue {
                 analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
                     Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
                 ])
-                delegate?.showQrCode()
+                navigation?.showQrCode()
                 return true
             }
         }

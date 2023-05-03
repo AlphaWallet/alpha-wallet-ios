@@ -278,8 +278,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         logDynamicTypeSetting()
         logIsAppPasscodeOrBiometricProtectionEnabled()
         promptBackupCoordinator.start()
-
-        universalLinkService.handlePendingUniversalLink()
     }
 
     private func createTokensCoordinator() -> TokensCoordinator {

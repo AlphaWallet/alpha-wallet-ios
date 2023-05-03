@@ -12,7 +12,7 @@ public protocol LaunchOptionsHandler {
     func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool
 }
 
-protocol ShortcutLaunchOptionsHandlerDelegate: AnyObject {
+protocol ShortcutNavigatable: AnyObject {
     func launchUniversalScannerFromQuickAction()
 }
 
@@ -38,7 +38,7 @@ class LaunchOptionsService {
 
 class ShortcutHandler: LaunchOptionsHandler {
 
-    weak var delegate: ShortcutLaunchOptionsHandlerDelegate?
+    weak var navigation: ShortcutNavigatable?
 
     func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool {
         if let shortcutItem = launchOptions[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
@@ -53,7 +53,7 @@ class ShortcutHandler: LaunchOptionsHandler {
     func handle(shortcutItem: UIApplicationShortcutItem) async -> Bool {
         switch Shortcut(type: shortcutItem.type) {
         case .qrCodeScanner:
-            await MainActor.run { delegate?.launchUniversalScannerFromQuickAction() }
+            await MainActor.run { navigation?.launchUniversalScannerFromQuickAction() }
 
             return true
         case .none:
