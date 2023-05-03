@@ -890,9 +890,9 @@
 "hardwareWallet.signatureObtained" = "Signature obtained";
 "hardwareWallet.publicKeyObtained" = "Public key obtained";
 "hardwareWallet.importedSeed" = "Imported seed";
-"eip1559.warning.priorityFeeTooHight" = "Priority Fee too hight";
+"eip1559.warning.priorityFeeTooHigh" = "Priority Fee too high";
 "eip1559.warning.priorityFeeTooLow" = "Priority Fee too low";
-"eip1559.warning.maxFeeTooHight" = "Max Fee too hight";
+"eip1559.warning.maxFeeTooHigh" = "Max Fee too high";
 "eip1559.warning.maxFeeTooLow" = "Max Fee too low";
 "eip1559.error.zeroMaxFee" = "Max Fee should be greater than zero";
 "eip1559.error.zeroPriorityFee" = "Priority Fee should be greater than zero";

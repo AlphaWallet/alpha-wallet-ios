@@ -122,7 +122,7 @@ class EditEip1559GasFeeViewModel: EditGasPriceViewModel {
 extension Eip1559GasPriceEstimator.MaxGasFeeWarning: LocalizedWarning {
     public var warningDescription: String? {
         switch self {
-        case .tooHigh: return R.string.localizable.eip1559WarningMaxFeeTooHight()
+        case .tooHigh: return R.string.localizable.eip1559WarningMaxFeeTooHigh()
         case .tooLow: return R.string.localizable.eip1559WarningMaxFeeTooLow()
         }
     }
@@ -131,7 +131,7 @@ extension Eip1559GasPriceEstimator.MaxGasFeeWarning: LocalizedWarning {
 extension Eip1559GasPriceEstimator.PriorityFeeWarning: LocalizedWarning {
     public var warningDescription: String? {
         switch self {
-        case .tooHigh: return R.string.localizable.eip1559WarningPriorityFeeTooHight()
+        case .tooHigh: return R.string.localizable.eip1559WarningPriorityFeeTooHigh()
         case .tooLow: return R.string.localizable.eip1559WarningPriorityFeeTooLow()
         }
     }
