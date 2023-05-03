@@ -29,7 +29,7 @@ final class RampTests: XCTestCase {
         ramp.objectWillChange.sink { [weak ramp, networking] _ in
             infoLog("[Ramp] objectWillChange")
             guard let ramp = ramp else { return XCTFail() }
-            guard case .failure = ramp.assets else { return XCTFail() }
+            guard case .loading = ramp.assets else { return XCTFail() }
             expectation.fulfill()
             XCTAssertTrue(networking.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
