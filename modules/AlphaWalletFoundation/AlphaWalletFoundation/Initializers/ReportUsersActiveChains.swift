@@ -3,7 +3,7 @@
 import Foundation
 import Combine
 
-public final class ReportUsersActiveChains: Initializer {
+public final class ReportUsersActiveChains: Service {
     private let serversProvider: ServersProvidable
     private var cancelable = Set<AnyCancellable>()
 

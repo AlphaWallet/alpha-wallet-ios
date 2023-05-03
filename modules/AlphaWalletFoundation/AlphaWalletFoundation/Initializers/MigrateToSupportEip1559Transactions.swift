@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import AlphaWalletLogger
 
-public final class MigrateToSupportEip1559Transactions: Initializer {
+public final class MigrateToSupportEip1559Transactions: Service {
     private let serversProvider: ServersProvidable
     private let keychain: Keystore
     private var cancelable = Set<AnyCancellable>()
@@ -35,7 +35,7 @@ public final class MigrateToSupportEip1559Transactions: Initializer {
                     let storage = TransactionDataStore(store: RealmStore.storage(for: wallet))
                     storage.deleteAll()
                 }
-                
+
                 Config.setAsMigratedToEip1559TransactionsSupport()
             }.store(in: &cancelable)
     }

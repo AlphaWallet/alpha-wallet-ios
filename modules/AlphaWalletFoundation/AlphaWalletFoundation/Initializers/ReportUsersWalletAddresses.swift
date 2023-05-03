@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public final class ReportUsersWalletAddresses: Initializer {
+public final class ReportUsersWalletAddresses: Service {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
     

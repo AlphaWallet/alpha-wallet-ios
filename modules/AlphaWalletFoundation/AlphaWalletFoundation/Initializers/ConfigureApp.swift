@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletLogger
 import AlphaWalletOpenSea
 import AlphaWalletENS
 
@@ -17,7 +18,6 @@ public class ConfigureApp: Initializer {
     }
 }
 
-import AlphaWalletLogger
 public class DatabasePathLog: Initializer {
     public init() {}
     public func perform() {
@@ -26,15 +26,3 @@ public class DatabasePathLog: Initializer {
         debugLog("Database directory: \(config.fileURL!.deletingLastPathComponent())")
     }
 }
-
-public class TickerIdsMatchLog: Initializer {
-    public init() {}
-    public func perform() {
-        if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
-            Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-                infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
-            }
-        }
-    }
-}
-
