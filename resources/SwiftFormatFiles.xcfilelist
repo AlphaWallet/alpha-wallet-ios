@@ -13,3 +13,5 @@ $(SRCROOT)/AlphaWalletTests/Tokens/TokensDataStoreTest.swift
 $(SRCROOT)/AlphaWalletTests/Tokens/Helpers/TokenAdaptorTest.swift
 $(SRCROOT)/modules/AlphaWalletENS/AlphaWalletENS/ENS.swift
 $(SRCROOT)/modules/AlphaWalletFoundation/AlphaWalletFoundation/Types/RPCServers.swift
+$(SRCROOT)/modules/AlphaWalletFoundation/AlphaWalletFoundation/Services/Service.swift
+$(SRCROOT)/modules/AlphaWalletFoundation/AlphaWalletFoundation/Services/TickerIdsMatchLog.swift

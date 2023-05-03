@@ -44,8 +44,7 @@ protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityHa
 
 // swiftlint:disable type_body_length
 class Application: WalletDependenciesProvidable {
-    //TODO rename and replace type? Not Initializer but similar as of writing
-    private var services: [Initializer] = []
+    private var services: [Service] = []
     private let dependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
     private var cancelable = Set<AnyCancellable>()
     private let launchOptionsService: LaunchOptionsService
@@ -430,7 +429,6 @@ class Application: WalletDependenciesProvidable {
             CleanupPasscode(keystore: keystore, lock: lock),
             KeyboardInitializer(),
             DatabasePathLog(),
-            TickerIdsMatchLog()
         ]
 
         initializers.forEach { $0.perform() }
@@ -438,6 +436,7 @@ class Application: WalletDependenciesProvidable {
 
     private func runServices() {
         services = [
+            TickerIdsMatchLog(),
             ReportUsersWalletAddresses(keystore: keystore),
             ReportUsersActiveChains(serversProvider: serversProvider),
             MigrateToSupportEip1559Transactions(
