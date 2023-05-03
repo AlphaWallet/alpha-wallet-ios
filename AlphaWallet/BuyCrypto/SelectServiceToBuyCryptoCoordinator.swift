@@ -8,7 +8,8 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol SelectServiceToBuyCryptoCoordinatorDelegate: AnyObject, CanOpenURL {
+protocol SelectServiceToBuyCryptoCoordinatorDelegate: AnyObject {
+    func openUrlInBrowser(url: URL, animated: Bool)
     func selectBuyService(_ result: Result<Void, BuyCryptoError>, in coordinator: SelectServiceToBuyCryptoCoordinator)
     func didClose(in coordinator: SelectServiceToBuyCryptoCoordinator)
 }
@@ -23,7 +24,12 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: SelectServiceToBuyCryptoCoordinatorDelegate?
 
-    init(buyTokenProvider: BuyTokenProvider, token: TokenActionsIdentifiable, viewController: UIViewController, source: Analytics.BuyCryptoSource, analytics: AnalyticsLogger) {
+    init(buyTokenProvider: BuyTokenProvider,
+         token: TokenActionsIdentifiable,
+         viewController: UIViewController,
+         source: Analytics.BuyCryptoSource,
+         analytics: AnalyticsLogger) {
+
         self.buyTokenProvider = buyTokenProvider
         self.token = token
         self.viewController = viewController
@@ -46,7 +52,12 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
     }
 
     private func runThirdParty(wallet: Wallet, service: BuyTokenURLProviderType & SupportedTokenActionsProvider) {
-        let coordinator = BuyCryptoUsingThirdPartyCoordinator(service: service, token: token, viewController: viewController, source: source, analytics: analytics)
+        let coordinator = BuyCryptoUsingThirdPartyCoordinator(
+            service: service,
+            token: token,
+            source: source,
+            analytics: analytics)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(wallet: wallet)
@@ -85,15 +96,7 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
 }
 
 extension SelectServiceToBuyCryptoCoordinator: BuyCryptoUsingThirdPartyCoordinatorDelegate {
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
-    }
-
-    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(url, in: viewController)
-    }
-
-    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
-        delegate?.didPressOpenWebPage(url, in: viewController)
+    func openUrlInBrowser(url: URL, animated: Bool) {
+        delegate?.openUrlInBrowser(url: url, animated: animated)
     }
 }
