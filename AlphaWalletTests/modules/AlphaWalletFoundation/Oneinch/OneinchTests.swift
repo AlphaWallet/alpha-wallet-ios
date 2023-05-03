@@ -29,7 +29,7 @@ final class OneinchTests: XCTestCase {
         oneinch.objectWillChange.sink { [weak oneinch, networking] _ in
             infoLog("[Oneinch] objectWillChange")
             guard let oneinch = oneinch else { return XCTFail() }
-            guard case .failure = oneinch.assets else { return XCTFail() }
+            guard case .loading = oneinch.assets else { return XCTFail() }
             expectation.fulfill()
             XCTAssertTrue(networking.asyncAPICallCount == retries + 1)
         }.store(in: &cancelable)
