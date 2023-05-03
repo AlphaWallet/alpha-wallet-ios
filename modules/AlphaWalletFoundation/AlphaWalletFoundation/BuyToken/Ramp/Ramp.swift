@@ -12,11 +12,11 @@ import AlphaWalletLogger
 
 public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
-    private (set) public var assets: Swift.Result<[Asset], Error> = .failure(RampError())
+    private (set) public var assets: Loadable<[Asset], PromiseError> = .loading
     private let queue: DispatchQueue = .init(label: "org.alphawallet.swift.Ramp")
     private var cancelable = Set<AnyCancellable>()
     private let reachability: ReachabilityManagerProtocol
-    private let networkProvider: RampNetworkProviderType
+    private let networking: RampNetworking
     private let retryBehavior: RetryBehavior<RunLoop>
 
     public var objectWillChange: AnyPublisher<Void, Never> {
@@ -28,10 +28,14 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     public let analyticsName: String = "Ramp"
     public let action: String
 
-    public init(action: String, networkProvider: RampNetworkProviderType, reachability: ReachabilityManagerProtocol = ReachabilityManager(), retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
+    public init(action: String,
+                networking: RampNetworking,
+                reachability: ReachabilityManagerProtocol = ReachabilityManager(),
+                retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
+
         self.action = action
         self.reachability = reachability
-        self.networkProvider = networkProvider
+        self.networking = networking
         self.retryBehavior = retryBehavior
     }
 
@@ -62,21 +66,16 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
                     && (asset.address == nil ? token.contractAddress == Constants.nativeCryptoAddressInDatabase : asset.address! == token.contractAddress)
         }
 
-        guard !token.server.isTestnet else { return nil }
-        switch assets {
-        case .success(let assets):
-            return assets.first(where: { isAssetMatchesForToken(token: token, asset: $0) })
-        case .failure:
-            return nil
-        }
+        guard let assets = assets.value, !token.server.isTestnet else { return nil }
+        return assets.first(where: { isAssetMatchesForToken(token: token, asset: $0) })
     }
 
     public func start() {
         reachability.networkBecomeReachablePublisher
             .receive(on: queue)
             .setFailureType(to: PromiseError.self)
-            .flatMapLatest { [networkProvider, retryBehavior] _ -> AnyPublisher<[Asset], PromiseError> in
-                networkProvider.retrieveAssets()
+            .flatMapLatest { [networking, retryBehavior] _ -> AnyPublisher<[Asset], PromiseError> in
+                networking.retrieveAssets()
                     .retry(retryBehavior, scheduler: RunLoop.main)
                     .eraseToAnyPublisher()
             }.receive(on: queue)
@@ -84,10 +83,10 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
                 objectWillChangeSubject.send(())
 
                 guard case .failure(let error) = result else { return }
-                let request = RampNetworkProvider.RampRequest()
+                let request = BaseRampNetworking.RampRequest()
                 RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
             } receiveValue: {
-                self.assets = .success($0)
+                self.assets = .done($0)
             }.store(in: &cancelable)
     }
 }
