@@ -34,7 +34,7 @@ class UserActivityService: UserActivityHandler {
 }
 
 protocol DonationUserActivityHandlerDelegate: AnyObject {
-    func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource)
+    func showUniversalScanner(fromSource source: Analytics.ScanQRCodeSource)
     func showQrCode()
 }
 
@@ -54,7 +54,7 @@ class DonationUserActivityHandler: UserActivityHandler {
                     Analytics.Properties.type.rawValue: Analytics.ShortcutType.camera.rawValue
                 ])
 
-                delegate?.launchUniversalScanner(fromSource: .siriShortcut)
+                delegate?.showUniversalScanner(fromSource: .siriShortcut)
                 return true
             }
             if type == WalletQrCodeDonation.userInfoTypeValue {
