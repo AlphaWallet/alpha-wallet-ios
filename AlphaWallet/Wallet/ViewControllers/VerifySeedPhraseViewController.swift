@@ -36,7 +36,6 @@ class VerifySeedPhraseViewController: UIViewController {
     private let keystore: Keystore
     private let account: AlphaWallet.Address
     private let analytics: AnalyticsLogger
-    private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let seedPhraseTextView = UITextView()
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
@@ -113,8 +112,6 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseCollectionView.bounces = true
         seedPhraseCollectionView.seedPhraseDelegate = self
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-
         seedPhraseTextView.isEditable = false
         //Disable copying
         seedPhraseTextView.isUserInteractionEnabled = false
@@ -131,20 +128,14 @@ class VerifySeedPhraseViewController: UIViewController {
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
-        view.addSubview(roundedBackground)
+        view.addSubview(stackView)
 
         buttonsBar.hideButtonInStack(button: clearChooseSeedPhraseButton)
         continueButton.isEnabled = false
-        roundedBackground.addSubview(buttonsBar)
         seedPhraseTextView.becomeFirstResponder()
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
             seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
@@ -154,17 +145,7 @@ class VerifySeedPhraseViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: buttonsBar.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20.0),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20.0),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).set(priority: .defaultHigh),
-            footerBar.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -DataEntry.Metric.safeBottom).set(priority: .required),
-
-            roundedBackground.createConstraintsWithContainer(view: view),
+            footerBar.anchorsConstraint(to: view)
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)

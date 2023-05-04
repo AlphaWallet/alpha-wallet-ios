@@ -7,7 +7,24 @@
 
 import UIKit
 
-class VerticalButtonsBar: UIView {
+class VerticalButtonsBar: UIView, ButtonsBarViewType {
+    var height: CGFloat {
+        heightConstraint.constant
+    }
+
+    func observeButtonUpdates(closure: @escaping (_ sender: ButtonsBarViewType) -> Void) {
+        guard observation == nil else { return }
+
+        observation = observe(\.buttons) { [weak self] _, _ in
+            guard let strongSelf = self else { return }
+
+            closure(strongSelf)
+        }
+    }
+
+    deinit {
+        observation.flatMap { $0.invalidate() }
+    }
 
     // MARK: - Properties
 
@@ -19,9 +36,10 @@ class VerticalButtonsBar: UIView {
     private let maxButtonCount: Int
     private let spacing: CGFloat = 16.0
     private var buttonCount: Int = 0
-
+    private var observation: NSKeyValueObservation?
+    
     // MARK: Public
-    var buttons: [UIButton] = []
+    @objc dynamic private (set) var buttons: [BarButton] = []
 
     // MARK: - Init
 
@@ -83,11 +101,13 @@ class VerticalButtonsBar: UIView {
         stackView.distribution = .equalSpacing
         stackView.spacing = 0.0
         addSubview(stackView)
+        let margin = CGFloat(20)
+
         NSLayoutConstraint.activate([
-            topAnchor.constraint(equalTo: stackView.topAnchor),
-            bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
-            leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margin),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
             heightConstraint,
         ])
     }
