@@ -20,26 +20,13 @@ extension TokenScript {
     ]
 }
 
-enum ApplicationNavigation {
-    case selectedWallet
-    case walletList
-    case walletCreation
-    case onboarding
-}
-
-protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityHandlerDelegate {
+protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityNavigatable, UniversalLinkNavigatable {
     var navigation: AnyPublisher<ApplicationNavigation, Never> { get }
     
     func showCreateWallet()
     func showActiveWallet(wallet: Wallet)
     func showActiveWalletIfNeeded()
     func show(error: Error)
-    func showTokenScriptFileImported(filename: String)
-    func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl)
-    func showPaymentFlow(for type: PaymentFlow, server: RPCServer)
-    func showImportMagicLink(session: WalletSession, url: URL)
-    func showServerUnavailable(server: RPCServer)
-    func showWalletApi(action: DeepLink.WalletApi)
 }
 
 // swiftlint:disable type_body_length
@@ -128,7 +115,13 @@ class Application: WalletDependenciesProvidable {
         self.currencyService = CurrencyService(storage: config)
         self.walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
         self.networkService = BaseNetworkService(analytics: analytics)
-        self.universalLinkService = UniversalLinkService(analytics: analytics)
+        self.universalLinkService = BaseUniversalLinkService(
+            analytics: analytics,
+            tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
+            dependencies: dependencies,
+            keystore: keystore,
+            navigationHandler: .init(subject: navigationSubject))
+
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
 
         self.blockchainsProvider = BlockchainsProvider(
@@ -168,10 +161,7 @@ class Application: WalletDependenciesProvidable {
             analytics: analytics,
             walletBalanceProvidable: walletBalanceService)
 
-        let blockchainProviderForResolvingEns = RpcBlockchainProvider(
-            server: .forResolvingEns,
-            analytics: analytics,
-            params: .defaultParams(for: .forResolvingEns))
+        let blockchainProviderForResolvingEns = RpcBlockchainProvider.instanceForResolvingEns(analytics: analytics)
 
         self.blockiesGenerator = BlockiesGenerator(
             assetImageProvider: OpenSea(analytics: analytics, server: .main, config: config),
@@ -209,7 +199,6 @@ class Application: WalletDependenciesProvidable {
             donationUserActivityHandler
         ])
 
-        universalLinkService.delegate = self
         bindWalletAddressesStore()
         handleTokenScriptOverrideImport()
     }
@@ -220,9 +209,9 @@ class Application: WalletDependenciesProvidable {
         guard let nav = navigation else { return }
 
         restartHandler.navigation = nav
-        donationUserActivityHandler.delegate = nav
-        shortcutHandler.delegate = self
-
+        donationUserActivityHandler.navigation = nav
+        shortcutHandler.navigation = self
+        universalLinkService.navigation = nav
         navigationCancellable = nav.navigation
             .multicast(subject: navigationSubject)
             .connect()
@@ -250,61 +239,6 @@ class Application: WalletDependenciesProvidable {
                     }
                 }
             }.store(in: &cancelable)
-    }
-
-    func handle(url: DeepLink) {
-        switch url {
-        case .maybeFileUrl(let url):
-            tokenScriptOverridesFileManager.importTokenScriptOverrides(url: url)
-        case .eip681(let url):
-            guard let wallet = keystore.currentWallet, let dependency = walletDependencies(walletAddress: wallet.address) else { return }
-
-            let paymentFlowResolver = Eip681UrlResolver(
-                sessionsProvider: dependency.sessionsProvider,
-                missingRPCServerStrategy: .fallbackToAnyMatching)
-
-            paymentFlowResolver.resolve(url: url)
-                .sinkAsync(receiveCompletion: { result in
-                    guard case .failure(let error) = result else { return }
-                    verboseLog("[Eip681UrlResolver] failure to resolve value from: \(url) with error: \(error)")
-                }, receiveValue: { result in
-                    switch result {
-                    case .address:
-                        break //Add handling address, maybe same action when scan qr code
-                    case .transaction(let transactionType, let token):
-                        self.navigation?.showPaymentFlow(for: .send(type: .transaction(transactionType)), server: token.server)
-                    }
-                })
-        case .walletConnect(let url, let source):
-            switch source {
-            case .safariExtension:
-                analytics.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
-                    Analytics.Properties.type.rawValue: "walletConnect"
-                ])
-            case .mobileLinking:
-                break
-            }
-            navigation?.openWalletConnectSession(url: url)
-        case .embeddedUrl(_, let url):
-            navigation?.openUrlInDappBrowser(url: url, animated: true)
-        case .shareContentAction(let action):
-            switch action {
-            case .string, .openApp:
-                break //NOTE: here we can add parsing Addresses from string
-            case .url(let url):
-                navigation?.openUrlInDappBrowser(url: url, animated: true)
-            }
-        case .magicLink(_, let server, let url):
-            guard let wallet = keystore.currentWallet, let dependency = walletDependencies(walletAddress: wallet.address) else { return }
-
-            if let session = dependency.sessionsProvider.session(for: server) {
-                navigation?.showImportMagicLink(session: session, url: url)
-            } else {
-                navigation?.showServerUnavailable(server: server)
-            }
-        case .walletApi(let action):
-            navigation?.showWalletApi(action: action)
-        }
     }
 
     private func bindWalletAddressesStore() {
@@ -387,10 +321,6 @@ class Application: WalletDependenciesProvidable {
         return await shortcutHandler.handle(shortcutItem: shortcutItem)
     }
 
-    func applicationDidBecomeActive() {
-        handleUniversalLinkInPasteboard()
-    }
-
     func applicationShouldAllowExtensionPointIdentifier(_ extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
         if extensionPointIdentifier == .keyboard {
             return false
@@ -453,10 +383,6 @@ class Application: WalletDependenciesProvidable {
             .store(in: &cancelable)
 
         return universalLinkService.handleUniversalLink(url: url, source: source)
-    }
-
-    func handleUniversalLinkInPasteboard() {
-        universalLinkService.handleUniversalLinkInPasteboard()
     }
 
     func launchUniversalScannerFromQuickAction() {
@@ -572,12 +498,7 @@ extension Application: WalletApiCoordinatorDelegate {
     }
 }
 
-extension Application: ShortcutLaunchOptionsHandlerDelegate { }
-extension Application: UniversalLinkServiceDelegate {
-    func canHandleUniversalLink(for coordinator: UniversalLinkService) -> Bool {
-        return navigationSubject.value == .selectedWallet
-    }
-}
+extension Application: ShortcutNavigatable { }
 
 extension AtomicDictionary: WalletDependenciesProvidable where Key == Wallet, Value == WalletDependencies {
     public func walletDependencies(walletAddress: AlphaWallet.Address) -> WalletDependencies? {
@@ -602,5 +523,14 @@ extension TokenImageFetcherImpl {
             networking: KingfisherImageFetcher(),
             tokenGroupIdentifier: tokenGroupIdentifier,
             spamImage: R.image.spamSmall()!)
+    }
+}
+
+extension RpcBlockchainProvider {
+    static func instanceForResolvingEns(analytics: AnalyticsLogger) -> RpcBlockchainProvider {
+        return RpcBlockchainProvider(
+            server: .forResolvingEns,
+            analytics: analytics,
+            params: .defaultParams(for: .forResolvingEns))
     }
 }

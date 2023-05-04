@@ -11,11 +11,11 @@ import XCTest
 import AlphaWalletFoundation
 
 class FakeUniversalLinkCoordinator: UniversalLinkService {
-    override func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }
-    override func handlePendingUniversalLink() {}
-    override func handleUniversalLinkInPasteboard() {}
+    weak var navigation: UniversalLinkNavigatable?
+    
+    func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }
 
     static func make() -> FakeUniversalLinkCoordinator {
-        return .init(analytics: FakeAnalyticsService())
+        return .init()
     }
 }
