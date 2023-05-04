@@ -40,16 +40,23 @@ final class QRCodeResolutionCoordinator: Coordinator {
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private var cancellable = Set<AnyCancellable>()
+    private let supportedResolutions: Set<SupportedQrCodeResolution>
 
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(coordinator: ScanQRCodeCoordinator, usage: Usage) {
+    init(coordinator: ScanQRCodeCoordinator,
+         usage: Usage,
+         supportedResolutions: Set<SupportedQrCodeResolution> = Set(SupportedQrCodeResolution.allCases)) {
+
+        self.supportedResolutions = supportedResolutions
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
     }
 
-    func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
+    func start(fromSource source: Analytics.ScanQRCodeSource,
+               clipboardString: String? = nil) {
+
         scanQRCodeCoordinator.delegate = self
         addCoordinator(scanQRCodeCoordinator)
 
@@ -93,6 +100,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         case .addressOrEip681(let value):
             switch value {
             case .address(let contract):
+                guard supportedResolutions.contains(.address) else { return }
                 let actions = availableActions(forContract: contract)
                 if actions.count == 1 {
                     delegate.coordinator(self, didResolve: .address(address: contract, action: actions[0]))
@@ -104,6 +112,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                     })
                 }
             case .eip681(let protocolName, let address, let functionName, let params):
+                guard supportedResolutions.contains(.transactionType) else { return }
                 switch usage {
                 case .all(_, let sessionsProvider):
                     let resolver = Eip681UrlResolver(
@@ -127,10 +136,13 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 }
             }
         case .string(let value):
+            guard supportedResolutions.contains(.string) else { return }
             delegate.coordinator(self, didResolve: .string(value: value))
         case .walletConnect(let url):
+            guard supportedResolutions.contains(.walletConnectUrl) else { return }
             delegate.coordinator(self, didResolve: .walletConnectUrl(url: url))
         case .url(let url):
+            guard supportedResolutions.contains(.url) else { return }
             showOpenURL(completion: {
                 delegate.coordinator(self, didResolve: .url(url: url))
             }, cancelCompletion: {
@@ -138,15 +150,21 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 self.skipResolvedCodes = false
             })
         case .json(let value):
+            guard supportedResolutions.contains(.json) else { return }
             delegate.coordinator(self, didResolve: .json(json: value))
         case .privateKey(let value):
+            guard supportedResolutions.contains(.privateKey) else { return }
             delegate.coordinator(self, didResolve: .privateKey(privateKey: value))
         case .seedPhase(let value):
+            guard supportedResolutions.contains(.seedPhase) else { return }
             delegate.coordinator(self, didResolve: .seedPhase(seedPhase: value))
         }
     }
 
-    private func showDidScanWalletAddress(for actions: [ScanQRCodeAction], completion: @escaping (ScanQRCodeAction) -> Void, cancelCompletion: @escaping () -> Void) {
+    private func showDidScanWalletAddress(for actions: [ScanQRCodeAction],
+                                          completion: @escaping (ScanQRCodeAction) -> Void,
+                                          cancelCompletion: @escaping () -> Void) {
+
         let preferredStyle: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: preferredStyle)
 
@@ -197,6 +215,23 @@ extension ScanQRCodeAction {
             return R.string.localizable.qrCodeWatchWalletTitle()
         case .openInEtherscan:
             return R.string.localizable.qrCodeOpenInEtherscanTitle()
+        }
+    }
+}
+
+extension QRCodeResolutionCoordinator {
+    enum SupportedQrCodeResolution: Int, CaseIterable {
+        case address
+        case transactionType
+        case walletConnectUrl
+        case string
+        case url
+        case json
+        case seedPhase
+        case privateKey
+
+        static var jsonOrSeedPhraseResolution: Set<SupportedQrCodeResolution> {
+            return [.address, .json, .seedPhase, .privateKey]
         }
     }
 }
