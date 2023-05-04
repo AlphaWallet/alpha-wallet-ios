@@ -30,7 +30,6 @@ class ShowSeedPhraseViewController: UIViewController {
     }
     private let keystore: Keystore
     private let account: AlphaWallet.Address
-    private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let errorLabel = UILabel()
     private var state: State = .notDisplayedSeedPhrase {
@@ -89,9 +88,6 @@ class ShowSeedPhraseViewController: UIViewController {
 
         hidesBottomBarWhenPushed = true
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
         let stackView = [
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
             subtitleLabel,
@@ -101,14 +97,10 @@ class ShowSeedPhraseViewController: UIViewController {
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        view.addSubview(stackView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -116,18 +108,7 @@ class ShowSeedPhraseViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -7),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-
-            footerBar.topAnchor.constraint(equalTo: buttonsBar.topAnchor),
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).set(priority: .defaultHigh),
-            footerBar.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -DataEntry.Metric.safeBottom).set(priority: .required),
-
-            roundedBackground.createConstraintsWithContainer(view: view),
+            footerBar.anchorsConstraint(to: view)
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)

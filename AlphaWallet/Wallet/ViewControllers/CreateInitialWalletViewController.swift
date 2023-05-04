@@ -33,18 +33,11 @@ class CreateInitialWalletViewController: UIViewController {
         self.keystore = keystore
         super.init(nibName: nil, bundle: nil)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-
-        view.addSubview(footerBar)
         view.addSubview(imageView)
         view.addSubview(titleLabel)
 
-        footerBar.addSubview(buttonsBar)
-
-        let footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -54,14 +47,7 @@ class CreateInitialWalletViewController: UIViewController {
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBottomConstraint,
+            footerBar.anchorsConstraint(to: view)
         ])
     }
 
@@ -74,11 +60,8 @@ class CreateInitialWalletViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func loadView() {
-        self.view = UIKitFactory.defaultView(autoResizingMarkIntoConstraints: true)
-    }
-
     func configure() {
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         imageView.image = viewModel.imageViewImage
         titleLabel.attributedText = viewModel.titleAttributedString
 
@@ -104,8 +87,7 @@ class CreateInitialWalletViewController: UIViewController {
         let alertController = UIAlertController(
             title: nil,
             message: nil,
-            preferredStyle: .actionSheet
-        )
+            preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 

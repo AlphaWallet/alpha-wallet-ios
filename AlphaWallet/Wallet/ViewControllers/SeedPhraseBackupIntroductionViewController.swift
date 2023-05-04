@@ -11,7 +11,6 @@ protocol SeedPhraseBackupIntroductionViewControllerDelegate: AnyObject {
 class SeedPhraseBackupIntroductionViewController: UIViewController {
     private var viewModel = SeedPhraseBackupIntroductionViewModel()
     private let account: AlphaWallet.Address
-    private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     // NOTE: internal level, for test cases
@@ -30,9 +29,6 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
         hidesBottomBarWhenPushed = true
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
         imageView.contentMode = .scaleAspectFit
 
         let stackView = [
@@ -44,15 +40,11 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             descriptionLabel1,
             ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        view.addSubview(stackView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
-
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
+        
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
@@ -61,18 +53,8 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).set(priority: .defaultHigh),
-            footerBar.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -DataEntry.Metric.safeBottom).set(priority: .required),
-            footerBar.topAnchor.constraint(equalTo: buttonsBar.topAnchor),
-
-        ] + roundedBackground.anchorsConstraint(to: view))
+            footerBar.anchorsConstraint(to: view)
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

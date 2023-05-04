@@ -7,10 +7,6 @@ struct ImportWalletViewModel {
     //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { ImportWalletTab.orderedTabs.map { $0.title } }
 
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
-    }
-
     var title: String {
         return R.string.localizable.importNavigationTitle()
     }

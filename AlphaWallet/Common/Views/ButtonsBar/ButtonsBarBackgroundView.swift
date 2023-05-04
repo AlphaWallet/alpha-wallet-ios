@@ -22,7 +22,10 @@ class ButtonsBarBackgroundView: UIView {
         self.buttonsBar.height + edgeInsets.top + edgeInsets.bottom
     }
 
-    init(buttonsBar: ButtonsBarViewType, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets, separatorHeight: CGFloat = DataEntry.Metric.ButtonsBar.separatorHeight) {
+    init(buttonsBar: ButtonsBarViewType,
+         edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets,
+         separatorHeight: CGFloat = DataEntry.Metric.ButtonsBar.separatorHeight) {
+
         self.buttonsBar = buttonsBar
         self.edgeInsets = edgeInsets
         super.init(frame: .zero)
