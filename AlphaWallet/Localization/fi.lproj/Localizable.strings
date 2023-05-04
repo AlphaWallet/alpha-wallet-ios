@@ -634,7 +634,7 @@
 "transactionConfiguration.gasPrice.tooLow.long" = "Varo! Matala kulujen yksikköhinta";
 "transactionConfiguration.gasPrice.tooHigh.description" = "Kulujen yksikköhinta on todella korkea. Onko se oikein?";
 "transactionConfiguration.gasPrice.tooLow.description" = "Kulujen yksikköhinta on alle 'hidas'-prioriteein arvion. Tilitapahtuma voi viedä todella pitkän ajan tai jäädä vahvistamatta.";
-"transactionConfiguration.gasPrice.congested.description" = "Ethereum-lohkoketjun on kuormitettu. Kulut voivat olla tavallista suuremmat.";
+"transactionConfiguration.gasPrice.congested.description" = "%@ on kuormitettu. Kulut voivat olla tavallista suuremmat.";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Lompakon osoite";
 "transactionConfirmation.Send.Section.Gas.title" = "Kulut";

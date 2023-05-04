@@ -156,7 +156,7 @@ extension GasSpeed {
 
 extension TransactionConfigurator.GasPriceWarning: LocalizedWarning {
     public var shortTitle: String {
-        switch self {
+        switch warning {
         case .tooHighCustomGasPrice, .networkCongested:
             return R.string.localizable.transactionConfigurationGasPriceTooHighShort()
         case .tooLowCustomGasPrice:
@@ -165,7 +165,7 @@ extension TransactionConfigurator.GasPriceWarning: LocalizedWarning {
     }
 
     var longTitle: String {
-        switch self {
+        switch warning {
         case .tooHighCustomGasPrice, .networkCongested:
             return R.string.localizable.transactionConfigurationGasPriceTooHighLong()
         case .tooLowCustomGasPrice:
@@ -174,11 +174,11 @@ extension TransactionConfigurator.GasPriceWarning: LocalizedWarning {
     }
 
     public var warningDescription: String? {
-        switch self {
+        switch warning {
         case .tooHighCustomGasPrice:
             return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()
         case .networkCongested:
-            return R.string.localizable.transactionConfigurationGasPriceCongestedDescription()
+            return R.string.localizable.transactionConfigurationGasPriceCongestedDescription(server.blockChainName)
         case .tooLowCustomGasPrice:
             return R.string.localizable.transactionConfigurationGasPriceTooLowDescription()
         }

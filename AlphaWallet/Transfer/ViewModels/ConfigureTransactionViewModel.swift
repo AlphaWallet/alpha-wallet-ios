@@ -20,10 +20,10 @@ class ConfigureTransactionViewModel {
     private let service: TokensProcessingPipeline
     private let configurator: TransactionConfigurator
     private var cancellable = Set<AnyCancellable>()
-    private var server: RPCServer { configurator.session.server }
     private let selectedGasSpeedSubject: CurrentValueSubject<GasSpeed, Never>
     private let gasPriceEstimator: GasPriceEstimator
 
+    var server: RPCServer { configurator.session.server }
     let editTransactionViewModel: EditTransactionViewModel
     let allGasSpeeds: [GasSpeed] = [.slow, .standard, .fast, .rapid, .custom]
     let updateInViewModel: UpdateInViewModel

@@ -131,18 +131,18 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
         }
 
         if let fastestGasPrice = estimates.fastest, gasPrice > fastestGasPrice {
-            warnings += [TransactionConfigurator.GasPriceWarning.tooHighCustomGasPrice]
+            warnings += [TransactionConfigurator.GasPriceWarning(server: server, warning: .tooHighCustomGasPrice)]
         }
 
         //Conversion to gwei is needed so we that 17 (entered) is equal to 17.1 (fetched). Because 17.1 is displayed as "17" in the UI and might confuse the user if it's not treated as equal
         if let slowestGasPrice = estimates.slowest, (gasPrice / BigUInt(EthereumUnit.gwei.rawValue)) < (slowestGasPrice / BigUInt(EthereumUnit.gwei.rawValue)) {
-            warnings += [TransactionConfigurator.GasPriceWarning.tooLowCustomGasPrice]
+            warnings += [TransactionConfigurator.GasPriceWarning(server: server, warning: .tooLowCustomGasPrice)]
         }
 
         switch server.serverWithEnhancedSupport {
         case .main:
             if (estimates.standard / BigUInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardEthereumMainnetGasThresholdGwei {
-                warnings += [TransactionConfigurator.GasPriceWarning.networkCongested]
+                warnings += [TransactionConfigurator.GasPriceWarning(server: server, warning: .networkCongested)]
             }
         case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             break

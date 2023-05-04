@@ -303,7 +303,10 @@ extension SwapTokensCoordinator: TransactionConfirmationCoordinatorDelegate {
 
             strongSelf.transactionConfirmationResult = result
 
-            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(
+                presentingViewController: strongSelf.navigationController,
+                server: strongSelf.configurator.server)
+
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

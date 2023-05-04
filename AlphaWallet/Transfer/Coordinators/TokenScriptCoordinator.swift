@@ -196,7 +196,10 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
             strongSelf.removeCoordinator(coordinator)
             strongSelf.transactionConfirmationResult = result
 
-            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(
+                presentingViewController: strongSelf.navigationController,
+                server: strongSelf.session.server)
+            
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

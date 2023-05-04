@@ -110,7 +110,7 @@ class ConfigureTransactionViewController: UIViewController {
         if let gasPriceWarning = gasPriceWarning {
             view = createTableFooterForGasPriceWarning(gasPriceWarning)
         } else {
-            view = createTableFooterForGasInformation()
+            view = createTableFooterForGasInformation(server: viewModel.server)
         }
 
         for each in footerContainerView.subviews {
@@ -121,7 +121,7 @@ class ConfigureTransactionViewController: UIViewController {
         NSLayoutConstraint.activate(view.anchorsConstraint(to: footerContainerView, margin: 30))
     }
 
-    private func createTableFooterForGasInformation() -> UIView {
+    private func createTableFooterForGasInformation(server: RPCServer) -> UIView {
         let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 100))
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -129,7 +129,7 @@ class ConfigureTransactionViewController: UIViewController {
         label.numberOfLines = 0
         label.font = Fonts.regular(size: 15)
         label.textColor = Configuration.Color.Semantic.defaultSubtitleText
-        label.text = R.string.localizable.transactionConfirmationFeeFooterText()
+        label.text = R.string.localizable.transactionConfirmationFeeFooterText(server.blockChainName)
 
         footer.translatesAutoresizingMaskIntoConstraints = false
         footer.addSubview(label)

@@ -1126,7 +1126,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                 return transactionId
             }
         }.get { _ in
-            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
+            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self, server: session.server).done { _ in }.cauterize()
         }.publisher(queue: .main)
     }
 
@@ -1168,7 +1168,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                 throw PMKError.cancelled
             }
         }.get { _ in
-            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
+            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self, server: session.server).done { _ in }.cauterize()
         }.publisher(queue: .main)
     }
 
