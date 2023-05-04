@@ -72,12 +72,12 @@ class ConfigureTransactionViewModel {
             .map { self.buildGasViewModels(estimates: $0.0, gasLimit: $0.1.value) }
 
         let customEstimate = Publishers.CombineLatest(gasPriceViewModel.gasPricePublisher, editTransactionViewModel.$gasLimit)
-            .map { (gasSpeed: GasSpeed.custom, gasPrice: $0.0.value, gasLimit: $0.1) }
+            .map { (gasSpeed: GasSpeed.custom, gasPrice: $0.0, gasLimit: $0.1) }
 
         let estimates = Publishers.CombineLatest3(baseEstimates, customEstimate, selectedGasSpeedSubject)
             .map { baseEstimates, customEstimate, selected -> (estimates: [GasSpeedViewModel], selected: GasSpeed) in
                 return (estimates: baseEstimates + [customEstimate], selected: selected)
-            }
+            }.share()
 
         let viewState = Publishers.CombineLatest(estimates, etherCurrencyRate())
             .map { estimates, rate in
@@ -91,9 +91,11 @@ class ConfigureTransactionViewModel {
         let didSave = input.saveSelected
             .filter { _ in self.save() }
 
-        let gasPriceWarning = gasPriceViewModel.gasPricePublisher
-            .map { $0.warnings.compactMap { $0 as? TransactionConfigurator.GasPriceWarning }.first }
-
+        let gasPriceWarning = estimates.map { data -> TransactionConfigurator.GasPriceWarning? in
+            guard let gasPriceViewModel = data.estimates.first(where: { $0.gasSpeed == data.selected }) else { return nil }
+            return gasPriceViewModel.gasPrice?.warnings.compactMap { $0 as? TransactionConfigurator.GasPriceWarning }.first
+        }
+        
         return .init(
             gasPriceWarning: gasPriceWarning.eraseToAnyPublisher(),
             viewState: viewState.eraseToAnyPublisher(),
@@ -123,15 +125,37 @@ class ConfigureTransactionViewModel {
     }
 
     private func buildGasViewModels(estimates: GasEstimates, gasLimit: BigUInt) -> [GasSpeedViewModel] {
-        return allGasSpeeds.map { gasSpeed -> GasSpeedViewModel in
-            return (gasSpeed: gasSpeed, gasPrice: estimates[gasSpeed], gasLimit: gasLimit)
+        return allGasSpeeds.compactMap { gasSpeed -> GasSpeedViewModel? in
+            guard gasSpeed != .custom else { return nil }
+
+            if let gasPriceEstimator = gasPriceEstimator as? LegacyGasPriceEstimator,
+                case .legacy(let gasPrice) = estimates[gasSpeed] {
+
+                let value = gasPriceEstimator.validate(gasPrice: gasPrice)
+                let validatedGasPrice = value.mapValue { GasPrice.legacy(gasPrice: $0) }
+
+                return (gasSpeed: gasSpeed, gasPrice: validatedGasPrice, gasLimit: gasLimit)
+            } else if let gasPriceEstimator = gasPriceEstimator as? Eip1559GasPriceEstimator,
+                      case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas) = estimates[gasSpeed] {
+                
+                let value = gasPriceEstimator.validate(oracleResult: Eip1559FeeOracleResult(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas))
+                let validatedGasPrice = value.mapValue {
+                    GasPrice.eip1559(
+                        maxFeePerGas: $0.maxFeePerGas,
+                        maxPriorityFeePerGas: $0.maxPriorityFeePerGas)
+                }
+
+                return (gasSpeed: gasSpeed, gasPrice: validatedGasPrice, gasLimit: gasLimit)
+            } else {
+                return (gasSpeed: gasSpeed, gasPrice: nil, gasLimit: gasLimit)
+            }
         }
     }
 
     private func buildGasSpeedViewModel(viewModel: GasSpeedViewModel, selectedSpeed: GasSpeed, rate: CurrencyRate?) -> GasSpeedViewModelType {
         let isSelected = selectedSpeed == viewModel.gasSpeed
 
-        guard let gasPrice = viewModel.gasPrice else {
+        guard let gasPrice = viewModel.gasPrice?.value else {
             return UnavailableGasSpeedViewModel(gasSpeed: viewModel.gasSpeed, isSelected: false, isHidden: true)
         }
 
@@ -160,7 +184,7 @@ class ConfigureTransactionViewModel {
 }
 
 extension ConfigureTransactionViewModel {
-    typealias GasSpeedViewModel = (gasSpeed: GasSpeed, gasPrice: GasPrice?, gasLimit: BigUInt)
+    typealias GasSpeedViewModel = (gasSpeed: GasSpeed, gasPrice: FillableValue<GasPrice>?, gasLimit: BigUInt)
 
     struct ViewState {
         let title: String = R.string.localizable.configureTransactionNavigationBarTitle()

@@ -194,6 +194,11 @@ actor SuggestEip1559 {
 public struct Eip1559FeeOracleResult: Equatable {
     public let maxFeePerGas: BigUInt
     public let maxPriorityFeePerGas: BigUInt
+
+    public init(maxFeePerGas: BigUInt, maxPriorityFeePerGas: BigUInt) {
+        self.maxFeePerGas = maxFeePerGas
+        self.maxPriorityFeePerGas = maxPriorityFeePerGas
+    }
 }
 
 public extension Int {
