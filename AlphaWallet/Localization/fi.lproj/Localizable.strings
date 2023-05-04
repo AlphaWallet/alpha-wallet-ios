@@ -780,6 +780,7 @@
 "url.reddit" = "Reddit";
 "url.facebook" = "Facebook";
 "url.faq" = "UKK (FAQ)";
+"url" = "Url";
 "url.github" = "Github (raportoi ohjelmistovirheestä)";
 "support.blog.title" = "Blog";
 "support.email.title" = "Email";

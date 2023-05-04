@@ -780,6 +780,7 @@
 "url.reddit" = "Reddit";
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
+"url" = "Url";
 "url.github" = "Github (File an issue)";
 "support.blog.title" = "Blog";
 "support.email.title" = "Email";

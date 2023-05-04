@@ -10,12 +10,14 @@ import AlphaWalletFoundation
 import Combine
 
 struct WalletConnectSessionDetailsViewModelInput {
+    let copyToClipboard: AnyPublisher<Void, Never>
     let disconnect: AnyPublisher<Void, Never>
 }
 
 struct WalletConnectSessionDetailsViewModelOutput {
     let didDisconnect: AnyPublisher<Void, Never>
     let viewState: AnyPublisher<WalletConnectSessionDetailsViewModel.ViewState, Never>
+    let copiedToClipboard: AnyPublisher<String, Never>
 }
 
 class WalletConnectSessionDetailsViewModel {
@@ -66,6 +68,8 @@ class WalletConnectSessionDetailsViewModel {
             }).mapToVoid()
             .eraseToAnyPublisher()
 
+        let copiedToClipboard = copyToClipboard(trigger: input.copyToClipboard)
+
         let viewState = $session
             .map { [walletConnectProvider] session -> WalletConnectSessionDetailsViewModel.ViewState in
                 let isConnected = walletConnectProvider.isConnected(session.topicOrUrl)
@@ -84,7 +88,17 @@ class WalletConnectSessionDetailsViewModel {
                     viewTypes: self.buildViewTypes(session: session))
             }.eraseToAnyPublisher()
 
-        return .init(didDisconnect: didDisconnect, viewState: viewState)
+        return .init(
+            didDisconnect: didDisconnect,
+            viewState: viewState,
+            copiedToClipboard: copiedToClipboard)
+    }
+
+    private func copyToClipboard(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String, Never> {
+        trigger.map { _ -> String in
+            UIPasteboard.general.string = self.session.dappUrl.absoluteString
+            return R.string.localizable.copiedToClipboardTitle(R.string.localizable.url())
+        }.eraseToAnyPublisher()
     }
 
     private func buildViewTypes(session: AlphaWallet.WalletConnect.Session) -> [WalletConnectSessionDetailsViewModel.ViewType] {

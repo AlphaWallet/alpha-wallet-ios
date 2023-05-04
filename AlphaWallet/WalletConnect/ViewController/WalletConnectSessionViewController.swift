@@ -44,12 +44,12 @@ class WalletConnectSessionViewController: UIViewController {
         return view
     }()
 
-    private let statusFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectStatusPlaceholder())
-    private let dappNameFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectDappName())
-    private let dappUrlFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectSessionConnectedURL())
-    private let networkFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.settingsNetworkButtonTitle())
-    private let methodsFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionMethodsTitle())
-    private let eventsFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionEventsTitle())
+    private let statusFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.walletConnectStatusPlaceholder())
+    private let dappNameFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.walletConnectDappName())
+    private let dappUrlFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.walletConnectSessionConnectedURL(), icon: R.image.copy())
+    private let networkFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.settingsNetworkButtonTitle())
+    private let methodsFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionMethodsTitle())
+    private let eventsFieldView = TransactionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionEventsTitle())
     private let buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
         buttonsBar.configure()
@@ -122,9 +122,10 @@ class WalletConnectSessionViewController: UIViewController {
     }
 
     private func bind(viewModel: WalletConnectSessionDetailsViewModel) {
-        let disconnect = buttonsBar.buttons[0].publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
+        let input = WalletConnectSessionDetailsViewModelInput(
+            copyToClipboard: dappUrlFieldView.addTapPublisher(),
+            disconnect: buttonsBar.buttons[0].publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
 
-        let input = WalletConnectSessionDetailsViewModelInput(disconnect: disconnect)
         let output = viewModel.transform(input: input)
 
         output.viewState
@@ -152,6 +153,10 @@ class WalletConnectSessionViewController: UIViewController {
         output.didDisconnect
             .compactMap { _ in self.navigationController }
             .sink { $0.popViewController(animated: true) }
+            .store(in: &cancelable)
+
+        output.copiedToClipboard
+            .sink(receiveValue: { [weak self] in self?.view.showCopiedToClipboard(title: $0) })
             .store(in: &cancelable)
     }
 
