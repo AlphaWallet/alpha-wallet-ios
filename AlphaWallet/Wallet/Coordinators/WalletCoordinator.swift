@@ -172,7 +172,8 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
         let coordinator = QRCodeResolutionCoordinator(
             coordinator: scanQRCodeCoordinator,
-            usage: .importWalletOnly)
+            usage: .importWalletOnly,
+            supportedResolutions: QRCodeResolutionCoordinator.SupportedQrCodeResolution.jsonOrSeedPhraseResolution)
         
         coordinator.delegate = self
         addCoordinator(coordinator)
