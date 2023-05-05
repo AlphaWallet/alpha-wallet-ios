@@ -11,7 +11,7 @@ import BigInt
 public struct BlockchainParams {
     public let maxGasLimit: BigUInt
     public let maxPrice: BigUInt
-    public let gasPriceSurchargeding: GasPriceBuffer
+    public let gasPriceBuffer: GasPriceBuffer
     public let minGasLimit: BigUInt
     public let defaultPrice: BigUInt
     public let chainId: Int
@@ -22,7 +22,7 @@ public struct BlockchainParams {
         return .init(
             maxGasLimit: GasLimitConfiguration.maxGasLimit(forServer: server),
             maxPrice: GasPriceConfiguration.maxPrice(forServer: server),
-            gasPriceSurchargeding: GasPriceConfiguration.gasPriceSurchargeding(server: server),
+            gasPriceBuffer: GasPriceConfiguration.gasPriceBuffer(server: server),
             minGasLimit: GasLimitConfiguration.minGasLimit,
             defaultPrice: GasPriceConfiguration.defaultPrice(forServer: server),
             chainId: server.chainID,

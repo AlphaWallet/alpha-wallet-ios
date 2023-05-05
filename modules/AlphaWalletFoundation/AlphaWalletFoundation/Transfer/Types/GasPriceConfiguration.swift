@@ -31,7 +31,7 @@ extension GasPriceConfiguration {
         }
     }
 
-    public static func gasPriceSurchargeding(server: RPCServer) -> GasPriceBuffer {
+    public static func gasPriceBuffer(server: RPCServer) -> GasPriceBuffer {
         switch server.serverWithEnhancedSupport {
         case .xDai:
             return GasPriceBuffer.percentage(10)
