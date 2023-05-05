@@ -64,7 +64,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         let payload = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
         let (rpcURL, rpcHeaders) = rpcURLAndHeaders
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
-        
+
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
@@ -147,14 +147,15 @@ public final class RpcBlockchainProvider: BlockchainProvider {
                 infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
             }).map { [params] gasPrice in
                 //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
-                let surchargedGasPrice = params.gasPriceSurchargeding.bufferedGasPrice(estimatedGasPrice: gasPrice)
+                let bufferedGasPrice = params.gasPriceBuffer.bufferedGasPrice(estimatedGasPrice: gasPrice)
 
-                if surchargedGasPrice.value > params.maxPrice {
+                if bufferedGasPrice.value > params.maxPrice {
                     // Guard against really high prices
                     return LegacyGasEstimates(standard: params.maxPrice)
                 } else {
-                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > surchargedGasPrice.surchargeding {
-                        return LegacyGasEstimates(standard: surchargedGasPrice.value)
+                    //We also check to make sure the buffer is not significant compared to the original gas price
+                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > bufferedGasPrice.buffer {
+                        return LegacyGasEstimates(standard: bufferedGasPrice.value)
                     } else {
                         return LegacyGasEstimates(standard: gasPrice)
                     }
@@ -241,15 +242,15 @@ public enum GasPriceBuffer {
     case percentage(BigUInt)
     case fixed(BigUInt)
 
-    public func bufferedGasPrice(estimatedGasPrice: BigUInt) -> (value: BigUInt, surchargeding: BigUInt) {
-        let surchargeding: BigUInt
+    public func bufferedGasPrice(estimatedGasPrice: BigUInt) -> (value: BigUInt, buffer: BigUInt) {
+        let buffer: BigUInt
         switch self {
-        case .percentage(let gasPriceSurchargePercent):
-            surchargeding = estimatedGasPrice * gasPriceSurchargePercent / BigUInt(100)
+        case .percentage(let bufferPercent):
+            buffer = estimatedGasPrice * bufferPercent / BigUInt(100)
         case .fixed(let value):
-            surchargeding = value
+            buffer = value
         }
 
-        return (estimatedGasPrice + surchargeding, surchargeding)
+        return (estimatedGasPrice + buffer, buffer)
     }
 }
