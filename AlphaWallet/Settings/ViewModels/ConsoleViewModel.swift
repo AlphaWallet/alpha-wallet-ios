@@ -39,7 +39,7 @@ class ConsoleViewModel {
             }
 
         let viewModels = Publishers.CombineLatest(listOfBadTokenScriptFiles, conflictingTokenScriptFileNames)
-            .map { $0.0 + $0.1 }
+            .map { Array(Set($0.0 + $0.1)) }
             .map { SectionViewModel(section: .messages, views: $0) }
             .map { self.buildSnapshot(for: [$0]) }
 
@@ -76,7 +76,6 @@ extension ConsoleViewModel {
 
     struct SectionViewModel {
         let section: ConsoleViewModel.Section
-
         let views: [ConsoleMessage]
     }
 
