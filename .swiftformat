@@ -58,7 +58,7 @@
 --enable trailingSpace
 --trimwhitespace always
 
---enable blankLinesAtStartOfScope
+#--enable blankLinesAtStartOfScope
 --typeblanklines remove
 
 --enable void
