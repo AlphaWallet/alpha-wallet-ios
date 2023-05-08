@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
+import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
-import AlphaWalletCore
+import Foundation
 
 extension WalletSession {
     static func make(account: Wallet = .make(), server: RPCServer = .main, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService()) -> WalletSession {

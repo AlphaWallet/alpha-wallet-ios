@@ -5,7 +5,7 @@ import Foundation
 
 public struct Balance {
     public let value: BigUInt
-    
+
     public init(value: BigUInt) {
         self.value = value
     }

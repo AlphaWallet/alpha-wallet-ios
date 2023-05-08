@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 26.05.2021.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
 import BigInt
+import Combine
+import Foundation
 import SwiftyJSON
 
 public protocol TokenBalanceFetcherDelegate: AnyObject {
@@ -39,7 +39,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             tokensDataStore: tokensDataStore,
             transporter: transporter)
     }()
-    
+
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
         analytics: analytics,
         blockNumberProvider: session.blockNumberProvider,
@@ -67,9 +67,9 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let etherToken: Token
     private let transporter: ApiTransporter
     private var cancellable = AtomicDictionary<String, AnyCancellable>()
-    
-    weak public var delegate: TokenBalanceFetcherDelegate?
-    weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
+
+    public weak var delegate: TokenBalanceFetcherDelegate?
+    public weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     public init(session: WalletSession,
                 tokensDataStore: TokensDataStore,
@@ -253,7 +253,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
                 let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
                 strongSelf.notifyUpdateBalance([
-                    .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
+                    .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets))),
                 ])
             })
     }

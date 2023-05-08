@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 extension Web3.Eth {
@@ -15,7 +15,7 @@ extension Web3.Eth {
         let addr = address.address
         return getTransactionCountPromise(address: addr, onBlock: onBlock)
     }
-    
+
     public func getTransactionCountPromise(address: String, onBlock: String = "latest") -> Promise<BigUInt> {
         let request = JSONRPCrequest(method: .getTransactionCount, params: JSONRPCparams(params: [address.lowercased(), onBlock]))
         let rp = web3.dispatch(request)

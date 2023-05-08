@@ -5,21 +5,21 @@
 //  Created by Vladyslav Shepitko on 30.08.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import MessageUI
-import AlphaWalletFoundation
 
 final class ContactUsEmailResolver: NSObject {
 
     private var emailTemplate: String {
         return """
-               \n\n\n
-               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
-               \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
-               \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
-               \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
-               \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
-               """
+            \n\n\n
+            \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+            \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
+            \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
+            \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
+            \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
+            """
     }
 
     func present(from viewController: UIViewController, attachments: [EmailAttachment]) {

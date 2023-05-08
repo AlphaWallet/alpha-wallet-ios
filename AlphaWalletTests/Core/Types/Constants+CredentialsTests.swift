@@ -2,9 +2,9 @@
 
 import Foundation
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class ConstantsCredentialsTests: XCTestCase {
     func testKeysWithEqualSign() {

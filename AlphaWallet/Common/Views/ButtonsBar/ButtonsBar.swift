@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 enum HorizontalButtonsBarConfiguration {
     case empty
@@ -256,13 +256,13 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
             view.childView.setContentHuggingPriority(.required, for: .horizontal)
             view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-             view.childView.setBackgroundImage(R.image.moreLightActive()!, for: .normal)
-             view.childView.setBackgroundImage(R.image.moreLightPressed()!, for: .highlighted)
+            view.childView.setBackgroundImage(R.image.moreLightActive()!, for: .normal)
+            view.childView.setBackgroundImage(R.image.moreLightPressed()!, for: .highlighted)
 
             view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
 
             NSLayoutConstraint.activate([
-                view.childView.widthAnchor.constraint(equalTo: view.childView.heightAnchor)
+                view.childView.widthAnchor.constraint(equalTo: view.childView.heightAnchor),
             ])
         }
     }
@@ -329,12 +329,12 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
     }
 
     private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<BarButton>] {
-         return (0..<numberOfButtons).map { _ in
-             let button = BarButton()
-             button.titleLabel?.baselineAdjustment = .alignCenters
+        return (0..<numberOfButtons).map { _ in
+            let button = BarButton()
+            button.titleLabel?.baselineAdjustment = .alignCenters
 
-             return ContainerViewWithShadow(aroundView: button)
-         }
+            return ContainerViewWithShadow(aroundView: button)
+        }
     }
 }
 

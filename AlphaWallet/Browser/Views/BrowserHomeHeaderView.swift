@@ -23,7 +23,7 @@ class BrowserHomeHeaderView: UIView {
             titleLabel,
         ].asStackView(axis: .vertical, spacing: 20, contentHuggingPriority: .required, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

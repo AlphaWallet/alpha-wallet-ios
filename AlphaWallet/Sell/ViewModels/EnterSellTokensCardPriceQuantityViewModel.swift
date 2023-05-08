@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import BigInt
+import Foundation
+import UIKit
 
 struct EnterSellTokensCardPriceQuantityViewModel {
     let session: WalletSession

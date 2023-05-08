@@ -95,7 +95,7 @@ private class Dialog: UIView {
             UIView.spacer(height: 12),
             descriptionLabel,
             UIView.spacer(height: 30),
-            buttonsBar
+            buttonsBar,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
@@ -138,4 +138,3 @@ private class Dialog: UIView {
         delegate?.tappedContinue(inDialog: self)
     }
 }
-

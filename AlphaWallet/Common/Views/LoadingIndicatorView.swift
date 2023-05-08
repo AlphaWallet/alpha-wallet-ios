@@ -98,7 +98,7 @@ class ActivityLoadingIndicatorView: UIView {
     }
 
     private func draw(backgroundLayer layer: CAShapeLayer) {
-        let path = UIBezierPath(arcCenter: pathCenter, radius: radius, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true)
+        let path = UIBezierPath(arcCenter: pathCenter, radius: radius, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: true)
         layer.lineWidth = lineWidth
         layer.lineCap = CAShapeLayerLineCap.square
         layer.path = path.cgPath

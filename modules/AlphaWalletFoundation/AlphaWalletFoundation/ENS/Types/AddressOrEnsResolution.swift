@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 27.01.2022.
 //
 
-import Foundation 
 import AlphaWalletCore
+import Foundation
 
 public enum AddressOrEnsResolution {
     case invalidInput

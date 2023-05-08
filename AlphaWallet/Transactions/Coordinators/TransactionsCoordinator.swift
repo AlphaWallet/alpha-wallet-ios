@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
-protocol TransactionsCoordinatorDelegate: AnyObject, CanOpenURL {
-}
+protocol TransactionsCoordinatorDelegate: AnyObject, CanOpenURL {}
 
 class TransactionsCoordinator: Coordinator {
     private let analytics: AnalyticsLogger

@@ -5,8 +5,8 @@
 //  Created by Hwee-Boon Yar on Apr/30/22.
 //
 
-import Foundation
 import AlphaWalletAddress
+import Foundation
 
 public enum CollectionKey: Hashable {
     case address(AlphaWallet.Address)

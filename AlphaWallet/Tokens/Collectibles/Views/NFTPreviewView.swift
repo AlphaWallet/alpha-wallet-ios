@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.05.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 typealias NFTPreviewViewRepresentable = UIView & NFTPreviewConfigurable & ViewRoundingSupportable & ContentBackgroundSupportable & ViewLoadingSupportable
 
@@ -34,7 +34,7 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
     var placeholderRounding: ViewRounding = .none {
         didSet { previewView.placeholderRounding = placeholderRounding }
     }
-    
+
     override var contentMode: UIView.ContentMode {
         didSet { previewView.contentMode = contentMode }
     }
@@ -66,7 +66,7 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
         addSubview(previewView)
 
         NSLayoutConstraint.activate([
-            previewView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            previewView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
@@ -114,7 +114,7 @@ extension TokenImageView: NFTPreviewConfigurable, ContentBackgroundSupportable {
     }
 
     func configure(params: NFTPreviewViewType.Params) {
-        guard case .image(let iconImage) = params else { set(imageSource: .just(nil)); return; }
+        guard case .image(let iconImage) = params else { set(imageSource: .just(nil)); return }
         set(imageSource: iconImage)
     }
 }

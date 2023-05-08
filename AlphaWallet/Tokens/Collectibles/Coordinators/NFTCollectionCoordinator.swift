@@ -5,13 +5,13 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
-import UIKit
-import SafariServices
-import MessageUI
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
+import Foundation
+import MessageUI
+import SafariServices
+import UIKit
 
 protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)
@@ -572,8 +572,7 @@ extension NFTCollectionCoordinator: GenerateTransferMagicLinkViewControllerDeleg
     }
 }
 
-extension NFTCollectionCoordinator: TokenCardRedemptionViewControllerDelegate {
-}
+extension NFTCollectionCoordinator: TokenCardRedemptionViewControllerDelegate {}
 
 extension NFTCollectionCoordinator: CanOpenURL {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
@@ -589,8 +588,7 @@ extension NFTCollectionCoordinator: CanOpenURL {
     }
 }
 
-extension NFTCollectionCoordinator: StaticHTMLViewControllerDelegate {
-}
+extension NFTCollectionCoordinator: StaticHTMLViewControllerDelegate {}
 
 extension Collection where Element == TokenHolder {
     var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] {

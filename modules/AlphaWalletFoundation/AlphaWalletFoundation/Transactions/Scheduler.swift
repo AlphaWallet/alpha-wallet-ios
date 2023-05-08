@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 01.04.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 protocol SchedulerProvider: AnyObject {
     var name: String { get }
@@ -61,7 +61,7 @@ final class Scheduler: SchedulerProtocol {
                 self?.schedulerCancelable = self?.runSchedulerCycleWithInitialCall()
             }.store(in: &cancelable)
     }
-    
+
     private func resetCountdownCounter() {
         self.state = .tick(Int(provider.interval))
         countdownTimer.interval = 1

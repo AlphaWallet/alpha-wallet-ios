@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol ConsoleCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ConsoleCoordinator)
@@ -30,7 +30,7 @@ class ConsoleCoordinator: Coordinator {
     func start() {
         rootViewController.hidesBottomBarWhenPushed = true
         rootViewController.navigationItem.largeTitleDisplayMode = .never
-        
+
         navigationController.pushViewController(rootViewController, animated: true)
     }
 }

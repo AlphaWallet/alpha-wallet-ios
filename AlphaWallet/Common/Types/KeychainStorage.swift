@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 02.09.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import KeychainSwift
-import SAMKeychain
-import AlphaWalletFoundation
 import LocalAuthentication
+import SAMKeychain
 
 final class KeychainStorage: SecuredStorage {
     private let keychain: KeychainSwift

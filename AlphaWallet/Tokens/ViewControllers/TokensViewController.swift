@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
@@ -18,7 +18,7 @@ final class TokensViewController: UIViewController {
     private let selection = PassthroughSubject<TokensViewModel.SelectionSource, Never>()
     let viewModel: TokensViewModel
 
-    lazy private var filterView: ScrollableSegmentedControl = {
+    private lazy var filterView: ScrollableSegmentedControl = {
         let control = ScrollableSegmentedControl(cells: viewModel.filterViewModel.cells, configuration: viewModel.filterViewModel.configuration)
         control.setSelection(cellIndex: 0, animated: false)
         control.translatesAutoresizingMaskIntoConstraints = false
@@ -495,7 +495,7 @@ extension TokensViewController {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [filterView] in
             //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
-            if let selection = selection, case let ControlSelection.selected(index) = selection {
+            if let selection = selection, case ControlSelection.selected(let index) = selection {
                 filterView.setSelection(cellIndex: Int(index))
             }
         }

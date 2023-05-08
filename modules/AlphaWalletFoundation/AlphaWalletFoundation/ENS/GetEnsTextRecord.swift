@@ -4,9 +4,9 @@
 //  Created by Vladyslav Shepitko on 24.09.2021.
 //
 
-import Foundation
 import AlphaWalletENS
 import Combine
+import Foundation
 
 /// https://eips.ethereum.org/EIPS/eip-634
 final class GetEnsTextRecord {

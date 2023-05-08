@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 06.01.2023.
 //
 
-import Foundation
-import WalletConnectSwift
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Foundation
+import WalletConnectSwift
 
 protocol WalletConnectV1ClientDelegate: AnyObject {
     func server(_ server: Server, didReceiveRequest: Request)

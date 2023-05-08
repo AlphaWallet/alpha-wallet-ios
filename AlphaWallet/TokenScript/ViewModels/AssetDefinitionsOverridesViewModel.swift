@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 29.11.2022.
 //
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct AssetDefinitionsOverridesViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -80,4 +80,3 @@ extension AssetDefinitionsOverridesViewModel {
         case overrides
     }
 }
-

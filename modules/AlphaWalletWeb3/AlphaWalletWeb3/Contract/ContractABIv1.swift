@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 @available(*, deprecated)
 struct ContractAbiV1: ContractRepresentable {

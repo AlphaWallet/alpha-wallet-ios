@@ -9,7 +9,7 @@ extension Int {
     }
 
     //We'll take both "0x12" and "18" as `18`. The former is as spec like https://eips.ethereum.org/EIPS/eip-695, the latter to be more forgiving of dapps
-    public  init?(chainId0xString string: String) {
+    public init?(chainId0xString string: String) {
         if string.has0xPrefix {
             if let i = Int(string.drop0x, radix: 16) {
                 self = i

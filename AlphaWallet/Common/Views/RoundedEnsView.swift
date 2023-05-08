@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 01.11.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class RoundedEnsView: UIView, ViewRoundingSupportable {
     private (set) lazy var label: UILabel = {
@@ -25,7 +25,7 @@ class RoundedEnsView: UIView, ViewRoundingSupportable {
         button.setImage(R.image.copy(), for: .normal)
 
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 30)
+            button.widthAnchor.constraint(equalToConstant: 30),
         ])
 
         return button
@@ -59,7 +59,7 @@ class RoundedEnsView: UIView, ViewRoundingSupportable {
 
         NSLayoutConstraint.activate([
             //Leading/trailing anchor needed to make label fit when on narrow iPhones
-            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
 
         isUserInteractionEnabled = true

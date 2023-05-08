@@ -56,7 +56,7 @@ class SaveCustomRpcOverallView: UIView {
         NSLayoutConstraint.activate([
             segmentedControl.topAnchor.constraint(equalTo: topAnchor),
             segmentedControl.leadingAnchor.constraint(equalTo: leadingAnchor),
-            segmentedControl.trailingAnchor.constraint(equalTo: trailingAnchor)
+            segmentedControl.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
     }
 
@@ -67,7 +67,7 @@ class SaveCustomRpcOverallView: UIView {
             containerView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor),
             containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomConstraint!
+            bottomConstraint!,
         ])
     }
 

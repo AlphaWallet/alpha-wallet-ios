@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.08.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SelectServiceToBuyCryptoCoordinatorDelegate: AnyObject {
     func openUrlInBrowser(url: URL, animated: Bool)

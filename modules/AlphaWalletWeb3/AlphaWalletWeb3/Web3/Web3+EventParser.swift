@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 extension Web3.Contract {
@@ -25,7 +25,7 @@ extension Web3.Contract {
             self.contract = contract
             self.filter = filter
         }
-        
+
         public func parseBlockByNumber(_ blockNumber: UInt64) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseBlockByNumberPromise(blockNumber).wait()
@@ -37,7 +37,7 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
+
         public func parseBlock(_ block: Block) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseBlockPromise(block).wait()
@@ -49,7 +49,7 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
+
         public func parseTransactionByHash(_ hash: Data) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseTransactionByHashPromise(hash).wait()
@@ -61,7 +61,7 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
+
         public func parseTransaction(_ transaction: EthereumTransaction) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseTransactionPromise(transaction).wait()
@@ -81,7 +81,8 @@ extension Web3.Contract.EventParser {
         let queue = self.web3.queue
         do {
             guard let hash = transaction.hash else {
-                throw Web3Error.inputError("Failed to get transaction hash")}
+                throw Web3Error.inputError("Failed to get transaction hash")
+            }
             return self.parseTransactionByHashPromise(hash)
         } catch {
             let returnPromise = Promise<[EventParserResultProtocol]>.pending()
@@ -91,7 +92,7 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
+
     public func parseTransactionByHashPromise(_ hash: Data) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         let eth = Web3.Eth(web3: self.web3)
@@ -102,7 +103,7 @@ extension Web3.Contract.EventParser {
             return results
         }
     }
-    
+
     public func parseBlockByNumberPromise(_ blockNumber: UInt64) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         let eth = Web3.Eth(web3: self.web3)
@@ -121,7 +122,7 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
+
     public func parseBlockPromise(_ block: Block) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         do {
@@ -149,7 +150,7 @@ extension Web3.Contract.EventParser {
                 return returnPromise.promise
             }
             return Promise { seal in
-                
+
                 var pendingEvents: [Promise<[EventParserResultProtocol]>] = []
                 for transaction in block.transactions {
                     switch transaction {
@@ -189,7 +190,7 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
+
 }
 
 extension Web3.Contract {

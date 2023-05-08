@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct FungibleTokenViewCellViewModel: TokenIdentifiable {
     private let safeShortTitleInPluralForm: String
@@ -39,14 +39,14 @@ struct FungibleTokenViewCellViewModel: TokenIdentifiable {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: safeShortTitleInPluralForm, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: amountShort + " " + symbolInPluralForm, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Screen.TokenCard.Font.subtitle,
         ])
     }
 
@@ -90,7 +90,7 @@ struct FungibleTokenViewCellViewModel: TokenIdentifiable {
 
         return NSAttributedString(string: apprecation24hours, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Screen.TokenCard.Font.valueChangeLabel,
         ])
     }
 
@@ -118,7 +118,7 @@ struct FungibleTokenViewCellViewModel: TokenIdentifiable {
     var priceChangeAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChange, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Screen.TokenCard.Font.valueChangeLabel,
         ])
     }
 
@@ -135,7 +135,7 @@ struct FungibleTokenViewCellViewModel: TokenIdentifiable {
 
         return NSAttributedString(string: fiatValue, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.valueChangeValue
+            .font: Screen.TokenCard.Font.valueChangeValue,
         ])
     }
 
@@ -148,4 +148,4 @@ struct FungibleTokenViewCellViewModel: TokenIdentifiable {
     }
 }
 
-extension FungibleTokenViewCellViewModel: Hashable { }
+extension FungibleTokenViewCellViewModel: Hashable {}

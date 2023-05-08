@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import BigInt
+import Combine
 import Foundation
 import UIKit
-import Combine
 
 protocol TransactionConfirmationViewControllerDelegate: AnyObject {
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton)
@@ -77,7 +77,7 @@ class TransactionConfirmationViewController: UIViewController {
             buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
 
             loadingIndicatorView.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
-            loadingIndicatorView.centerXAnchor.constraint(equalTo: footerBar.centerXAnchor)
+            loadingIndicatorView.centerXAnchor.constraint(equalTo: footerBar.centerXAnchor),
         ])
 
         headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
@@ -101,7 +101,7 @@ class TransactionConfirmationViewController: UIViewController {
                     strongSelf.heightConstraint.constant = newHeight
                 }
             }.store(in: &cancellable)
-    } 
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

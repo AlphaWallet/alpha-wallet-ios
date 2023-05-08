@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
+import AlphaWalletLogger
 import Combine
 import Foundation
-import AlphaWalletLogger
 
 public protocol BlockscanChatServiceDelegate: AnyObject {
     func openBlockscanChat(url: URL, for: BlockscanChatService)
@@ -100,13 +100,13 @@ public class BlockscanChatService {
 
     private func watchForWalletChanges() {
         keystore
-                .walletsPublisher
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.configureBlockscanChats()
-                    strongSelf.refreshUnreadCountsForAllWallets()
-                }.store(in: &cancelable)
+            .walletsPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.configureBlockscanChats()
+                strongSelf.refreshUnreadCountsForAllWallets()
+            }.store(in: &cancelable)
     }
 
     //TODO display unread count in Accounts for all users if non-zero?

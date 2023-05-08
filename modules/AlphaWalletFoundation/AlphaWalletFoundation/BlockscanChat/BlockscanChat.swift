@@ -1,10 +1,10 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
-import SwiftyJSON
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import Foundation
+import SwiftyJSON
 
 public class BlockscanChat {
     private var lastKnownCount: Int?
@@ -53,7 +53,7 @@ extension BlockscanChat {
             components.path = "/blockscanchat/unreadcount/\(address.eip55String)"
 
             return try URLRequest(url: components.asURL(), method: .get, headers: [
-                "PROXY_KEY": Constants.Credentials.blockscanChatProxyKey
+                "PROXY_KEY": Constants.Credentials.blockscanChatProxyKey,
             ])
         }
     }

@@ -25,7 +25,7 @@ public struct EthCallRequest: JSONRPCKit.Request {
     public var parameters: Any? {
         //Explicit type declaration to speed up build time. 160msec -> <100ms, as of Xcode 11.7
         var payload: [String: Any] = [
-            "data": data
+            "data": data,
         ]
         if let to = to {
             payload["to"] = to.eip55String

@@ -1,9 +1,9 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletTrustWalletCoreExtensions
 import AlphaWalletWeb3
+import Foundation
 //TODO reduce dependencies, especially third party ones
 import TrustKeystore
 

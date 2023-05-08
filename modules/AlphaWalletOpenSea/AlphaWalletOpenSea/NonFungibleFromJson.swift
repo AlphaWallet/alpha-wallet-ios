@@ -5,8 +5,8 @@
 //  Created by Hwee-Boon Yar on Apr/30/22.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 //Shape of this originally created to match OpenSea's API output
 public protocol NonFungibleFromJson: Codable {

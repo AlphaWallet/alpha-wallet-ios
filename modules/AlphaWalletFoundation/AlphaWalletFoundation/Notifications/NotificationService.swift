@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.03.2022.
 //
 
-import Foundation
-import Combine
 import BigInt
+import Combine
+import Foundation
 
 public protocol PushNotificationsService: AnyObject {
     func registerForReceivingRemoteNotifications()
@@ -21,7 +21,7 @@ public protocol NotificationSourceServiceDelegate: AnyObject {
 public protocol NotificationSourceService: AnyObject {
     var receiveNotification: AnyPublisher<LocalNotification, Never> { get }
     var delegate: NotificationSourceServiceDelegate? { get set }
-    
+
     func start(wallet: Wallet)
 }
 

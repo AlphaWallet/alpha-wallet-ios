@@ -8,8 +8,7 @@
 import Foundation
 
 public struct GetTransactions: URLRequestConvertible {
-    struct NoBlockchainExplorerApi: Error {
-    }
+    struct NoBlockchainExplorerApi: Error {}
 
     let server: RPCServer
     let address: AlphaWallet.Address

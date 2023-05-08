@@ -5,14 +5,13 @@
 //  Created by Vladyslav Shepitko on 20.07.2020.
 //
 
-import UIKit
-import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
-import AlphaWalletCore
+import Combine
+import UIKit
 
-private struct NoContractDetailsDetected: Error {
-}
+private struct NoContractDetailsDetected: Error {}
 
 protocol NewTokenCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Token)
@@ -163,7 +162,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
         return session.importToken.fetchContractData(for: address)
             .receive(on: RunLoop.main)
             .setFailureType(to: PromiseError.self)
-            .flatMap {  data -> AnyPublisher<TokenType, PromiseError> in
+            .flatMap { data -> AnyPublisher<TokenType, PromiseError> in
                 guard self.addressToAutoDetectServerFor == address else { return .empty() }
                 switch data {
                 case .name, .symbol, .balance, .decimals:

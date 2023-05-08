@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol NFTCollectionInfoPageViewDelegate: AnyObject {
     func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView)

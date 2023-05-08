@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.06.2022.
 //
 
-import Foundation
 import AlphaWalletCore
+import Foundation
 
 public class InMemoryAddressStorage: AddressStorage {
     private var cache: AtomicDictionary<AddressKey, AlphaWallet.Address>
@@ -26,5 +26,5 @@ public class InMemoryAddressStorage: AddressStorage {
     public subscript(key: AddressKey) -> AlphaWallet.Address? {
         get { cache[key] }
         set { cache[key] = newValue }
-    } 
+    }
 }

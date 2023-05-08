@@ -1,12 +1,12 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
 /// Implementation of Ethereum's RLP encoding.
 ///
 /// - SeeAlso: https://github.com/ethereum/wiki/wiki/RLP
-public struct RLP {
+public enum RLP {
     /// Encodes an element as RLP data.
     ///
     /// - Returns: Encoded data or `nil` if the element type is not supported.
@@ -106,27 +106,27 @@ public struct RLP {
     /// Returns the representation of an integer using the least number of bytes needed.
     static func putint(_ i: UInt64) -> Data {
         switch i {
-        case 0 ..< (1 << 8):
+        case 0..<(1 << 8):
             return Data([UInt8(i)])
-        case 0 ..< (1 << 16):
+        case 0..<(1 << 16):
             return Data([
                 UInt8(i >> 8),
                 UInt8(truncatingIfNeeded: i),
             ])
-        case 0 ..< (1 << 24):
+        case 0..<(1 << 24):
             return Data([
                 UInt8(i >> 16),
                 UInt8(truncatingIfNeeded: i >> 8),
                 UInt8(truncatingIfNeeded: i),
             ])
-        case 0 ..< (1 << 32):
+        case 0..<(1 << 32):
             return Data([
                 UInt8(i >> 24),
                 UInt8(truncatingIfNeeded: i >> 16),
                 UInt8(truncatingIfNeeded: i >> 8),
                 UInt8(truncatingIfNeeded: i),
             ])
-        case 0 ..< (1 << 40):
+        case 0..<(1 << 40):
             return Data([
                 UInt8(i >> 32),
                 UInt8(truncatingIfNeeded: i >> 24),
@@ -134,7 +134,7 @@ public struct RLP {
                 UInt8(truncatingIfNeeded: i >> 8),
                 UInt8(truncatingIfNeeded: i),
             ])
-        case 0 ..< (1 << 48):
+        case 0..<(1 << 48):
             return Data([
                 UInt8(i >> 40),
                 UInt8(truncatingIfNeeded: i >> 32),
@@ -143,7 +143,7 @@ public struct RLP {
                 UInt8(truncatingIfNeeded: i >> 8),
                 UInt8(truncatingIfNeeded: i),
             ])
-        case 0 ..< (1 << 56):
+        case 0..<(1 << 56):
             return Data([
                 UInt8(i >> 48),
                 UInt8(truncatingIfNeeded: i >> 40),

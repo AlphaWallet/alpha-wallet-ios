@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.01.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 enum TokenUriData {
     case uri(URL)

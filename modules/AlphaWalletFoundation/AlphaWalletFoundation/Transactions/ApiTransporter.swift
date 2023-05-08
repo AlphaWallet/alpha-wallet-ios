@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 28.02.2023.
 //
 
-import Foundation
 import Alamofire
 import Combine
+import Foundation
 
 public protocol ApiTransporter {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>

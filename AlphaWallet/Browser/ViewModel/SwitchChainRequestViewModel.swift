@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.09.2021.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 struct SwitchChainRequestViewModel {
     let title: String = R.string.localizable.switchChainRequestTitle()

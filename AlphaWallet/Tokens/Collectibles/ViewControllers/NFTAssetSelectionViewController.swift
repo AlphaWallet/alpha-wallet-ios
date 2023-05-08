@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 18.08.2021.
 //
 
-import UIKit
-import StatefulViewController
 import AlphaWalletFoundation
 import Combine
+import StatefulViewController
+import UIKit
 
 protocol NFTAssetSelectionViewControllerDelegate: AnyObject {
     func didTapSend(in viewController: NFTAssetSelectionViewController, token: Token, tokenHolders: [TokenHolder])
@@ -64,14 +64,14 @@ class NFTAssetSelectionViewController: UIViewController {
 
         view.addSubview(tableView)
         view.addSubview(footerBar)
-        
+
         NSLayoutConstraint.activate([
             footerBar.anchorsConstraint(to: view),
 
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            bottomConstraint
+            bottomConstraint,
         ])
 
         toolbar.viewController = self
@@ -147,7 +147,7 @@ class NFTAssetSelectionViewController: UIViewController {
                 strongSelf.delegate?.didTapSend(in: strongSelf, token: data.token, tokenHolders: data.tokenHolders)
             }.store(in: &cancellable)
     }
-    
+
     private func showAssetSelection(indexPath: IndexPath, available: Int, selected: Int) {
         self.selectionView?.removeFromSuperview()
 
@@ -332,7 +332,7 @@ extension NFTAssetSelectionViewController {
 
             return label
         }()
-        
+
         lazy var selectAllButton: Button = {
             let button: Button = .init(size: .normal, style: .system)
             button.setTitle(R.string.localizable.semifungiblesSelectionSelectAll(), for: .normal)
@@ -352,7 +352,7 @@ extension NFTAssetSelectionViewController {
             addSubview(stackView)
 
             NSLayoutConstraint.activate([
-                stackView.anchorsConstraint(to: self, edgeInsets: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+                stackView.anchorsConstraint(to: self, edgeInsets: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)),
             ])
 
             translatesAutoresizingMaskIntoConstraints = false

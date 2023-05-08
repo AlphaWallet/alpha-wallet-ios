@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol SettingsViewControllerDelegate: AnyObject, CanOpenURL {
     func advancedSettingsSelected(in controller: SettingsViewController)
@@ -66,7 +66,7 @@ class SettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

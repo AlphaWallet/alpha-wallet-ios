@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 class TransactionConfirmationRPCServerInfoView: UIView {
 
@@ -32,7 +32,7 @@ class TransactionConfirmationRPCServerInfoView: UIView {
 
         let stackView = [
             serverIconImageView,
-            titleLabel
+            titleLabel,
         ].asStackView(axis: .horizontal, spacing: 10)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false

@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 protocol EditBookmarkViewControllerDelegate: AnyObject {
     func didSave(in viewController: EditBookmarkViewController)
@@ -115,7 +115,7 @@ class EditBookmarkViewController: UIViewController {
 
         let input = EditBookmarkViewModelInput(saveSelected: saveSelected)
         let output = viewModel.transform(input: input)
-        
+
         output.viewState
             .sink { [imageHolder, iconImageView, titleTextField, urlTextField, navigationItem] viewState in
                 navigationItem.title = viewState.title

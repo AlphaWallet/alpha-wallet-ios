@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Erc721SafeTransferFrom: ContractMethod {
     let recipient: AlphaWallet.Address

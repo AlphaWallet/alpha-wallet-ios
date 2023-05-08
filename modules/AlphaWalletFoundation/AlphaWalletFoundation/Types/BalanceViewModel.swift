@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import BigInt
 import AlphaWalletCore
 import AlphaWalletOpenSea
+import BigInt
+import Foundation
 
 protocol BalanceViewModelType {
     var amountFull: String { get }
@@ -28,14 +28,14 @@ public struct BalanceViewModel: BalanceViewModelType {
     public let symbol: String
     public let valueDecimal: Decimal
     public let amountInFiat: Double?
-    
+
     public let value: BigUInt
     public let balance: [TokenBalanceValue]
 
     public let ticker: CoinTicker?
 }
 
-extension BalanceViewModel: Hashable { }
+extension BalanceViewModel: Hashable {}
 
 extension BalanceViewModel {
     init(balance: BalanceViewModelType) {

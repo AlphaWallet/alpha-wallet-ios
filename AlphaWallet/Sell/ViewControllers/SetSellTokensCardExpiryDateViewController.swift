@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SetSellTokensCardExpiryDateViewControllerDelegate: AnyObject, CanOpenURL {
     func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Double, in viewController: SetSellTokensCardExpiryDateViewController)
@@ -257,11 +257,11 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let expiryDate = linkExpiryDate
         guard expiryDate > Date() else {
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self,
-                    completion: nil)
+                                    message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(),
+                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonStyles: [.cancel],
+                                    viewController: self,
+                                    completion: nil)
             return
         }
 

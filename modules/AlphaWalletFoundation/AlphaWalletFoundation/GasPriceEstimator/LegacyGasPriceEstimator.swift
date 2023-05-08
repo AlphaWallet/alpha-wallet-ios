@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 11.04.2023.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
     private let server: RPCServer

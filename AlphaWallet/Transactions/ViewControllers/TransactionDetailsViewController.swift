@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import SafariServices
 import AlphaWalletFoundation
 import Combine
+import SafariServices
+import UIKit
 
 protocol TransactionDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectShare(in viewController: TransactionDetailsViewController, item: URL, sender: UIBarButtonItem)
@@ -57,7 +57,7 @@ class TransactionDetailsViewController: UIViewController {
             transactionId,
             createdAt,
             blockNumber,
-            nonce
+            nonce,
         ])
 
         let stackView = [containerView, footerBar].asStackView(axis: .vertical)
@@ -65,7 +65,7 @@ class TransactionDetailsViewController: UIViewController {
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsIgnoringBottomSafeArea(to: view)
+            stackView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 06.03.2023.
 //
 
-import Foundation
-import UIKit
-import WebKit
-import JavaScriptCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
+import Foundation
+import JavaScriptCore
+import UIKit
+import WebKit
 
 struct BrowserViewModelInput {
     let progress: AnyPublisher<Double, Never>
@@ -52,7 +52,7 @@ class BrowserViewModel: NSObject {
         return config
     }()
     let browserOnly: Bool
-    
+
     init(wallet: Wallet, server: RPCServer, browserOnly: Bool) {
         self.wallet = wallet
         self.server = server
@@ -166,7 +166,7 @@ extension BrowserViewModel {
         case adjustBottomInset(height: CGFloat)
     }
 
-    struct Keys {
+    enum Keys {
         static let developerExtrasEnabled = "developerExtrasEnabled"
         static let ClientName = "AlphaWallet"
     }

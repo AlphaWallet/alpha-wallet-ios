@@ -3,14 +3,14 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class IsErc1155Contract {
     private let blockchainProvider: BlockchainProvider
     private lazy var resolver = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
 
-    private struct ERC165Hash {
+    private enum ERC165Hash {
         //https://eips.ethereum.org/EIPS/eip-1155
         static let official = "0xd9b67a26"
     }

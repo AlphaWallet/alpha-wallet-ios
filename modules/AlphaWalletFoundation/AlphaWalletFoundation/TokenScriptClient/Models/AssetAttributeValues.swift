@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletAddress
+import Foundation
 
 //This class makes it easier to listen to when all the attribute values are available (specifically values from smart contract function calls are available asynchronously)
 

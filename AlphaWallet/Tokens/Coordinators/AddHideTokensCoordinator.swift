@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol AddHideTokensCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: AddHideTokensCoordinator)

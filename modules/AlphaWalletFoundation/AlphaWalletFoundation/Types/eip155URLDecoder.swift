@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 12.11.2021.
 //
 
-import Foundation 
+import Foundation
 
 public struct Eip155URL {
     let tokenType: TokenInterfaceType?
@@ -18,12 +18,12 @@ extension Eip155URL: CustomStringConvertible {
         return [
             tokenType?.rawValue ?? "",
             server.flatMap { String($0.chainID) } ?? "",
-            path
+            path,
         ].joined(separator: "-")
     }
 }
 
-public struct Eip155UrlCoder {
+public enum Eip155UrlCoder {
     static let key = "eip155"
 
     /// Decoding function for urls like `eip155:1/erc721:0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6/2430`
@@ -68,4 +68,3 @@ extension RPCServer {
         }
     }
 }
-

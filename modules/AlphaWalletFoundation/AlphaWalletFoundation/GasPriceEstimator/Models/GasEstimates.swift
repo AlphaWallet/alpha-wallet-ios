@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol GasEstimates {
     subscript(gasSpeed: GasSpeed) -> GasPrice? { get }

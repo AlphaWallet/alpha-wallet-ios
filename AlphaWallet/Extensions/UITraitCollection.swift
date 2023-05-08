@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.08.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 extension UITraitCollection {
     var uniswapTheme: Uniswap.Theme {

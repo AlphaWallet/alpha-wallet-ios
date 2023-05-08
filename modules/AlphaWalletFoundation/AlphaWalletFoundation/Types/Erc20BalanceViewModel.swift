@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 02.06.2021.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletOpenSea
+import BigInt
+import Foundation
 
 protocol BalanceRepresentable {
     var balanceNft: [TokenBalanceValue] { get }

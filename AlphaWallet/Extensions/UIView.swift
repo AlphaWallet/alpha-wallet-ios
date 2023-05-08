@@ -18,12 +18,12 @@ extension UIView {
     func sized(_ size: CGSize) -> [NSLayoutConstraint] {
         return [
             heightAnchor.constraint(equalToConstant: size.height),
-            widthAnchor.constraint(equalToConstant: size.width)
+            widthAnchor.constraint(equalToConstant: size.width),
         ]
     }
 
     static func tableFooterToRemoveEmptyCellSeparators() -> UIView {
-      return .init()
+        return .init()
     }
 
     func dropShadow(color: UIColor, opacity: Float = 0.5, offSet: CGSize = .zero, radius: CGFloat = 1, scale: Bool = true, shouldRasterize: Bool = true) {
@@ -85,7 +85,7 @@ extension UIView {
     func anchorsConstraint(to view: UIView, margin: CGFloat) -> [NSLayoutConstraint] {
         return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
     }
-    
+
     static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear, flexible: Bool = false) -> UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -236,7 +236,7 @@ extension UIView {
             centerXAnchor.constraint(equalTo: superView.centerXAnchor),
             widthAnchor.constraint(equalTo: superView.widthAnchor),
             heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
-            topAnchor.constraint(equalTo: superView.topAnchor)
+            topAnchor.constraint(equalTo: superView.topAnchor),
         ]
     }
 
@@ -245,7 +245,7 @@ extension UIView {
             centerXAnchor.constraint(equalTo: superView.centerXAnchor),
             widthAnchor.constraint(equalTo: superView.widthAnchor),
             heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
-            bottomAnchor.constraint(equalTo: superView.bottomAnchor)
+            bottomAnchor.constraint(equalTo: superView.bottomAnchor),
         ]
     }
 }

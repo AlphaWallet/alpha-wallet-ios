@@ -1,10 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
 import Combine
+import UIKit
 
 public typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 public typealias WebImageURL = AlphaWalletCore.WebImageURL
@@ -264,7 +264,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     }
 }
 
-class GithubAssetsURLResolver {
+enum GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {

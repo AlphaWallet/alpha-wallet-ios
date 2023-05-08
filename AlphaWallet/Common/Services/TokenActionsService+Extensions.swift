@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 26.04.2023.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 extension TokenActionsService {
     static func instance(networkService: NetworkService, tokenSwapper: TokenSwapper) -> TokenActionsService {
@@ -14,7 +14,7 @@ extension TokenActionsService {
         let traitCollection = UINavigationController().traitCollection
         service.register(service: BuyTokenProvider(subProviders: [
             Coinbase(action: R.string.localizable.aWalletTokenBuyOnCoinbaseTitle()),
-            Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle(), networking: BaseRampNetworking(networkService: networkService))
+            Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle(), networking: BaseRampNetworking(networkService: networkService)),
         ], action: R.string.localizable.aWalletTokenBuyTitle()))
 
         let honeySwapService = HoneySwap(action: R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle())

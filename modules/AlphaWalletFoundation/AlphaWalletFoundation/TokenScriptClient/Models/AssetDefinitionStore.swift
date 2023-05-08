@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Combine
 import AlphaWalletLogger
+import Combine
 import PromiseKit
 
 public typealias XMLFile = String
@@ -94,36 +94,36 @@ public class AssetDefinitionStore: NSObject {
     //TODO move
     public static var standardTokenScriptStyles: String {
         return """
-               <style type="text/css">
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
-               font-weight: lighter;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
-               font-weight: normal;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
-               font-weight: bolder;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
-               font-weight: bold;
-               }
-               .token-card {
-               padding: 0pt;
-               margin: 0pt;
-               }
-               </style>
-               """
+            <style type="text/css">
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
+            font-weight: lighter;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
+            font-weight: normal;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
+            font-weight: bolder;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
+            font-weight: bold;
+            }
+            .token-card {
+            padding: 0pt;
+            margin: 0pt;
+            }
+            </style>
+            """
     }
 
-    convenience public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(),
+    public convenience init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(),
                             baseTokenScriptFiles: [TokenType: String] = [:],
                             networkService: NetworkService,
                             reachability: ReachabilityManagerProtocol = ReachabilityManager(),
@@ -133,9 +133,9 @@ public class AssetDefinitionStore: NSObject {
         self.init(backingStore: backingStore,
                   tokenScriptFilesProvider: baseTokenScriptFilesProvider,
                   signatureVerifier: TokenScriptSignatureVerifier(
-                    tokenScriptFilesProvider: baseTokenScriptFilesProvider,
-                    networkService: networkService,
-                    reachability: reachability),
+                      tokenScriptFilesProvider: baseTokenScriptFilesProvider,
+                      networkService: networkService,
+                      reachability: reachability),
                   networkService: networkService,
                   blockchainsProvider: blockchainsProvider)
     }

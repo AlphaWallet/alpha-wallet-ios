@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import UIKit
 
 struct FungibleTokenDetailsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -35,10 +35,10 @@ final class FungibleTokenDetailsViewModel {
     private let tokenImageFetcher: TokenImageFetcher
     private var actionAdapter: TokenInstanceActionAdapter {
         return TokenInstanceActionAdapter(
-           session: session,
-           token: token,
-           tokenHolder: tokenHolder,
-           tokenActionsProvider: tokenActionsProvider)
+            session: session,
+            token: token,
+            tokenHolder: tokenHolder,
+            tokenActionsProvider: tokenActionsProvider)
     }
 
     let token: Token
@@ -77,7 +77,7 @@ final class FungibleTokenDetailsViewModel {
         input.willAppear.flatMapLatest { [coinTickersFetcher, token, currencyService] _ in
             coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: false, periods: ChartHistoryPeriod.allCases, currency: currencyService.currency)
         }.assign(to: \.value, on: chartHistoriesSubject)
-        .store(in: &cancelable)
+            .store(in: &cancelable)
 
         let viewTypes = Publishers.CombineLatest(coinTicker, chartHistoriesSubject)
             .compactMap { [weak self] ticker, _ in self?.buildViewTypes(for: ticker) }
@@ -143,7 +143,7 @@ final class FungibleTokenDetailsViewModel {
 
         if token.server.isTestnet {
             views = [
-                .testnet
+                .testnet,
             ]
         } else {
             views = [
@@ -157,7 +157,7 @@ final class FungibleTokenDetailsViewModel {
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
                 .field(viewModel: markerCapViewModel(for: ticker)),
                 .field(viewModel: yearLowViewModel),
-                .field(viewModel: yearHighViewModel)
+                .field(viewModel: yearHighViewModel),
             ]
         }
 

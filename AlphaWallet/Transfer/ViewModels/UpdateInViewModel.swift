@@ -5,13 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.04.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
-struct UpdateInViewModelInput {
-
-}
+struct UpdateInViewModelInput {}
 
 struct UpdateInViewModelOutput {
     let text: AnyPublisher<NSAttributedString?, Never>
@@ -54,7 +52,7 @@ class UpdateInViewModel {
         guard let value = value else { return nil }
         return NSAttributedString(string: value, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.semibold(size: 14)
+            .font: Fonts.semibold(size: 14),
         ])
     }
 
@@ -62,7 +60,7 @@ class UpdateInViewModel {
         guard let value = value else { return nil }
         return NSAttributedString(string: value, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 14)
+            .font: Fonts.regular(size: 14),
         ])
     }
 }

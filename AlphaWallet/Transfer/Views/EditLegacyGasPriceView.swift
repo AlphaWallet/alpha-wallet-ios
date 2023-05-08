@@ -20,7 +20,7 @@ class EditLegacyGasPriceView: UIView {
         editGasPriceView.delegate = self
         editGasPriceView.textField.inputAccessoryButtonType = .next
         editGasPriceView.keyboardType = .decimalPad
-        
+
         return editGasPriceView
     }()
     private let headerView = GasSpeedTableViewHeaderView()
@@ -36,7 +36,7 @@ class EditLegacyGasPriceView: UIView {
 
         let stackView = [
             headerView,
-            textField
+            textField,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)

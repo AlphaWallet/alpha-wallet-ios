@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct DappsHomeViewViewModelInput {
     let deleteBookmark: AnyPublisher<BookmarkObject, Never>
@@ -63,4 +63,3 @@ extension BrowserHomeViewModel {
         let snapshot: BrowserHomeViewModel.Snapshot
     }
 }
-

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.08.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol SlidableTextFieldDelegate: AnyObject {
     func shouldReturn(in textField: SlidableTextField) -> Bool
@@ -72,14 +72,14 @@ class SlidableTextField: UIView {
         let row1 = textField.statusLabel
         let stackView = [
             row0,
-            row1
+            row1,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
             textField.widthAnchor.constraint(equalToConstant: 100),
-            stackView.anchorsConstraint(to: self, edgeInsets: SlidableTextField.textFieldInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: SlidableTextField.textFieldInsets),
         ])
         translatesAutoresizingMaskIntoConstraints = false
 

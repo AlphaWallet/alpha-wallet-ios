@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 20/12/21.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class RpcNetworkTestCase: XCTestCase {
     func testAvailableNetworks() throws {

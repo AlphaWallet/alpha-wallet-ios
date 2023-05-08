@@ -1,9 +1,9 @@
+import BigInt
 // Copyright SIX DAY LLC. All rights reserved.
 //This struct sets the amount of gas units to consume
 import Foundation
-import BigInt
 
-public struct GasLimitConfiguration {
+public enum GasLimitConfiguration {
     public static let defaultGasLimit = BigUInt(90_000)
     public static let minGasLimit = BigUInt(21_000)
     public static func maxGasLimit(forServer server: RPCServer) -> BigUInt {

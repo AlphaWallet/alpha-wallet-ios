@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import BigInt
 import Foundation
 import JSONRPCKit
-import BigInt
 
 struct GasPriceRequest: JSONRPCKit.Request {
     typealias Response = BigUInt

@@ -19,9 +19,9 @@ class DappButton: UIControl {
         super.init(frame: frame)
 
         let stackView = [imageView, label].asStackView(
-                axis: .vertical,
-                spacing: 8, contentHuggingPriority: .required,
-                alignment: .center
+            axis: .vertical,
+            spacing: 8, contentHuggingPriority: .required,
+            alignment: .center
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.isUserInteractionEnabled = false

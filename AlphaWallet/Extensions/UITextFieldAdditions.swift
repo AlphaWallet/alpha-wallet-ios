@@ -1,7 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import UIKit
 import Combine
+import UIKit
 
 extension UITextField {
 
@@ -12,4 +12,3 @@ extension UITextField {
             .eraseToAnyPublisher()
     }
 }
-

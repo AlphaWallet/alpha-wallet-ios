@@ -126,7 +126,7 @@ class ScrollableSegmentedControlCell: UIView {
         addSubview(label)
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -configuration.textBottomPadding)
+            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -configuration.textBottomPadding),
         ])
         width = label.intrinsicContentSize.width + (2 * cellPadding)
         height = label.intrinsicContentSize.height + (2 * cellPadding)

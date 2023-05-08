@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import Social
 import MobileCoreServices
+import Social
 
 extension NSItemProvider {
     enum ItemType {

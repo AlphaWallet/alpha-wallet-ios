@@ -32,7 +32,7 @@ extension Web3.Eth {
                     }
                     throw Web3Error.nodeError("Invalid value from Ethereum node")
                 }
-                
+
                 return TransactionSendingResult(transaction: transaction, hash: value)
             }
         } catch {

@@ -1,6 +1,6 @@
+import AlphaWalletFoundation
 // Copyright SIX DAY LLC. All rights reserved.
 import Foundation
-import AlphaWalletFoundation
 
 struct HelpUsViewModel {
     var title: String {

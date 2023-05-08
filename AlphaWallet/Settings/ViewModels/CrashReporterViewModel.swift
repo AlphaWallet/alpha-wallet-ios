@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class CrashReporterViewModel {
     private var config: Config

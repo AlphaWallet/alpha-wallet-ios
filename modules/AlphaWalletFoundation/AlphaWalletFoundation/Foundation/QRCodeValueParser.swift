@@ -10,7 +10,7 @@ public enum AddressOrEip681 {
     case eip681(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String])
 }
 
-public struct AddressOrEip681Parser {
+public enum AddressOrEip681Parser {
     public static func from(string: String) -> AddressOrEip681? {
         let string = string.trimmed
         let parts = string.components(separatedBy: ":")

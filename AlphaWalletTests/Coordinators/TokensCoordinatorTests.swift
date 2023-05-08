@@ -1,12 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
+import XCTest
 
-final class FakeSwapTokenService: TokenActionsService {
-}
+final class FakeSwapTokenService: TokenActionsService {}
 
 extension PromptBackupCoordinator {
     static func make(wallet: Wallet = .make()) -> PromptBackupCoordinator {
@@ -59,7 +58,7 @@ extension ImportToken {
                      wallet: Wallet = .make(),
                      contractDataFetcher: ContractDataFetchable = FakeContractDataFetcher(),
                      server: RPCServer = .main) -> ImportToken {
-        
+
         return .init(
             tokensDataStore: tokensDataStore,
             contractDataFetcher: contractDataFetcher,

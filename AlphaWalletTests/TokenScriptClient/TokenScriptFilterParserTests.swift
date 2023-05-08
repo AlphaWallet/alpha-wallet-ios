@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
+import XCTest
 
 class TokenScriptFilterParserTests: XCTestCase {
     func testTokenizing() {

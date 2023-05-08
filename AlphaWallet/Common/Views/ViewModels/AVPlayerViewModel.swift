@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 22.02.2023.
 //
 
-import UIKit
+import AlphaWalletFoundation
 import AVKit
 import Combine
-import AlphaWalletFoundation
+import UIKit
 
 extension AVPlayer.TimeControlStatus {
     var playButtonImage: UIImage? {
@@ -47,7 +47,7 @@ class AVPlayerViewModel {
         return player
     }()
     private let viewStateSubject = PassthroughSubject<AVPlayerViewModel.LoadVideoState, Never>()
-    
+
     var viewState: AnyPublisher<AVPlayerViewModel.LoadVideoState, Never> {
         viewStateSubject.eraseToAnyPublisher()
     }
@@ -127,7 +127,7 @@ class AVPlayerViewModel {
 }
 
 extension AVPlayerViewModel {
-    
+
     enum MediaType {
         case video
         case audio
@@ -190,7 +190,7 @@ extension AVURLAsset {
                         let playerItem = AVPlayerItem(asset: asset)
                         if let e = playerItem.error {
                             seal.send(completion: .failure(AVAssetError.general(e)))
-                        } else {    
+                        } else {
                             seal.send(.loaded(playerItem, isVideoAvailable: asset.isVideoAvailable))
                             seal.send(completion: .finished)
                         }
@@ -212,7 +212,7 @@ extension AVURLAsset {
                 asset.cancelLoading()
             }
         }.removeDuplicates()
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     func extractUIImageAsync(size: CGSize) -> AnyPublisher<UIImage?, ImageGeneratorError> {

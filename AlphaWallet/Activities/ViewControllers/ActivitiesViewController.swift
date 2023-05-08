@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
+import AlphaWalletFoundation
 import BigInt
 import StatefulViewController
-import AlphaWalletFoundation
+import UIKit
 
 protocol ActivitiesViewControllerDelegate: AnyObject {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController)
@@ -159,7 +159,7 @@ extension ActivitiesViewController {
     private func configureSearchBarOnce() {
         guard !isSearchBarConfigured else { return }
         isSearchBarConfigured = true
-        
+
         UISearchBar.configure(searchBar: searchController.searchBar)
     }
 }
@@ -181,7 +181,7 @@ extension ActivitiesViewController.functional {
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
+            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0)),
         ])
         return container
     }

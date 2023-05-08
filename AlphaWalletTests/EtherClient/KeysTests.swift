@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class KeysTests: XCTestCase {
     //Keys *must* be 64 characters (i.e. 32 bytes) for this test

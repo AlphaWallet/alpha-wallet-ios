@@ -1,9 +1,9 @@
 //
 // Created by James Sangalli on 8/11/18.
 //
-import Foundation
 import AlphaWalletENS
 import Combine
+import Foundation
 
 public class EnsResolver {
     private let storage: EnsRecordsStorage

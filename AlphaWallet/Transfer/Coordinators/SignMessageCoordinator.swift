@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol SignMessageCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Data)
@@ -69,7 +69,7 @@ class SignMessageCoordinator: Coordinator {
     func start() {
         analytics.log(navigation: Analytics.Navigation.signMessageRequest, properties: [
             Analytics.Properties.source.rawValue: source.description,
-            Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue
+            Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue,
         ])
 
         let presenter = UIApplication.shared.presentedViewController(or: navigationController)

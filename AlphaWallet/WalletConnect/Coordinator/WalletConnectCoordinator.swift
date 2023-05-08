@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import UIKit
-import AlphaWalletGoBack
-import WalletConnectSwift
-import Combine
-import AlphaWalletFoundation
-import AlphaWalletLogger
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletGoBack
+import AlphaWalletLogger
+import Combine
+import UIKit
+import WalletConnectSwift
 
 protocol WalletConnectCoordinatorDelegate: DappRequesterDelegate {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
@@ -318,7 +318,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         if Features.default.isAvailable(.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections) {
             infoLog("[WalletConnect] app-enforced timeout for waiting for new connection")
             analytics.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
-                Analytics.WalletConnectAction.connectionUrl.rawValue: url.absoluteString
+                Analytics.WalletConnectAction.connectionUrl.rawValue: url.absoluteString,
             ])
             let errorMessage = R.string.localizable.walletConnectErrorConnectionTimeoutErrorMessage()
             displayConnectionTimeout(errorMessage)
@@ -342,11 +342,11 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
             restartHandler: restartHandler,
             networkService: networkService,
             serversProvider: serversProvider)
-        .publisher()
-        .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
-            guard case .walletConnect(let server) = choise else { return .cancel }
-            return .connect(server)
-        }.replaceError(with: .cancel)
+            .publisher()
+            .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
+                guard case .walletConnect(let server) = choise else { return .cancel }
+                return .connect(server)
+            }.replaceError(with: .cancel)
             .handleEvents(receiveOutput: { response in
                 switch response {
                 case .cancel:

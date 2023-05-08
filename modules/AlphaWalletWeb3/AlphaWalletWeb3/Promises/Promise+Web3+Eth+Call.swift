@@ -10,7 +10,7 @@ import Foundation
 import PromiseKit
 
 extension Web3.Eth {
-    
+
     public func callPromise(_ transaction: EthereumTransaction, options: Web3Options, onBlock: String = "latest") -> Promise<Data> {
         do {
             guard let request = EthereumTransaction.createRequest(method: .call, transaction: transaction, onBlock: onBlock, options: options) else {

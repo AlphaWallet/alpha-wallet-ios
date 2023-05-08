@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.08.2020.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     let gasPrice: BigUInt
@@ -17,13 +17,13 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     let symbol: String
     let isSelected: Bool
     let isHidden: Bool
-    
+
     private var gasFeeString: String {
         let fee = Decimal(bigUInt: gasPrice * gasLimit, units: .ether) ?? .zero
         let feeString = NumberFormatter.shortCrypto.string(decimal: fee) ?? ""
         if let rate = rate {
             let cryptoToDollarValue = StringFormatter().currency(with: fee.doubleValue * rate.value, and: rate.currency.code)
-            return  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(rate.currency.code))"
+            return "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(rate.currency.code))"
         } else {
             return "< ~\(feeString) \(symbol)"
         }
@@ -50,7 +50,7 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     var titleAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasSpeed.title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17)
+            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17),
         ])
     }
 
@@ -59,21 +59,21 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
 
         return NSAttributedString(string: estimatedTime, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ])
     }
 
     var detailsAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ])
     }
 
     var gasPriceAttributedString: NSAttributedString? {
         NSAttributedString(string: gasPriceString, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 13),
         ])
     }
 }
@@ -90,7 +90,7 @@ struct UnavailableGasSpeedViewModel: GasSpeedViewModelType {
     var titleAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasSpeed.title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17)
+            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17),
         ])
     }
 

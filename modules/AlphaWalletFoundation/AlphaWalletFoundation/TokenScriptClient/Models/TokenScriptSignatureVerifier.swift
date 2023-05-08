@@ -1,11 +1,11 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletCore
+import AlphaWalletLogger
+import Combine
 import Foundation
 import PromiseKit
 import SwiftyJSON
-import Combine
-import AlphaWalletCore
-import AlphaWalletLogger
 
 public protocol TokenScriptSignatureVerifieble {
     func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType>
@@ -48,7 +48,7 @@ public class BaseTokenScriptStatusResolver: TokenScriptStatusResolver {
 
                     switch verificationStatus {
                     case .verified(let domainName):
-                    seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
+                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
                     case .verificationFailed:
                         seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2InvalidSignature, reason: .invalidSignature))
                     case .notCanonicalizedAndNotSigned:
@@ -191,7 +191,7 @@ class TokenScriptSignatureNetworking {
     private static let validatorBaseUrl = URL(string: Constants.TokenScript.validatorAPI)!
     private static let headers: HTTPHeaders = [
         "cache-control": "no-cache",
-        "content-type": "application/x-www-form-urlencoded"
+        "content-type": "application/x-www-form-urlencoded",
     ]
 
     struct ResponseError: Error {
@@ -255,4 +255,3 @@ extension TokenScriptSignatureNetworking.functional {
         return Dictionary(keyValuePairs, uniquingKeysWith: { $1 })
     }
 }
-

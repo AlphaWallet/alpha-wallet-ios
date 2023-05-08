@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 25.05.2022.
 //
 
-import UIKit
 import AlphaWalletLogger
+import UIKit
 
 public class RunLoopThread: Thread {
     let isRunLoopThreadLoggingEnabled: Bool = Config().development.isRunLoopThreadLoggingEnabled
 
-    public override init() {
+    override public init() {
         super.init()
         let _ = NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             self?.stop()
@@ -24,7 +24,7 @@ public class RunLoopThread: Thread {
         }
     }
 
-    public override func main() {
+    override public func main() {
         autoreleasepool {
             if isRunLoopThreadLoggingEnabled {
                 debugLog("[Thread] \(name ?? String(describing: self)) started")

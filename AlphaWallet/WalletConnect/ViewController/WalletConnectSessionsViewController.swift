@@ -1,10 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import StatefulViewController
 import AlphaWalletAddress
-import Combine
 import AlphaWalletFoundation
+import Combine
+import StatefulViewController
+import UIKit
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController)
@@ -55,7 +55,7 @@ class WalletConnectSessionsViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableView.anchorsIgnoringBottomSafeArea(to: view),
             spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-            spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
+            spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
         ])
 
         emptyView = EmptyView.walletSessionEmptyView(completion: { [weak self] in

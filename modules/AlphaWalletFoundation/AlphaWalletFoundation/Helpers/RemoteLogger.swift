@@ -1,7 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletLogger
+import Foundation
 import PaperTrailLumberjack
 
 public typealias EmailAttachment = (data: Data, mimeType: String, fileName: String)

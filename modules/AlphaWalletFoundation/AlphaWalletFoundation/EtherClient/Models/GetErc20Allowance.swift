@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
+import AlphaWalletWeb3
 import BigInt
 import Combine
-import AlphaWalletWeb3
+import Foundation
 
 class GetErc20Allowance {
     private let blockchainProvider: BlockchainProvider

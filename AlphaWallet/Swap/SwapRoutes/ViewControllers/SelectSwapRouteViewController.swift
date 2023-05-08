@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 22.09.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
 import StatefulViewController
+import UIKit
 
 final class SelectSwapRouteViewController: UIViewController {
     private let viewModel: SelectSwapRouteViewModel

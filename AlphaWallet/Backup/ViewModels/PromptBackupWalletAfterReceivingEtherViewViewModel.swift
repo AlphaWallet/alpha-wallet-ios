@@ -1,9 +1,9 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
+import BigInt
 import Foundation
 import UIKit
-import BigInt
-import AlphaWalletFoundation
 
 struct PromptBackupWalletAfterReceivingNativeCryptoCurrencyViewViewModel: PromptBackupWalletViewModel {
     let walletAddress: AlphaWallet.Address

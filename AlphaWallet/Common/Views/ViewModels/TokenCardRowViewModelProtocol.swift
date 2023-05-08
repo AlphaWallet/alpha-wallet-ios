@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 protocol TokenCardRowViewModelProtocol {
     var tokenCount: String { get }
@@ -21,7 +21,7 @@ protocol TokenCardRowViewModelProtocol {
     var isMeetupContract: Bool { get }
     var tokenScriptHtml: String { get }
     var hasTokenScriptHtml: Bool { get }
-    
+
     func streetLocalityStateCountryPublisher() -> AnyPublisher<String, Never>
     func buildingPublisher() -> AnyPublisher<String, Never>
 }

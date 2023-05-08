@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 // JSON Decoding
 public struct ABIInput: Decodable {
@@ -32,9 +32,7 @@ public struct ABIRecord: Decodable {
     var anonymous: Bool?
 }
 
-public struct EventLogJSON {
-
-}
+public struct EventLogJSON {}
 
 // Native parsing
 
@@ -140,7 +138,7 @@ public enum ABIElement {
             var memoryUsage: UInt64 {
                 switch self {
                 case .array(_, length: let length):
-                    return 32*length
+                    return 32 * length
                 default:
                     return 32
                 }
@@ -291,19 +289,19 @@ extension ABIElement.ParameterType: Equatable {
 extension ABIElement.ParameterType.StaticType: Equatable {
     public static func == (lhs: ABIElement.ParameterType.StaticType, rhs: ABIElement.ParameterType.StaticType) -> Bool {
         switch (lhs, rhs) {
-        case let (.uint(length1), .uint(length2)):
+        case (.uint(let length1), .uint(let length2)):
             return length1 == length2
-        case let (.int(length1), .int(length2)):
+        case (.int(let length1), .int(let length2)):
             return length1 == length2
         case (.address, .address):
             return true
         case (.bool, .bool):
             return true
-        case let (.bytes(length1), .bytes(length2)):
+        case (.bytes(let length1), .bytes(let length2)):
             return length1 == length2
 //        case (.function, .function):
 //            return true
-        case let (.array(type1, length1), .array(type2, length2)):
+        case (.array(let type1, let length1), .array(let type2, let length2)):
             return type1 == type2 && length1 == length2
         default:
             return false
@@ -331,7 +329,7 @@ extension ABIElement.ParameterType.StaticType: AbiValidating {
             return bits > 0 && bits <= 256 && bits % 8 == 0
         case .bytes(let length):
             return length > 0 && length <= 32
-        case let .array(type, _):
+        case .array(let type, _):
             return type.isValid
         default:
             return true
@@ -403,7 +401,7 @@ extension ABIElement.ParameterType.StaticType: AbiEncoding {
             return "bytes\(length)"
 //        case .function:
 //            return "function"
-        case let .array(type, length):
+        case .array(let type, let length):
             return "\(type.abiRepresentation)[\(length)]"
         }
     }
@@ -423,4 +421,3 @@ extension ABIElement.ParameterType.DynamicType: AbiEncoding {
         }
     }
 }
-

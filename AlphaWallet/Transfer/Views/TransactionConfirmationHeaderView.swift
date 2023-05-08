@@ -90,7 +90,7 @@ class TransactionConfirmationHeaderView: UIView {
         let col0 = nameLabel
         let col1 = [
             titleRow,
-            detailsLabel
+            detailsLabel,
         ].asStackView(axis: .vertical)
         col1.translatesAutoresizingMaskIntoConstraints = false
 
@@ -107,7 +107,7 @@ class TransactionConfirmationHeaderView: UIView {
             separatorLine,
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15),
             row0,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15)
+            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15),
         ]
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
@@ -143,7 +143,7 @@ class TransactionConfirmationHeaderView: UIView {
 
             //NOTE: set minimum height for title container view, so when there is no image, layout shouldn't be broken
             titleRow.heightAnchor.constraint(greaterThanOrEqualToConstant: 24),
-            stackView.anchorsConstraint(to: self)
+            stackView.anchorsConstraint(to: self),
         ])
 
         configure(viewModel: viewModel)
@@ -215,7 +215,7 @@ extension TransactionConfirmationHeaderView {
         label.attributedText = NSAttributedString(string: title, attributes: [
             .font: Fonts.bold(size: 17) as Any,
             .foregroundColor: AlphaWallet.Configuration.Color.Semantic.appTint,
-            .paragraphStyle: paragraph
+            .paragraphStyle: paragraph,
         ])
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentCompressionResistancePriority(.required, for: .horizontal)

@@ -6,12 +6,10 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct TypesEncoder {
-    
-}
+public struct TypesEncoder {}
 
 extension TypesEncoder {
     public static func encode(types: [ABIElement.ParameterType], parameters: [AnyObject]) -> Data? {
@@ -19,10 +17,10 @@ extension TypesEncoder {
         var head = Data()
         var tail = Data()
 //        let headExpectedLength = 32*parameters.count
-        var tailPointer = BigUInt(32)*BigUInt(types.count)
-        
+        var tailPointer = BigUInt(32) * BigUInt(types.count)
+
         for index in 0..<types.count {
-            let input  = types[index]
+            let input = types[index]
             let parameter = parameters[index]
             var encodedParameter: Data
             if let parametersArray = parameter as? [AnyObject] {
@@ -50,7 +48,7 @@ extension TypesEncoder {
         //TODO find another way
 //        guard head.count == headExpectedLength else { return nil }
         head.append(tail)
-        
+
         return head
     }
 }

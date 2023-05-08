@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 12.05.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
-import StatefulViewController
 import Combine
+import StatefulViewController
+import UIKit
 
 protocol PriceAlertsViewControllerDelegate: AnyObject {
     func editAlertSelected(in viewController: PriceAlertsViewController, alert: PriceAlert)
@@ -44,7 +44,7 @@ class PriceAlertsViewController: UIViewController {
         let stackView = [
             addNotificationView,
             UIView.separator(),
-            tableView
+            tableView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -52,9 +52,9 @@ class PriceAlertsViewController: UIViewController {
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: view),
-            addNotificationView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.Tokens.Filter.height)
+            addNotificationView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.Tokens.Filter.height),
         ])
-        
+
         emptyView = EmptyView.priceAlertsEmptyView()
     }
 
@@ -94,7 +94,7 @@ extension PriceAlertsViewController {
     private func makeDataSource() -> PriceAlertsViewModel.DataSource {
         PriceAlertsViewModel.DataSource(tableView: tableView) { [weak self] tableView, indexPath, viewModel -> PriceAlertTableViewCell in
             guard let strongSelf = self else { return PriceAlertTableViewCell() }
-            
+
             let cell: PriceAlertTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.delegate = strongSelf
             cell.configure(viewModel: viewModel)

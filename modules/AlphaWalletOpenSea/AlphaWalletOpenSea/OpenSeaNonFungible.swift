@@ -5,8 +5,8 @@
 //  Created by Hwee-Boon Yar on Apr/30/22.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import SwiftyJSON
 
 //Some fields are duplicated across token IDs within the same contract like the contractName, symbol, contractImageUrl, etc. The space savings in the database aren't work the normalization

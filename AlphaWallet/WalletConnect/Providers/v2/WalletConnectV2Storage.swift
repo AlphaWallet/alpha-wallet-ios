@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 30.05.2022.
 //
 
-import Foundation
-import Combine
-import WalletConnectSign
 import AlphaWalletCore
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import WalletConnectSign
 
 class WalletConnectV2Storage {
     enum WalletConnectStorageError: Error {
@@ -27,7 +27,7 @@ class WalletConnectV2Storage {
     func all() -> [WalletConnectV2Session] {
         storage.value
     }
-    
+
     func session(for topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws -> WalletConnectV2Session {
         let index = try indexOf(topicOrUrl)
 

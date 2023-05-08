@@ -6,16 +6,16 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct RedeemTokenCardQuantitySelectionViewModel {
     let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
     let session: WalletSession
-    
+
     var headerTitle: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenRedeemSelectQuantityTitle(tokenTypeName)

@@ -61,11 +61,11 @@ struct TokenAttributeViewModel: Equatable {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = alignment
         paragraphStyle.lineBreakMode = lineBreakMode
-        
+
         return .init(string: value, attributes: [
             .font: font,
             .foregroundColor: foregroundColor,
-            .paragraphStyle: paragraphStyle
+            .paragraphStyle: paragraphStyle,
         ])
     }
 }

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 02.06.2022.
 //
 
+import AlphaWalletCore
 import Foundation
 import UIKit
-import AlphaWalletCore
 
 public class FileAddressStorage: AddressStorage {
     private var lastCount: Int

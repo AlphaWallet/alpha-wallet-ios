@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import UIKit
 import WebKit
-import AlphaWalletFoundation
 
 protocol ClearDappBrowserCacheCoordinatorDelegate: AnyObject {
     func done(in coordinator: ClearDappBrowserCacheCoordinator)
@@ -23,19 +23,19 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
 
     func start() {
         UIAlertController.alert(title: "\(R.string.localizable.aSettingsContentsClearDappBrowserCache())?",
-                message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
-                alertButtonStyles: [.destructive, .cancel],
-                viewController: viewController,
-                completion: { choice in
-                    guard choice == 0 else {
-                        self.delegate?.didCancel(in: self)
-                        return
-                    }
-                    self.logUse()
-                    WKWebView.clearCache()
-                    self.delegate?.done(in: self)
-                })
+                                message: nil,
+                                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
+                                alertButtonStyles: [.destructive, .cancel],
+                                viewController: viewController,
+                                completion: { choice in
+                                    guard choice == 0 else {
+                                        self.delegate?.didCancel(in: self)
+                                        return
+                                    }
+                                    self.logUse()
+                                    WKWebView.clearCache()
+                                    self.delegate?.done(in: self)
+                                })
     }
 }
 

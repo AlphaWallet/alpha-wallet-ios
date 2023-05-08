@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public enum SolidityType: String {
     case address
@@ -206,4 +206,3 @@ fileprivate extension String {
         return String.regexToCheckIsValidBigInt.firstMatch(in: self, options: [], range: range) != nil
     }
 }
-

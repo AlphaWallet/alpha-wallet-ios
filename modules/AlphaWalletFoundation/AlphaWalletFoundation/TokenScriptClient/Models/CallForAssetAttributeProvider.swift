@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import PromiseKit
 import AlphaWalletWeb3
+import BigInt
+import Foundation
+import PromiseKit
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 public class CallForAssetAttributeProvider {

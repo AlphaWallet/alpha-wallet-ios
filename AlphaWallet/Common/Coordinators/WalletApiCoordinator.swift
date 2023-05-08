@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 08.06.2022.
 //
 
-import UIKit
-import Combine
-import PromiseKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import PromiseKit
+import UIKit
 
 protocol WalletApiCoordinatorDelegate: AnyObject {
     func didOpenUrl(in service: WalletApiCoordinator, redirectUrl: URL)
@@ -152,11 +152,11 @@ extension WalletApiCoordinator {
             case .success(let address):
                 components?.queryItems = queryItems + [
                     .init(name: "call", value: "connect"),
-                    .init(name: "address", value: address.eip55String)
+                    .init(name: "address", value: address.eip55String),
                 ]
             case .failure:
                 components?.queryItems = queryItems + [
-                    .init(name: "call", value: "connect")
+                    .init(name: "call", value: "connect"),
                 ]
             }
 
@@ -171,11 +171,11 @@ extension WalletApiCoordinator {
             case .success(let data):
                 components?.queryItems = queryItems + [
                     .init(name: "call", value: "signpersonalmessage"),
-                    .init(name: "signature", value: data.hexEncoded)
+                    .init(name: "signature", value: data.hexEncoded),
                 ]
             case .failure:
                 components?.queryItems = queryItems + [
-                    .init(name: "call", value: "signpersonalmessage")
+                    .init(name: "call", value: "signpersonalmessage"),
                 ]
             }
 

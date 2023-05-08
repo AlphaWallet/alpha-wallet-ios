@@ -51,7 +51,7 @@ final class SelectableSwapToolTableViewCell: UITableViewCell {
             accessoryImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20.0),
             accessoryImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             accessoryImageView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: contentView.topAnchor, multiplier: 1.0),
-            accessoryImageView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: contentView.bottomAnchor, multiplier: 1.0)
+            accessoryImageView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: contentView.bottomAnchor, multiplier: 1.0),
         ])
     }
 

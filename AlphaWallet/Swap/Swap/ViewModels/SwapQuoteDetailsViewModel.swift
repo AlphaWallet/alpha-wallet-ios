@@ -5,14 +5,12 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
-import Combine
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Combine
+import UIKit
 
-struct SwapQuoteDetailsViewModelInput {
-
-}
+struct SwapQuoteDetailsViewModelInput {}
 
 struct SwapQuoteDetailsViewModelOutput {
     let isHidden: AnyPublisher<Bool, Never>

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 struct SwapRouteReponse {
     let routes: [SwapRoute]

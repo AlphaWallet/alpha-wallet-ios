@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct SelectSwapToolViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public enum AssetAttributeSyntax: String {
     //https://tools.ietf.org/html/rfc4517
@@ -81,7 +81,7 @@ public enum AssetAttributeSyntax: String {
         case .uint(let bigUInt):
             return .string(String(bigUInt))
         case .bool(let bool):
-            return .string(bool ? "true": "false")
+            return .string(bool ? "true" : "false")
         case .generalisedTime, .subscribable, .openSeaNonFungibleTraits:
             return nil
         }

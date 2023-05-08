@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 22.03.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import AlphaWalletOpenSea
 import Combine
+import Foundation
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: Void)
 

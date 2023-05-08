@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 final class FakeTokenGroupIdentifier: TokenGroupIdentifierProtocol {
     static func identifier(tokenJsonUrl: URL) -> TokenGroupIdentifierProtocol? {

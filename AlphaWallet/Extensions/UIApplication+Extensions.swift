@@ -10,10 +10,10 @@ import UIKit
 extension UIApplication {
     var keyboardHostView: UIView? {
         windows
-        .filter { NSStringFromClass($0.classForCoder) == "UIRemoteKeyboardWindow" }
-        .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetContainerView" }
-        .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetHostView" }
-        .first
+            .filter { NSStringFromClass($0.classForCoder) == "UIRemoteKeyboardWindow" }
+            .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetContainerView" }
+            .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetHostView" }
+            .first
     }
 
     var bottomSafeAreaHeight: CGFloat {

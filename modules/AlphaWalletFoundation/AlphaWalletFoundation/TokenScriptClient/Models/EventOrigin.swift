@@ -59,7 +59,7 @@ public struct EventOrigin {
             "type": "event",
             "name": eventName,
             "anonymous": false,
-            "inputs": inputs
+            "inputs": inputs,
         ]
         let contents = result.jsonString ?? ""
         return "[\(contents)]"

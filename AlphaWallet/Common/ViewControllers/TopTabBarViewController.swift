@@ -64,7 +64,7 @@ class TopTabBarViewController: UIViewController {
 
         bottomAnchorConstraints = [
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
 
         NSLayoutConstraint.activate([
@@ -99,12 +99,12 @@ class TopTabBarViewController: UIViewController {
         let viewsHeights = views.flatMap { each -> [NSLayoutConstraint] in
             return [
                 each.widthAnchor.constraint(equalTo: view.widthAnchor),
-                each.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+                each.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ]
         }
 
         NSLayoutConstraint.activate([
-            viewsHeights
+            viewsHeights,
         ])
 
         viewControllers.forEach { $0.didMove(toParent: self) }

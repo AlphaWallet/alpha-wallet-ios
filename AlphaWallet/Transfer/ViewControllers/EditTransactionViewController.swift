@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 04.04.2023.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 class EditTransactionViewController: UIViewController {
     private lazy var gasLimitHeaderView: GasSpeedTableViewHeaderView = {
@@ -94,7 +94,7 @@ class EditTransactionViewController: UIViewController {
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.anchorsIgnoringBottomSafeArea(to: view)
+            containerView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

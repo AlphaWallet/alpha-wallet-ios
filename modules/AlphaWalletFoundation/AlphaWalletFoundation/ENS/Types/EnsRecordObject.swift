@@ -19,7 +19,7 @@ class EnsRecordObject: Object {
         self.init()
         self.uid = record.key.description
         self.creatingDate = record.date as NSDate
-        
+
         switch record.value {
         case .address(let address):
             self.addressRawValue = address.eip55String

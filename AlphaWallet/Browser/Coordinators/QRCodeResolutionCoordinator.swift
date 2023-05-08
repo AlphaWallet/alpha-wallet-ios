@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 10.09.2020.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import BigInt
 import Combine
+import Foundation
 
 enum QrCodeResolution {
     case address(address: AlphaWallet.Address, action: ScanQRCodeAction)

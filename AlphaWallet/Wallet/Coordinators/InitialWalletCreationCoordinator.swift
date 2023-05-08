@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol InitialWalletCreationCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: InitialWalletCreationCoordinator)

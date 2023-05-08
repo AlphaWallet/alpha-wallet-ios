@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletTrustWalletCoreExtensions
+import Combine
 import Foundation
 import LocalAuthentication
-import Combine
-import AlphaWalletTrustWalletCoreExtensions
 
 public protocol Keystore: AnyObject {
     var hasMigratedFromKeystoreFiles: Bool { get }
@@ -53,7 +53,7 @@ extension Keystore {
                 .replaceError(with: ())
                 .eraseToAnyPublisher()
         } else {
-            return.just(())
+            return .just(())
         }
     }
 }

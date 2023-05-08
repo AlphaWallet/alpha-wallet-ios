@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
-import BigInt
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import BigInt
+import Combine
+import UIKit
 
 struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
@@ -35,10 +35,10 @@ class NFTAssetViewModel {
     private let service: TokensProcessingPipeline
     private var actionAdapter: TokenInstanceActionAdapter {
         return TokenInstanceActionAdapter(
-           session: session,
-           token: token,
-           tokenHolder: tokenHolder,
-           tokenActionsProvider: tokenActionsProvider)
+            session: session,
+            token: token,
+            tokenHolder: tokenHolder,
+            tokenActionsProvider: tokenActionsProvider)
     }
     private var tokenHolder: TokenHolder
     private let tokenActionsProvider: SupportedTokenActionsProvider
@@ -64,7 +64,7 @@ class NFTAssetViewModel {
         case .imageView:
             let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId)
                 .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-            
+
             return .image(iconImage: .just(assetImage))
         }
     }
@@ -268,7 +268,7 @@ class NFTAssetViewModel {
             nftAssetDisplayHelper.totalSupply,
             nftAssetDisplayHelper.owners,
             nftAssetDisplayHelper.averagePrice,
-            nftAssetDisplayHelper.floorPrice
+            nftAssetDisplayHelper.floorPrice,
         ].compactMap { viewModel -> NFTAssetViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
@@ -282,28 +282,28 @@ class NFTAssetViewModel {
         if let viewModel = nftAssetDisplayHelper.descriptionViewModel {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
-                .field(viewModel: viewModel)
+                .field(viewModel: viewModel),
             ]
         }
 
         if !nftAssetDisplayHelper.attributes.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.attributes))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.attributes)),
             ]
         }
 
         if !nftAssetDisplayHelper.stats.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.stats))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.stats)),
             ]
         }
 
         if !nftAssetDisplayHelper.rankings.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.rankings))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.rankings)),
             ]
         }
 

@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public enum WalletSecurityLevel {
     case notBackedUp
@@ -35,12 +35,12 @@ public struct WalletsBackupState: Codable {
 
     public var prompt = [AlphaWallet.Address: Prompt]()
     public var backupState = [AlphaWallet.Address: BackupState]()
-    
+
     public init(prompt: [AlphaWallet.Address: Prompt] = [:], backupState: [AlphaWallet.Address: BackupState] = [:]) {
         self.prompt = prompt
         self.backupState = backupState
     }
-    
+
     public func writeTo(url: URL) {
         let encoder = JSONEncoder()
         let data = try! encoder.encode(self)

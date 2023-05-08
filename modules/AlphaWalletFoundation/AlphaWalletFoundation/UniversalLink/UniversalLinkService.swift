@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 11.11.2020.
 //
 
-import UIKit
-import Combine
 import AlphaWalletLogger
+import Combine
+import UIKit
 
 public enum UrlSource {
     case deeplink
@@ -154,7 +154,7 @@ public class BaseUniversalLinkService: UniversalLinkService {
             switch source {
             case .safariExtension:
                 analytics.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
-                    Analytics.Properties.type.rawValue: "walletConnect"
+                    Analytics.Properties.type.rawValue: "walletConnect",
                 ])
             case .mobileLinking:
                 break
@@ -201,15 +201,15 @@ extension BaseUniversalLinkService {
             switch universalLink {
             case .eip681:
                 analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
-                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.eip681.rawValue
+                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.eip681.rawValue,
                 ])
             case .walletConnect:
                 analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
-                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.walletConnect.rawValue
+                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.walletConnect.rawValue,
                 ])
             case .embeddedUrl:
                 analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
-                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.others.rawValue
+                    Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.others.rawValue,
                 ])
             case .walletApi(let type):
                 let type: String = {
@@ -221,7 +221,7 @@ extension BaseUniversalLinkService {
                     }
                 }()
                 analytics.log(action: Analytics.Action.deepLinkWalletApiCall, properties: [
-                    Analytics.Properties.type.rawValue: type
+                    Analytics.Properties.type.rawValue: type,
                 ])
             case .shareContentAction, .magicLink, .maybeFileUrl:
                 break
@@ -229,7 +229,7 @@ extension BaseUniversalLinkService {
         case .customUrlScheme:
             analytics.log(action: Analytics.Action.customUrlSchemeVisited, properties: [
                 //Custom URL scheme should actually be extracted from the `DeepLink`, but since it's a custom URL scheme the original `url` shouldn't be a deeplink embedding it, so it's a shortcut
-                Analytics.Properties.scheme.rawValue: url.scheme ?? ""
+                Analytics.Properties.scheme.rawValue: url.scheme ?? "",
             ])
         case .dappBrowser, .others:
             break

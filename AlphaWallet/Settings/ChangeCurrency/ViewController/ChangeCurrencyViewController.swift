@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol ChangeCurrencyViewControllerDelegate: AnyObject {
     func didClose(in viewController: ChangeCurrencyViewController)
@@ -38,7 +38,7 @@ class ChangeCurrencyViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraint(to: view),
         ])
     }
 
@@ -96,7 +96,7 @@ extension ChangeCurrencyViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         nil
     }

@@ -17,7 +17,7 @@ public struct EthereumSignature {
     public init(serialized: Data) {
         let bytes = [UInt8](serialized)
 
-        var v = bytes[bytes.count-1]
+        var v = bytes[bytes.count - 1]
         if v >= EthereumSigner.vitaliklizeConstant && v <= 30 {
             v -= EthereumSigner.vitaliklizeConstant
         } else if v >= 31 && v <= 34 {
@@ -83,7 +83,7 @@ fileprivate extension EIP155Signer.functional {
                 transaction.data,
                 signature.v,
                 signature.r,
-                signature.s
+                signature.s,
             ]
 
             //NOTE: avoid app crash, returns with return error, Happens when amount to send less then 0
@@ -103,7 +103,7 @@ fileprivate extension EIP155Signer.functional {
                 [],
                 signature.v,
                 signature.r,
-                signature.s
+                signature.s,
             ]
 
             guard let encodedTransaction = RLP.encode(values) else { throw SignerError.rplEncodeFailure }
@@ -169,7 +169,7 @@ fileprivate extension EIP155Signer.functional {
 }
 
 public struct HomesteadSigner: TransactionSigner {
-    public init() { }
+    public init() {}
 
     public func sign(transaction: UnsignedTransaction, privateKey: Data) throws -> Data {
         let rlpEncodedHash = try rlpEncodedHash(transaction: transaction)

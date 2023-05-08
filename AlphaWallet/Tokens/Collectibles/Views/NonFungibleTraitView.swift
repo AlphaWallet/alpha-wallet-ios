@@ -45,7 +45,7 @@ class NonFungibleTraitView: UIView {
         let stackView = [
             titleLabel,
             valueLabel,
-            countLabel
+            countLabel,
         ].asStackView(axis: .vertical, spacing: 5)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -54,7 +54,7 @@ class NonFungibleTraitView: UIView {
         NSLayoutConstraint.activate([
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets)
+            stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets),
         ])
     }
 

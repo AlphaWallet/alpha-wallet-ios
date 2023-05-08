@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class ReportUsersWalletAddresses: Service {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
-    
+
     public init(keystore: Keystore) {
         self.keystore = keystore
     }

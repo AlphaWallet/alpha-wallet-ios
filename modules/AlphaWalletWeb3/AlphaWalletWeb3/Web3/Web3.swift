@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 public enum Web3Error: Error {
@@ -71,5 +71,5 @@ public class Web3: Web3OptionsInheritable {
         public init(web3: Web3) {
             self.web3 = web3
         }
-    } 
+    }
 }

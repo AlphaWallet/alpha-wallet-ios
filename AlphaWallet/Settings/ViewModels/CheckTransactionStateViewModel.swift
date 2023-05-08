@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.03.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import AlphaWalletWeb3
+import Foundation
 
 struct CheckTransactionStateViewModel {
     private let serverSelection: ServerSelection

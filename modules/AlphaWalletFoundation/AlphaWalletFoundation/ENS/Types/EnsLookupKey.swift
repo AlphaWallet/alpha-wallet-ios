@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 06.06.2022.
 //
 
-import Foundation
 import AlphaWalletENS
+import Foundation
 
 public struct EnsLookupKey: Hashable, CustomStringConvertible {
     public let nameOrAddress: String

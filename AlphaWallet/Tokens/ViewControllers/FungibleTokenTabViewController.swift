@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 20.11.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol FungibleTokenTabViewControllerDelegate: AnyObject, CanOpenURL2 {
     func didClose(in viewController: FungibleTokenTabViewController)

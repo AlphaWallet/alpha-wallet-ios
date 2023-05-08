@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.11.2020.
 //
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 private class TransactionInProgressCoordinatorBridgeToPromise {
 
@@ -23,7 +23,7 @@ private class TransactionInProgressCoordinatorBridgeToPromise {
         let newCoordinator = TransactionInProgressCoordinator(
             presentingViewController: navigationController,
             server: server)
-        
+
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 

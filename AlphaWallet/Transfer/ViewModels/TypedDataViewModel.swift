@@ -13,14 +13,14 @@ struct TypedDataViewModel {
     var nameAttributeString: NSAttributedString {
         return .init(string: name, attributes: [
             .font: Fonts.semibold(size: 13),
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 
     var valueAttributeString: NSAttributedString {
         return .init(string: value, attributes: [
             .font: Fonts.semibold(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 

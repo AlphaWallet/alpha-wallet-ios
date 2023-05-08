@@ -89,7 +89,7 @@ class AddMultipleCustomRpcView: UIView {
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalToSystemSpacingBelow: topAnchor, multiplier: 1.0),
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
+            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
         ])
     }
 
@@ -97,7 +97,7 @@ class AddMultipleCustomRpcView: UIView {
         addSubview(activityIndicatorView)
         NSLayoutConstraint.activate([
             activityIndicatorView.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 2.0),
-            activityIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor)
+            activityIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
         ])
     }
 
@@ -123,7 +123,7 @@ class AddMultipleCustomRpcView: UIView {
         NSLayoutConstraint.activate([
             cancelButton.topAnchor.constraint(equalToSystemSpacingBelow: progressLabel.bottomAnchor, multiplier: 4.0),
             bottomAnchor.constraint(equalToSystemSpacingBelow: cancelButton.bottomAnchor, multiplier: 1.0),
-            cancelButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+            cancelButton.centerXAnchor.constraint(equalTo: centerXAnchor),
         ])
     }
 

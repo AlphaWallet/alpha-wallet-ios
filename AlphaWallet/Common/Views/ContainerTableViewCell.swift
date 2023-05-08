@@ -55,7 +55,7 @@ class ContainerTableViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             stackViewConstraints,
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
 
         background.addSubview(cellSeparators.top)
@@ -70,7 +70,7 @@ class ContainerTableViewCell: UITableViewCell {
             cellSeparators.bottom.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellSeparators.bottom.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cellSeparators.bottom.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            cellSeparators.bottom.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight)
+            cellSeparators.bottom.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
         ])
     }
 

@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit 
-import StatefulViewController
 import AlphaWalletFoundation
 import Combine
+import StatefulViewController
+import UIKit
 
 protocol TransactionsViewControllerDelegate: AnyObject {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController)

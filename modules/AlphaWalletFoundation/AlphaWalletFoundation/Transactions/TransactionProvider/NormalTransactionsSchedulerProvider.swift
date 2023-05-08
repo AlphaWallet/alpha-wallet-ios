@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
-import Foundation
-import Combine
-import CombineExt
 import AlphaWalletCore
 import BigInt
+import Combine
+import CombineExt
+import Foundation
 
 protocol NormalTransactionsSchedulerProviderDelegate: AnyObject {
     func didReceiveResponse(_ response: Swift.Result<[Transaction], PromiseError>, in provider: NormalTransactionsSchedulerProvider)
@@ -64,7 +64,7 @@ final class NormalTransactionsSchedulerProvider: SchedulerProvider {
             transactionsPagination: response.pagination,
             fetchType: .normal,
             server: session.server)
-        
+
         delegate?.didReceiveResponse(.success(response.transactions), in: self)
     }
 

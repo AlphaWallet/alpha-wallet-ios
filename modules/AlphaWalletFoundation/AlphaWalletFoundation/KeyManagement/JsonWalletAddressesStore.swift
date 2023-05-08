@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 22.01.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public struct JsonWalletAddressesStore: WalletAddressesStore {
     private static let walletsFolderForTests = "testSuiteWalletsForWalletAddresses"
@@ -36,7 +36,7 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         FileManager.default.removeAllItems(directory: directory)
     }
 
-    private struct Keys {
+    private enum Keys {
         static let walletAddresses = "walletAddresses"
     }
 
@@ -139,12 +139,12 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         }
     }
 
-    mutating private func saveWalletCollectionToFile() {
+    private mutating func saveWalletCollectionToFile() {
         guard let data = try? JSONEncoder().encode(walletAddresses) else { return }
         storage.setData(data, forKey: Keys.walletAddresses)
     }
 
-    mutating public func add(wallet: Wallet) {
+    public mutating func add(wallet: Wallet) {
         switch wallet.origin {
         case .hd:
             addToListOfEthereumAddressesWithSeed(wallet.address)
@@ -157,30 +157,30 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         }
     }
 
-    mutating private func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address) {
+    private mutating func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address) {
         watchAddresses = [watchAddresses, [address.eip55String]].flatMap { $0 }
     }
 
-    mutating private func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
+    private mutating func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
         let updatedOwnedAddresses = Array(Set(ethereumAddressesWithPrivateKeys + [address.eip55String]))
         ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
     }
 
-    mutating private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
+    private mutating func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
         ethereumAddressesWithSeed = updated
     }
 
-    mutating public func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
+    public mutating func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         ethereumAddressesProtectedByUserPresence = updated
     }
 
-    mutating private func addToListOfEthereumAddressesWithHardwareWallet(_ address: AlphaWallet.Address) {
+    private mutating func addToListOfEthereumAddressesWithHardwareWallet(_ address: AlphaWallet.Address) {
         ethereumAddressesWithHardwareWallet = [ethereumAddressesWithHardwareWallet, [address.eip55String]].flatMap { $0 }
     }
 
-    mutating public func removeAddress(_ account: Wallet) {
+    public mutating func removeAddress(_ account: Wallet) {
         ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter { $0 != account.address.eip55String }
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.03.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 protocol CheckTransactionStateCoordinatorDelegate: AnyObject {
     func didComplete(coordinator: CheckTransactionStateCoordinator)

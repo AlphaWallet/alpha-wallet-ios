@@ -1,21 +1,21 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public enum WalletFilter: Equatable {
-	case all
+    case all
     case filter(TokenFilterProtocol)
     case defi
     case governance
     case assets
-	case collectiblesOnly
-	case keyword(String)
+    case collectiblesOnly
+    case keyword(String)
 }
 
 public protocol TokenFilterProtocol {
     var objectWillChange: AnyPublisher<Void, Never> { get }
-    
+
     func filter(token: TokenFilterable) -> Bool
 }
 
@@ -39,4 +39,3 @@ public func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
         return false
     }
 }
-

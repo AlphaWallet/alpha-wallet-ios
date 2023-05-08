@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.03.2020.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol TokenScriptOverridesSupportable {
     var tokenScriptOverrides: TokenScriptOverrides? { get }
@@ -16,7 +16,7 @@ public protocol TokenBalanceSupportable {
     var balance: BalanceViewModel { get }
 }
 
-public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable { }
+public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable {}
 
 public protocol TokenSortable {
     var name: String { get }

@@ -1,8 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
+import Combine
 import Foundation
 import RealmSwift
-import Combine
 
 public final class BookmarksStore {
     private var bookmarks: Results<Bookmark> {
@@ -67,7 +67,7 @@ public final class BookmarksStore {
         try? realm.safeWrite {
             let bookmarkMoved = bookmarks[from]
             if from < to {
-                let changed = bookmarks[(from+1)...to]
+                let changed = bookmarks[(from + 1)...to]
                 for each in changed {
                     each.order -= 1
                 }

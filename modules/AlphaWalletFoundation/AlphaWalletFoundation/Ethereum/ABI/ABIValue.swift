@@ -202,4 +202,3 @@ public indirect enum ABIValue: Equatable {
         }
     }
 }
-

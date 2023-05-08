@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 28.10.2022.
 //
 
-import Foundation
 import AlphaWalletWeb3
 import BigInt
+import Foundation
 import JSONRPCKit
 
 struct BlockByNumberRequest: JSONRPCKit.Request {

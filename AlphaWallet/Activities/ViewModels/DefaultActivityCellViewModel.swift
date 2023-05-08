@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 struct DefaultActivityCellViewModel {
     private var server: RPCServer {
@@ -11,7 +11,7 @@ struct DefaultActivityCellViewModel {
     }
 
     private var cardAttributes: [AttributeId: AssetInternalValue] {
-         activity.values.card
+        activity.values.card
     }
 
     let activity: Activity

@@ -28,7 +28,7 @@ class ScrollableStackView: UIView {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
-        
+
         return scrollView
     }()
 

@@ -1,7 +1,7 @@
+import AlphaWalletFoundation
+import BigInt
 import Foundation
 import UIKit
-import BigInt
-import AlphaWalletFoundation
 
 protocol SendCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator)
@@ -61,7 +61,7 @@ class SendCoordinator: Coordinator {
     func start() {
         navigationController.pushViewController(sendViewController, animated: true)
     }
-    
+
     private func makeSendViewController() -> SendViewController {
         let viewModel = SendViewModel(
             transactionType: transactionType,
@@ -80,7 +80,7 @@ class SendCoordinator: Coordinator {
         controller.hidesBottomBarWhenPushed = true
 
         return controller
-    } 
+    }
 }
 
 extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
@@ -126,7 +126,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             keystore: keystore,
             tokensService: tokensPipeline,
             networkService: networkService)
-        
+
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendFungible)

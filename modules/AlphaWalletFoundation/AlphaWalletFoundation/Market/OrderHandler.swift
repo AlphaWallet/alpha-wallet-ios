@@ -40,16 +40,16 @@ public struct SignedOrder {
 
 extension String {
     public var hexToBytes: [UInt8] {
-		let hex: [Character]
-		if count % 2 == 0 {
-			hex = Array(self)
-		} else {
-			hex = Array(("0" + self))
-		}
-		return stride(from: 0, to: count, by: 2).compactMap {
-			UInt8(String(hex[$0..<$0.advanced(by: 2)]), radix: 16)
-		}
-	}
+        let hex: [Character]
+        if count % 2 == 0 {
+            hex = Array(self)
+        } else {
+            hex = Array(("0" + self))
+        }
+        return stride(from: 0, to: count, by: 2).compactMap {
+            UInt8(String(hex[$0..<$0.advanced(by: 2)]), radix: 16)
+        }
+    }
 }
 
 extension BinaryInteger {
@@ -85,20 +85,20 @@ public class OrderHandler {
         case .erc721ForTickets:
             for order in orders {
                 let message: [UInt8] = encodeMessageForTrade(
-                        price: order.price,
-                        expiryBuffer: order.expiry,
-                        tokenIds: order.tokenIds ?? [BigUInt](),
-                        contractAddress: order.contractAddress
+                    price: order.price,
+                    expiryBuffer: order.expiry,
+                    tokenIds: order.tokenIds ?? [BigUInt](),
+                    contractAddress: order.contractAddress
                 )
                 messages.append(Data(bytes: message))
             }
         case .erc875:
             for order in orders {
                 let message: [UInt8] = encodeMessageForTrade(
-                        price: order.price,
-                        expiryBuffer: order.expiry,
-                        indices: order.indices,
-                        contractAddress: order.contractAddress
+                    price: order.price,
+                    expiryBuffer: order.expiry,
+                    indices: order.indices,
+                    contractAddress: order.contractAddress
                 )
                 messages.append(Data(bytes: message))
             }
@@ -113,9 +113,9 @@ public class OrderHandler {
         let signatures = try await keystore.signMessageBulk(messages, for: account, prompt: prompt).get()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
-                    order: orders[i],
-                    message: messages[i].bytes,
-                    signature: signatures[i].hexString
+                order: orders[i],
+                message: messages[i].bytes,
+                signature: signatures[i].hexString
             )
             signedOrders.append(signedOrder)
         }
@@ -123,10 +123,10 @@ public class OrderHandler {
     }
 
     public func encodeMessageForTrade(
-            price: BigUInt,
-            expiryBuffer: BigUInt,
-            indices: [UInt16],
-            contractAddress: AlphaWallet.Address
+        price: BigUInt,
+        expiryBuffer: BigUInt,
+        indices: [UInt16],
+        contractAddress: AlphaWallet.Address
     ) -> [UInt8] {
         let arrayLength: Int = 84 + indices.count * 2
         var buffer = [UInt8]()
@@ -143,10 +143,10 @@ public class OrderHandler {
     }
 
     public func encodeMessageForTrade(
-            price: BigUInt,
-            expiryBuffer: BigUInt,
-            tokenIds: [BigUInt],
-            contractAddress: AlphaWallet.Address
+        price: BigUInt,
+        expiryBuffer: BigUInt,
+        tokenIds: [BigUInt],
+        contractAddress: AlphaWallet.Address
     ) -> [UInt8] {
         let arrayLength: Int = 84 + tokenIds.count * 32
         var buffer = [UInt8]()

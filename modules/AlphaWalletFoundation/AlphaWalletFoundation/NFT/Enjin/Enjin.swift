@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 26.10.2021.
 //
 
-import Foundation
+import AlphaWalletCore
 import Apollo
 import Combine
-import AlphaWalletCore
+import Foundation
 
 public final class Enjin {
     private let server: RPCServer
@@ -19,7 +19,7 @@ public final class Enjin {
                 storage: EnjinStorage,
                 accessTokenStore: EnjinAccessTokenStore,
                 credentials: EnjinCredentials?) {
-        
+
         self.storage = storage
         self.server = server
         self.networking = EnjinNetworking(

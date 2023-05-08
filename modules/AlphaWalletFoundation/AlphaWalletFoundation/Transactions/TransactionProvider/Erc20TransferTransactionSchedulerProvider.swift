@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.03.2023.
 //
 
-import Foundation
+import AlphaWalletCore
 import Combine
 import CombineExt
-import AlphaWalletCore
+import Foundation
 
 protocol Erc20TransferTransactionSchedulerDelegate: AnyObject {
     func didReceiveResponse(_ response: Result<[Transaction], PromiseError>, in provider: Erc20TransferTransactionSchedulerProvider)

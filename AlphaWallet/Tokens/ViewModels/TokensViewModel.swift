@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 struct TokensViewModelInput {
     let appear: AnyPublisher<Void, Never>
@@ -27,7 +27,7 @@ final class TokensViewModel {
     private let tokensPipeline: TokensProcessingPipeline
     private let walletConnectProvider: WalletConnectProvider
     private let walletBalanceService: WalletBalanceService
-        //Must be computed because localization can be overridden by user dynamically
+    //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
     private var cancellable = Set<AnyCancellable>()
     private let tokensFilter: TokensFilter
@@ -37,7 +37,7 @@ final class TokensViewModel {
     private (set) var walletConnectSessions: Int = 0
     private (set) var sections: [Section] = []
     private var tokenListSection: Section = .tokens
-        //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
+    //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
     private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
@@ -105,7 +105,7 @@ final class TokensViewModel {
     }
 
     var shouldShowBackupPromptViewHolder: Bool {
-            //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
+        //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filter {
         case .all, .keyword:
             return true
@@ -249,7 +249,7 @@ final class TokensViewModel {
                 .map { $0 ?? wallet.address.truncateMiddle }
                 .eraseToAnyPublisher()
         }.prepend(wallet.address.truncateMiddle)
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func pullToRefreshState(input pullToRefresh: AnyPublisher<Void, Never>) -> AnyPublisher<RefreshControlState, Never> {
@@ -442,24 +442,24 @@ final class TokensViewModel {
             return tokenOrServer(at: current.next).isRemovable
         }()
         switch (canRemovePreviousItem, canRemoveCurrentItem, canRemoveNextItem) {
-            // Truth table for deletion
-            // previous, current, next
-            // 0, 0, 0
-            // return []
-            // 0, 0, 1
-            // return []
-            // 0, 1, 0
-            // return [current.previous, current]
-            // 0, 1, 1
-            // return [current]
-            // 1, 0, 0
-            // return []
-            // 1, 0, 1
-            // return []
-            // 1, 1, 0
-            // return [current]
-            // 1, 1, 1
-            // return [current]
+        // Truth table for deletion
+        // previous, current, next
+        // 0, 0, 0
+        // return []
+        // 0, 0, 1
+        // return []
+        // 0, 1, 0
+        // return [current.previous, current]
+        // 0, 1, 1
+        // return [current]
+        // 1, 0, 0
+        // return []
+        // 1, 0, 1
+        // return []
+        // 1, 1, 0
+        // return [current]
+        // 1, 1, 1
+        // return [current]
         case (_, false, _):
             return []
         case (false, true, false):
@@ -483,7 +483,7 @@ final class TokensViewModel {
                 return TokensViewModel.SectionViewModel(section: section, views: [])
             }
 
-            let viewModels = (0 ..< numberOfItems(for: sectionIndex)).map { row -> ViewModelType in
+            let viewModels = (0..<numberOfItems(for: sectionIndex)).map { row -> ViewModelType in
                 let indexPath = IndexPath(row: row, section: sectionIndex)
                 return self.viewModel(for: indexPath)
             }
@@ -635,9 +635,9 @@ extension TokensViewModel {
     }
 }
 
-extension TokensViewModel.ViewState: Hashable { }
-extension TokensViewModel.SectionViewModel: Hashable { }
-extension TokensViewModel.ViewModelType: Hashable { }
+extension TokensViewModel.ViewState: Hashable {}
+extension TokensViewModel.SectionViewModel: Hashable {}
+extension TokensViewModel.ViewModelType: Hashable {}
 
 extension WalletFilter {
     static var orderedTabs: [WalletFilter] {

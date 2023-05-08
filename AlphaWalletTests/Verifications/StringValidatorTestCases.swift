@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 2/12/21.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class StringValidatorTestCases: XCTestCase {
     var validator: StringValidator!
@@ -117,7 +117,7 @@ class StringValidatorTestCases: XCTestCase {
     func testIllegalCharacters() throws {
         let cs1 = CharacterSet(charactersIn: "12345")
         validator = StringValidator(rules: [
-            .doesNotContain(cs1)
+            .doesNotContain(cs1),
         ])
         XCTAssert(validator.containsIllegalCharacters(string: "12345"))
         XCTAssertFalse(validator.containsIllegalCharacters(string: "67890"))

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 21.02.2023.
 //
 
-import Foundation
 import AlphaWalletCore
 import AlphaWalletFoundation
+import Foundation
 
 struct WalletConnectEip712v3And4Validator {
     let session: AlphaWallet.WalletConnect.Session

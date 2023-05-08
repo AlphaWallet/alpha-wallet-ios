@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import BigInt
+import XCTest
 
 class RLPTests: XCTestCase {
     func testStrings() {

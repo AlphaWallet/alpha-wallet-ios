@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 struct DefaultActivityViewModel {
     private var server: RPCServer {
@@ -68,12 +68,12 @@ struct DefaultActivityViewModel {
         case .pending:
             return NSAttributedString(string: string, attributes: [
                 .font: Fonts.regular(size: 28),
-                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             ])
         case .completed:
             return NSAttributedString(string: string, attributes: [
                 .font: Fonts.regular(size: 28),
-                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             ])
         case .failed:
             return NSAttributedString(string: string, attributes: [

@@ -32,7 +32,7 @@ internal func filterLogs(decodedLogs: [EventParserResultProtocol], eventFilter: 
             if keys.count < eventFilter.parameterFilters!.count {
                 return false
             }
-            for i in 0 ..< eventFilter.parameterFilters!.count {
+            for i in 0..<eventFilter.parameterFilters!.count {
                 let allowedValues = eventFilter.parameterFilters![i]
                 let actualValue = result.decodedResult["\(i)"]
                 if actualValue == nil {

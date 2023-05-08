@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.07.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private lazy var tokensAutodetector: TokensAutodetector = {

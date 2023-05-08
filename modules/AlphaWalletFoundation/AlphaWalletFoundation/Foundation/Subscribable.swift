@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.03.2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 //TODO probably should have an ID which is really good for debugging
 public struct Subscribable<T>: Equatable {

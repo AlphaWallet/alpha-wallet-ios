@@ -17,14 +17,11 @@ extension WithReusableIdentifier {
     }
 }
 
-extension UITableViewCell: WithReusableIdentifier {
-}
+extension UITableViewCell: WithReusableIdentifier {}
 
-extension UITableViewHeaderFooterView: WithReusableIdentifier {
-}
+extension UITableViewHeaderFooterView: WithReusableIdentifier {}
 
-extension UICollectionReusableView: WithReusableIdentifier {
-}
+extension UICollectionReusableView: WithReusableIdentifier {}
 
 extension UITableView {
 

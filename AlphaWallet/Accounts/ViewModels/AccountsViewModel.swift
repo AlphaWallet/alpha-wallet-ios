@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import Combine
-import UIKit
 import AlphaWalletFoundation
+import Combine
 import CombineExt
+import Foundation
+import UIKit
 
 struct AccountsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -426,6 +426,6 @@ extension AccountsViewModel {
         let animatingDifferences: Bool = false
     }
 }
-extension AccountsViewModel.AccountRowViewModel: Hashable { }
-extension AccountsViewModel.ViewModelType: Hashable { }
-extension AccountsViewModel.SectionViewModel: Hashable { }
+extension AccountsViewModel.AccountRowViewModel: Hashable {}
+extension AccountsViewModel.ViewModelType: Hashable {}
+extension AccountsViewModel.SectionViewModel: Hashable {}

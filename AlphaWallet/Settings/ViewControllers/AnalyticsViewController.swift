@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 13.01.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class AnalyticsViewController: UIViewController {
 
@@ -40,7 +40,7 @@ class AnalyticsViewController: UIViewController {
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: DataEntry.Metric.Analytics.spacing, left: 0, bottom: 0, right: 0))
+            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: DataEntry.Metric.Analytics.spacing, left: 0, bottom: 0, right: 0)),
         ])
 
         let labeledSwitchViewContainerView = TokensViewController.ContainerView<SwitchView>(subview: switchView)
@@ -52,9 +52,9 @@ class AnalyticsViewController: UIViewController {
             [
                 .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.left),
                 descriptionLabel,
-                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.right)
+                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.right),
             ].asStackView(axis: .horizontal, alignment: .center),
-            labeledSwitchViewContainerView
+            labeledSwitchViewContainerView,
         ])
         switchView.delegate = self
     }

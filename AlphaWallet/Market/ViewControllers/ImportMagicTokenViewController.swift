@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressDone(in viewController: ImportMagicTokenViewController)
@@ -9,7 +9,7 @@ protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
-    lazy private var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
+    private lazy var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .large)
@@ -213,8 +213,7 @@ extension ImportMagicTokenViewController: VerifiableStatusViewController {
     }
 
     //Just for protocol conformance. Do nothing
-    func showInfo() {
-    }
+    func showInfo() {}
 
     func open(url: URL) {
         delegate?.didPressViewContractWebPage(url, in: self)

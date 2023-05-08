@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 20.05.2022.
 //
 
-import UIKit
-import Combine
-import Charts
 import AlphaWalletFoundation
+import Charts
+import Combine
+import UIKit
 
 struct TokenHistoryChartViewModelInput {
     let selection: AnyPublisher<Int, Never>
@@ -90,7 +90,7 @@ class TokenHistoryChartViewModel {
         case .appreciate, .none:
             return Configuration.Color.Semantic.appreciation
         case .depreciate:
-            return  Configuration.Color.Semantic.depreciation
+            return Configuration.Color.Semantic.depreciation
         }
     }
 }

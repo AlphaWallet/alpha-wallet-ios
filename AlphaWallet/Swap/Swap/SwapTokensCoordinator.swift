@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 08.03.2022.
 //
 
-import UIKit
+import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
 import Combine
 import FloatingPanel
 import PromiseKit
-import BigInt
-import AlphaWalletFoundation
-import AlphaWalletCore
+import UIKit
 
 protocol SwapTokensCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator)
@@ -26,7 +26,7 @@ final class SwapTokensCoordinator: Coordinator {
         let viewController = SwapTokensViewController(viewModel: viewModel, tokenImageFetcher: tokenImageFetcher)
         viewController.navigationItem.rightBarButtonItems = [
             UIBarButtonItem.settingsBarButton(self, selector: #selector(swapConfiguratinSelected)),
-            UIBarButtonItem(customView: viewController.loadingIndicatorView)
+            UIBarButtonItem(customView: viewController.loadingIndicatorView),
         ]
         viewController.delegate = self
 

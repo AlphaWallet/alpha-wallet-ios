@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.08.2022.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletLogger
+import BigInt
+import Foundation
 
 actor SuggestEip1559 {
     /// priority fee offered when there are no recent transactions
@@ -99,7 +99,7 @@ actor SuggestEip1559 {
             baseFee[i] = baseFee[i + 1]
         }
 
-        let order: [Int] = Array(0 ... feeHistory.gasUsedRatio.count).indices.sorted {
+        let order: [Int] = Array(0...feeHistory.gasUsedRatio.count).indices.sorted {
             guard let first = baseFee[safe: $0] else { return false }
             guard let second = baseFee[safe: $1] else { return true }
             return first < second

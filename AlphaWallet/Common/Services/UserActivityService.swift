@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 27.04.2023.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Foundation
 
 protocol UserActivityHandler: AnyObject {
     func handle(_ userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
@@ -51,7 +51,7 @@ class DonationUserActivityHandler: UserActivityHandler {
             infoLog("[Shortcuts] handleIntent type: \(type)")
             if type == CameraDonation.userInfoTypeValue {
                 analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
-                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.camera.rawValue
+                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.camera.rawValue,
                 ])
 
                 navigation?.showUniversalScanner(fromSource: .siriShortcut)
@@ -59,7 +59,7 @@ class DonationUserActivityHandler: UserActivityHandler {
             }
             if type == WalletQrCodeDonation.userInfoTypeValue {
                 analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
-                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
+                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue,
                 ])
                 navigation?.showQrCode()
                 return true

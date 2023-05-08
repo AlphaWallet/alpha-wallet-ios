@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import Foundation
 
 extension TransactionConfirmationViewModel {
     class SwapTransactionViewModel: TransactionConfirmationViewModelType {
@@ -33,7 +33,7 @@ extension TransactionConfirmationViewModel {
              toToken: TokenToSwap,
              toAmount: BigUInt,
              tokensService: TokensProcessingPipeline) {
-            
+
             self.configurator = configurator
             self.fromToken = fromToken
             self.fromAmount = fromAmount

@@ -97,14 +97,14 @@ public enum WebImageURL: Codable, Hashable, Equatable, CustomStringConvertible {
 }
 
 extension String {
-    
+
     func rangeFromNSRange(nsRange: NSRange) -> Range<String.Index>? {
         return Range(nsRange, in: self)
     }
 }
 
 extension WebImageURL {
-    enum functional { }
+    enum functional {}
 }
 
 fileprivate extension WebImageURL.functional {

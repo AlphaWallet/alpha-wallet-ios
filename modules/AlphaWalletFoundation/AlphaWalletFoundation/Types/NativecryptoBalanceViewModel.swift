@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.06.2021.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 struct NativecryptoBalanceViewModel: BalanceViewModelType {
     private let _balance: BalanceRepresentable

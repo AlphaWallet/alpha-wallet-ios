@@ -6,9 +6,9 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
+import BigInt
 import Foundation
 import PromiseKit
-import BigInt
 
 extension Web3.Eth {
     public func getBalancePromise(address: EthereumAddress, onBlock: String = "latest") -> Promise<BigUInt> {

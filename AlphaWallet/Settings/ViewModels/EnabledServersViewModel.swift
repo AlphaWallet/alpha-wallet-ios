@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct EnabledServersViewModelInput {
     let selection: AnyPublisher<RPCServer, Never>
@@ -48,7 +48,7 @@ class EnabledServersViewModel {
         let servers = serversProvider.enabledServersPublisher
             .map { _ in EnabledServersCoordinator.serversOrdered }
             .map { servers -> [RPCServer] in servers.uniqued() }
-            
+
         let sections = Publishers.CombineLatest3(testnetEnabled, servers, selectedServers)
             .map { testnetsEnabled, servers, _ -> (mainnets: [RPCServer], testnets: [RPCServer]) in
                 let mainnets = Array(servers.filter { !$0.isTestnet })
@@ -70,7 +70,7 @@ class EnabledServersViewModel {
                     snapshot: self.buildSnapshot(
                         for: [
                             SectionViewModel(section: .mainnet, isEnabled: true, viewModels: mainnets),
-                            SectionViewModel(section: .testnet, isEnabled: !testnets.isEmpty, viewModels: testnets)
+                            SectionViewModel(section: .testnet, isEnabled: !testnets.isEmpty, viewModels: testnets),
                         ]))
             }
 
@@ -125,7 +125,7 @@ class EnabledServersViewModel {
         let servers = selectedServers.value
         //Defensive. Shouldn't allow no server to be selected
         guard !servers.isEmpty else { return }
-        
+
         let isUnchanged = Set(serversProvider.enabledServers) == Set(servers)
         if isUnchanged {
             //no-op

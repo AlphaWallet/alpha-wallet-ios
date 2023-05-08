@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 08.06.2021.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct WalletSummaryViewModel: Hashable {
     private let alignment: NSTextAlignment

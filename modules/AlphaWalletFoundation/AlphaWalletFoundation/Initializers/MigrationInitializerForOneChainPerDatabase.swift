@@ -19,7 +19,7 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
         self.assetDefinitionStore = assetDefinitionStore
     }
 
-// swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     public func perform() {
         config.schemaVersion = 53
         config.objectTypes = [
@@ -158,5 +158,5 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
             }
         }
     }
-// swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
 }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 enum ToolbarConfiguration {
     case buttons(type: ButtonsBarButtonType, count: Int)
@@ -21,9 +21,9 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
     private var observation: NSKeyValueObservation?
 
     weak var viewController: UIViewController?
-    @objc dynamic private (set) var buttons: [BarButton] = []
+    @objc private (set) dynamic var buttons: [BarButton] = []
     var cancellable = Set<AnyCancellable>()
-    
+
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
                 var toolbarElements: [ButtonsBarButtonType] = []
 
                 if count > moreButtonIndex {
-                    for index in (0 ..< count) {
+                    for index in (0..<count) {
                         if index < moreButtonIndex {
                             toolbarElements += [type]
                         } else if index == moreButtonIndex {
@@ -75,7 +75,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
                         }
                     }
                 } else {
-                    toolbarElements = (0 ..< count).map { _ in type }
+                    toolbarElements = (0..<count).map { _ in type }
                 }
 
                 buttonsBar.configure(.custom(types: toolbarElements))
@@ -129,7 +129,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
         return [
             leadingAnchor.constraint(equalTo: view.leadingAnchor),
             trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
     }
 }

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 14.11.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import IQKeyboardManager
-import AlphaWalletFoundation
 
 final class KeyboardInitializer: Initializer {
     func perform() {

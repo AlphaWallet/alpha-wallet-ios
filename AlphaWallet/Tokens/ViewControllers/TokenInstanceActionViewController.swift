@@ -1,12 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
-import BigInt
-import PromiseKit
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
 import Combine
+import Foundation
+import PromiseKit
+import UIKit
 
 protocol TokenInstanceActionViewControllerDelegate: AnyObject, CanOpenURL, RequestSignMessageDelegate {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
@@ -22,7 +22,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let session: WalletSession
     private let keystore: Keystore
     private let roundedBackground = RoundedBackground()
-    lazy private var tokenScriptRendererView: TokenInstanceWebView = {
+    private lazy var tokenScriptRendererView: TokenInstanceWebView = {
         let webView = TokenInstanceWebView(server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
@@ -150,10 +150,10 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
     @objc func proceed() {
         let javaScriptToCallConfirm = """
-                                      if (window.onConfirm != null) {
-                                        onConfirm()
-                                      }
-                                      """
+            if (window.onConfirm != null) {
+              onConfirm()
+            }
+            """
         tokenScriptRendererView.inject(javaScript: javaScriptToCallConfirm)
         let userEntryIds = action.attributes.values.compactMap { $0.userEntryId }
         let fetchUserEntries = userEntryIds

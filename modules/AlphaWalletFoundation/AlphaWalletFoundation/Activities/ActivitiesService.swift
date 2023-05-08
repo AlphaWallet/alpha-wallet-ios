@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 17.05.2021.
 //
 
-import Foundation
-import CoreFoundation
 import Combine
 import CombineExt
+import CoreFoundation
+import Foundation
 
 public protocol ActivitiesServiceType: AnyObject {
     var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> { get }
@@ -52,7 +52,7 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     private let activitiesGenerator: ActivitiesGenerator
-    
+
     init(sessionsProvider: SessionsProvider,
          eventsActivityDataStore: EventsActivityDataStoreProtocol,
          transactionDataStore: TransactionDataStore,
@@ -283,7 +283,7 @@ fileprivate func == (activity: Activity, operation: LocalizedOperation) -> Bool 
             return activity.nativeViewType == .nativeCryptoSent || activity.nativeViewType == .nativeCryptoReceived
         case .erc20TokenTransfer:
             return (activity.nativeViewType == .erc20Sent || activity.nativeViewType == .erc20Received) && isSameAmount() && isSameFrom() && isSameTo()
-            //TODO name seems wrong since it's checking for ERC721 approvals too
+        //TODO name seems wrong since it's checking for ERC721 approvals too
         case .erc20TokenApprove:
             return activity.nativeViewType == .erc20OwnerApproved || activity.nativeViewType == .erc20ApprovalObtained || activity.nativeViewType == .erc721OwnerApproved || activity.nativeViewType == .erc721ApprovalObtained
         case .erc721TokenTransfer, .erc1155TokenTransfer:

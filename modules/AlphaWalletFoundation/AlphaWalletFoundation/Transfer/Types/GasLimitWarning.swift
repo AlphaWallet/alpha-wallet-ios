@@ -12,4 +12,3 @@ extension TransactionConfigurator {
         case tooHighCustomGasLimit
     }
 }
-

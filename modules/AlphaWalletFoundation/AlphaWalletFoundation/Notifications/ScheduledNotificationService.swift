@@ -11,4 +11,3 @@ import UserNotifications
 public protocol ScheduledNotificationService: AnyObject {
     func schedule(notification: LocalNotification)
 }
-

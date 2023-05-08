@@ -3,25 +3,25 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class IsErc721Contract {
     private let blockchainProvider: BlockchainProvider
 
-    private struct DoesNotSupportERC165Querying {
+    private enum DoesNotSupportERC165Querying {
         static let bitizen = AlphaWallet.Address(string: "0xb891c4d89c1bf012f0014f56ce523f248a07f714")!
         static let cryptoSaga = AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!
     }
 
-    private struct DevconVISouvenir {
+    private enum DevconVISouvenir {
         static let polygon = AlphaWallet.Address(string: "0x7Db4de78E6b9A98752B56959611e4cfdA52269D2")!
         static let arbitrum = AlphaWallet.Address(string: "0x7Db4de78E6b9A98752B56959611e4cfdA52269D2")!
         static let optimism = AlphaWallet.Address(string: "0x7Db4de78E6b9A98752B56959611e4cfdA52269D2")!
         static let mainnet = AlphaWallet.Address(string: "0x7522dC5A357891B4dAEC194E285551EA5ea66d09")!
     }
 
-    private struct ERC165Hash {
+    private enum ERC165Hash {
         static let official = "0x80ac58cd"
         //https://github.com/ethereum/EIPs/commit/d164cb2031503665c7dfbb759272f63c29b2b848
         static let old = "0x6466353c"
@@ -100,7 +100,7 @@ public class IsErc721Contract {
             DevconVISouvenir.mainnet,
             DevconVISouvenir.arbitrum,
             DevconVISouvenir.optimism,
-            DevconVISouvenir.polygon
+            DevconVISouvenir.polygon,
         ]
 
         if contracts.contains(contract) {

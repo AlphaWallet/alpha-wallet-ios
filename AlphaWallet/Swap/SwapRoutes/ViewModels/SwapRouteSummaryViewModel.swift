@@ -5,13 +5,11 @@
 //  Created by Vladyslav Shepitko on 23.09.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
-struct SwapRouteSummaryViewModelInput {
-
-}
+struct SwapRouteSummaryViewModelInput {}
 
 struct SwapRouteSummaryViewModelOutput {
     let viewState: AnyPublisher<SwapRouteSummaryViewModel.ViewState, Never>
@@ -41,14 +39,14 @@ final class SwapRouteSummaryViewModel {
     private var currentPriceHeader: NSAttributedString {
         return .init(string: "Current Price", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Configuration.Color.Semantic.alternativeText
+            .foregroundColor: Configuration.Color.Semantic.alternativeText,
         ])
     }
 
     private var amountToHeader: NSAttributedString {
         return .init(string: "Amount To Swap", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Configuration.Color.Semantic.alternativeText
+            .foregroundColor: Configuration.Color.Semantic.alternativeText,
         ])
     }
 
@@ -82,7 +80,7 @@ final class SwapRouteSummaryViewModel {
     private func attributedValue(_ string: String) -> NSAttributedString {
         return .init(string: string, attributes: [
             .font: Fonts.semibold(size: 16),
-            .foregroundColor: Configuration.Color.Semantic.alternativeText
+            .foregroundColor: Configuration.Color.Semantic.alternativeText,
         ])
     }
 }

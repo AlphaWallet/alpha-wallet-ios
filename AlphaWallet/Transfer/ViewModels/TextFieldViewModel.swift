@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 25.08.2020.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 struct TextFieldViewModelInput {
     let textChanged: AnyPublisher<String?, Never>
@@ -58,7 +58,7 @@ class TextFieldViewModel {
 
         return NSAttributedString(string: string, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 13),
         ])
     }
 }

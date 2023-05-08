@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletTrustWalletCoreExtensions
+import XCTest
 
 class HDWalletTest: XCTestCase {
     private func _testComputeSeedFromEnglishMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount) {

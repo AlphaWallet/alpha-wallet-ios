@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.08.2020.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
 struct SlidableTextFieldViewModelInput {
     let sliderChanged: AnyPublisher<Float, Never>

@@ -6,9 +6,9 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Foundation
 
 public struct TokenSelection: Equatable, Hashable {
     public let tokenId: TokenId
@@ -86,7 +86,7 @@ extension TokenHolder {
                 selections.append(TokenSelection(tokenId: tokenId, value: BigUInt(newAmount)))
             }
         }
-        
+
         return self
     }
 

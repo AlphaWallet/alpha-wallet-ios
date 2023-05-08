@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 24.11.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class BlockieImageView: UIView {
     private lazy var imageView: WebImageView = {
@@ -15,7 +15,7 @@ class BlockieImageView: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         imageView.rounding = .circle
-        
+
         return imageView
     }()
 
@@ -38,7 +38,7 @@ class BlockieImageView: UIView {
         NSLayoutConstraint.activate([
             imageView.anchorsConstraint(to: self),
             imageView.widthAnchor.constraint(equalToConstant: size.width),
-            imageView.heightAnchor.constraint(equalToConstant: size.height)
+            imageView.heightAnchor.constraint(equalToConstant: size.height),
         ])
     }
 
@@ -49,7 +49,7 @@ class BlockieImageView: UIView {
         isUserInteractionEnabled = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        imageView.cornerRadius = imageSize.height/2.0
+        imageView.cornerRadius = imageSize.height / 2.0
         addSubview(imageView)
 
         NSLayoutConstraint.activate([
@@ -83,7 +83,7 @@ class BlockieImageView: UIView {
         case .none:
             imageView.setImage(url: nil)
         }
-        
+
         if hideWhenImageIsNil {
             isHidden = blockieImage == nil
         }

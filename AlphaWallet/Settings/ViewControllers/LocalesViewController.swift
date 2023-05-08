@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol LocalesViewControllerDelegate: AnyObject {
     func didSelect(locale: AppLocale, in viewController: LocalesViewController)
@@ -25,7 +25,7 @@ class LocalesViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

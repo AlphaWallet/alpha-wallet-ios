@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.02.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct SignatureConfirmationViewModel {
 
@@ -34,7 +34,7 @@ struct SignatureConfirmationViewModel {
 
     var iconUrl: URL? {
         return requester?.iconUrl
-    } 
+    }
 
     var title: String = R.string.localizable.signatureConfirmationTitle()
     var confirmationButtonTitle: String = R.string.localizable.confirmPaymentSignButtonTitle()
@@ -55,7 +55,7 @@ struct SignatureConfirmationViewModel {
 }
 
 extension SignatureConfirmationViewModel {
-    
+
     enum ViewModelType {
         case personalMessage(viewModel: MessageConfirmationViewModel)
         case eip712v3And4(viewModel: EIP712TypedDataConfirmationViewModel)
@@ -98,7 +98,7 @@ extension SignatureConfirmationViewModel {
             values = (requester?.viewModels ?? []).compactMap { $0 as? SignatureConfirmationViewModel.ViewType }
 
             return values + [
-                .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, viewState: .init(section: values.count)), availableToShowFullMessage)
+                .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, viewState: .init(section: values.count)), availableToShowFullMessage),
             ]
         }
     }
@@ -112,7 +112,7 @@ extension SignatureConfirmationViewModel {
         init(data: EIP712TypedData, requester: RequesterViewModel?) {
             self.requester = requester
             var _values: [EIP712TypedDataToKey] = []
-            
+
             if let verifyingContract = data.domainVerifyingContract, data.domainName.nonEmpty {
                 _values += [(key: data.domainName, value: .string(verifyingContract.truncateMiddle)) ]
             } else if let verifyingContract = data.domainVerifyingContract {
@@ -122,7 +122,7 @@ extension SignatureConfirmationViewModel {
             } else {
                 //no-op
             }
-            
+
             _values += data.message.keyValueRepresentationToFirstLevel
             values = _values
         }
@@ -138,7 +138,7 @@ extension SignatureConfirmationViewModel {
                     .headerWithShowButton(
                         .init(title: .normal(string), headerName: data.key, viewState: .init(section: Int(sectionIndex))),
                         true
-                    )
+                    ),
                 ]
             }
 
@@ -153,7 +153,7 @@ extension SignatureConfirmationViewModel {
         init(data: [EthTypedData], requester: RequesterViewModel?) {
             self.requester = requester
             self.typedData = data
-        } 
+        }
 
         var viewModels: [ViewType] {
             var values: [ViewType] = []
@@ -164,7 +164,7 @@ extension SignatureConfirmationViewModel {
                     .headerWithShowButton(
                         .init(title: .normal(string), headerName: typedMessage.name, viewState: .init(section: Int(sectionIndex))),
                         true
-                    )
+                    ),
                 ]
             }
 
@@ -236,11 +236,11 @@ extension EIP712TypedData.JSON {
     func formattedString(indentationLevel: Int = 0) -> NSAttributedString {
         let nameAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: Configuration.Color.Semantic.alternativeText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ]
         let valueAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ]
 
         switch self {

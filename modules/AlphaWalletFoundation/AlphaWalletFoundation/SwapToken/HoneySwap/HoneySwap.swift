@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 19.02.2021.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     public var objectWillChange: AnyPublisher<Void, Never> {
@@ -32,7 +32,7 @@ public class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         components.path = method.rawValue
         components.queryItems = [
             URLQueryItem(name: Version.key, value: version.rawValue),
-            URLQueryItem(name: Theme.key, value: theme.rawValue)
+            URLQueryItem(name: Theme.key, value: theme.rawValue),
         ]
 
         //NOTE: URLComponents doesn't allow path to contain # symbol
@@ -79,7 +79,7 @@ public class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
                 ]
             case .input(let address):
                 return [
-                    .init(name: Keys.input, value: address.eip55String)
+                    .init(name: Keys.input, value: address.eip55String),
                 ]
             case .none:
                 return []

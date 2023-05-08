@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 //Use the wallet name which the user has set, otherwise fallback to ENS, if available
 public class GetWalletName {

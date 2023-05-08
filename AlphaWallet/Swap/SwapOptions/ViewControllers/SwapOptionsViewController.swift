@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
 import StatefulViewController
+import UIKit
 
 protocol SwapOptionsViewControllerDelegate: AnyObject {
     func choseSwapToolSelected(in controller: SwapOptionsViewController)
@@ -79,13 +79,13 @@ class SwapOptionsViewController: UIViewController {
             .spacer(height: 10),
             networkHeaderView.adjusted(),
             .spacer(height: 10),
-            tableView
+            tableView,
         ])
 
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.anchorsIgnoringBottomSafeArea(to: view)
+            containerView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 
@@ -101,7 +101,7 @@ class SwapOptionsViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
-    } 
+    }
 
     required init?(coder: NSCoder) {
         return nil

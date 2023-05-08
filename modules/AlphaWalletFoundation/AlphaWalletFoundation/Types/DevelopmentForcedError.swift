@@ -4,7 +4,7 @@ import Foundation
 
 public struct DevelopmentForcedError: LocalizedError {
     public let message: String
-    
+
     public init(message: String) {
         self.message = message
     }

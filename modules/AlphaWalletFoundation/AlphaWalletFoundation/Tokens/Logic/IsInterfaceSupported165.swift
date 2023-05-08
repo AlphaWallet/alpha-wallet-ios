@@ -2,9 +2,9 @@
 // Created by James Sangalli on 20/11/19.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public class IsInterfaceSupported165 {
     private let fileName: String

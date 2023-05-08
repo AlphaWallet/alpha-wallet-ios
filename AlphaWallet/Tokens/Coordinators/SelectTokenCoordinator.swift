@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol SelectTokenCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token)
@@ -57,7 +57,7 @@ class SelectTokenCoordinator: Coordinator {
     private let filter: WalletFilter
     private let tokensFilter: TokensFilter
     private let tokensService: TokensService
-    
+
     lazy var navigationController = NavigationController(rootViewController: rootViewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
@@ -84,7 +84,7 @@ class SelectTokenCoordinator: Coordinator {
     func start() {
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentsNavigationController.present(navigationController, animated: true)
-    } 
+    }
 
     @objc private func closeDidSelect(_ sender: UIBarButtonItem) {
         close()

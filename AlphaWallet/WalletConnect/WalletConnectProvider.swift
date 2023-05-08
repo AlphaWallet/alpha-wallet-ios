@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 09.11.2021.
 //
 
-import Foundation
-import Combine
-import CombineExt
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
-import AlphaWalletCore
+import Combine
+import CombineExt
+import Foundation
 
 protocol WalletConnectProviderDelegate: AnyObject, DappRequesterDelegate {
     func provider(_ provider: WalletConnectProvider,
@@ -284,9 +284,9 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 requester: requester,
                 transaction: transaction,
                 configuration: .walletConnect(confirmType: .sign, requester: requester))
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+                .mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .sendTransaction(let transaction):
             return dappRequestProvider.requestSendTransaction(
                 session: walletSession,
@@ -294,9 +294,9 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 requester: requester,
                 transaction: transaction,
                 configuration: .walletConnect(confirmType: .signThenSend, requester: requester))
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value(Data(_hex: $0.id)) }
-            .eraseToAnyPublisher()
+                .mapError { WalletConnectError(error: $0) }
+                .map { .value(Data(_hex: $0.id)) }
+                .eraseToAnyPublisher()
         case .signMessage(let hexMessage):
             return validateMessage(session: session, message: .message(hexMessage.asSignableMessageData), source: request.source)
                 .flatMap { _ in
@@ -351,16 +351,16 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 source: .walletConnect,
                 requester: requester,
                 transaction: transaction)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value(Data(_hex: $0)) }
-            .eraseToAnyPublisher()
+                .mapError { WalletConnectError(error: $0) }
+                .map { .value(Data(_hex: $0)) }
+                .eraseToAnyPublisher()
         case .getTransactionCount:
             return dappRequestProvider.requestGetTransactionCount(
                 session: walletSession,
                 source: request.source)
-            .mapError { WalletConnectError(error: $0) }
-            .map { .value($0) }
-            .eraseToAnyPublisher()
+                .mapError { WalletConnectError(error: $0) }
+                .map { .value($0) }
+                .eraseToAnyPublisher()
         case .walletAddEthereumChain(let object):
             return addCustomChain(object: object, request: request, walletConnectSession: session)
         case .walletSwitchEthereumChain(let object):
@@ -370,7 +370,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
     // swiftlint:enable function_body_length
 }
 
-class JumpBackToPreviousApp {
+enum JumpBackToPreviousApp {
     static func goBack(forWalletConnectAction action: AlphaWallet.WalletConnect.Action) {
         if action.type.shouldGoBackToPreviousAppAfterAction {
             _ = UIApplication.shared.goBackToPreviousAppIfAvailable()

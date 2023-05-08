@@ -72,7 +72,7 @@ fileprivate func parseFunction(abiRecord: ABIRecord) throws -> ABIElement.Functi
 
     let name = abiRecord.name ?? ""
     let payable = abiRecord.stateMutability != nil ?
-    (abiRecord.stateMutability == "payable" || abiRecord.payable!) : false
+        (abiRecord.stateMutability == "payable" || abiRecord.payable!) : false
     let constant = (abiRecord.constant! || abiRecord.stateMutability == "view" || abiRecord.stateMutability == "pure")
 
     return ABIElement.Function(name: name, inputs: abiInputs, outputs: abiOutputs, constant: constant, payable: payable)
@@ -122,14 +122,14 @@ extension ABIInput {
         let paramType = try parseType(from: self.type)
         return ABIElement.Function.Input(name: name ?? "", type: paramType)
     }
-    
+
     func parseForEvent() throws -> ABIElement.Event.Input {
         let paramType = try parseType(from: self.type)
         return ABIElement.Event.Input(name: self.name ?? "", type: paramType, indexed: self.indexed ?? false)
     }
 }
 
-public struct ABITypeParser {
+public enum ABITypeParser {
     public static func parseTypeString(_ string: String) throws -> ABIElement.ParameterType {
         return try parseType(from: string)
     }
@@ -146,7 +146,7 @@ fileprivate func parseType(from string: String) throws -> ABIElement.ParameterTy
     return foundType
 }
 
-    /// Types that are "atomic" can be matched exactly to these strings
+/// Types that are "atomic" can be matched exactly to these strings
 fileprivate enum ExactMatchParameterType: String {
     // Static Types
     case address
@@ -154,17 +154,17 @@ fileprivate enum ExactMatchParameterType: String {
     case int
     case bool
     case function
-    
+
     // Dynamic Types
     case bytes
     case string
 }
 
 fileprivate func exactMatchType(from string: String, length: UInt64? = nil, staticArrayLength: UInt64? = nil) -> ABIElement.ParameterType? {
-        // Check all the exact matches by trying to create a ParameterTypeKey from it.
+    // Check all the exact matches by trying to create a ParameterTypeKey from it.
     switch ExactMatchParameterType(rawValue: string) {
-        
-            // Static Types
+
+    // Static Types
     case .address?:
         return .staticABIType(.address)
     case .uint?:
@@ -175,8 +175,8 @@ fileprivate func exactMatchType(from string: String, length: UInt64? = nil, stat
         return .staticABIType(.bool)
             //    case .function?:
             //        return .staticABIType(.function)
-        
-            // Dynamic Types
+
+    // Dynamic Types
     case .bytes?:
         if length != nil { return .staticABIType(.bytes(length: UInt64(length!))) }
         return .dynamicABIType(.bytes)
@@ -224,7 +224,7 @@ fileprivate func arrayMatch(from string: String) throws -> ABIElement.ParameterT
     guard match[0].numberOfRanges >= 4 else { return nil }
     var arrayOfRanges = [NSRange]()
     var totallyIsDynamic = false
-    for i in 3 ..< match[0].numberOfRanges {
+    for i in 3..<match[0].numberOfRanges {
         let t = Range(match[0].range(at: i), in: string)
         if t == nil && i > 3 {
             continue

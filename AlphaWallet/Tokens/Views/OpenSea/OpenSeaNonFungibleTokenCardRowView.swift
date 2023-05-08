@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 protocol OpenSeaNonFungibleTokenCardRowViewDelegate: AnyObject {
     func didTapURL(url: URL)
@@ -21,19 +21,19 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()
     private let spacers = (
-            aboveTitle: UIView.spacer(height: 20),
-            atTop: UIView.spacer(height: 20),
-            belowDescription: UIView.spacer(height: 20),
-            belowState: UIView.spacer(height: 10),
-            aboveHorizontalSubtitleStackView: UIView.spacer(height: 20),
-            belowHorizontalSubtitleStackView: UIView.spacer(height: 20),
-            belowVerticalSubtitleStackView: UIView.spacer(height: 16),
-            belowAttributesLabel: UIView.spacer(height: 20),
-            aboveStatsLabel: UIView.spacer(height: 20),
-            belowStatsLabel: UIView.spacer(height: 20),
-            aboveRankingsLabel: UIView.spacer(height: 20),
-            belowRankingsLabel: UIView.spacer(height: 20),
-            atBottom: UIView.spacer(height: 16)
+        aboveTitle: UIView.spacer(height: 20),
+        atTop: UIView.spacer(height: 20),
+        belowDescription: UIView.spacer(height: 20),
+        belowState: UIView.spacer(height: 10),
+        aboveHorizontalSubtitleStackView: UIView.spacer(height: 20),
+        belowHorizontalSubtitleStackView: UIView.spacer(height: 20),
+        belowVerticalSubtitleStackView: UIView.spacer(height: 16),
+        belowAttributesLabel: UIView.spacer(height: 20),
+        aboveStatsLabel: UIView.spacer(height: 20),
+        belowStatsLabel: UIView.spacer(height: 20),
+        aboveRankingsLabel: UIView.spacer(height: 20),
+        belowRankingsLabel: UIView.spacer(height: 20),
+        atBottom: UIView.spacer(height: 16)
     )
     private let outerHorizontalMargin = CGFloat(21)
     private let backgroundCornerRadius = DataEntry.Metric.CornerRadius.box
@@ -60,7 +60,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var attributesCollectionViewHeightConstraint = attributesCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var attributesCollectionViewHeightConstraint = attributesCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let rankingsLabel = UILabel()
     private let rankingsCollectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
@@ -70,7 +70,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var rankingsCollectionViewHeightConstraint = rankingsCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var rankingsCollectionViewHeightConstraint = rankingsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let statsLabel = UILabel()
     private let statsCollectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
@@ -80,13 +80,13 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let urlButton = UIButton(type: .system)
     private let urlButtonHolder = [].asStackView(axis: .horizontal, alignment: .leading)
     private var viewModel: OpenSeaNonFungibleTokenCardRowViewModel?
     private var thumbnailRelatedConstraints = [NSLayoutConstraint]()
     //Sets a default which is ignored. At runtime, we recalculate constant based on image's aspect ratio so the image can always fill the width
-    lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
+    private lazy var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
     private var bigImageRelatedConstraints = [NSLayoutConstraint]()
     private var bigImageViewRelatedConstraintsWithPositiveBleed = [NSLayoutConstraint]()
     private var bigImageViewRelatedConstraintsWithNegativeBleed = [NSLayoutConstraint]()
@@ -157,7 +157,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         setupLayout()
     }
 
-// swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     private func setupLayout() {
         addSubview(background)
 
@@ -175,7 +175,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         let cooldownStackView = [verticalCooldownIconImageView, verticalSubtitle2And3Label].asStackView(spacing: 0, contentHuggingPriority: .required)
         verticalSubtitleStackView.addArrangedSubviews([
             generationStackView,
-            cooldownStackView
+            cooldownStackView,
         ])
         titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         descriptionLabel.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -221,7 +221,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             bigImageHolder,
             bodyStackView,
             urlButtonHolder,
-            spacers.atBottom
+            spacers.atBottom,
         ])
         mainVerticalStackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(mainVerticalStackView)
@@ -343,7 +343,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             spacers.atBottom,
         ]
     }
-// swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -358,7 +358,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: areDetailsVisible, width: width))
     }
 
-// swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     func configure(viewModel: OpenSeaNonFungibleTokenCardRowViewModel) {
         self.viewModel = viewModel
 
@@ -545,7 +545,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         spacers.aboveStatsLabel.isHidden = viewModel.isStatsTitleHidden
         spacers.belowStatsLabel.isHidden = viewModel.isStatsTitleHidden
     }
-// swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
 
     //So collection views know the width to calculate their "full" height so they don't need to scroll
     private func relayoutParent(withWidth width: CGFloat) {
@@ -600,8 +600,8 @@ extension OpenSeaNonFungibleTokenCardRowView: UICollectionViewDataSource {
                 nameAndValues = viewModel.stats[indexPath.row]
             }
             cell.configure(viewModel: .init(
-                    name: nameAndValues.name,
-                    value: nameAndValues.value
+                name: nameAndValues.name,
+                value: nameAndValues.value
             ))
         }
         return cell

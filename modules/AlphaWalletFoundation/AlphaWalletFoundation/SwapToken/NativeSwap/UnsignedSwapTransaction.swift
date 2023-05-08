@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct UnsignedSwapTransaction: Codable {
     private enum Keys: String, CodingKey {

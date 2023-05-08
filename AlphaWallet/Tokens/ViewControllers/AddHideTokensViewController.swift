@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import StatefulViewController
-import Combine
 import AlphaWalletFoundation
+import Combine
+import StatefulViewController
+import UIKit
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
@@ -31,7 +31,7 @@ class AddHideTokensViewController: UIViewController {
     private lazy var tokenFilterView: DropDownView<SortTokensParam> = {
         let view = DropDownView(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
         view.delegate = self
-        
+
         return view
     }()
     private var bottomConstraint: NSLayoutConstraint!
@@ -54,7 +54,7 @@ class AddHideTokensViewController: UIViewController {
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
             let addressString = strongSelf.searchController.searchBar.text ?? ""
             delegate.didPressAddToken(in: strongSelf, with: addressString)
-        }) 
+        })
 
         view.addSubview(tableView)
 
@@ -65,7 +65,7 @@ class AddHideTokensViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomConstraint
+            bottomConstraint,
         ])
     }
 

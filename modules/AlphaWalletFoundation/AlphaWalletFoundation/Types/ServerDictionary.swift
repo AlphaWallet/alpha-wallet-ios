@@ -19,7 +19,7 @@ public struct ServerDictionary<T> {
     public var keys: Set<RPCServer> {
         Set(backingStore.keys)
     }
-    public init() { }
+    public init() {}
 
     public mutating func remove(at key: RPCServer) {
         backingStore.removeValue(forKey: key)

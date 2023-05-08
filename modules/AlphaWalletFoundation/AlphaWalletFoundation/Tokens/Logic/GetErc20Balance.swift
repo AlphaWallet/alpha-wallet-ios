@@ -1,10 +1,10 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
+import AlphaWalletCore
+import AlphaWalletWeb3
 import BigInt
 import Combine
-import AlphaWalletWeb3
-import AlphaWalletCore
+import Foundation
 
 final class GetErc20Balance {
     private var inFlightPublishers: [String: AnyPublisher<BigUInt, SessionTaskError>] = [:]

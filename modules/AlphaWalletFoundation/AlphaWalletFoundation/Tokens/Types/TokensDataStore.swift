@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
-import RealmSwift
 import Combine
+import Foundation
+import RealmSwift
 
 public enum DataStoreError: Error {
     case objectTypeMismatch
@@ -56,11 +56,11 @@ extension TokensDataStore {
     func enabledTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
         return tokensChangesetPublisher(for: servers)
             .map { changeset in
-                  switch changeset {
-                  case .initial(let tokens): return tokens
-                  case .update(let tokens, _, _, _): return tokens
-                  case .error: return []
-                  }
+                switch changeset {
+                case .initial(let tokens): return tokens
+                case .update(let tokens, _, _, _): return tokens
+                case .error: return []
+                }
             }.eraseToAnyPublisher()
     }
 }
@@ -635,20 +635,20 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             contractPredicate(contract: contract),
             isDisabledPredicate(isDisabled: isDisabled),
-            chainIdPredicate(servers: [server])
+            chainIdPredicate(servers: [server]),
         ])
     }
 
     static func tokenPredicate(server: RPCServer, contract: AlphaWallet.Address) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             contractPredicate(contract: contract),
-            chainIdPredicate(servers: [server])
+            chainIdPredicate(servers: [server]),
         ])
     }
 
     static func tokenPredicate(contract: AlphaWallet.Address) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
-            contractPredicate(contract: contract)
+            contractPredicate(contract: contract),
         ])
     }
 
@@ -656,7 +656,7 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isDisabledPredicate(isDisabled: isDisabled),
             chainIdPredicate(servers: servers),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
@@ -664,26 +664,26 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isDisabledPredicate(isDisabled: isDisabled),
             chainIdPredicate(servers: servers),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
     static func nonEmptyContractTokenPredicate(server: RPCServer) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(servers: [server]),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
     public static func etherToken(forServer server: RPCServer) -> Token {
         return Token(
-                contract: Constants.nativeCryptoAddressInDatabase,
-                server: server,
-                name: server.name,
-                symbol: server.symbol,
-                decimals: server.decimals,
-                value: .zero,
-                type: .nativeCryptocurrency
+            contract: Constants.nativeCryptoAddressInDatabase,
+            server: server,
+            name: server.name,
+            symbol: server.symbol,
+            decimals: server.decimals,
+            value: .zero,
+            type: .nativeCryptocurrency
         )
     }
 

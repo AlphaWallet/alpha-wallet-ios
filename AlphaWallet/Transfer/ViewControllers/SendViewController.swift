@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol SendViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
@@ -70,12 +70,12 @@ class SendViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             amountHeader,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 16),
             amountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
             recipientHeader,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
-            targetAddressTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16))
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 16),
+            targetAddressTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
         ])
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)

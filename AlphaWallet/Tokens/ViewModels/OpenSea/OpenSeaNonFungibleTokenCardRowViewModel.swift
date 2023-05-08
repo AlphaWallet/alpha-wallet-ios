@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct OpenSeaNonFungibleTokenCardRowViewModel {
     private let tokenHolder: TokenHolder
@@ -57,7 +57,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var stateFont: UIFont {
-        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 10: 12)
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 10 : 12)
     }
 
     var detailsFont: UIFont {

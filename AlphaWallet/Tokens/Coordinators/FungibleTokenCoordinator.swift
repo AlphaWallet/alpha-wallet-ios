@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 protocol FungibleTokenCoordinatorDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: FungibleTokenCoordinator)
@@ -94,7 +94,7 @@ class FungibleTokenCoordinator: Coordinator {
 
         navigationController.pushViewController(rootViewController, animated: true)
     }
-    
+
     private func buildViewController(tabBarItem: FungibleTokenTabViewModel.TabBarItem) -> UIViewController {
         switch tabBarItem {
         case .details:
@@ -115,7 +115,7 @@ class FungibleTokenCoordinator: Coordinator {
             sessionsProvider: sessionsProvider,
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher)
-        
+
         viewController.delegate = self
 
         //FIXME: replace later with moving it to `ActivitiesViewController`
@@ -125,7 +125,7 @@ class FungibleTokenCoordinator: Coordinator {
             .sink { [viewController] in
                 viewController.configure(viewModel: $0.activitiesViewModel)
             }.store(in: &cancelable)
-        
+
         activitiesService.start()
 
         return viewController
@@ -149,7 +149,7 @@ class FungibleTokenCoordinator: Coordinator {
             tokenActionsProvider: tokenActionsProvider,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher)
-        
+
         let viewController = FungibleTokenDetailsViewController(viewModel: viewModel)
         viewController.delegate = self
 

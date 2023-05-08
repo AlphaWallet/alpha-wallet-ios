@@ -17,7 +17,7 @@ class HelpContentsViewController: StaticHTMLViewController {
         footer.addSubview(banner)
 
         NSLayoutConstraint.activate([
-            banner.anchorsConstraint(to: footer)
+            banner.anchorsConstraint(to: footer),
         ])
 
         configure()
@@ -38,4 +38,3 @@ extension HelpContentsViewController: ContactUsBannerViewDelegate {
         present(viewController, animated: true)
     }
 }
-

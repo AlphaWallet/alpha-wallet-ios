@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 10.03.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import RealmSwift
 
 class GasPriceObject: Object {

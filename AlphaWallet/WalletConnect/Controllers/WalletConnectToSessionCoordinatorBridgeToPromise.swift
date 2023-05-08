@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.02.2021.
 //
 
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
 
 private class AcceptProposalCoordinatorBridgeToPromise {
 

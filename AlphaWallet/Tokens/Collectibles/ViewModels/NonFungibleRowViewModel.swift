@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 15.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder
@@ -39,7 +39,7 @@ struct NonFungibleRowViewModel {
 
         return .init(string: string, attributes: [
             .font: titleFont,
-            .foregroundColor: titleColor
+            .foregroundColor: titleColor,
         ])
     }
 
@@ -47,7 +47,7 @@ struct NonFungibleRowViewModel {
         let assetCount = Int(tokenHolder.values(tokenId: tokenId)?.valueIntValue ?? 0)
         return .init(string: R.string.localizable.semifungiblesAssetsCount(assetCount), attributes: [
             .font: Screen.TokenCard.Font.subtitle,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 
@@ -55,12 +55,12 @@ struct NonFungibleRowViewModel {
         self.tokenHolder = tokenHolder
         self.tokenId = tokenId
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
-    } 
+    }
 
     var assetImage: TokenImagePublisher {
         let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s300)
             .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-        
+
         return .just(assetImage)
     }
 }

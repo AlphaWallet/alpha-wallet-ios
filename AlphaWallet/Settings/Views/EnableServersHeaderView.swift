@@ -45,7 +45,7 @@ class EnableServersHeaderView: UIView {
 
     func configure(mode: EnabledServersViewModel.Mode, isEnabled: Bool, isToggleHidden: Bool = false) {
         self.mode = mode
-        backgroundColor  = Configuration.Color.Semantic.tableViewHeaderBackground
+        backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
 
         label.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
         label.textColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
@@ -59,7 +59,7 @@ class EnableServersHeaderView: UIView {
     func toggle(isEnabled: Bool) {
         toggle.isOn = isEnabled
     }
-    
+
     @objc private func toggled() {
         delegate?.toggledTo(toggle.isOn, headerView: self)
     }

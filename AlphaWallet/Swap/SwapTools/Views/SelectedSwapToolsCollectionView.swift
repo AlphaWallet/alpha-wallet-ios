@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import UIKit
 import Combine
 import StatefulViewController
+import UIKit
 
 final class SelectedSwapToolsCollectionView: UIView {
     private let collectionView: UICollectionView = {
@@ -21,13 +21,13 @@ final class SelectedSwapToolsCollectionView: UIView {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(SwapToolCollectionViewCell.self)
         collectionView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        
+
         return collectionView
     }()
     private lazy var dataSource: SelectedSwapToolsCollectionViewModel.DataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()
     private static let fallbackHeight: CGFloat = 60
-    lazy private var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
+    private lazy var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
     private let viewModel: SelectedSwapToolsCollectionViewModel
     private let willAppear: AnyPublisher<Void, Never>
 
@@ -39,7 +39,7 @@ final class SelectedSwapToolsCollectionView: UIView {
         addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.anchorsConstraint(to: self, edgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0)),
-            collectionViewHeightConstraint
+            collectionViewHeightConstraint,
         ])
 
         collectionView.publisher(for: \.contentSize)

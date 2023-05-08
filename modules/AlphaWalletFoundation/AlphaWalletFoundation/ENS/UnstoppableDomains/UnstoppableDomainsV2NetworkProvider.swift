@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 23.09.2022.
 //
 
+import AlphaWalletCore
+import AlphaWalletENS
+import AlphaWalletLogger
 import Combine
 import SwiftyJSON
-import AlphaWalletENS
-import AlphaWalletCore
-import AlphaWalletLogger
 
 struct UnstoppableDomainsV2NetworkProvider {
     private let networkService: NetworkService
@@ -83,7 +83,7 @@ struct UnstoppableDomainsV2NetworkProvider {
                 "owners": address.eip55String,
                 "sortBy": "id",
                 "sortDirection": "DESC",
-                "perPage": 50
+                "perPage": 50,
             ]).appending(httpHeaders: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
         }
     }

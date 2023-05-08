@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import BigInt
 import Foundation
-import AlphaWalletFoundation
 
 struct TransactionRowCellViewModel {
     private let transactionRow: TransactionRow

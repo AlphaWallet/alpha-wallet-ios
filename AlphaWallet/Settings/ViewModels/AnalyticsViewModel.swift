@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 13.01.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class AnalyticsViewModel {
     private var config: Config
-    
+
     var image: UIImage? = R.image.iconsIllustrationsAnalytics()
     var title: String = R.string.localizable.analyticsNavigationTitle()
     var attributedDescriptionString: NSAttributedString {

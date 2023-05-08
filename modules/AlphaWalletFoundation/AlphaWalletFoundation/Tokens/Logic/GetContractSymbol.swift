@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import AlphaWalletWeb3
 import AlphaWalletCore
+import AlphaWalletWeb3
 import Combine
+import Foundation
 
 final class GetContractSymbol {
     private var inFlightPromises: [String: AnyPublisher<String, SessionTaskError>] = [:]

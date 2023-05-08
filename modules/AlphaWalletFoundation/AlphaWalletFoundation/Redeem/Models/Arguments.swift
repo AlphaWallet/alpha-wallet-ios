@@ -12,7 +12,7 @@ public struct Arguments: Codable {
     var from: String
     var to: String
     var indices: [UInt16]
-    
+
     enum CodingKeys: String, CodingKey {
         case from = "_from"
         case to = "_to"

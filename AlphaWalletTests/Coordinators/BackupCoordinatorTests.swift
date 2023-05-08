@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 extension PromptBackup {
     static func make(walletBalanceProvidable: WalletBalanceProvidable = MultiWalletBalanceService(currencyService: .make())) -> PromptBackup {
@@ -30,11 +30,11 @@ class BackupCoordinatorTests: XCTestCase {
 
     func testStartWithKeystoreWallet() {
         let coordinator = BackupCoordinator(
-                navigationController: FakeNavigationController(),
-                keystore: FakeEtherKeystore(wallets: [.make(origin: .privateKey)]),
-                account: .make(origin: .privateKey),
-                analytics: FakeAnalyticsService(),
-                promptBackup: .make())
+            navigationController: FakeNavigationController(),
+            keystore: FakeEtherKeystore(wallets: [.make(origin: .privateKey)]),
+            account: .make(origin: .privateKey),
+            analytics: FakeAnalyticsService(),
+            promptBackup: .make())
         coordinator.start()
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is KeystoreBackupIntroductionViewController)

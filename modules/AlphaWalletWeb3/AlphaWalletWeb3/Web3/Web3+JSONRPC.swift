@@ -6,10 +6,10 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct Counter {
+public enum Counter {
     public static var counter = UInt64(1)
     public static var lockQueue = DispatchQueue(label: "counterQueue")
     public static func increment() -> UInt64 {
@@ -34,14 +34,14 @@ public struct JSONRPCrequest: Encodable {
         self.method = method
         self.params = params
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case jsonrpc
         case method
         case params
         case id
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(jsonrpc, forKey: .jsonrpc)
@@ -49,7 +49,7 @@ public struct JSONRPCrequest: Encodable {
         try container.encode(params, forKey: .params)
         try container.encode(id, forKey: .id)
     }
-    
+
     public var isValid: Bool {
         return method.requiredNumOfParameters == self.params.params.count
     }
@@ -75,21 +75,21 @@ public struct JSONRPCresponse: Decodable {
     public var result: Any?
     public var error: ErrorMessage?
     public var message: String?
-    
+
     enum JSONRPCresponseKeys: String, CodingKey {
         case id
         case jsonrpc
         case result
         case error
     }
-    
+
     public init(id: Int, jsonrpc: String, result: Any?, error: ErrorMessage?) {
         self.id = id
         self.jsonrpc = jsonrpc
         self.result = result
         self.error = error
     }
-    
+
     public struct ErrorMessage: Decodable {
         enum Keys: String, CodingKey {
             case code
@@ -112,8 +112,8 @@ public struct JSONRPCresponse: Decodable {
             data = try container.decodeIfPresent(String.self, forKey: .data)
             message = try container.decode(String.self, forKey: .message)
         }
-    } 
-    
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: JSONRPCresponseKeys.self)
         let id: Int = try container.decode(Int.self, forKey: .id)
@@ -159,7 +159,7 @@ public struct JSONRPCresponse: Decodable {
             self.init(id: id, jsonrpc: jsonrpc, result: result, error: nil)
         }
     }
-    
+
     public func getValue<T>() -> T? {
         let slf = T.self
         if slf == BigUInt.self {
@@ -235,7 +235,7 @@ public struct JSONRPCresponse: Decodable {
 
 public struct JSONRPCresponseBatch: Decodable {
     var responses: [JSONRPCresponse]
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let responses = try container.decode([JSONRPCresponse].self)
@@ -250,7 +250,7 @@ public struct TransactionParameters: Codable {
     public var gasPrice: String?
     public var to: String?
     public var value: String? = "0x0"
-    
+
     public init(from: String?, to: String?) {
         self.from = from
         self.to = to
@@ -270,7 +270,7 @@ public struct JSONRPCparams: Encodable {
     public init(params: [Any]) {
         self.params = params
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for par in params {

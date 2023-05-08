@@ -3,9 +3,8 @@
 import Foundation
 
 enum ImportWalletTab {
-	case mnemonic
-	case keystore
-	case privateKey
-	case watch
+    case mnemonic
+    case keystore
+    case privateKey
+    case watch
 }
-

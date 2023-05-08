@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.06.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct PopularTokenViewCellViewModel {
     private let token: PopularToken
@@ -30,7 +30,7 @@ struct PopularTokenViewCellViewModel {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.tableViewCellPrimaryFont,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 
@@ -46,4 +46,3 @@ struct PopularTokenViewCellViewModel {
         return .init(server: token.server)
     }
 }
-

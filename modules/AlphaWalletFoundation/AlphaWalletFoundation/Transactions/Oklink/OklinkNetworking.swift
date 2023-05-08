@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 import SwiftyJSON
 
 //NOTE: as api dosn't return localized operation contract, symbol and decimal for transfer transactions, fetch them from rpc node
@@ -72,10 +72,10 @@ public class OklinkApiNetworking: ApiNetworking {
         let publishers = transactions.map { transactionBuilder.buildTransaction(from: $0) }
 
         return Publishers.MergeMany(publishers)
-           .collect()
-           .map { $0.compactMap { $0 } }
-           .setFailureType(to: PromiseError.self)
-           .eraseToAnyPublisher()
+            .collect()
+            .map { $0.compactMap { $0 } }
+            .setFailureType(to: PromiseError.self)
+            .eraseToAnyPublisher()
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
@@ -363,8 +363,7 @@ extension OklinkApiNetworking {
         func decode(data: Data) throws -> TransactionsResponse<Oklink.Transaction> {
             guard
                 let json = try? JSON(data: data),
-                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
-            else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
+                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
             guard let transactionsData = response.data.first else { return .init(transactions: [], pagination: pagination) }
 
@@ -381,8 +380,7 @@ extension OklinkApiNetworking {
         func decode(data: Data) throws -> TransactionsResponse<NormalTransaction> {
             guard
                 let json = try? JSON(data: data),
-                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
-            else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
+                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
             guard let transactionsData = response.data.first else { return .init(transactions: [], pagination: pagination) }
 
@@ -419,7 +417,7 @@ extension OklinkApiNetworking {
                 "protocolType": protocolType.rawValue,
                 "chainShortName": chainShortName,
                 "page": "\(page)",
-                "limit": "\(limit)"
+                "limit": "\(limit)",
             ])
         }
     }

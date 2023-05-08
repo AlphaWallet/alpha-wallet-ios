@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.02.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol AcceptProposalCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: AcceptProposalCoordinator, didComplete result: ProposalResult)
@@ -120,7 +120,7 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
             let coordinator = ServersCoordinator(
                 viewModel: viewModel.serversViewModel,
                 navigationController: navigationController)
-            
+
             coordinator.serversViewController.navigationItem.rightBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
             coordinator.start(animated: false)
             coordinator.delegate = self

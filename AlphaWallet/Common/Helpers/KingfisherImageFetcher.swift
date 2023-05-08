@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.09.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import Kingfisher
-import AlphaWalletFoundation
 
 class KingfisherImageFetcher: ImageFetcher {
 

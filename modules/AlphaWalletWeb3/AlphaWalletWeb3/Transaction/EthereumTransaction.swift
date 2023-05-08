@@ -6,8 +6,8 @@
 //  Copyright © 2017 Alexander Vlasov. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct EthereumTransaction: CustomStringConvertible {
     public var nonce: BigUInt
@@ -106,7 +106,7 @@ public struct EthereumTransaction: CustomStringConvertible {
         toReturn += "Nonce: " + String(self.nonce) + "\n"
         toReturn += "Gas price: " + String(self.gasPrice) + "\n"
         toReturn += "Gas limit: " + String(describing: self.gasLimit) + "\n"
-        toReturn += "To: " + self.to.address  + "\n"
+        toReturn += "To: " + self.to.address + "\n"
         toReturn += "Value: " + String(self.value) + "\n"
         toReturn += "Data: " + self.data.toHexString().addHexPrefix().lowercased() + "\n"
         toReturn += "v: " + String(self.v) + "\n"
@@ -114,7 +114,7 @@ public struct EthereumTransaction: CustomStringConvertible {
         toReturn += "s: " + String(self.s) + "\n"
         toReturn += "Intrinsic chainID: " + String(describing: self.chainID) + "\n"
         toReturn += "Infered chainID: " + String(describing: self.inferedChainID) + "\n"
-        toReturn += "sender: " + String(describing: self.sender?.address)  + "\n"
+        toReturn += "sender: " + String(describing: self.sender?.address) + "\n"
         toReturn += "hash: " + String(describing: self.hash?.toHexString().addHexPrefix()) + "\n"
 
         return toReturn

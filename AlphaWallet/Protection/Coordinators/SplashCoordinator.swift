@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class SplashCoordinator: Coordinator {
     private let window: UIWindow

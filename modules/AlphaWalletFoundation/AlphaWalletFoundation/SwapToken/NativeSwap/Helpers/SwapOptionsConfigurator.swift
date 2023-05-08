@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import Foundation
-import Combine
 import BigInt
+import Combine
 import CombineExt
+import Foundation
 
 public enum TransactionDeadline {
     case value(Double)
@@ -242,7 +242,7 @@ public final class SwapOptionsConfigurator {
             }
         } catch TokenSwapper.TokenSwapperError.fromTokenNotFound {
             errorSubject.send(.fromTokenNotFound)
-        } catch { }
+        } catch {}
     }
 
     private func hasAnySuportedToken(forServer server: RPCServer) -> Bool {

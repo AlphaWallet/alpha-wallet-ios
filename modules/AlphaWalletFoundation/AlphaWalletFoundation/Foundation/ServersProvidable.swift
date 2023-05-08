@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 05.01.2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol ServersProvidable: AnyObject {
     var allServers: [RPCServer] { get }

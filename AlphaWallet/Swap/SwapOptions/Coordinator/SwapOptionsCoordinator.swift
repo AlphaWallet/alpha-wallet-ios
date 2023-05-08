@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 10.03.2022.
 //
 
-import UIKit
-import FloatingPanel
-import Combine
 import AlphaWalletFoundation
+import Combine
+import FloatingPanel
+import UIKit
 
 protocol SwapOptionsCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: SwapOptionsCoordinator)
@@ -30,7 +30,7 @@ final class SwapOptionsCoordinator: Coordinator {
     init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator) {
         self.configurator = configurator
         self.navigationController = navigationController
-    } 
+    }
 
     func start() {
         let navigationController = NavigationController(rootViewController: rootViewController)

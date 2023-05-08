@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2020.
 //
 
-import UIKit
-import PromiseKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import PromiseKit
+import UIKit
 
 class AddressOrEnsNameLabel: UILabel {
 

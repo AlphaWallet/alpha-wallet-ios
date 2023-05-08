@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 28.05.2021.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 public protocol WalletBalanceFetcherType: AnyObject {
     var walletBalance: AnyPublisher<WalletBalance, Never> { get }

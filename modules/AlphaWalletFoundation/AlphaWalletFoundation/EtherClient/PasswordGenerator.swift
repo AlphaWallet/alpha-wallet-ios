@@ -3,7 +3,7 @@
 import Foundation
 import Security
 
-public struct PasswordGenerator {
+public enum PasswordGenerator {
 
     public static func generateRandom() -> String {
         return PasswordGenerator.generateRandomString(bytesCount: 32)

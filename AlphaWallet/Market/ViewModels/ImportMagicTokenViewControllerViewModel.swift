@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct ImportMagicTokenViewModel {
     enum State {
@@ -47,9 +47,9 @@ struct ImportMagicTokenViewModel {
     var showActivityIndicator: Bool {
         switch state {
         case .validating, .processing:
-             return true
+            return true
         case .promptImport, .succeeded, .failed:
-             return false
+            return false
         }
     }
 

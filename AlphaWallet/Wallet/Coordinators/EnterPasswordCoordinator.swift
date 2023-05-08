@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol EnterPasswordCoordinatorDelegate: AnyObject {
     func didEnterPassword(password: String, account: AlphaWallet.Address, in coordinator: EnterPasswordCoordinator)

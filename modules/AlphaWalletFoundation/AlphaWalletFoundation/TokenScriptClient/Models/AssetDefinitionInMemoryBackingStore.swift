@@ -16,7 +16,7 @@ public class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     public var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
         return .init()
     }
-    public init() { }
+    public init() {}
     public subscript(contract: AlphaWallet.Address) -> String? {
         get {
             return xmls[contract]

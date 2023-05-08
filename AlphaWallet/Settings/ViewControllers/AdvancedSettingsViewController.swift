@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 01.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func moreSelected(in controller: AdvancedSettingsViewController)
@@ -44,7 +44,7 @@ class AdvancedSettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 03.06.2022.
 //
 
-import XCTest
+@testable import AlphaWallet
 import AlphaWalletAddress
 import AlphaWalletCore
-@testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 private struct FakeTickerId: Codable {
     private enum CodingKeys: String, CodingKey {

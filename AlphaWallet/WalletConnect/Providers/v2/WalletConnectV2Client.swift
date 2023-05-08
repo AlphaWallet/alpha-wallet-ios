@@ -5,17 +5,17 @@
 //  Created by Vladyslav Shepitko on 07.01.2023.
 //
 
+import AlphaWalletFoundation
+import AlphaWalletLogger
+import AlphaWalletWeb3
+import Combine
 import Foundation
+import Starscream
 import WalletConnectSign
 import WalletConnectSigner
-import AlphaWalletFoundation
-import Starscream
-import Combine
-import AlphaWalletWeb3
 import Web3Wallet
-import AlphaWalletLogger
 
-extension WebSocket: WebSocketConnecting { }
+extension WebSocket: WebSocketConnecting {}
 
 struct SocketFactory: WebSocketFactory {
     func create(with url: URL) -> WebSocketConnecting {
@@ -37,7 +37,7 @@ struct Web3Signer: WalletConnectSigner.EthereumSigner {
     func sign(message: Data, with key: Data) throws -> WalletConnectSigner.EthereumSignature {
         let hash = message.sha3(.keccak256)
         let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-        return WalletConnectSigner.EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
+        return WalletConnectSigner.EthereumSignature(v: signature[64], r: signature[0..<32].bytes, s: signature[32..<64].bytes)
     }
 
     func recoverPubKey(signature: WalletConnectSigner.EthereumSignature, message: Data) throws -> Data {

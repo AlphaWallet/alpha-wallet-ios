@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
@@ -26,7 +26,7 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 
@@ -124,7 +124,7 @@ extension UITableView {
         tableView.automaticallyAdjustsScrollIndicatorInsets = false
         if #available(iOS 15.0, *) {
             tableView.sectionHeaderTopPadding = 0.0
-        } 
+        }
 
         return tableView
     }

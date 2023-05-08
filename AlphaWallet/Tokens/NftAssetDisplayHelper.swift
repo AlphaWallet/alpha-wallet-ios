@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 23.12.2021.
 //
 
-import Foundation
-import AlphaWalletOpenSea
 import AlphaWalletFoundation
+import AlphaWalletOpenSea
+import Foundation
 
 final class NftAssetDisplayHelper {
     private (set) var tokenId: TokenId
@@ -184,7 +184,7 @@ final class NftAssetDisplayHelper {
             } else {
                 // swiftlint:disable empty_count
                 if trait.count == 0 {
-                // swiftlint:enable empty_count
+                    // swiftlint:enable empty_count
                     //Especially for TokenScript attributes
                     return mapTraitsToProperName(name: trait.type, value: trait.value, count: nil)
                 } else {
@@ -336,4 +336,3 @@ extension String {
         return value.isEmpty ? other : value
     }
 }
-

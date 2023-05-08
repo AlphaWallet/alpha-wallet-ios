@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 12.05.2022.
 //
 
-import Foundation
-import UIKit
+import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
-import AlphaWalletCore
+import Foundation
+import UIKit
 
 class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingSupportable {
     private let server: RPCServer
@@ -22,7 +22,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
             server: server,
             wallet: wallet,
             assetDefinitionStore: assetDefinitionStore)
-        
+
         webView.delegate = self
         return webView
     }()
@@ -30,7 +30,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
     var rounding: ViewRounding = .none
     var loading: ViewLoading = .disabled
     var placeholderRounding: ViewRounding = .none
-    
+
     var isStandalone: Bool {
         get { return tokenScriptRendererView.isStandalone }
         set { tokenScriptRendererView.isStandalone = newValue }
@@ -50,7 +50,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
 
         addSubview(tokenScriptRendererView)
         NSLayoutConstraint.activate([
-            tokenScriptRendererView.anchorsConstraint(to: self)
+            tokenScriptRendererView.anchorsConstraint(to: self),
         ])
         translatesAutoresizingMaskIntoConstraints = false
     }

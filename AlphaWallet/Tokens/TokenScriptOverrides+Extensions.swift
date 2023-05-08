@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 extension TokenScriptOverrides {
     //TODO: Not good to require to use safeTitleInPluralForm. Easy to access wrong var

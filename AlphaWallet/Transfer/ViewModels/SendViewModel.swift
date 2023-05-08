@@ -1,11 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
+import Combine
 import Foundation
 import UIKit
-import BigInt
-import AlphaWalletFoundation
-import AlphaWalletCore
-import Combine
 
 struct SendViewModelInput {
     let amountToSend: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>

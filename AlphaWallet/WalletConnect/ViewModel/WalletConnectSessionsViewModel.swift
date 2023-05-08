@@ -5,14 +5,12 @@
 //  Created by Vladyslav Shepitko on 26.04.2022.
 //
 
-import Foundation
-import Combine
-import UIKit
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import UIKit
 
-struct WalletConnectSessionsViewModelInput {
-
-}
+struct WalletConnectSessionsViewModelInput {}
 
 struct WalletConnectSessionsViewModelIOutput {
     let viewState: AnyPublisher<WalletConnectSessionsViewModel.ViewState, Never>

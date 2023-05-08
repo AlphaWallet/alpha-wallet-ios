@@ -1,8 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
+import Combine
 import Foundation
 import RealmSwift
-import Combine
 
 public final class BrowserHistoryStorage {
     private let realm: Realm
@@ -23,7 +23,7 @@ public final class BrowserHistoryStorage {
                 }
             }.eraseToAnyPublisher()
     }
-    
+
     public var firstHistoryRecord: BrowserHistoryRecord? {
         histories.first
     }

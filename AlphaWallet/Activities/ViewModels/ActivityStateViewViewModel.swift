@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 19.03.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct ActivityStateViewViewModel {
     var stateImage: UIImage? {

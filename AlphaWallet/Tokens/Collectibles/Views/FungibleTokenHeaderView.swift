@@ -1,6 +1,6 @@
+import Combine
 // Copyright © 2018 Stormbird PTE. LTD.
 import UIKit
-import Combine
 
 protocol FungibleTokenHeaderViewDelegate: AnyObject {
     func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView)
@@ -16,7 +16,7 @@ class FungibleTokenHeaderView: UIView {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -50,7 +50,7 @@ class FungibleTokenHeaderView: UIView {
             tokenIconImageView,
             titleLabel,
             valueLabel,
-            blockChainTagLabel
+            blockChainTagLabel,
         ].asStackView(axis: .vertical, spacing: 5, alignment: .center)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ class FungibleTokenHeaderView: UIView {
         NSLayoutConstraint.activate([
             tokenIconImageView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SendHeader.iconSide),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: DataEntry.Metric.SendHeader.iconSide),
-            stackView.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.SendHeader.insets)
+            stackView.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.SendHeader.insets),
         ])
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))

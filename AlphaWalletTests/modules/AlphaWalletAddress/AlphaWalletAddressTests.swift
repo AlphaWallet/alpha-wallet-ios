@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class AlphaWalletAddressTests: XCTestCase {
     func testIncompleteAddressShouldBeInvalid() {

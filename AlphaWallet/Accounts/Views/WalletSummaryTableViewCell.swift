@@ -8,7 +8,7 @@
 import UIKit
 
 class WalletSummaryTableViewCell: UITableViewCell {
-    
+
     private let summaryView: WalletSummaryView = .init()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -18,7 +18,7 @@ class WalletSummaryTableViewCell: UITableViewCell {
         contentView.addSubview(summaryView)
 
         NSLayoutConstraint.activate([
-            summaryView.anchorsConstraint(to: contentView, edgeInsets: .zero)
+            summaryView.anchorsConstraint(to: contentView, edgeInsets: .zero),
         ])
     }
 

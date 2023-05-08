@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.03.2022.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 public final class TransactionNotificationSourceService: NotificationSourceService {
     private let transactionDataStore: TransactionDataStore
@@ -78,7 +78,7 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
             TransactionDataStore.functional.blockNumberPredicate(blockNumber: 0),
             TransactionState.predicate(state: .completed),
             NSPredicate(format: "to = '\(wallet.address.eip55String)'"),
-            NSPredicate(format: "date > %@", Date.yesterday as NSDate)
+            NSPredicate(format: "date > %@", Date.yesterday as NSDate),
         ])
     }
 

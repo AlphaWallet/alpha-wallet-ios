@@ -31,7 +31,7 @@ extension SwapTool: Decodable, Equatable {
     public static func == (lhs: SwapTool, rhs: SwapTool) -> Bool {
         lhs.key == rhs.key && lhs.name == rhs.name && lhs.logoUrl == rhs.logoUrl
     }
-    
+
     private enum Keys: String, CodingKey {
         case key
         case name

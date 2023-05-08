@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 09.02.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct EnjinError: Error {
     let localizedDescription: String
@@ -54,7 +54,7 @@ public struct EnjinToken {
 }
 
 extension EnjinToken {
-    
+
     init(object: EnjinTokenObject) {
         tokenId = object.tokenId
         name = object.name

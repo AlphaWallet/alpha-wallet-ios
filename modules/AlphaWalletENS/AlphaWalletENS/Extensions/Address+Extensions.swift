@@ -4,8 +4,8 @@
 //
 //  Created by Hwee-Boon Yar on Apr/9/22.
 
-import Foundation
 import AlphaWalletAddress
+import Foundation
 
 extension AlphaWallet.Address {
     //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md

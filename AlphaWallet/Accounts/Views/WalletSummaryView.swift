@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.08.2021.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class WalletSummaryView: UIView, ReusableTableHeaderViewType {
     private let apprecation24HoursLabel = UILabel()

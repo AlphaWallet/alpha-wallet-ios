@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 12.05.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct TokenCardWebViewModel {
     let tokenHolder: TokenHolder

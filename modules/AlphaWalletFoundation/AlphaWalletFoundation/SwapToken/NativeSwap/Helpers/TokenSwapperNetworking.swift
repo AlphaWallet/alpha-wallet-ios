@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
 
-import Foundation
-import Combine
-import SwiftyJSON
-import BigInt
 import AlphaWalletCore
+import BigInt
+import Combine
+import Foundation
+import SwiftyJSON
 
 public protocol TokenSwapperNetworking {
     func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError>
@@ -108,7 +108,7 @@ fileprivate extension LiQuestTokenSwapperNetworking {
             components.path = "/v1/tools"
             return try URLRequest(url: components.asURL(), method: .get)
         }
-        
+
     }
 
     struct RoutesRequest: URLRequestConvertible {
@@ -117,7 +117,7 @@ fileprivate extension LiQuestTokenSwapperNetworking {
         let slippage: String
         let fromAmount: BigUInt
         let exchanges: [String]
-        
+
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: LiQuestTokenSwapperNetworking.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v1/advanced/routes"
@@ -133,7 +133,7 @@ fileprivate extension LiQuestTokenSwapperNetworking {
                 "toChainId": toToken.server.chainID,
                 "fromTokenAddress": fromToken.address.eip55String,
                 "toTokenAddress": toToken.address.eip55String,
-                "fromAmount": String(fromAmount)
+                "fromAmount": String(fromAmount),
             ]).appending(httpHeaders: ["accept": "application/json"])
         }
     }
@@ -187,7 +187,7 @@ fileprivate extension LiQuestTokenSwapperNetworking {
             components.path = "/v1/chains"
             return try URLRequest(url: components.asURL(), method: .get)
         }
-        
+
     }
 }
 

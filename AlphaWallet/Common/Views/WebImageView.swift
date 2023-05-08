@@ -1,10 +1,10 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
-import WebKit
-import Kingfisher
 import AlphaWalletFoundation
 import Combine
+import Kingfisher
+import UIKit
+import WebKit
 
 final class FixedContentModeImageView: UIImageView {
     var fixedContentMode: UIView.ContentMode {
@@ -91,7 +91,7 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     }
 
     var rounding: ViewRounding = .none {
-        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding; }
+        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding }
     }
 
     var placeholderRounding: ViewRounding = .none {
@@ -101,7 +101,7 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     @Published var loading: ViewLoading = .enabled
 
     var contentBackgroundColor: UIColor? {
-        didSet { imageView.backgroundColor = contentBackgroundColor; }
+        didSet { imageView.backgroundColor = contentBackgroundColor }
     }
     private let playButtonPositioning: AVPlayerView.PlayButtonPositioning
     private let setContentSubject = PassthroughSubject<WebImageViewModel.SetContentEvent, Never>()

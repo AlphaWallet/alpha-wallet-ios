@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 import PromiseKit
 
 private struct HasNoTokenScriptLocalRefs: TokenScriptLocalRefsSource {

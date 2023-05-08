@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.11.2021.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import WalletConnectSwift
-import AlphaWalletFoundation
 
 typealias WalletConnectV1Request = WalletConnectSwift.Request
 

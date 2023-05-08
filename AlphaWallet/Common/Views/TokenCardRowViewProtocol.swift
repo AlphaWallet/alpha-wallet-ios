@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol TokenCardRowViewProtocol {
     var checkboxImageView: UIImageView { get }

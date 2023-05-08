@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletENS
 import Combine
+import Foundation
 
 class EnsReverseResolver {
     private let storage: EnsRecordsStorage

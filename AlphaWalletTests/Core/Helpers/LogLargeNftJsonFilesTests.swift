@@ -6,8 +6,8 @@
 //
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 // swiftlint:disable all
 class LogLargeNftJsonFilesTests: XCTestCase {

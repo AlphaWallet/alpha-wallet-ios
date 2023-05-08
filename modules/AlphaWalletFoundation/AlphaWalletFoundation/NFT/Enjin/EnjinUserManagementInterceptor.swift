@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 05.11.2021.
 //
 
+import AlphaWalletLogger
 import Apollo
 import PromiseKit
-import AlphaWalletLogger
 
 public typealias EnjinAccessToken = String
 public typealias EnjinCredentials = (email: String, password: String)
@@ -55,7 +55,7 @@ class EnjinUserManager {
         case fetchAccessTokenFailure
         case credentialsNotFound
     }
-    
+
     func enjinAuthorize() -> Promise<EnjinAccessToken> {
         guard let credentials = credentials else {
             return .init(error: EnjinUserManagementInterceptor.UserError.usersCredentialsNotFound)
@@ -87,7 +87,7 @@ class EnjinUserManager {
             super.init(client: client, shouldInvalidateClientOnDeinit: true, store: store)
         }
 
-        open override func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+        override open func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
             return [
                 MaxRetryInterceptor(),
                 CacheReadInterceptor(store: store),
@@ -132,7 +132,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
 
     public let cacheKeyForObject: CacheKeyForObject?
 
-        /// Designated Initializer
+    /// Designated Initializer
     public init(cacheKeyForObject: CacheKeyForObject? = nil) {
         self.cacheKeyForObject = cacheKeyForObject
     }
@@ -141,7 +141,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
                                                             request: HTTPRequest<Operation>,
                                                             response: HTTPResponse<Operation>?,
                                                             completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-        
+
         guard let createdResponse = response else {
             chain.handleErrorAsync(JSONResponseParsingError.noResponseToParse, request: request, response: response, completion: completion)
             return
@@ -270,7 +270,7 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
 }
 
 extension EnjinUserManager {
-    enum functional { }
+    enum functional {}
 }
 
 extension EnjinUserManager.functional {

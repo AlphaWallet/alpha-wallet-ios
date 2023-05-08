@@ -18,7 +18,7 @@ extension TokensViewController {
 
             let stackView = [
                 consoleButton,
-                promptBackupWalletViewHolder
+                promptBackupWalletViewHolder,
             ].asStackView(axis: .vertical)
             stackView.translatesAutoresizingMaskIntoConstraints = false
             addSubview(stackView)

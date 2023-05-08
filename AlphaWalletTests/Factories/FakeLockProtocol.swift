@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import UIKit
 
 class FakeLock: Lock {
     var passcodeSet = true
@@ -17,31 +17,17 @@ class FakeLock: Lock {
         return false
     }
 
-    func setPasscode(passcode: String) {
+    func setPasscode(passcode: String) {}
 
-    }
+    func deletePasscode() {}
 
-    func deletePasscode() {
+    func resetPasscodeAttemptHistory() {}
 
-    }
+    func recordIncorrectPasscodeAttempt() {}
 
-    func resetPasscodeAttemptHistory() {
+    func recordIncorrectMaxAttemptTime() {}
 
-    }
+    func removeIncorrectMaxAttemptTime() {}
 
-    func recordIncorrectPasscodeAttempt() {
-
-    }
-
-    func recordIncorrectMaxAttemptTime() {
-
-    }
-
-    func removeIncorrectMaxAttemptTime() {
-
-    }
-
-    func clear() {
-
-    }
+    func clear() {}
 }

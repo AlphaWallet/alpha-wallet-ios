@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.05.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct NFTAssetListViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

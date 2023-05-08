@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 class SlippageView: UIView {
 
@@ -37,7 +37,7 @@ class SlippageView: UIView {
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
-            heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 44, medium: 44, small: 35))
+            heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 44, medium: 44, small: 35)),
         ])
 
         bind(viewModel: viewModel)

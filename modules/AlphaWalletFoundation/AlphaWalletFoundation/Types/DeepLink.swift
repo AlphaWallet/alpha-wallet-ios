@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.01.2022.
 //
 
-import Foundation
 import AlphaWalletShareExtensionCore
+import Foundation
 import SwiftyJSON
 
 public enum DeepLink {
@@ -32,7 +32,7 @@ public enum DeepLink {
         if url.isFileURL {
             self = .maybeFileUrl(url: url)
         } else if let eip681Url = functional.extractEip681UrlMaybeEmbedded(in: url, supportedServers: supportedServers) {
-            self  = .eip681(url: eip681Url)
+            self = .eip681(url: eip681Url)
         } else if let (wcUrl, source) = functional.extractWalletConnectUrlMaybeEmbedded(in: url) {
             self = .walletConnect(url: wcUrl, source: source)
         } else if let (server, url) = functional.extractEmbeddedUrl(in: url, supportedServers: supportedServers) {

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 01.02.2023.
 //
 
-import UIKit
 import AVKit
 import Combine
+import UIKit
 
 class AVPlayerView: UIView, ViewRoundingSupportable {
 
@@ -51,7 +51,7 @@ class AVPlayerView: UIView, ViewRoundingSupportable {
 
         self.viewModel = viewModel
         super.init(frame: .zero)
-        
+
         videoLayer.videoGravity = .resizeAspectFill
         videoLayer.player = viewModel.player
         isUserInteractionEnabled = true
@@ -64,7 +64,7 @@ class AVPlayerView: UIView, ViewRoundingSupportable {
         case .bottomRight:
             playStopButtonCointraints = [
                 playStopButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-                playStopButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+                playStopButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             ]
         case .center:
             playStopButtonCointraints = [

@@ -3,7 +3,7 @@
 import Foundation
 import RealmSwift
 
-public struct RealmConfiguration {
+public enum RealmConfiguration {
     private static let walletsFolderForTests = "testSuiteWalletsForRealm"
 
     public static func configuration(for address: AlphaWallet.Address) -> Realm.Configuration {
@@ -53,7 +53,7 @@ public struct RealmConfiguration {
         }
         return config
     }
-    
+
     private static func _RLMRealmPathInCacheFolderForFile(_ fileName: String) throws -> String {
         let fileManager = FileManager.default
 
@@ -85,7 +85,7 @@ public struct RealmConfiguration {
 }
 
 extension FileManager {
-    
+
     public func removeAllItems(directory: URL) {
         do {
             let urls = try contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)

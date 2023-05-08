@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 7/11/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import IQKeyboardManager
+import UIKit
 
 protocol SaveCustomRpcEntryViewControllerDataDelegate: AnyObject {
     func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC)
@@ -177,6 +177,4 @@ extension SaveCustomRpcManualEntryViewController: TextFieldDelegate {
     }
 }
 
-extension SaveCustomRpcManualEntryViewController: HandleAddMultipleCustomRpcViewControllerResponse {
-
-}
+extension SaveCustomRpcManualEntryViewController: HandleAddMultipleCustomRpcViewControllerResponse {}

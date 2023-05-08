@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 01.11.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 struct LabeledServerImageViewModel {
     let server: RPCServer

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 protocol SwapQuoteDetailsViewDelegate: AnyObject {
     func changeSwapRouteSelected(in view: SwapQuoteDetailsView)
@@ -36,7 +36,7 @@ final class SwapQuoteDetailsView: UIView {
 
     private lazy var toggleFeesButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints =  false
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Show", for: .normal)
         button.setTitle("Hide", for: .selected)
         button.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 44)).isActive = true
@@ -68,9 +68,9 @@ final class SwapQuoteDetailsView: UIView {
             swapFeesView,
             currentPriceView,
             UIView.separator(),
-            minimumReceivedView
+            minimumReceivedView,
         ].asStackView(axis: .vertical)
-        stackview.translatesAutoresizingMaskIntoConstraints =  false
+        stackview.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stackview)
 
@@ -95,7 +95,7 @@ final class SwapQuoteDetailsView: UIView {
         output.isHidden
             .sink { [weak self] in self?.isHidden = $0 }
             .store(in: &cancelable)
-    } 
+    }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

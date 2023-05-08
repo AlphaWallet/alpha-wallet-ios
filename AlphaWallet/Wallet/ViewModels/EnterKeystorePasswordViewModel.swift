@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 20.01.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 class EnterKeystorePasswordViewModel {
     var validator: StringValidator = StringValidator(rules: [
         .lengthMoreThanOrEqualTo(6),
-        .canOnlyContain(CharacterSet.alphanumerics)
+        .canOnlyContain(CharacterSet.alphanumerics),
     ])
     var buttonTitle: String = R.string.localizable.save()
 

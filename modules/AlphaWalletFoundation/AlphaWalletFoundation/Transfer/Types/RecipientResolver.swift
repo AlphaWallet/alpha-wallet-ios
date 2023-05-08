@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 20.08.2020.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public struct RecipientViewModel {
     public var address: AlphaWallet.Address?

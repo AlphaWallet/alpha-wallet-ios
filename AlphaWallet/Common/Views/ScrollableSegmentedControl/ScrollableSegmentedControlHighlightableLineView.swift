@@ -60,7 +60,7 @@ class ScrollableSegmentedControlHighlightableLineView: UIView {
 
     private func configureLine(configuration: ScrollableSegmentedControlHighlightableLineViewConfiguration) {
         let line = UIView()
-        line.layer.cornerRadius = configuration.highlightHeight/2.0
+        line.layer.cornerRadius = configuration.highlightHeight / 2.0
         addSubview(line)
         line.backgroundColor = configuration.highLightColor
         line.translatesAutoresizingMaskIntoConstraints = false

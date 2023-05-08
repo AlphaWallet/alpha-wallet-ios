@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: TransferNFTCoordinator)
@@ -97,7 +97,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
                 keystore: keystore,
                 tokensService: tokensService,
                 networkService: networkService)
-            
+
             addCoordinator(coordinator)
             coordinator.delegate = self
 
@@ -133,7 +133,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
             navigationController: navigationController,
             account: session.account,
             domainResolutionService: domainResolutionService)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)
@@ -198,4 +198,3 @@ extension TransferNFTCoordinator: TransactionInProgressCoordinatorDelegate {
         delegate?.didFinish(result, in: self)
     }
 }
-

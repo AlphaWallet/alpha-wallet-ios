@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 31.03.2021.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
 struct RenameWalletViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

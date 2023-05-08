@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.02.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 enum ProposalType {
     case walletConnect(AcceptWalletConnectSessionViewModel)
@@ -97,7 +97,7 @@ class AcceptProposalViewModel: NSObject {
         switch proposalType {
         case .walletConnect:
             analytics.log(action: Analytics.Action.switchedServer, properties: [
-                Analytics.Properties.source.rawValue: "walletConnect"
+                Analytics.Properties.source.rawValue: "walletConnect",
             ])
         case .deepLink:
             break
@@ -108,7 +108,7 @@ class AcceptProposalViewModel: NSObject {
         switch proposalType {
         case .walletConnect:
             analytics.log(navigation: Analytics.Navigation.switchServers, properties: [
-                Analytics.Properties.source.rawValue: "walletConnect"
+                Analytics.Properties.source.rawValue: "walletConnect",
             ])
         case .deepLink:
             break
@@ -119,7 +119,7 @@ class AcceptProposalViewModel: NSObject {
         switch proposalType {
         case .walletConnect:
             analytics.log(action: Analytics.Action.cancelsSwitchServer, properties: [
-                Analytics.Properties.source.rawValue: "walletConnect"
+                Analytics.Properties.source.rawValue: "walletConnect",
             ])
         case .deepLink:
             break
@@ -130,7 +130,7 @@ class AcceptProposalViewModel: NSObject {
         switch proposalType {
         case .walletConnect(let viewModel):
             analytics.log(action: Analytics.Action.walletConnectConnect, properties: [
-                Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID })
+                Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID }),
             ])
         case .deepLink:
             break
@@ -142,7 +142,7 @@ class AcceptProposalViewModel: NSObject {
         case .walletConnect:
             analytics.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
                 Analytics.Properties.chains.rawValue: servers.map { $0.chainID },
-                Analytics.Properties.reason.rawValue: "Chain Disabled"
+                Analytics.Properties.reason.rawValue: "Chain Disabled",
             ])
         case .deepLink:
             break
@@ -154,7 +154,7 @@ class AcceptProposalViewModel: NSObject {
         case .walletConnect(let viewModel):
             analytics.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
                 Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID }),
-                Analytics.Properties.reason.rawValue: "Chain Disabled"
+                Analytics.Properties.reason.rawValue: "Chain Disabled",
             ])
         case .deepLink:
             analytics.log(navigation: Analytics.Navigation.deepLink)

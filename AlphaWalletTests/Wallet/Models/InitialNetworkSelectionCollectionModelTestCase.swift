@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 12/5/22.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class InitialNetworkSelectionCollectionModelTestCase: XCTestCase {
 

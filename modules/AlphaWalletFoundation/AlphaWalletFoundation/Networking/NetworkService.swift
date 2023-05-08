@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 14.12.2022.
 //
 
-import Foundation
 import Alamofire
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
 public typealias URLEncoding = Alamofire.URLEncoding
@@ -74,16 +74,16 @@ public class BaseNetworkService: NetworkService {
         usingThreshold encodingMemoryThreshold: UInt64 = MultipartFormData.encodingMemoryThreshold,
         with request: URLRequestConvertible,
         callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
-            return session.upload(multipartFormData: multipartFormData, with: request)
-                .publishData(queue: callbackQueue)
-                .tryMap {
-                    if let data = $0.data, let response = $0.response {
-                        return (data, response)
-                    } else {
-                        throw NonHTTPURLResponseError(error: $0.error)
-                    }
-                }.mapError { SessionTaskError.requestError($0) }
-                .eraseToAnyPublisher()
+        return session.upload(multipartFormData: multipartFormData, with: request)
+            .publishData(queue: callbackQueue)
+            .tryMap {
+                if let data = $0.data, let response = $0.response {
+                    return (data, response)
+                } else {
+                    throw NonHTTPURLResponseError(error: $0.error)
+                }
+            }.mapError { SessionTaskError.requestError($0) }
+            .eraseToAnyPublisher()
     }
 
     public func dataTaskPublisher(_ request: URLRequestConvertible,

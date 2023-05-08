@@ -13,7 +13,7 @@ public class TickerIdFilter {
     public static var matchCounts: [String: Int] = [:]
 
     //https://polygonscan.com/address/0x0000000000000000000000000000000000001010
-    static private let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
+    private static let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
 
     func tickerIdObject(for token: TokenMappedToTicker, in tickerIds: [TickerId]) -> TickerIdString? {
         return tickerIds.first(where: { filterMathesInPlatforms(token: token, tickerId: $0) }).flatMap { $0.id }

@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Contract: ContractRepresentable {
     private var contract: ContractRepresentable
@@ -66,15 +66,15 @@ public struct Contract: ContractRepresentable {
 }
 
 struct ContractAbiV2: ContractRepresentable {
-    
+
     var allEvents: [String] {
         return events.keys.compactMap { $0 }
     }
-    
+
     var allMethods: [String] {
         return methods.keys.compactMap { $0 }
     }
-    
+
     var address: EthereumAddress?
     var abi: [ABIv2.Element]
 
@@ -91,7 +91,7 @@ struct ContractAbiV2: ContractRepresentable {
         }
         return toReturn
     }
-    
+
     var constructor: ABIv2.Element? {
         var toReturn: ABIv2.Element?
         for element in self.abi {
@@ -110,7 +110,7 @@ struct ContractAbiV2: ContractRepresentable {
         }
         return toReturn
     }
-    
+
     var events: [String: ABIv2.Element.Event] {
         var toReturn: [String: ABIv2.Element.Event] = [:]
         for element in self.abi {
@@ -124,7 +124,7 @@ struct ContractAbiV2: ContractRepresentable {
         }
         return toReturn
     }
-    
+
     init(abi: String, address: EthereumAddress? = nil) throws {
         do {
             guard let json = abi.data(using: .utf8) else { throw Web3.ContractError.abiError(.abiInvalid) }
@@ -135,16 +135,16 @@ struct ContractAbiV2: ContractRepresentable {
             throw Web3.ContractError.abiError(.abiInvalid)
         }
     }
-    
+
     init(abi: [ABIv2.Element]) {
         self.abi = abi
     }
-    
+
     init(abi: [ABIv2.Element], at: EthereumAddress) {
         self.abi = abi
         self.address = at
     }
-    
+
     func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
         var gasLimit: BigUInt
@@ -153,14 +153,14 @@ struct ContractAbiV2: ContractRepresentable {
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
-        
+
         var gasPrice: BigUInt
         if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
-        
+
         var value: BigUInt
         if let valueInOptions = options?.value {
             value = valueInOptions
@@ -178,7 +178,7 @@ struct ContractAbiV2: ContractRepresentable {
 
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
     }
-    
+
     func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         var to: EthereumAddress
         if let address = address {
@@ -188,21 +188,21 @@ struct ContractAbiV2: ContractRepresentable {
         } else {
             throw Web3.ContractError.toNotFound
         }
-        
+
         var gasLimit: BigUInt
         if let gasInOptions = options?.gasLimit {
             gasLimit = gasInOptions
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
-        
+
         var gasPrice: BigUInt
         if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
-        
+
         var value: BigUInt
         if let valueInOptions = options?.value {
             value = valueInOptions
@@ -223,7 +223,7 @@ struct ContractAbiV2: ContractRepresentable {
 
         return data
     }
-    
+
     func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
         for (eName, ev) in self.events {
             if !ev.anonymous {
@@ -242,7 +242,7 @@ struct ContractAbiV2: ContractRepresentable {
         }
         return nil
     }
-    
+
     func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
         guard let event = events[eventName] else { return nil }
         if event.anonymous {
@@ -250,7 +250,7 @@ struct ContractAbiV2: ContractRepresentable {
         }
         return bloom.test(topic: event.topic)
     }
-    
+
     func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
         guard method != "fallback" else {
             let resultHex = data.toHexString().addHexPrefix()
@@ -262,7 +262,7 @@ struct ContractAbiV2: ContractRepresentable {
 
         return function.decodeReturnData(data)
     }
-    
+
     func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
         guard method != "fallback" else { return nil }
 
@@ -274,7 +274,7 @@ struct ContractAbiV2: ContractRepresentable {
             return nil
         }
     }
-    
+
     func decodeInputData(_ data: Data) -> FunctionalCall? {
         guard data.count % 32 == 4 else { return nil }
         let signature = data[0..<4]
@@ -292,7 +292,7 @@ struct ContractAbiV2: ContractRepresentable {
 
         switch function {
         case .function(let f):
-            let decoded = function.decodeInputData(Data(data[4 ..< data.count]))
+            let decoded = function.decodeInputData(Data(data[4..<data.count]))
             return FunctionalCall(name: f.name, signature: f.methodString, params: decoded)
         case .constructor, .fallback, .event:
             return nil
@@ -306,7 +306,7 @@ struct ContractAbiV2: ContractRepresentable {
 
         if let parameterFilters = filter.parameterFilters {
             var lastNonemptyFilter = -1
-            for i in 0 ..< parameterFilters.count {
+            for i in 0..<parameterFilters.count {
                 let filterValue = parameterFilters[i]
                 if filterValue != nil {
                     lastNonemptyFilter = i
@@ -314,12 +314,12 @@ struct ContractAbiV2: ContractRepresentable {
             }
             if lastNonemptyFilter != -1 {
                 guard lastNonemptyFilter <= event.inputs.count else { return nil }
-                for i in 0 ... lastNonemptyFilter {
+                for i in 0...lastNonemptyFilter {
                     let filterValues = parameterFilters[i]
                     if filterValues != nil {
                         var isFound = false
                         var targetIndexedPosition = i
-                        for j in 0 ..< event.inputs.count where event.inputs[j].indexed {
+                        for j in 0..<event.inputs.count where event.inputs[j].indexed {
                             if targetIndexedPosition == 0 {
                                 isFound = true
                                 break

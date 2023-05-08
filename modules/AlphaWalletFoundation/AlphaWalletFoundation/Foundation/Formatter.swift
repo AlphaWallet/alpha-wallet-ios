@@ -15,7 +15,7 @@ extension NumberFormatter {
         formatter.negativeFormat = "-,###.# " + currency.rawValue
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
-        
+
         return formatter
     }
 
@@ -36,7 +36,7 @@ extension NumberFormatter {
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
         formatter.numberStyle = .percent
-        
+
         return formatter
     }
 
@@ -134,7 +134,7 @@ extension NumberFormatter {
 
     public func string(double: Double, minimumFractionDigits: Int, maximumFractionDigits: Int) -> String {
         let fractionDigits: Int
-        
+
         let int = double.rounded(to: 0)
         let minimumFractionNumber = Double("0." + String(1).leftPadding(to: minimumFractionDigits, pad: "0"))!
         let maximumFractionNumber = Double("0." + String(1).leftPadding(to: maximumFractionDigits, pad: "0"))!

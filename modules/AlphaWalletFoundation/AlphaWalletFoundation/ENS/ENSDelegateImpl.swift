@@ -5,9 +5,9 @@
 //  Created by Hwee-Boon Yar on Apr/7/22.
 //
 
-import Foundation
 import AlphaWalletENS
 import Combine
+import Foundation
 
 class ENSDelegateImpl: ENSDelegate {
     private let blockchainProvider: BlockchainProvider

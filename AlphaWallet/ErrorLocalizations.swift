@@ -1,7 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletHardwareWallet
+import Foundation
 
 extension HardwareWalletError: LocalizedError {
     public var errorDescription: String? {

@@ -179,7 +179,7 @@ public extension AlphaWallet {
 /// Detecting device state
 extension AlphaWallet.Device {
     /// Return `true` for landscape interface orientation
-    static public var isLandscape: Bool {
+    public static var isLandscape: Bool {
         let statusBarOrientation: UIInterfaceOrientation
         if let currentWindowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
             statusBarOrientation = currentWindowScene.interfaceOrientation
@@ -191,27 +191,27 @@ extension AlphaWallet.Device {
     }
 
     /// Return `true` for portrait interface orientation
-    static public var isPortrait: Bool {
+    public static var isPortrait: Bool {
         return !isLandscape
     }
 }
 
 /// Battery state
 extension AlphaWallet.Device {
-    public struct Battery {
+    public enum Battery {
         /// Return battery state
-        static public var state: UIDevice.BatteryState {
+        public static var state: UIDevice.BatteryState {
             enableBatteryMonitoringIfNecessary()
             return UIDevice.current.batteryState
         }
 
         /// Battery level from 0.0 to 1.0. Will enable monitoring if not enabled.
-        static public var level: Float {
+        public static var level: Float {
             enableBatteryMonitoringIfNecessary()
             return UIDevice.current.batteryLevel
         }
 
-        static private func enableBatteryMonitoringIfNecessary() {
+        private static func enableBatteryMonitoringIfNecessary() {
             guard !UIDevice.current.isBatteryMonitoringEnabled else { return }
             UIDevice.current.isBatteryMonitoringEnabled = true
         }
@@ -361,12 +361,12 @@ public extension AlphaWallet.Device {
 extension AlphaWallet.Device {
 
     /// Return raw device version code string or empty string if any problem appears.
-    static public var versionCode: String {
+    public static var versionCode: String {
         var systemInfo = utsname()
         uname(&systemInfo)
 
-        if  let info = NSString(bytes: &systemInfo.machine, length: Int(_SYS_NAMELEN), encoding: String.Encoding.ascii.rawValue),
-            let code = String(validatingUTF8: info.utf8String!) {
+        if let info = NSString(bytes: &systemInfo.machine, length: Int(_SYS_NAMELEN), encoding: String.Encoding.ascii.rawValue),
+           let code = String(validatingUTF8: info.utf8String!) {
             return code
         }
 
@@ -376,7 +376,7 @@ extension AlphaWallet.Device {
     /// Return device type
     ///
     /// - seealso: Type
-    static public var type: AlphaWallet.Device.DeviceType {
+    public static var type: AlphaWallet.Device.DeviceType {
         let versionCode = AlphaWallet.Device.versionCode
         if versionCode.starts(with: "iPhone") {
             return .phone
@@ -392,38 +392,38 @@ extension AlphaWallet.Device {
     }
 
     /// Return `true` for iPad-s
-    static public var isPad: Bool {
+    public static var isPad: Bool {
         return (UIDevice.current.userInterfaceIdiom == .pad )
     }
 
     /// Return `true` for iPhone-s
-    static public var isPhone: Bool {
+    public static var isPhone: Bool {
         return !isPad
     }
 
     /// Return `true` for iPhoneX
     @available(*, deprecated, message: ".isPhoneX deprecated. Use .isNotched instead")
-    static public var isPhoneX: Bool {
+    public static var isPhoneX: Bool {
         return isPhone && screen == .inches_5_8
     }
 
     /// Return `true` for iPadPro
-    static public var isPadPro: Bool {
+    public static var isPadPro: Bool {
         return isPad && screen == .inches_12_9
     }
 
     /// Return `true` for Simulator
-    static public var isSimulator: Bool {
+    public static var isSimulator: Bool {
         return type == .simulator
     }
 
     /// Return `true` if device has a notch
-    static public var isNotched: Bool {
+    public static var isNotched: Bool {
         return isPhone && (screen == .inches_5_8 || screen == .inches_6_1 || screen == .inches_6_5 || screen == .inches_5_4 || screen == .inches_5_5 || screen == .inches_6_7)
     }
 
     // MARK: Version
-    static public var version: Version {
+    public static var version: Version {
         switch AlphaWallet.Device.versionCode {
         // Phones
         case "iPhone3,1", "iPhone3,2", "iPhone3,3": return .phone4
@@ -488,7 +488,7 @@ extension AlphaWallet.Device {
         case "iPad8,9", "iPad8,10": return .padPro11_2th
         case "iPad8,11", "iPad8,12": return .padPro12_9_4th
         case "iPad11,1", "iPad11,2": return .padMini5
-        case "iPad11,3", "iPad11,4": return  .padAir3
+        case "iPad11,3", "iPad11,4": return .padAir3
         case "iPad13,1", "iPad13,2": return .padAir4
         case "iPad13,16", "iPad13,17": return .padAir5
         case "iPad13,8", "iPad13,9", "iPad13,10", "iPad13,11": return .padPro12_9_5th
@@ -515,18 +515,18 @@ extension AlphaWallet.Device {
 }
 
 extension AlphaWallet.Device.Version {
-   public var readableName: String {
+    public var readableName: String {
         switch self {
         case .phone4: return "iPhone 4"
-        case .phone4S:  return "iPhone 4s"
-        case .phone5:  return "iPhone 5"
-        case .phone5C:  return "iPhone 5C"
+        case .phone4S: return "iPhone 4s"
+        case .phone5: return "iPhone 5"
+        case .phone5C: return "iPhone 5C"
         case .phone5S: return "iPhone 5s"
         case .phone6: return "iPhone 6"
         case .phone6Plus: return "iPhone 6 Plus"
-        case .phone6S:  return "iPhone 6s"
+        case .phone6S: return "iPhone 6s"
         case .phone6SPlus: return "iPhone 6s Plus"
-        case .phoneSE:  return "iPhone SE"
+        case .phoneSE: return "iPhone SE"
         case .phone7: return "iPhone 7"
         case .phone7Plus: return "iPhone 7 Plus"
         case .phone8: return "iPhone 8"
@@ -537,13 +537,13 @@ extension AlphaWallet.Device.Version {
         case .phoneXR: return "iPhone XR"
         case .phone11: return "iPhone 11"
         case .phone11Pro: return "iPhone 11 Pro"
-        case .phone11ProMax:  return "iPhone 11 Pro Max"
+        case .phone11ProMax: return "iPhone 11 Pro Max"
         case .phoneSE2: return "iPhone SE 2nd Gen"
         case .phoneSE3: return "iPhone SE 3rd Gen"
 
         case .pad1: return "iPad"
         case .pad2: return "2nd Gen iPad"
-        case .padMini:  return "iPad Mini"
+        case .padMini: return "iPad Mini"
         case .pad3: return "3rd Gen iPad"
         case .pad4: return "4th Gen iPad"
         case .pad5: return "iPad (2017)"
@@ -551,7 +551,7 @@ extension AlphaWallet.Device.Version {
         case .pad7: return "iPad 7th Gen 10.2-inch"
         case .padAir: return "iPad Air"
         case .padMini2: return "iPad mini Retina"
-        case .padAir2:  return "iPad Air 2"
+        case .padAir2: return "iPad Air 2"
         case .padMini3: return "iPad Mini 3"
         case .padMini4: return "iPad Mini 4"
         case .padMini5: return "iPad Mini 5th Gen"
@@ -611,19 +611,19 @@ public extension AlphaWallet.Device {
     /// - parameter inches_9_7:    Screens for iPad
     /// - parameter inches_12_9:   Screens for iPad Pro
     enum Screen: CGFloat {
-        case unknown     = 0
-        case inches_3_5  = 3.5
-        case inches_4_0  = 4.0
-        case inches_4_7  = 4.7
-        case inches_5_4  = 5.4
-        case inches_5_5  = 5.5
-        case inches_5_8  = 5.8 // iPhone X diagonal
-        case inches_6_1  = 6.1
-        case inches_6_5  = 6.5
-        case inches_6_7  = 6.7
-        case inches_7_9  = 7.9
-        case inches_8_3  = 8.3
-        case inches_9_7  = 9.7
+        case unknown = 0
+        case inches_3_5 = 3.5
+        case inches_4_0 = 4.0
+        case inches_4_7 = 4.7
+        case inches_5_4 = 5.4
+        case inches_5_5 = 5.5
+        case inches_5_8 = 5.8 // iPhone X diagonal
+        case inches_6_1 = 6.1
+        case inches_6_5 = 6.5
+        case inches_6_7 = 6.7
+        case inches_7_9 = 7.9
+        case inches_8_3 = 8.3
+        case inches_9_7 = 9.7
         case inches_10_2 = 10.2
         case inches_10_5 = 10.5
         case inches_10_9 = 10.9
@@ -712,9 +712,9 @@ public enum ScreenFamily: String {
 /// - parameter x3:
 /// - parameter unknown:
 public enum Scale: CGFloat, Comparable, Equatable {
-    case x1      = 1.0
-    case x2      = 2.0
-    case x3      = 3.0
+    case x1 = 1.0
+    case x2 = 2.0
+    case x3 = 3.0
     case unknown = 0
 }
 
@@ -749,7 +749,7 @@ extension AlphaWallet.Device {
     /// Detect device screen.
     ///
     /// - seealso: Screen
-    static public var screen: AlphaWallet.Device.Screen {
+    public static var screen: AlphaWallet.Device.Screen {
         let size = UIScreen.main.bounds.size
         switch max(size.width, size.height) {
         case 480: return .inches_3_5
@@ -786,7 +786,7 @@ extension AlphaWallet.Device {
     /// Detect screen resolution scale.
     ///
     /// - Seealso: Scale
-    static public var scale: Scale {
+    public static var scale: Scale {
         switch UIScreen.main.scale {
         case 1.0: return .x1
         case 2.0: return .x2
@@ -796,7 +796,7 @@ extension AlphaWallet.Device {
     }
 
     /// Return `true` for retina displays
-    static public var isRetina: Bool {
+    public static var isRetina: Bool {
         return scale > Scale.x1
     }
 }
@@ -805,7 +805,7 @@ extension AlphaWallet.Device {
 extension AlphaWallet.Device {
 
     /// Returns size for a specific device (iPad or iPhone/iPod)
-    static public func size<T: Any>(phone: T, pad: T) -> T {
+    public static func size<T: Any>(phone: T, pad: T) -> T {
         return AlphaWallet.Device.isPad ? pad : phone
     }
 
@@ -815,7 +815,7 @@ extension AlphaWallet.Device {
     /// `old` screen family is optional and if not defined will return `small` value
     ///
     /// - seealso: Screen, ScreenFamily
-    static public func size<T: Any>(old: T? = nil, small: T, medium: T, big: T) -> T {
+    public static func size<T: Any>(old: T? = nil, small: T, medium: T, big: T) -> T {
         switch AlphaWallet.Device.screen.family {
         case .old:
             return old ?? small
@@ -851,7 +851,7 @@ extension AlphaWallet.Device {
     /// * and 15 for other iPads
     ///
     /// - seealso: Screen
-    static public func size<T: Any>(sizes: [AlphaWallet.Device.Screen: T]) -> T? {
+    public static func size<T: Any>(sizes: [AlphaWallet.Device.Screen: T]) -> T? {
         let screen = AlphaWallet.Device.screen
         var nearestValue: T?
         var distance = CGFloat.greatestFiniteMagnitude

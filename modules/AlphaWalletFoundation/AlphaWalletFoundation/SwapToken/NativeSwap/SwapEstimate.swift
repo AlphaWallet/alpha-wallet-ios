@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct SwapEstimate {
     public let spender: AlphaWallet.Address
@@ -9,7 +9,7 @@ public struct SwapEstimate {
     public let toAmountMin: BigUInt
     public let feeCosts: [FeeCost]
     public let gasCosts: [GasCost]
-    
+
     public struct FeeCost {
         public let name: String
         public let percentage: String
@@ -24,7 +24,7 @@ public struct SwapEstimate {
         public let estimate: GasPrice?
         public let limit: BigUInt?
         public let token: SwapQuote.Token
-        
+
         public init(type: String, amount: BigUInt, amountUsd: String, estimate: GasPrice?, limit: BigUInt?, token: SwapQuote.Token) {
             self.type = type
             self.amount = amount

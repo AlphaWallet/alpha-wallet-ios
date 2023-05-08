@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 09.01.2023.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletWeb3
+import BigInt
+import Combine
+import Foundation
 
 // swiftlint:disable type_body_length
 final class ImportMagicLinkController {
@@ -456,7 +456,7 @@ extension ImportMagicLinkController.functional {
     }
 
     static func convert(ethCost: BigUInt) -> Decimal {
-        let etherCostDecimal = Decimal(string: ethCost.description)! /  Decimal(EthereumUnit.ether.rawValue)
+        let etherCostDecimal = Decimal(string: ethCost.description)! / Decimal(EthereumUnit.ether.rawValue)
         return etherCostDecimal
     }
 
@@ -478,4 +478,3 @@ extension ImportMagicLinkController.functional {
     }
 
 }
-

@@ -47,14 +47,14 @@ private class AddHideTokenSectionHeaderView: UIView {
             .spacer(height: 20, backgroundColor: .clear),
             [.spacerWidth(16), titleLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
             .spacer(height: 20, backgroundColor: .clear),
-            bottomSperator
+            bottomSperator,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
-            bottomSperator.heightAnchor.constraint(equalToConstant: 1)
+            bottomSperator.heightAnchor.constraint(equalToConstant: 1),
         ])
 
         topSeparatorHeight = topSeparator.heightAnchor.constraint(equalToConstant: 1)

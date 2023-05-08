@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct RequestViewModelInput {
     let copyEns: AnyPublisher<Void, Never>
@@ -24,10 +24,10 @@ class RequestViewModel {
     var instructionAttributedString: NSAttributedString {
         NSAttributedString(string: R.string.localizable.aWalletAddressScanInstructions(), attributes: [
             .font: Fonts.regular(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.labelTextActive
+            .foregroundColor: Configuration.Color.Semantic.labelTextActive,
         ])
     }
-    
+
     init(account: Wallet, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
         self.domainResolutionService = domainResolutionService

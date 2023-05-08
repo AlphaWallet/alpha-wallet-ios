@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public enum ActivityOrTransactionFilter {
     case keyword(_ value: String?)
@@ -86,9 +86,9 @@ public struct ActivityCollection {
                             return true
                         case (_, .parentTransaction):
                             return false
-                        case let (.standaloneActivity(a0), .standaloneActivity(a1)):
+                        case (.standaloneActivity(let a0), .standaloneActivity(let a1)):
                             return a0.logIndex > a1.logIndex
-                        case let (.childTransaction(t0, _, _), .childTransaction(t1, _, _)):
+                        case (.childTransaction(let t0, _, _), .childTransaction(let t1, _, _)):
                             if let n0 = Int(t0.nonce), let n1 = Int(t1.nonce) {
                                 return n0 > n1
                             } else {
@@ -164,12 +164,12 @@ public struct ActivityCollection {
                         //Special case to support keywords like "Sent CoFi"
                         data = content.filter { data -> Bool in
                             (data.activityName?.lowercased().contains(twoKeywords.0) ?? false) &&
-                                    (data.getTokenSymbol()?.lowercased().contains(twoKeywords.1) ?? false)
+                                (data.getTokenSymbol()?.lowercased().contains(twoKeywords.1) ?? false)
                         }
                     } else {
                         data = content.filter { data -> Bool in
                             (data.activityName?.lowercased().contains(valueToSearch) ?? false) ||
-                                    (data.getTokenSymbol()?.lowercased().contains(valueToSearch) ?? false)
+                                (data.getTokenSymbol()?.lowercased().contains(valueToSearch) ?? false)
                         }
                     }
 
@@ -320,25 +320,24 @@ extension ActivityCollection.functional {
             rowType = .item
         }
         return .init(
-                //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
-                id: transactionRow.blockNumber + 10000000,
-                rowType: rowType,
-                token: token,
-                server: transactionRow.server,
-                name: activityName,
-                eventName: activityName,
-                blockNumber: transactionRow.blockNumber,
-                transactionId: transactionRow.id,
-                transactionIndex: transactionRow.transactionIndex,
-                //We don't use this for transactions, so it's ok
-                logIndex: 0,
-                date: transactionRow.date,
-                values: (token: .init(), card: cardAttributes),
-                view: (html: "", style: ""),
-                itemView: (html: "", style: ""),
-                isBaseCard: true,
-                state: state
+            //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
+            id: transactionRow.blockNumber + 10000000,
+            rowType: rowType,
+            token: token,
+            server: transactionRow.server,
+            name: activityName,
+            eventName: activityName,
+            blockNumber: transactionRow.blockNumber,
+            transactionId: transactionRow.id,
+            transactionIndex: transactionRow.transactionIndex,
+            //We don't use this for transactions, so it's ok
+            logIndex: 0,
+            date: transactionRow.date,
+            values: (token: .init(), card: cardAttributes),
+            view: (html: "", style: ""),
+            itemView: (html: "", style: ""),
+            isBaseCard: true,
+            state: state
         )
     }
 }
-

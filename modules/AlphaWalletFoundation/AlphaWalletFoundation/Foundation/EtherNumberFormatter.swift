@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import BigInt
-import Foundation 
+import Foundation
 
 extension EtherNumberFormatter {
 
@@ -172,7 +172,7 @@ public final class EtherNumberFormatter {
             return integerString(from: BigInt(quotient))
         } else {
             return integerString(from: BigInt(quotient)) + decimalSeparator + remainderFormatted
-        } 
+        }
     }
 
     private func fractionalString(from remainder: BigUInt, quotient: BigUInt, decimals: Int) -> String {
@@ -183,7 +183,7 @@ public final class EtherNumberFormatter {
         guard formattingDecimals != 0 else { return "" }
 
         let fullPaddedRemainder = String(remainder).leftPadding(toLength: decimals, withPad: "0")
-        var remainderPadded = fullPaddedRemainder[0 ..< formattingDecimals]
+        var remainderPadded = fullPaddedRemainder[0..<formattingDecimals]
 
         // Remove extra zeros after the decimal point.
         if let lastNonZeroIndex = remainderPadded.reversed().index(where: { $0 != "0" })?.base {

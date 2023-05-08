@@ -74,12 +74,12 @@ class PagesContainerView: RoundedBackground {
         let viewsHeights = pages.flatMap { view -> [NSLayoutConstraint] in
             return [
                 view.widthAnchor.constraint(equalTo: widthAnchor),
-                view.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+                view.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ]
         }
         bottomAnchorConstraints = [
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ]
 
         NSLayoutConstraint.activate([
@@ -161,7 +161,7 @@ class PageViewWithFooter: UIView, PageViewType {
 
         let stackView = [
             pageView,
-            footerBar
+            footerBar,
         ].asStackView(axis: .vertical)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -170,11 +170,11 @@ class PageViewWithFooter: UIView, PageViewType {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self)
+            stackView.anchorsConstraint(to: self),
         ])
     }
 
     required init?(coder: NSCoder) {
         return nil
-    } 
+    }
 }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 13.05.2022.
 //
 
-import UIKit
 import Kingfisher
+import UIKit
 
 protocol ContentBackgroundSupportable {
     var contentBackgroundColor: UIColor? { get set }

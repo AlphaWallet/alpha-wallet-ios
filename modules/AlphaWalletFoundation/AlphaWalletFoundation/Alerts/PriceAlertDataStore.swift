@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public enum PriceAlertUpdates {
     case enabled(Bool)
@@ -32,7 +32,7 @@ public class PriceAlertDataStore: PriceAlertDataStoreType {
     public var alerts: [PriceAlert] {
         storage.value
     }
-    
+
     private enum Keys {
         static func alertsKey(wallet: Wallet) -> String {
             return "alerts-\(wallet.address.eip55String)"

@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 public struct NormalTransaction: Decodable {
     let hash: String
@@ -28,7 +28,7 @@ public struct NormalTransaction: Decodable {
     ///
     ///So it must be a optional
     var toAddress: AlphaWallet.Address? {
-            //TODO We use the unchecked version because it was easier to provide an Address instance this way. Good to remove it
+        //TODO We use the unchecked version because it was easier to provide an Address instance this way. Good to remove it
         return AlphaWallet.Address(uncheckedAgainstNullAddress: to)
     }
 

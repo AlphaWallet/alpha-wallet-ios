@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 08.07.2022.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public class AlphaWalletTokensService: TokensService {
     private var cancelable = Set<AnyCancellable>()
@@ -31,7 +31,7 @@ public class AlphaWalletTokensService: TokensService {
     private let assetDefinitionStore: AssetDefinitionStore
     private let transporter: ApiTransporter
     private let fetchTokenScriptFiles: FetchTokenScriptFiles
-    
+
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }

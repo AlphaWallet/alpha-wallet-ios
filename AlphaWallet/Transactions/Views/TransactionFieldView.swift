@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 extension TransactionFieldView {
     static func textLabelView(title: String? = nil, value: String? = nil, icon: UIImage? = nil) -> TransactionFieldView<UILabel> {
@@ -91,7 +91,7 @@ class TransactionFieldView<DetailsView: UIView>: UIStackView {
             iconContainerView.widthAnchor.constraint(equalToConstant: 24),
             iconImageView.leadingAnchor.constraint(equalTo: iconContainerView.leadingAnchor),
             iconImageView.trailingAnchor.constraint(equalTo: iconContainerView.trailingAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: detailsView.centerYAnchor)
+            iconImageView.centerYAnchor.constraint(equalTo: detailsView.centerYAnchor),
         ])
     }
 
@@ -134,7 +134,7 @@ extension TransactionFieldView {
     @discardableResult func configure(title: String) -> Self {
         let attributedTitle = NSAttributedString(string: title, attributes: [
             .font: Fonts.regular(size: 13),
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
 
         return configure(attributedTitleText: attributedTitle)
@@ -169,7 +169,7 @@ extension TransactionFieldView where DetailsView: UILabel {
     @discardableResult func configure(value: String) -> Self {
         let attributedValue = NSAttributedString(string: value, attributes: [
             .font: Fonts.regular(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
 
         return configure(attributedValueText: attributedValue)

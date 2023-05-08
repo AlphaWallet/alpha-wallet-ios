@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Foundation
 import PromiseKit
 
 public enum AssetInternalValue: Codable {
@@ -165,14 +165,14 @@ public enum AssetInternalValue: Codable {
 
 extension Array where Element == Subscribable<AssetInternalValue> {
     public func createPromiseForSubscribeOnce() -> Promise<Void> {
-        guard !isEmpty else { return .value(Void()) }
+        guard !isEmpty else { return .value(()) }
         return Promise { seal in
             var count = 0
             for each in self {
                 each.sinkFirst { _ in
                     count += 1
                     guard count == self.count else { return }
-                    seal.fulfill(Void())
+                    seal.fulfill(())
                 }
             }
         }

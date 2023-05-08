@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
+import UIKit
 
 protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: AnyObject, CanOpenURL {
     func didEnterSellTokensPriceQuantity(token: Token, tokenHolder: TokenHolder, ethCost: Double, in viewController: EnterSellTokensCardPriceQuantityViewController)
@@ -263,11 +263,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         guard quantityStepper.value > 0 else {
             let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTokenSellSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self,
-                    completion: nil)
+                                    message: R.string.localizable.aWalletTokenSellSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
+                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonStyles: [.cancel],
+                                    viewController: self,
+                                    completion: nil)
             return
         }
 
@@ -285,11 +285,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         guard !noPrice else {
             let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTokenSellPriceProvideTitle(tokenTypeName),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self,
-                    completion: nil)
+                                    message: R.string.localizable.aWalletTokenSellPriceProvideTitle(tokenTypeName),
+                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonStyles: [.cancel],
+                                    viewController: self,
+                                    completion: nil)
             return
         }
 
@@ -367,7 +367,7 @@ extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegat
     func changeType(in textField: AmountTextField) {
         updateTotalCostsLabels()
     }
-    
+
     func doneButtonTapped(for textField: AmountTextField) {
         view.endEditing(true)
     }

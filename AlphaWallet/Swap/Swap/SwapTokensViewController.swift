@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.03.2022.
 //
 
-import UIKit
-import Combine
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Combine
+import UIKit
 
 protocol SwapTokensViewControllerDelegate: AnyObject {
     func swapSelected(in viewController: SwapTokensViewController)
@@ -91,7 +91,7 @@ class SwapTokensViewController: UIViewController {
             toTokenHeaderView,
             toAmountTextField.defaultLayout(edgeInsets: .init(top: ScreenChecker.size(big: 16, medium: 16, small: 7), left: 16, bottom: 0, right: 16)),
             UIView.separator(),
-            quoteDetailsView
+            quoteDetailsView,
         ])
 
         view.addSubview(footerBar)
@@ -106,7 +106,7 @@ class SwapTokensViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 
@@ -212,7 +212,7 @@ extension SwapTokensViewController: AmountTextFieldDelegate {
     func doneButtonTapped(for textField: AmountTextField) {
         view.endEditing(true)
     }
-    
+
     func shouldReturn(in textField: AmountTextField) -> Bool {
         textField.resignFirstResponder()
         return false

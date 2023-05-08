@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 24.04.2023.
 //
 
-import Combine
-import UIKit
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletTrackAPICalls
+import Combine
+import UIKit
 
 extension TokenScript {
     static let baseTokenScriptFiles: [TokenType: String] = [
@@ -22,7 +22,7 @@ extension TokenScript {
 
 protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityNavigatable, UniversalLinkNavigatable {
     var navigation: AnyPublisher<ApplicationNavigation, Never> { get }
-    
+
     func showCreateWallet()
     func showActiveWallet(wallet: Wallet)
     func showActiveWalletIfNeeded()
@@ -125,10 +125,10 @@ class Application: WalletDependenciesProvidable {
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
 
         self.blockchainsProvider = BlockchainsProvider(
-                serversProvider: serversProvider,
-                blockchainFactory: BaseBlockchainFactory(
-                    config: config,
-                    analytics: analytics))
+            serversProvider: serversProvider,
+            blockchainFactory: BaseBlockchainFactory(
+                config: config,
+                analytics: analytics))
 
         self.assetDefinitionStore = AssetDefinitionStore(
             baseTokenScriptFiles: TokenScript.baseTokenScriptFiles,
@@ -191,12 +191,12 @@ class Application: WalletDependenciesProvidable {
 
         self.shortcutHandler = ShortcutHandler()
         self.launchOptionsService = LaunchOptionsService(handlers: [
-            shortcutHandler
+            shortcutHandler,
         ])
 
         self.donationUserActivityHandler = DonationUserActivityHandler(analytics: analytics)
         self.userActivityService = UserActivityService(handlers: [
-            donationUserActivityHandler
+            donationUserActivityHandler,
         ])
 
         bindWalletAddressesStore()
@@ -371,7 +371,7 @@ class Application: WalletDependenciesProvidable {
             ReportUsersActiveChains(serversProvider: serversProvider),
             MigrateToSupportEip1559Transactions(
                 serversProvider: serversProvider,
-                keychain: keystore)
+                keychain: keystore),
         ]
         services.forEach { $0.perform() }
     }
@@ -395,7 +395,7 @@ class Application: WalletDependenciesProvidable {
     }
 
     func buildDependencies(for wallet: Wallet) -> WalletDependencies {
-        if let dep = dependencies[wallet] { return dep  }
+        if let dep = dependencies[wallet] { return dep }
 
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet))
         let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
@@ -498,7 +498,7 @@ extension Application: WalletApiCoordinatorDelegate {
     }
 }
 
-extension Application: ShortcutNavigatable { }
+extension Application: ShortcutNavigatable {}
 
 extension AtomicDictionary: WalletDependenciesProvidable where Key == Wallet, Value == WalletDependencies {
     public func walletDependencies(walletAddress: AlphaWallet.Address) -> WalletDependencies? {

@@ -17,13 +17,13 @@ struct WalletPupupItemViewModel {
     init(title: String, description: String? = nil, icon: UIImage? = nil) {
         attributedTitle = .init(string: title, attributes: [
             .font: Fonts.regular(size: 20),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
 
         attributedDescription = description.flatMap {
             return NSAttributedString.init(string: $0, attributes: [
                 .font: Fonts.regular(size: 15),
-                .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+                .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             ])
         }
 

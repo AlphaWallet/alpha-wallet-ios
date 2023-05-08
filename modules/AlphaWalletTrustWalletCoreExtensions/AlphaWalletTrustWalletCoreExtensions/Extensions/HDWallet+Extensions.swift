@@ -1,7 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 import WalletCore
 
 public typealias HDWallet = WalletCore.HDWallet
@@ -146,9 +146,9 @@ fileprivate extension Data {
         let len = hex.count / 2
         var data = Data(capacity: len)
         for i in 0..<len {
-            let from = hex.index(hex.startIndex, offsetBy: i*2)
-            let to = hex.index(hex.startIndex, offsetBy: i*2 + 2)
-            let bytes = hex[from ..< to]
+            let from = hex.index(hex.startIndex, offsetBy: i * 2)
+            let to = hex.index(hex.startIndex, offsetBy: i * 2 + 2)
+            let bytes = hex[from..<to]
             if var num = UInt8(bytes, radix: 16) {
                 data.append(&num, count: 1)
             }
@@ -178,11 +178,11 @@ fileprivate extension StringProtocol {
         var i = startIndex
 
         while let nextIndex = index(i, offsetBy: size, limitedBy: endIndex) {
-            chunks.append(self[i ..< nextIndex])
+            chunks.append(self[i..<nextIndex])
             i = nextIndex
         }
 
-        let finalChunk = self[i ..< endIndex]
+        let finalChunk = self[i..<endIndex]
 
         if finalChunk.isEmpty == false {
             chunks.append(finalChunk)

@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 protocol ReplaceTransactionCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator)
@@ -89,7 +89,7 @@ class ReplaceTransactionCoordinator: Coordinator {
           mode: Mode,
           tokensService: TokensProcessingPipeline,
           networkService: NetworkService) {
-        
+
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigUInt(transaction.nonce) else { return nil }
         self.networkService = networkService
@@ -168,7 +168,7 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
             let coordinator = TransactionInProgressCoordinator(
                 presentingViewController: strongSelf.presentingViewController,
                 server: strongSelf.session.server)
-            
+
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

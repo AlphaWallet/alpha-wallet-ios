@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
-import Combine
 @testable import AlphaWalletFoundation
+import Combine
+import XCTest
 
 class LocalPopularTokensCollectionTests: XCTestCase {
     //Loading JSON file from resource without static type checking is too fragile. Test to check

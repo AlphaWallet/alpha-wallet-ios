@@ -12,7 +12,7 @@ class RoundedImageView: ImageView {
 
         NSLayoutConstraint.activate([
             widthAnchor.constraint(equalToConstant: size.width),
-            heightAnchor.constraint(equalToConstant: size.height)
+            heightAnchor.constraint(equalToConstant: size.height),
         ])
     }
 
@@ -44,7 +44,7 @@ class WalletConnectSessionCell: UITableViewCell {
 
         let cell0 = [
             nameLabel,
-            urlLabel
+            urlLabel,
         ].asStackView(axis: .vertical)
         let stackView = [.spacerWidth(5), iconImageView, .spacerWidth(12), cell0 ].asStackView(axis: .horizontal, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class WalletConnectSessionCell: UITableViewCell {
             serverIconImageView.centerXAnchor.constraint(equalTo: iconImageView.leadingAnchor, constant: 8),
             serverIconImageView.centerYAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: -8),
             //NOTE: using edge insets to avoid braking constraints
-            stackView.anchorsConstraint(to: contentView, edgeInsets: DataEntry.Metric.Cell.insets)
+            stackView.anchorsConstraint(to: contentView, edgeInsets: DataEntry.Metric.Cell.insets),
         ])
     }
 

@@ -2,11 +2,11 @@
 // Created by James Sangalli on 8/12/18.
 //
 
-import Foundation
-import UIKit
-import StatefulViewController
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import StatefulViewController
+import UIKit
 
 protocol BrowserHistoryViewControllerDelegate: AnyObject {
     func didSelect(history: BrowserHistoryRecord, in viewController: BrowserHistoryViewController)
@@ -168,15 +168,15 @@ extension BrowserHistoryViewController: UITableViewDelegate {
 extension BrowserHistoryViewController: BrowserHistoryHeaderViewDelegate {
     func didTapClearAll(in headerView: BrowserHistoryHeaderView) {
         UIAlertController.alert(
-                title: R.string.localizable.dappBrowserClearHistory(),
-                message: R.string.localizable.dappBrowserClearHistoryPrompt(),
-                alertButtonTitles: [R.string.localizable.clearButtonTitle(), R.string.localizable.cancel()],
-                alertButtonStyles: [.destructive, .cancel],
-                viewController: self,
-                completion: { [deleteRecord] buttonIndex in
-                    guard buttonIndex == 0 else { return }
-                    deleteRecord.send(.all)
-                })
+            title: R.string.localizable.dappBrowserClearHistory(),
+            message: R.string.localizable.dappBrowserClearHistoryPrompt(),
+            alertButtonTitles: [R.string.localizable.clearButtonTitle(), R.string.localizable.cancel()],
+            alertButtonStyles: [.destructive, .cancel],
+            viewController: self,
+            completion: { [deleteRecord] buttonIndex in
+                guard buttonIndex == 0 else { return }
+                deleteRecord.send(.all)
+            })
     }
 }
 

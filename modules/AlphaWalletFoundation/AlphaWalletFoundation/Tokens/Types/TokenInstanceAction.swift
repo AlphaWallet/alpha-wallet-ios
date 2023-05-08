@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 extension TokenInstanceAction.ActionType: Equatable {
     public static func == (lhs: TokenInstanceAction.ActionType, rhs: TokenInstanceAction.ActionType) -> Bool {
@@ -97,7 +97,7 @@ public struct TokenInstanceAction {
         return transactionFunction != nil
     }
     public let type: ActionType
-    
+
     public init(type: ActionType) {
         self.type = type
     }

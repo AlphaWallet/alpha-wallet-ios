@@ -52,7 +52,7 @@ final class SelectableSwapRouteTableViewCell: UITableViewCell {
         let stackView = [
             exchangeTextLabel,
             amountTextLabel,
-            bottomStackView
+            bottomStackView,
         ].asStackView(axis: .vertical, alignment: .leading)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 

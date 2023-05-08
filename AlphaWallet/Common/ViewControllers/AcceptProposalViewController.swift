@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.02.2021.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 protocol AcceptProposalViewControllerDelegate: AnyObject {
     func controller(_ controller: AcceptProposalViewController, continueButtonTapped sender: UIButton)
@@ -69,7 +69,7 @@ class AcceptProposalViewController: UIViewController {
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight)
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
         ])
 
         headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)

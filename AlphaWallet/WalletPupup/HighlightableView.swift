@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension UIControl.State: Hashable { }
+extension UIControl.State: Hashable {}
 
 class HighlightableView: UIView {
     private var colors: [UIControl.State: UIColor] = [:]

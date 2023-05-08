@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletCore
+import AlphaWalletFoundation
+import Combine
 import UIKit
 import WebKit
-import AlphaWalletFoundation
-import AlphaWalletCore
-import Combine
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let server: RPCServer
@@ -44,7 +44,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
         }
     }
 
-        //These are necessary because non-TokenScript views have margins whereas TokenScript views doesn't
+    //These are necessary because non-TokenScript views have margins whereas TokenScript views doesn't
     private var constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
     private var constraintsWithTrailingMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
     private var constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
@@ -150,8 +150,8 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor),
         ]
 
-            // TODO extract constant. Maybe DataEntry.Metric.sideMargin
-        let xMargin  = CGFloat(7)
+        // TODO extract constant. Maybe DataEntry.Metric.sideMargin
+        let xMargin = CGFloat(7)
         checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
         checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
         checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
@@ -159,7 +159,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
         } else {
-                //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
+            //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
         }
@@ -196,7 +196,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     }
     private var cancellable = Set<AnyCancellable>()
 
-        // swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     func configure(viewModel: TokenCardRowViewModelProtocol) {
         cancellable.cancellAll()
         backgroundColor = viewModel.contentsBackgroundColor
@@ -281,7 +281,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             nativelyRenderedAttributeViews.hideAll()
             tokenScriptRendererView.isHidden = false
             tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml)
-                //TODO not good to explicitly check for different types. Easy to miss
+            //TODO not good to explicitly check for different types. Easy to miss
             if let viewModel = viewModel as? TokenCardRowViewModel {
                 tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
             } else if let viewModel = viewModel as? ImportMagicTokenCardRowViewModel, let tokenHolder = viewModel.tokenHolder {
@@ -289,7 +289,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             }
         } else {
             nativelyRenderedAttributeViews.showAll()
-                //TODO we can't change it here. Because it is set (correctly) earlier. Fix this inconsistency
+            //TODO we can't change it here. Because it is set (correctly) earlier. Fix this inconsistency
             tokenScriptRendererView.isHidden = true
         }
 
@@ -324,7 +324,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 
         adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
     }
-        // swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
 
     private func adjustmentsToHandleWhenCategoryLabelTextIsTooLong() {
         tokenCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -346,7 +346,7 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-        
+
         return .fail(PromiseError(error: JsonRpcError.requestRejected))
     }
 

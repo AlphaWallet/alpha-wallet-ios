@@ -9,10 +9,10 @@ import Foundation
 import UIKit
 
 /**
-Stop animation style of the `TransitionButton`.
- - normal: just revert the button to the original state.
- - shake: revert the button to original state and make a shaoe animation, useful to reflect that something went wrong
- */
+ Stop animation style of the `TransitionButton`.
+  - normal: just revert the button to the original state.
+  - shake: revert the button to original state and make a shaoe animation, useful to reflect that something went wrong
+  */
 public enum StopAnimationStyle {
     case normal
     case shake
@@ -34,13 +34,13 @@ public enum StopAnimationStyle {
     private let expandCurve: CAMediaTimingFunction = CAMediaTimingFunction(controlPoints: 0.95, 0.02, 1, 0.05)
     private let shrinkDuration: CFTimeInterval = 0.3
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         clipsToBounds = true
         layer.borderWidth = shrinkBorderWidth
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
@@ -62,7 +62,7 @@ public enum StopAnimationStyle {
 
         UIView.animate(withDuration: 0.2, animations: {
             self.layer.cornerRadius = self.frame.height / 2
-        }, completion: { _ -> Void in
+        }, completion: { _ in
             self.shrink(completion: completion)
         })
     }
@@ -94,7 +94,7 @@ public enum StopAnimationStyle {
             NSValue(cgPoint: CGPoint(x: CGFloat(point.x + 10), y: CGFloat(point.y))),
             NSValue(cgPoint: CGPoint(x: CGFloat(point.x - 10), y: CGFloat(point.y))),
             NSValue(cgPoint: CGPoint(x: CGFloat(point.x + 10), y: CGFloat(point.y))),
-            NSValue(cgPoint: point)
+            NSValue(cgPoint: point),
         ]
 
         animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)

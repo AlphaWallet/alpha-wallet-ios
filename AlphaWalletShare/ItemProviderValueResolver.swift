@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 11.11.2020.
 //
 
-import Foundation
-import Social
-import MobileCoreServices
 import AlphaWalletShareExtensionCore
+import Foundation
+import MobileCoreServices
+import Social
 
 protocol ItemProviderValueResolver {
     var supportedTypes: [NSItemProvider.ItemType] { get }

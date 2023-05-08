@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 07.04.2023.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class UpdateInView: UIView {
 
@@ -54,7 +54,7 @@ class UpdateInView: UIView {
             timerLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
 
             loadingIndicator.centerXAnchor.constraint(equalTo: timerLabel.trailingAnchor, constant: 10),
-            loadingIndicator.centerYAnchor.constraint(equalTo: timerLabel.centerYAnchor)
+            loadingIndicator.centerYAnchor.constraint(equalTo: timerLabel.centerYAnchor),
         ])
 
         bind(viewModel: viewModel)

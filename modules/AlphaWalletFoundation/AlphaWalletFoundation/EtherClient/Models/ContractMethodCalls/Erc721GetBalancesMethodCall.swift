@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.01.2023.
 //
 
-import Foundation
 import AlphaWalletWeb3
 import BigInt
+import Foundation
 
 struct Erc721GetBalancesMethodCall: ContractMethodCall {
     typealias Response = [String]

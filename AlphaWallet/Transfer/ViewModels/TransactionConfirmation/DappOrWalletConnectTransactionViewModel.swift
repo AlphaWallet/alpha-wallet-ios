@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 extension TransactionConfirmationViewModel {
     class DappOrWalletConnectTransactionViewModel: TransactionConfirmationViewModelType {
@@ -32,7 +32,7 @@ extension TransactionConfirmationViewModel {
                 sections = [.balance, .gas, .amount, .network, .recipient]
             }
             if let requester = requester?.requester {
-               sections += [.dapp(requester)]
+                sections += [.dapp(requester)]
             }
 
             return sections
@@ -86,7 +86,7 @@ extension TransactionConfirmationViewModel {
                 .store(in: &cancellable)
 
             let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, recipientResolver.resolveRecipient()).mapToVoid()
-            
+
             let viewState = Publishers.Merge(stateChanges, configurator.objectChanges)
                 .map { _ in
                     TransactionConfirmationViewModel.ViewState(

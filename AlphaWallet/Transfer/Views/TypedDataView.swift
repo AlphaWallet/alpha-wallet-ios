@@ -41,7 +41,7 @@ class TypedDataView: UIView {
 
         let stackView = [
             titleLabel,
-            valueLabel
+            valueLabel,
         ].asStackView(axis: .vertical, alignment: .fill)
 
         addSubview(stackView)

@@ -16,4 +16,3 @@ struct SendViewSectionHeaderViewModel {
     var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
     var separatorBackgroundColor: UIColor = Configuration.Color.Semantic.tableViewSeparator
 }
-

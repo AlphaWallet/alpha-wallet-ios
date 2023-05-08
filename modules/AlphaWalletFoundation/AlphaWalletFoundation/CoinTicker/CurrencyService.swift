@@ -36,4 +36,4 @@ public final class CurrencyService {
     }
 }
 
-extension Config: CurrencyServiceStorage { }
+extension Config: CurrencyServiceStorage {}

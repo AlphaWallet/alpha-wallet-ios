@@ -1,13 +1,11 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
+import Foundation
 
-struct TransactionConfirmationViewModelInput {
-
-}
+struct TransactionConfirmationViewModelInput {}
 
 struct TransactionConfirmationViewModelOutput {
     let viewState: AnyPublisher<TransactionConfirmationViewModel.ViewState, Never>
@@ -15,12 +13,12 @@ struct TransactionConfirmationViewModelOutput {
 
 protocol TransactionConfirmationViewModelType: ExpandableSection {
     var confirmButtonViewModel: ConfirmButtonViewModel { get }
-    
+
     func transform(input: TransactionConfirmationViewModelInput) -> TransactionConfirmationViewModelOutput
     func shouldShowChildren(for section: Int, index: Int) -> Bool
 }
 
-struct TransactionConfirmationViewModel {
+enum TransactionConfirmationViewModel {
 
     static func buildViewModel(configurator: TransactionConfigurator,
                                configuration: TransactionType.Configuration,
@@ -92,7 +90,7 @@ struct TransactionConfirmationViewModel {
 }
 
 extension TransactionConfirmationViewModel {
-    
+
     struct ViewState {
         let title: String
         let views: [ViewType]
@@ -126,7 +124,7 @@ extension TransactionConfirmationViewModel {
         if let rate = rate {
             let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: fee.doubleValue * rate.value) ?? "-"
 
-            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat))"
+            costs = "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat))"
         } else {
             costs = "< ~\(feeString) \(configurator.session.server.symbol)"
         }

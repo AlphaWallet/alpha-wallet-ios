@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 11.08.2022.
 //
 
-import UIKit
 import AlphaWalletLogger
+import UIKit
 
 protocol PushNotifiable {
     func didPushViewController(animated: Bool)
@@ -94,7 +94,7 @@ class NavigationController: UINavigationController, UIGestureRecognizerDelegate 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         isPopActionInterractive = true
         guard viewControllers.count > 1 else { return false }
-        
+
         if let canPreventPop = topViewController as? PopInteractable {
             return canPreventPop.shouldBeginPopInteraction()
         }

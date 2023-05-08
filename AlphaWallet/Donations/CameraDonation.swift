@@ -1,8 +1,8 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
+import AlphaWalletLogger
 import CoreSpotlight
 import Foundation
-import AlphaWalletLogger
 
 class CameraDonation {
     //TODO maybe change to include wallet address

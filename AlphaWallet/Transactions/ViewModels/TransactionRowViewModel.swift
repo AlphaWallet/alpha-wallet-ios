@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
+import BigInt
 import Foundation
 import UIKit
-import BigInt
-import AlphaWalletFoundation
 
 struct TransactionRowViewModel {
     private let transactionRow: TransactionRow
@@ -56,7 +56,7 @@ struct TransactionRowViewModel {
         ])
 
         let currency = NSAttributedString(string: " " + value.symbol, attributes: [
-            .font: Fonts.regular(size: 16) as Any
+            .font: Fonts.regular(size: 16) as Any,
         ])
 
         return amount + currency

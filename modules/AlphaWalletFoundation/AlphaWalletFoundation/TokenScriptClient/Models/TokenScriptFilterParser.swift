@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 // swiftlint:disable type_body_length
 public struct TokenScriptFilterParser {
@@ -12,7 +12,7 @@ public struct TokenScriptFilterParser {
         case lessThanOrEqual = "<="
         case greaterThanOrEqual = ">="
 
-// swiftlint:disable function_body_length
+        // swiftlint:disable function_body_length
         func isTrueFor(attributeValue: AssetInternalValue, value: String) -> Bool {
             switch attributeValue {
             case .address(let address):
@@ -31,7 +31,7 @@ public struct TokenScriptFilterParser {
             case .bool(let bool):
                 switch self {
                 case .equal:
-                    return (bool ? "TRUE": "FALSE") == value
+                    return (bool ? "TRUE" : "FALSE") == value
                 case .lessThan:
                     return false
                 case .greaterThan:
@@ -133,7 +133,7 @@ public struct TokenScriptFilterParser {
                 return false
             }
         }
-// swiftlint:enable function_body_length
+        // swiftlint:enable function_body_length
     }
 
     public struct Lexer {
@@ -461,7 +461,7 @@ public struct TokenScriptFilterParser {
             var value = value
             repeat {
                 guard let regex = Parser.regex else { return nil }
-                let range = NSRange(value.startIndex ..< value.endIndex, in: value)
+                let range = NSRange(value.startIndex..<value.endIndex, in: value)
                 let matches = regex.matches(in: value, options: [], range: range)
                 guard matches.count >= 1 else { return value }
                 guard let attributeRange = Range(matches[0].range(withName: "attribute"), in: value) else { return value }
@@ -476,7 +476,7 @@ public struct TokenScriptFilterParser {
                 case .address(let address):
                     attributeValueString = address.eip55String
                 case .bool(let bool):
-                    attributeValueString = bool ? "TRUE": "FALSE"
+                    attributeValueString = bool ? "TRUE" : "FALSE"
                 case .string(let string):
                     attributeValueString = string
                 case .bytes(let bytes):
@@ -509,13 +509,13 @@ public struct TokenScriptFilterParser {
 
 fileprivate extension String {
     subscript(i: Int) -> String {
-        self[i ..< i + 1]
+        self[i..<i + 1]
     }
 
     subscript(r: Range<Int>) -> String {
         let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)), upper: min(count, max(0, r.upperBound))))
         let start = index(startIndex, offsetBy: range.lowerBound)
         let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-        return String(self[start ..< end])
+        return String(self[start..<end])
     }
 }

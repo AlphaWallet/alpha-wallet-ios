@@ -1,10 +1,10 @@
+import AlphaWalletFoundation
+import Combine
+import CoreImage
 // Copyright © 2018 Stormbird PTE. LTD.
 import Foundation
-import UIKit
-import CoreImage
 import MBProgressHUD
-import Combine
-import AlphaWalletFoundation
+import UIKit
 
 protocol RequestViewControllerDelegate: AnyObject {
     func didClose(in viewController: RequestViewController)
@@ -25,7 +25,7 @@ class RequestViewController: UIViewController {
         let qrCodeDimensions: CGFloat = ScreenChecker.size(big: 260, medium: 260, small: 200)
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: qrCodeDimensions),
-            imageView.heightAnchor.constraint(equalToConstant: qrCodeDimensions)
+            imageView.heightAnchor.constraint(equalToConstant: qrCodeDimensions),
         ])
 
         return imageView
@@ -57,7 +57,7 @@ class RequestViewController: UIViewController {
             .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 15)),
             addressView,
             .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 15)),
-            ensNameView
+            ensNameView,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)

@@ -15,7 +15,7 @@ class SwapOptionsHeaderView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
+
         return label
     }()
 
@@ -50,7 +50,7 @@ class SwapOptionsHeaderView: UIView {
             trailingStackView.heightAnchor.constraint(equalTo: stackView.heightAnchor),
             trailingStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             slippageInfoButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: slippageInfoButton.centerYAnchor)
+            titleLabel.centerYAnchor.constraint(equalTo: slippageInfoButton.centerYAnchor),
         ])
 
         configure(viewModel: viewModel)
@@ -74,7 +74,7 @@ extension SwapOptionsHeaderView {
         let attributedText = NSAttributedString(string: title, attributes: [
             .font: Fonts.bold(size: 17) as Any,
             .foregroundColor: Configuration.Color.Semantic.appTint,
-            .paragraphStyle: paragraph
+            .paragraphStyle: paragraph,
         ])
 
         let button = UIButton(type: .system)

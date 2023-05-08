@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.05.2022.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public final class CombineTimer {
 

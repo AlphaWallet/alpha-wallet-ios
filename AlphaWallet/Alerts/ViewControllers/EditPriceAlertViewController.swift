@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.09.2021.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol EditPriceAlertViewControllerDelegate: AnyObject {
     func didUpdateAlert(in viewController: EditPriceAlertViewController)
@@ -66,7 +66,7 @@ class EditPriceAlertViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             headerView,
-            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 0, right: 16))
+            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 0, right: 16)),
         ])
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
@@ -147,7 +147,7 @@ extension EditPriceAlertViewController: AmountTextFieldDelegate {
     func doneButtonTapped(for textField: AmountTextField) {
         view.endEditing(true)
     }
-    
+
     func shouldReturn(in textField: AmountTextField) -> Bool {
         return true
     }

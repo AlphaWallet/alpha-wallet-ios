@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 22.03.2023.
 //
 
-import XCTest
 @testable import AlphaWallet
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import XCTest
 
 class PublisherToAsyncTests: XCTestCase {
 
@@ -25,7 +25,7 @@ class PublisherToAsyncTests: XCTestCase {
                 }
             }
 
-            return AnyCancellable { }
+            return AnyCancellable {}
         }
 
         Task {
@@ -52,9 +52,7 @@ class PublisherToAsyncTests: XCTestCase {
                 }
             }
 
-            return AnyCancellable {
-
-            }
+            return AnyCancellable {}
         }.handleEvents(receiveCancel: { expectation.fulfill() })
 
         let task = Task {

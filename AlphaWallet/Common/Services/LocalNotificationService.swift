@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 31.08.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import UserNotifications
-import AlphaWalletFoundation
 
 class LocalNotificationService: ScheduledNotificationService {
 

@@ -12,7 +12,7 @@ public class AtomicArray<Element> {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.atomicArray", attributes: .concurrent)
     private var array = [Element]()
 
-    public init() { }
+    public init() {}
 
     public convenience init(_ array: [Element]) {
         self.init()

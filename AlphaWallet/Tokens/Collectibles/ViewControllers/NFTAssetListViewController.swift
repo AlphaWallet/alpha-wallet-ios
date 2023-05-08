@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
-import StatefulViewController
 import AlphaWalletFoundation
 import Combine
+import StatefulViewController
+import UIKit
 
 protocol NFTAssetListViewControllerDelegate: AnyObject {
     func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenHolder: TokenHolder, tokenId: TokenId)
@@ -41,7 +41,7 @@ class NFTAssetListViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
 
         emptyView = EmptyView.nftAssetsEmptyView()

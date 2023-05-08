@@ -2,7 +2,7 @@
 
 import Foundation
 
-public class Environment {
+public enum Environment {
     public static var isTestFlight: Bool = {
         Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
     }()

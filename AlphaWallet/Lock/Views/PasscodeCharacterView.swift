@@ -4,7 +4,7 @@
 import UIKit
 
 class PasscodeCharacterView: UIView {
-	private var isEmpty = true
+    private var isEmpty = true
     private let filledImageView: UIImageView = UIImageView(image: UIImage(systemName: "circle.fill"))
     private let emptyImageView: UIImageView = UIImageView(image: UIImage(systemName: "circle"))
 
@@ -34,19 +34,19 @@ class PasscodeCharacterView: UIView {
             emptyImageView.leadingAnchor.constraint(equalToSystemSpacingAfter: leadingAnchor, multiplier: 1.0),
             trailingAnchor.constraint(equalToSystemSpacingAfter: emptyImageView.trailingAnchor, multiplier: 1.0),
             emptyImageView.topAnchor.constraint(equalToSystemSpacingBelow: filledImageView.topAnchor, multiplier: 1.0),
-            bottomAnchor.constraint(equalToSystemSpacingBelow: emptyImageView.bottomAnchor, multiplier: 1.0)
+            bottomAnchor.constraint(equalToSystemSpacingBelow: emptyImageView.bottomAnchor, multiplier: 1.0),
         ])
     }
 
-	private func updateView() {
+    private func updateView() {
         filledImageView.isHidden = isEmpty
         emptyImageView.isHidden = !isEmpty
-	}
+    }
 
-	func setEmpty(_ isEmpty: Bool) {
-		if self.isEmpty != isEmpty {
-			self.isEmpty = isEmpty
-			updateView()
-		}
-	}
+    func setEmpty(_ isEmpty: Bool) {
+        if self.isEmpty != isEmpty {
+            self.isEmpty = isEmpty
+            updateView()
+        }
+    }
 }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public enum PriceAlertsFilterStrategy {
     case all

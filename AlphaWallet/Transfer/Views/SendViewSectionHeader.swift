@@ -42,7 +42,7 @@ class SendViewSectionHeader: UIView {
         let stackView = [
             topSeparatorView,
             [.spacerWidth(16), textLabel, .spacerWidth(16)].asStackView(),
-            bottomSeparatorView
+            bottomSeparatorView,
         ].asStackView(axis: .vertical, spacing: 13)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +54,7 @@ class SendViewSectionHeader: UIView {
             bottomSeparatorLineHeight,
             topSeparatorLineHeight,
             textLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 22),
-            stackView.anchorsConstraint(to: self)
+            stackView.anchorsConstraint(to: self),
         ])
     }
 

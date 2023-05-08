@@ -72,7 +72,7 @@ class ScrollableFloatingPanelLayout: FloatingPanelBottomLayout {
     override var anchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, edge: .top, referenceGuide: .safeArea),
-            .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, edge: .bottom, referenceGuide: .safeArea)
+            .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, edge: .bottom, referenceGuide: .safeArea),
         ]
     }
 
@@ -90,7 +90,7 @@ class FullScreenScrollableFloatingPanelLayout: FloatingPanelBottomLayout {
     override var anchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, edge: .top, referenceGuide: .safeArea),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 18.0, edge: .top, referenceGuide: .safeArea)
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 18.0, edge: .top, referenceGuide: .safeArea),
         ]
     }
 
@@ -103,7 +103,7 @@ extension FloatingPanelController {
 
     convenience init(shadowColor: UIColor = Configuration.Color.Semantic.shadow, shadowOpacity: Float = 0.1, isPanEnabled: Bool) {
         self.init()
-        
+
         let appearance = SurfaceAppearance()
         appearance.cornerRadius = 16
         appearance.backgroundColor = Configuration.Color.Semantic.navigationBarBackgroundColor
@@ -131,7 +131,7 @@ extension FloatingPanelController {
             let backdropTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackdrop(tapGesture:)))
             backdropView.addGestureRecognizer(backdropTapGesture)
         }
-    } 
+    }
 
     @objc private func handleBackdrop(tapGesture: UITapGestureRecognizer) {
         guard let viewController = tapGesture.view?.parentFloatingPanelController else { return }

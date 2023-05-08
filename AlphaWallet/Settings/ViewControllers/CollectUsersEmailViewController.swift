@@ -142,10 +142,9 @@ extension CollectUsersEmailViewController {
             .spacer(height: 20),
             [.spacerWidth(16), descriptionLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
             .spacer(height: 20),
-            [.spacerWidth(16), textField, .spacerWidth(16)].asStackView(axis: .horizontal)
+            [.spacerWidth(16), textField, .spacerWidth(16)].asStackView(axis: .horizontal),
         ]
 
         stackView.addArrangedSubviews(views)
     }
 }
-

@@ -56,7 +56,7 @@ extension SwapStepsView {
                 [.spacerWidth(25), descriptionLabel].asStackView(alignment: .center),
                 [.spacerWidth(35), subProviderViews].asStackView(alignment: .center),
             ].asStackView(axis: .vertical)
-            stackview.translatesAutoresizingMaskIntoConstraints =  false
+            stackview.translatesAutoresizingMaskIntoConstraints = false
 
             addSubview(stackview)
 

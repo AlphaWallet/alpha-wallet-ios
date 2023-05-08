@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 28.10.2020.
 //
 
-import Foundation 
 import AlphaWalletFoundation
+import Foundation
 
-extension WalletConnectV1Request: PositionedJSONRPC_2_0_RequestType { }
+extension WalletConnectV1Request: PositionedJSONRPC_2_0_RequestType {}
 
 extension AlphaWallet.WalletConnect {
     enum Request {
@@ -27,8 +27,8 @@ extension AlphaWallet.WalletConnect {
 }
 
 extension AlphaWallet.WalletConnect {
-    
-    struct RequestDecoder {
+
+    enum RequestDecoder {
         enum Keys: String, CaseIterable {
             case sign = "eth_sign"
             case personalSign = "personal_sign"

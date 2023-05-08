@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 01.04.2022.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 final class PendingTransactionProvider {
 
@@ -135,7 +135,7 @@ final class PendingTransactionProvider {
                 guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
                 transactionDataStore.delete(transactions: [transaction])
                 cancelScheduler(transaction: transaction)
-                //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
+            //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
             case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                 break
             }

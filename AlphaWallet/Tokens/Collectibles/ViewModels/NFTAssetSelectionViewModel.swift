@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 typealias TokenHolderSelection = (tokenId: TokenId, tokenHolder: TokenHolder)
 
@@ -263,13 +263,13 @@ extension NFTAssetSelectionViewModel {
         case allAvailable
         case unselectAll
     }
-    
+
     struct SelectedAsset: Equatable {
         let selected: Int
         let indexPath: IndexPath
     }
 
-    enum functional { }
+    enum functional {}
 
     enum ToolbarAction: CaseIterable {
         case clear

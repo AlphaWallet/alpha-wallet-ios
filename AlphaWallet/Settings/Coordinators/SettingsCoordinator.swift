@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 enum RestartReason {
     case walletChange

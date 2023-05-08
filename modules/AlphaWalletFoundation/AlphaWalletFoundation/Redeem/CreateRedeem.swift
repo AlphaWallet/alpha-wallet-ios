@@ -3,8 +3,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public class CreateRedeem {
     private let token: Token
@@ -46,7 +46,7 @@ public class CreateRedeem {
     public func redeemMessage(indices: [UInt16]) -> (message: String, qrCode: String) {
         let contractAddress = token.contractAddress.eip55String.lowercased()
         let messageForSigning = formIndicesSelection(indices: indices)
-                + "," + generateTimeStamp() + "," + contractAddress
+            + "," + generateTimeStamp() + "," + contractAddress
         let qrCodeData = formIndicesSelection(indices: indices)
         return (messageForSigning, qrCodeData)
     }
@@ -62,8 +62,8 @@ public class CreateRedeem {
         let zeroCount = Int(firstValue) / NIBBLE
         let correctionFactor = zeroCount * NIBBLE
         /* the method here is easier to express with matrix programming like this:
-        indexList = indexList - correctionFactor # reduce every element of the list by an int
-        selection = sum(2^indexList)             # raise every element and add the result back */
+         indexList = indexList - correctionFactor # reduce every element of the list by an int
+         selection = sum(2^indexList)             # raise every element and add the result back */
         var bitFieldLookup = BigUInt(0)
         for _ in 0...indices.count - 1 {
             let adder = BigUInt(2).power(Int(indices[0]) - correctionFactor)

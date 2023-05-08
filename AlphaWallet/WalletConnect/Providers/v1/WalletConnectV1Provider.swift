@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 09.11.2021.
 //
 
-import Foundation
-import WalletConnectSwift
 import AlphaWalletAddress
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import Foundation
+import WalletConnectSwift
 
 class WalletConnectV1Provider: WalletConnectServer {
 

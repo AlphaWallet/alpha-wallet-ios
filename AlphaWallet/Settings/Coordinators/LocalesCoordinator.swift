@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol LocalesCoordinatorDelegate: AnyObject {
     func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator)
@@ -28,8 +28,7 @@ class LocalesCoordinator: Coordinator {
     }()
     weak var delegate: LocalesCoordinatorDelegate?
 
-    func start() {
-    }
+    func start() {}
 }
 
 extension LocalesCoordinator: LocalesViewControllerDelegate {
@@ -38,4 +37,3 @@ extension LocalesCoordinator: LocalesViewControllerDelegate {
         delegate?.didSelect(locale: locale, in: self)
     }
 }
-

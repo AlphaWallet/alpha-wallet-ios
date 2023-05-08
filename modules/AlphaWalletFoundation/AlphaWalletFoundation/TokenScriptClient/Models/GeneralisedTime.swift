@@ -26,11 +26,11 @@ public struct GeneralisedTime: Codable {
         let dateStringForUtc = dfForUtc.string(from: date)
         let generalisedTime = formatAsGeneralisedTime
         let result = """
-                     {
-                     date: new Date(\"\(dateStringForUtc)\"),
-                     generalizedTime: \"\(generalisedTime)\"
-                     }\n
-                     """
+            {
+            date: new Date(\"\(dateStringForUtc)\"),
+            generalizedTime: \"\(generalisedTime)\"
+            }\n
+            """
         return result
     }
 

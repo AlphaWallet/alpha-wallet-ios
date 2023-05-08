@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenDetailsViewController)
@@ -53,7 +53,7 @@ class FungibleTokenDetailsViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
         buttonsBar.viewController = self

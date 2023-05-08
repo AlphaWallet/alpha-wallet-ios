@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 08.03.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 final class Erc20TransferTransactionProvider {
     private let session: WalletSession

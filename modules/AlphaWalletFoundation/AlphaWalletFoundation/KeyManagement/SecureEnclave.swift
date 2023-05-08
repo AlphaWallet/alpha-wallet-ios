@@ -73,7 +73,7 @@ class SecureEnclave {
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrApplicationTag as String: tagData(fromName: name),
             kSecReturnRef as String: true,
-            kSecMatchLimit as String: kSecMatchLimitAll
+            kSecMatchLimit as String: kSecMatchLimitAll,
         ]
 
         var raw: CFTypeRef?
@@ -131,8 +131,8 @@ class SecureEnclave {
             kSecPrivateKeyAttrs as String: [
                 kSecAttrIsPermanent as String: true,
                 kSecAttrApplicationTag as String: tagData(fromName: name),
-                kSecAttrAccessControl as String: access
-            ]
+                kSecAttrAccessControl as String: access,
+            ],
         ]
         if isSimulator {
             //do nothing
@@ -172,7 +172,7 @@ class SecureEnclave {
         let params: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecAttrApplicationTag as String: tagData(fromName: name)
+            kSecAttrApplicationTag as String: tagData(fromName: name),
         ]
         let _ = SecItemDelete(params as CFDictionary)
     }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
 import AlphaWalletWeb3
+import Foundation
 
 public struct AnyContractMethod: ContractMethod {
     let method: String

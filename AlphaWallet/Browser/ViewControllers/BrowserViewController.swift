@@ -1,12 +1,12 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
-import WebKit
-import JavaScriptCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
+import Foundation
+import JavaScriptCore
+import UIKit
+import WebKit
 
 protocol BrowserViewControllerDelegate: AnyObject {
     func didCall(action: DappAction, callbackId: Int, in viewController: BrowserViewController)
@@ -169,7 +169,7 @@ final class BrowserViewController: UIViewController {
             return
         } else {
             if error.domain == NSURLErrorDomain,
-                let failedURL = (error as NSError).userInfo[NSURLErrorFailingURLErrorKey] as? URL {
+               let failedURL = (error as NSError).userInfo[NSURLErrorFailingURLErrorKey] as? URL {
                 delegate?.forceUpdate(url: failedURL, in: self)
             }
             errorView.show(error: error)

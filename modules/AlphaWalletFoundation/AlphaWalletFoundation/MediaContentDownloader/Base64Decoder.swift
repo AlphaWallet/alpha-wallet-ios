@@ -34,12 +34,12 @@ public struct Base64Decoder {
             guard index < string.endIndex else { return nil }
 
             let startBase64Index = string.index(index, offsetBy: 1)
-            let supposeBase64 = String(string[startBase64Index ..< string.endIndex])
+            let supposeBase64 = String(string[startBase64Index..<string.endIndex])
             let isBase64 = predicate.evaluate(with: supposeBase64) || Data(base64Encoded: supposeBase64) != nil
             if isBase64 {
                 guard let data = Data(base64Encoded: supposeBase64) else { return nil }
                 //data:application/json;base64,
-                let dataEncodingType = String(string[string.startIndex ..< index])
+                let dataEncodingType = String(string[string.startIndex..<index])
                 let components = dataEncodingType.components(separatedBy: ";")
 
                 guard components.count == 2 else {

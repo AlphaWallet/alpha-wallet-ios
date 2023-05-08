@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
-import Foundation
 import AlphaWalletWeb3
+import Foundation
+import XCTest
 
 class SmartContractHelperTests: XCTestCase {
 

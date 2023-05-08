@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 10.08.2020.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class SeedPhraseBackupIntroductionViewControllerTests: XCTestCase {
 

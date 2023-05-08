@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 //EIP-5169 https://github.com/ethereum/EIPs/pull/5169
 class ScriptUri {

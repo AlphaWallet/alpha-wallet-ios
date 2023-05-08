@@ -40,7 +40,7 @@ class EditEip1559GasFeeView: UIView {
             maxFeeTextField,
             UIView.separator(),
             maxPriorityFeeHeaderView,
-            maxPriorityFeeTextField
+            maxPriorityFeeTextField,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
@@ -87,4 +87,3 @@ extension EditEip1559GasFeeView: SlidableTextFieldDelegate {
         }
     }
 }
-

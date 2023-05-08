@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 27.02.2023.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 struct EditableSelectAssetAmountViewModelInput {
     let text: AnyPublisher<String, Never>
@@ -51,7 +51,7 @@ class EditableSelectAssetAmountViewModel {
     private func buildAttributedString() -> NSAttributedString {
         return .init(string: "Select Amount (max. \(available))", attributes: [
             .font: Fonts.semibold(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 }

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 11.06.2021.
 //
 
-import Combine
-import RealmSwift
 import AlphaWalletCore
+import Combine
 import CombineExt
+import RealmSwift
 
 public typealias TickerIdString = String
 

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 10.03.2022.
 //
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 struct AmountTextFieldViewModelInput {
     let togglePair: AnyPublisher<Void, Never>
@@ -21,7 +21,7 @@ struct AmountTextFieldViewModelOutput {
     let errorState: AnyPublisher<AmountTextField.ErrorState, Never>
 }
 
-protocol EnterAmountSupportable: HasTokenImage { }
+protocol EnterAmountSupportable: HasTokenImage {}
 
 final class AmountTextFieldViewModel {
     private static let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
@@ -88,7 +88,7 @@ final class AmountTextFieldViewModel {
     }
 
     let debugName: String
-    
+
     init(token: EnterAmountSupportable?, debugName: String) {
         self.debugName = debugName
         self.set(token: token)

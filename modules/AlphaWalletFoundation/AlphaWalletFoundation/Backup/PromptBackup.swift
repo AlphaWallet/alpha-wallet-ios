@@ -5,15 +5,15 @@
 //  Created by Vladyslav Shepitko on 29.12.2022.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 public protocol WalletBalanceProvidable {
     func walletBalance(for wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
 }
 
-extension MultiWalletBalanceService: WalletBalanceProvidable { }
+extension MultiWalletBalanceService: WalletBalanceProvidable {}
 
 public class PromptBackup {
     //Explicit `TimeInterval()` to speed up compilation
@@ -340,4 +340,3 @@ extension PromptBackup {
         case hideBackupView(wallet: Wallet)
     }
 }
-

@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 extension Web3.Eth {
@@ -15,7 +15,7 @@ extension Web3.Eth {
         let hashString = hash.toHexString().addHexPrefix()
         return getBlockByHashPromise(hashString, fullTransactions: fullTransactions)
     }
-    
+
     public func getBlockByHashPromise(_ hash: String, fullTransactions: Bool = false) -> Promise<Block> {
         let request = JSONRPCrequest(method: .getBlockByHash, params: JSONRPCparams(params: [hash, fullTransactions]))
         let rp = web3.dispatch(request)

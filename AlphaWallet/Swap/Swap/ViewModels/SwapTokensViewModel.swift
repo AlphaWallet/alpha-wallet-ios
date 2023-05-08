@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.03.2022.
 //
 
-import UIKit
-import Combine
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Combine
+import UIKit
 
 struct SwapTokensViewModelInput {
     let cryptoValue: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
@@ -33,14 +33,14 @@ final class SwapTokensViewModel: NSObject {
     private let configurator: SwapOptionsConfigurator
     private let tokensPipeline: TokensProcessingPipeline
 
-    lazy private (set) var activeSession: AnyPublisher<WalletSession, Never> = {
+    private (set) lazy var activeSession: AnyPublisher<WalletSession, Never> = {
         return configurator.$server.combineLatest(configurator.$sessions) { server, sessions -> WalletSession? in
             return sessions.first(where: { $0.server == server })
         }.compactMap { $0 }
-        .removeDuplicates()
-        .share()
-        .prepend(Just(configurator.session).compactMap { $0 })
-        .eraseToAnyPublisher()
+            .removeDuplicates()
+            .share()
+            .prepend(Just(configurator.session).compactMap { $0 })
+            .eraseToAnyPublisher()
     }()
 
     private var isConfiguratorInUpdatingState: AnyPublisher<Bool, Never> {

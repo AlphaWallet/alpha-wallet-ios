@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct ErcToken {
     public let contract: AlphaWallet.Address
@@ -21,7 +21,7 @@ public struct ErcToken {
                 type: TokenType,
                 value: BigUInt,
                 balance: NonFungibleBalance) {
-        
+
         self.contract = contract
         self.server = server
         self.name = name

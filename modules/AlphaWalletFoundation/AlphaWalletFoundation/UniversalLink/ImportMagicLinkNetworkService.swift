@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 15.12.2022.
 //
 
-import Foundation
+import AlphaWalletCore
 import BigInt
 import Combine
-import AlphaWalletCore
+import Foundation
 
 public class ImportMagicLinkNetworking {
     private let networkService: NetworkService
@@ -150,7 +150,7 @@ extension ImportMagicLinkNetworking {
                 "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
                 "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
                 "networkId": server.chainID.description,
-                "contractAddress": signedOrder.order.contractAddress
+                "contractAddress": signedOrder.order.contractAddress,
             ])
         }
     }
@@ -165,11 +165,11 @@ extension ImportMagicLinkNetworking {
             var request = try URLRequest(url: components.asURL(), method: .get)
 
             return try URLEncoding().encode(request, with: [
-                "r": r
+                "r": r,
             ])
         }
     }
-    
+
     private struct CheckPaymentServerSupportsContractRequest: URLRequestConvertible {
         let contractAddress: AlphaWallet.Address
 
@@ -180,7 +180,7 @@ extension ImportMagicLinkNetworking {
             var request = try URLRequest(url: components.asURL(), method: .get)
 
             return try URLEncoding().encode(request, with: [
-                "contractAddress": contractAddress.eip55String
+                "contractAddress": contractAddress.eip55String,
             ])
         }
     }

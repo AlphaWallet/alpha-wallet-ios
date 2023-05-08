@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 07.06.2021.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 struct WalletTokenViewCellViewModel {
     private let token: TokenViewModel
@@ -27,14 +27,14 @@ struct WalletTokenViewCellViewModel {
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: String(), attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "", attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 

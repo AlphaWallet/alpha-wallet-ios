@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 //TODO make TokenCardTableViewCellWithoutCheckbox, etc cell classes be generic (with TokenRowView as the type parameter). Unfortunately: https://bugs.swift.org/browse/SR-6977 is only fixed in Swift 4.2, aka Xcode 10.
 protocol TokenRowView: AnyObject {

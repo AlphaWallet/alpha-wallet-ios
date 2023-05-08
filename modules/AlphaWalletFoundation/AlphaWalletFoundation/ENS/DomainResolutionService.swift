@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 27.01.2022.
 //
 
-import Foundation
-import Combine
-import AlphaWalletENS
 import AlphaWalletCore
+import AlphaWalletENS
+import Combine
+import Foundation
 
 public class DomainResolutionService {
     private let storage: EnsRecordsStorage
@@ -32,7 +32,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
 
         let services: [CachebleAddressResolutionServiceType] = [
             getEnsAddressResolver,
-            unstoppableDomainsV2Resolver
+            unstoppableDomainsV2Resolver,
         ]
 
         if let cached = services.compactMap({ $0.cachedAddressValue(for: value) }).first {
@@ -84,7 +84,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
     public func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<EnsName, PromiseError> {
         let services: [CachedEnsResolutionServiceType] = [
             ensReverseLookupResolver,
-            unstoppableDomainsV2Resolver
+            unstoppableDomainsV2Resolver,
         ]
 
         if let cached = services.compactMap({ $0.cachedEnsValue(for: address) }).first {

@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
 import BigInt
+import UIKit
 
 extension String {
     public var hex: String {
@@ -171,11 +171,11 @@ extension StringProtocol {
         var i = startIndex
 
         while let nextIndex = index(i, offsetBy: size, limitedBy: endIndex) {
-            chunks.append(self[i ..< nextIndex])
+            chunks.append(self[i..<nextIndex])
             i = nextIndex
         }
 
-        let finalChunk = self[i ..< endIndex]
+        let finalChunk = self[i..<endIndex]
 
         if finalChunk.isEmpty == false {
             chunks.append(finalChunk)
@@ -245,7 +245,7 @@ extension String {
     public var optionalDecimalValue: NSDecimalNumber? {
         if let value = EtherNumberFormatter.plain.decimal(from: self) {
             return value
-        //NOTE: for case when formatter configured with `,` decimal separator, but EtherNumberFormatter.plain.decimal returns value with `.` separator
+            //NOTE: for case when formatter configured with `,` decimal separator, but EtherNumberFormatter.plain.decimal returns value with `.` separator
         } else if let asDoubleValue = Double(self) {
             return NSDecimalNumber(value: asDoubleValue)
         } else {

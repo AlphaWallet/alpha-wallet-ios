@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 struct SettingsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -81,7 +81,7 @@ final class SettingsViewModel {
                         return .init(section: sections[sectionIndex], views: [])
                     }
 
-                    for rowIndex in 0 ..< sections[sectionIndex].numberOfRows {
+                    for rowIndex in 0..<sections[sectionIndex].numberOfRows {
                         let indexPath = IndexPath(item: rowIndex, section: sectionIndex)
                         let view = self.view(for: indexPath, sections: sections)
 
@@ -280,7 +280,7 @@ extension SettingsViewModel.functional {
             .system(rows: systemRows),
             .help,
             .version(value: Bundle.main.fullVersion),
-            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
+            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)"),
         ]
     }
 }

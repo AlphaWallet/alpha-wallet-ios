@@ -18,7 +18,7 @@ public struct EthereumTransaction {
 }
 
 extension EthereumTransaction {
-    
+
     public init(dictionary: [String: AnyObject]) {
         let blockHash = dictionary["blockHash"] as? String ?? ""
         let blockNumber = dictionary["blockNumber"] as? String ?? ""
@@ -54,9 +54,9 @@ fileprivate extension GasPrice {
         let type = object["type"] as? String ?? ""
         if type == "0x2" {
             guard let maxFeePerGas = (object["maxFeePerGas"] as? String).flatMap({ BigUInt($0.drop0x, radix: 16) }),
-                let maxPriorityFeePerGas = (object["maxPriorityFeePerGas"] as? String).flatMap({ BigUInt($0.drop0x, radix: 16) }) else {
-                    return nil
-                }
+                  let maxPriorityFeePerGas = (object["maxPriorityFeePerGas"] as? String).flatMap({ BigUInt($0.drop0x, radix: 16) }) else {
+                return nil
+            }
             self = .eip1559(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
         } else {
             guard let gasPrice = (object["gasPrice"] as? String).flatMap({ BigUInt($0.drop0x, radix: 16) }) else { return nil }

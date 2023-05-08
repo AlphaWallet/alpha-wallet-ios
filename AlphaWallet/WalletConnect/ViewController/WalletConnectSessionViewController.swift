@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol WalletConnectSessionViewControllerDelegate: AnyObject {
     func controller(_ controller: WalletConnectSessionViewController, switchNetworkSelected sender: UIButton)
@@ -38,7 +38,7 @@ class WalletConnectSessionViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            view.heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 200, medium: 200, small: 150))
+            view.heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 200, medium: 200, small: 150)),
         ])
 
         return view

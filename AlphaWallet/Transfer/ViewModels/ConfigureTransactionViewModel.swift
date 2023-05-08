@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import BigInt
-import AlphaWalletFoundation
-import Combine
 import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
+import Combine
+import Foundation
 
 struct ConfigureTransactionViewModelInput {
     let saveSelected: AnyPublisher<Void, Never>
@@ -95,7 +95,7 @@ class ConfigureTransactionViewModel {
             guard let gasPriceViewModel = data.estimates.first(where: { $0.gasSpeed == data.selected }) else { return nil }
             return gasPriceViewModel.gasPrice?.warnings.compactMap { $0 as? TransactionConfigurator.GasPriceWarning }.first
         }
-        
+
         return .init(
             gasPriceWarning: gasPriceWarning.eraseToAnyPublisher(),
             viewState: viewState.eraseToAnyPublisher(),
@@ -129,7 +129,7 @@ class ConfigureTransactionViewModel {
             guard gasSpeed != .custom else { return nil }
 
             if let gasPriceEstimator = gasPriceEstimator as? LegacyGasPriceEstimator,
-                case .legacy(let gasPrice) = estimates[gasSpeed] {
+               case .legacy(let gasPrice) = estimates[gasSpeed] {
 
                 let value = gasPriceEstimator.validate(gasPrice: gasPrice)
                 let validatedGasPrice = value.mapValue { GasPrice.legacy(gasPrice: $0) }
@@ -137,7 +137,7 @@ class ConfigureTransactionViewModel {
                 return (gasSpeed: gasSpeed, gasPrice: validatedGasPrice, gasLimit: gasLimit)
             } else if let gasPriceEstimator = gasPriceEstimator as? Eip1559GasPriceEstimator,
                       case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas) = estimates[gasSpeed] {
-                
+
                 let value = gasPriceEstimator.validate(oracleResult: Eip1559FeeOracleResult(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas))
                 let validatedGasPrice = value.mapValue {
                     GasPrice.eip1559(

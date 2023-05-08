@@ -1,12 +1,12 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletHardwareWallet
+import AlphaWalletTrustWalletCoreExtensions
+import AlphaWalletWeb3
+import BigInt
+import Combine
 import Foundation
 import LocalAuthentication
-import BigInt
-import AlphaWalletHardwareWallet
-import AlphaWalletWeb3
-import AlphaWalletTrustWalletCoreExtensions
-import Combine
 
 public enum EtherKeystoreError: LocalizedError {
     case protectionDisabled
@@ -74,7 +74,7 @@ public protocol SecuredStorage {
 ///(A) to be confident that we don't cause the user to lose access to their wallets and
 ///(B) to be consistent with Android's UI and implementation which seems like users will lose access to the data (i.e wallet) which requires user presence if the equivalent of their iOS passcode/biometrics is disabled/deleted
 open class EtherKeystore: NSObject, Keystore {
-    private struct Keys {
+    private enum Keys {
         static let recentlyUsedAddress: String = "recentlyUsedAddress"
         static let ethereumRawPrivateKeyUserPresenceNotRequiredPrefix = "ethereumRawPrivateKeyUserPresenceNotRequired-"
         static let ethereumSeedUserPresenceNotRequiredPrefix = "ethereumSeedUserPresenceNotRequired-"
@@ -658,7 +658,7 @@ open class EtherKeystore: NSObject, Keystore {
         }
         let context = createContext()
         let data = keychain.getData("\(prefix)\(account.eip55String)", prompt: prompt, withContext: context)
-                .flatMap { decryptPrivateKey(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
+            .flatMap { decryptPrivateKey(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
 
         //We copy the record that doesn't require user-presence make a new one which requires user-presence and read from that. We don't want to read the one without user-presence unless absolutely necessary (e.g user has disabled passcode)
         if data == nil && withUserPresence && shouldWriteWithUserPresenceIfNotFound && keychain.isDataNotFoundForLastAccess {
@@ -712,8 +712,8 @@ open class EtherKeystore: NSObject, Keystore {
             prefix = Keys.ethereumSeedUserPresenceNotRequiredPrefix
         }
         let data = keychain.getData("\(prefix)\(account.eip55String)", prompt: prompt, withContext: context)
-                .flatMap { decryptHdWalletSeed(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
-                .flatMap { String(data: $0, encoding: .utf8) }
+            .flatMap { decryptHdWalletSeed(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
+            .flatMap { String(data: $0, encoding: .utf8) }
         //We copy the record that doesn't require user-presence make a new one which requires user-presence and read from that. We don't want to read the one without user-presence unless absolutely necessary (e.g user has disabled passcode)
         if data == nil && withUserPresence && shouldWriteWithUserPresenceIfNotFound && keychain.isDataNotFoundForLastAccess {
             switch getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: false, shouldWriteWithUserPresenceIfNotFound: false) {
@@ -895,9 +895,9 @@ extension EtherKeystore {
 }
 
 extension EtherKeystore.functional {
-    static fileprivate var emptyPassphrase = ""
+    fileprivate static var emptyPassphrase = ""
 
-    static fileprivate func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
+    fileprivate static func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
         repeat {
             if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: passphrase) {
                 let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
@@ -911,7 +911,7 @@ extension EtherKeystore.functional {
     }
 
     //Defensive check. Make sure mnemonic is OK and signs data correctly
-    static fileprivate func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
+    fileprivate static func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
         guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase) else { return false }
         guard wallet.mnemonic == mnemonic else { return false }
         guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
@@ -929,7 +929,7 @@ extension EtherKeystore.functional {
         return address.sameContract(as: recoveredAddress.address)
     }
 
-    static fileprivate func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
+    fileprivate static func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
         let firstAccountIndex = UInt32(0)
         let externalChangeConstant = UInt32(0)
         let addressIndex = UInt32(0)

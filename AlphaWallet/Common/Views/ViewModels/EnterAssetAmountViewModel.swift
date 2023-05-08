@@ -5,12 +5,10 @@
 //  Created by Vladyslav Shepitko on 27.02.2023.
 //
 
-import UIKit
 import Combine
+import UIKit
 
-struct EnterAssetAmountViewModelInput {
-
-}
+struct EnterAssetAmountViewModelInput {}
 
 struct EnterAssetAmountViewModelOutput {
     let activate: AnyPublisher<Void, Never>

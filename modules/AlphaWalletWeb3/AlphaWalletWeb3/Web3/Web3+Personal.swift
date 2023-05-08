@@ -6,18 +6,18 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension Web3.Personal {
-    
+
     public func ecrecover(personalMessage: Data, signature: Data) -> Result<EthereumAddress, Error> {
         guard let recovered = Web3.Utils.personalECRecover(personalMessage, signature: signature) else {
             return .failure(DecodeError.initFailure)
         }
         return .success(recovered)
     }
-    
+
     public func ecrecover(hash: Data, signature: Data) -> Result<EthereumAddress, Error> {
         guard let recovered = Web3.Utils.hashECRecover(hash: hash, signature: signature) else {
             return .failure(DecodeError.initFailure)

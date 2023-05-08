@@ -17,7 +17,7 @@ class BlockchainTagLabel: UIView {
         label.font = Screen.TokenCard.Font.blockChainName
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.setContentHuggingPriority(.required, for: .horizontal)
-        
+
         return label
     }()
     private var heightConstraint: NSLayoutConstraint!
@@ -27,7 +27,7 @@ class BlockchainTagLabel: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
         heightConstraint = heightAnchor.constraint(equalToConstant: DataEntry.Metric.BlockChainTag.height)
-        
+
         NSLayoutConstraint.activate([
             heightConstraint,
             label.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 10, bottom: 0, right: 10)),

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 23.02.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 public protocol TokensAutodetector: NSObjectProtocol {
     var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> { get }
@@ -141,8 +141,8 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private func contractsToAutodetectTokens(contractsToDetect: [ContractToImport]) -> [ContractToImport] {
         return contractsToDetect.filter {
             !tokensDataStore.tokens(for: [$0.server]).map { $0.contractAddress }.contains($0.contract) &&
-            !tokensDataStore.deletedContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract) &&
-            !tokensDataStore.hiddenContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract)
+                !tokensDataStore.deletedContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract) &&
+                !tokensDataStore.hiddenContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract)
         }
     }
 }

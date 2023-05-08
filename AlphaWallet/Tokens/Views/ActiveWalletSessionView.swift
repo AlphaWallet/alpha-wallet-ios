@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 27.10.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ActiveWalletSessionViewDelegate: AnyObject {
     func view(_ view: ActiveWalletSessionView, didSelectTap sender: UITapGestureRecognizer)
@@ -24,7 +24,7 @@ struct ActiveWalletSessionViewModel {
         return .init(string: "WalletConnect", attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: ScreenChecker.size(big: 20, medium: 20, small: 18)),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 
@@ -40,7 +40,7 @@ struct ActiveWalletSessionViewModel {
         return .init(string: title, attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: ScreenChecker.size(big: 16, medium: 16, small: 14)),
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 }
@@ -75,7 +75,7 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
             iconImageView.widthAnchor.constraint(equalToConstant: 40).set(priority: .defaultHigh),
 
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)).map { $0.set(priority: .defaultHigh) },
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))

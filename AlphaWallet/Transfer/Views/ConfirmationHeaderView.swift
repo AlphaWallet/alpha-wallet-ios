@@ -21,17 +21,17 @@ class ConfirmationHeaderView: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.backgroundColor = .clear
         titleLabel.textColor = Configuration.Color.Semantic.popupPrimaryFont
-       return titleLabel
+        return titleLabel
     }()
 
     let iconImageView: ImageView = {
         let imageView = ImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: 30),
-            imageView.heightAnchor.constraint(equalToConstant: 30)
+            imageView.heightAnchor.constraint(equalToConstant: 30),
         ])
 
         return imageView
@@ -91,7 +91,7 @@ class ConfirmationHeaderView: UIView {
             closeButton.widthAnchor.constraint(equalToConstant: 30),
             closeButton.heightAnchor.constraint(equalToConstant: 30),
 
-            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.headerHeight)
+            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.headerHeight),
         ])
 
         configure(viewModel: viewModel)
@@ -107,5 +107,5 @@ class ConfirmationHeaderView: UIView {
 
     required init?(coder: NSCoder) {
         return nil
-    } 
+    }
 }

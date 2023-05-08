@@ -5,15 +5,15 @@
 //  Created by Vladyslav Shepitko on 09.06.2022.
 //
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletFoundation
+import Foundation
 
 final class AcceptDeepLinkViewModel: ExpandableSection {
 
     private let metadata: DeepLink.Metadata
     private let address: AlphaWallet.Address
-    
+
     var openedSections: Set<Int> = .init()
     var connectionIconUrl: URL? { metadata.iconUrl }
 

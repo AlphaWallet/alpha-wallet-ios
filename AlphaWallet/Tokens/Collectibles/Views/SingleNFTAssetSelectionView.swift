@@ -24,7 +24,7 @@ class AssetSelectionCircleOverlayView: UIView {
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor)
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
         ])
         backgroundColor = Configuration.Color.Semantic.appTint
         translatesAutoresizingMaskIntoConstraints = false
@@ -44,4 +44,3 @@ class AssetSelectionCircleOverlayView: UIView {
         layer.cornerRadius = frame.width / 2.0
     }
 }
-

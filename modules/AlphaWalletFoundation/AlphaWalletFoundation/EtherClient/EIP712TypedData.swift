@@ -4,9 +4,9 @@
 // terms governing use, modification, and redistribution, is contained in the
 // file LICENSE at the root of the source code distribution tree.
 
+import BigInt
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
-import BigInt
 
 /// A struct represents EIP712 type tuple
 public struct EIP712Type: Codable {
@@ -80,8 +80,8 @@ extension EIP712TypedData {
         let primaryType = primaryType.dropTrailingSquareBrackets
         var found = dependencies
         guard !found.contains(primaryType),
-            let primaryTypes = types[primaryType] else {
-                return found
+              let primaryTypes = types[primaryType] else {
+            return found
         }
         found.insert(primaryType)
         for type in primaryTypes {
@@ -131,7 +131,7 @@ extension EIP712TypedData {
             let nestEncoded = hashStruct(value, type: type)
             return try ABIValue(nestEncoded, type: .bytes(32))
             //Can't check for "[]" because we want to support static arrays: Type[n]
-        } else if let indexOfOpenBracket = type.index(of: "["), type.hasSuffix("]"), case let .array(elements) = value {
+        } else if let indexOfOpenBracket = type.index(of: "["), type.hasSuffix("]"), case .array(let elements) = value {
             var encodedElements: Data = .init()
             let elementType = String(type[type.startIndex..<indexOfOpenBracket])
             for each in elements {
@@ -168,9 +168,9 @@ extension EIP712TypedData {
 
             if let numberValue = data?.numberValue {
                 switch numberValue {
-                case let .int(value):
+                case .int(let value):
                     return try? ABIValue(value, type: .uint(bits: size))
-                case let .double(value):
+                case .double(let value):
                     return try? ABIValue(Int(value), type: .uint(bits: size))
                 }
             } else if let value = data?.stringValue,
@@ -184,9 +184,9 @@ extension EIP712TypedData {
 
             if let numberValue = data?.numberValue {
                 switch numberValue {
-                case let .int(value):
+                case .int(let value):
                     return try? ABIValue(value, type: .uint(bits: size))
-                case let .double(value):
+                case .double(let value):
                     return try? ABIValue(Int(value), type: .uint(bits: size))
                 }
             } else if let value = data?.stringValue,
@@ -209,7 +209,7 @@ extension EIP712TypedData {
     /// Helper func for encoding uint / int types
     private func parseIntSize(type: String, prefix: String) -> Int {
         guard type.starts(with: prefix),
-            let size = Int(type.dropFirst(prefix.count)) else {
+              let size = Int(type.dropFirst(prefix.count)) else {
             return -1
         }
 
@@ -268,7 +268,7 @@ private extension BigUInt {
     }
 }
 
-class Crypto {
+enum Crypto {
     static func hash(_ data: Data) -> Data {
         return data.sha3(.keccak256)
     }
@@ -300,18 +300,18 @@ extension EIP712TypedData {
         public func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             switch self {
-            case let .int(value):
+            case .int(let value):
                 try container.encode(value)
-            case let .double(value):
+            case .double(let value):
                 try container.encode(value)
             }
         }
 
         public var description: String {
             switch self {
-            case let .int(value):
+            case .int(let value):
                 return value.description
-            case let .double(value):
+            case .double(let value):
                 return value.description
             }
         }
@@ -332,15 +332,15 @@ extension EIP712TypedData.JSON: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case let .array(array):
+        case .array(let array):
             try container.encode(array)
-        case let .object(object):
+        case .object(let object):
             try container.encode(object)
-        case let .string(string):
+        case .string(let string):
             try container.encode(string)
-        case let .number(number):
+        case .number(let number):
             try container.encode(number)
-        case let .bool(bool):
+        case .bool(let bool):
             try container.encode(bool)
         case .null:
             try container.encodeNil()

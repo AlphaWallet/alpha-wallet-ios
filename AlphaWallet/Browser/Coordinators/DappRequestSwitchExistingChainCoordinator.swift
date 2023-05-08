@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
 import Combine
+import UIKit
 
 enum SwitchExistingChainOperation {
     case notifySuccessful

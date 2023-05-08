@@ -2,11 +2,11 @@
 // Created by James Sangalli on 8/12/18.
 //
 
-import Foundation
-import UIKit
-import StatefulViewController
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import StatefulViewController
+import UIKit
 
 protocol BookmarksViewControllerDelegate: AnyObject {
     func didTapToEdit(bookmark: BookmarkObject, in viewController: BookmarksViewController)
@@ -51,7 +51,7 @@ final class BookmarksViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)

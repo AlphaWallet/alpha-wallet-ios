@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import SwiftyJSON
-import Combine
 import AlphaWalletCore
+import Combine
+import SwiftyJSON
 
 public class CovalentApiNetworking: ApiNetworking {
     private let server: RPCServer
@@ -81,7 +81,7 @@ public class CovalentApiNetworking: ApiNetworking {
                                          startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
         return .empty()
     }
-    
+
     public func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
@@ -125,7 +125,7 @@ extension CovalentApiNetworking {
                 "key": apiKey,
                 "block-signed-at-asc": "\(blockSignedAtAsc)",
                 "page-number": "\(page ?? 0)",
-                "page-size": "\(pageSize)"
+                "page-size": "\(pageSize)",
             ])
         }
     }

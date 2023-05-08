@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 13.05.2022.
 //
 
+import AlphaWalletLogger
+import Kingfisher
 import UIKit
 import WebKit
-import Kingfisher
-import AlphaWalletLogger
 
 private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
     let preferences = WKPreferences()

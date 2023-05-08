@@ -196,4 +196,3 @@ public final class ABIEncoder {
         return hash[0..<4]
     }
 }
-

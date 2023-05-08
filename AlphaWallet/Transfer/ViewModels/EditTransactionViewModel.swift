@@ -5,14 +5,12 @@
 //  Created by Vladyslav Shepitko on 07.04.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
 import BigInt
+import Combine
+import Foundation
 
-struct EditTransactionViewModelInput {
-
-}
+struct EditTransactionViewModelInput {}
 
 struct EditTransactionViewModelOutput {
     let gasLimitHeader: AnyPublisher<String, Never>

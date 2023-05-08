@@ -11,7 +11,7 @@ public struct TickerHelper {
         case depreciate(percentageChange24h: Double)
         case none
     }
-    
+
     public var change24h: Change24h {
         return change24h(from: ticker?.percent_change_24h)
     }

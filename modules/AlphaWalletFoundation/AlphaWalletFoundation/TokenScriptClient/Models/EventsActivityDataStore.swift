@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import RealmSwift
-import Combine
 
 public protocol EventsActivityDataStoreProtocol {
     func recentEventsChangeset(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>
@@ -14,7 +14,7 @@ public protocol EventsActivityDataStoreProtocol {
 
 public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     private let store: RealmStore
-    
+
     public init(store: RealmStore) {
         self.store = store
     }
@@ -79,7 +79,7 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
 
     public func addOrUpdate(events: [EventActivityInstance]) {
         guard !events.isEmpty else { return }
-        
+
         let eventsToSave = events.map { EventActivity(value: $0) }
         store.performSync { realm in
             try? realm.safeWrite {
@@ -124,7 +124,7 @@ extension EventsActivityDataStore.functional {
             isContractMatchPredicate(contract: contract),
             isChainIdMatchPredicate(server: server),
             isEventNameMatchPredicate(eventName: eventName),
-            isFilterMatchPredicate(interpolatedFilter: interpolatedFilter)
+            isFilterMatchPredicate(interpolatedFilter: interpolatedFilter),
         ])
     }
 

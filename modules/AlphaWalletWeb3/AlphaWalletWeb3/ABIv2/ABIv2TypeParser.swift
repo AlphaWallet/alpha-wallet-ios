@@ -8,8 +8,8 @@
 
 import Foundation
 
-public struct ABIv2TypeParser {
-    
+public enum ABIv2TypeParser {
+
     private enum BaseParameterType: String {
         case address
         case uint
@@ -20,15 +20,15 @@ public struct ABIv2TypeParser {
         case string
         case tuple
     }
-    
+
     private static func baseTypeMatch(from string: String, length: UInt64 = 0) -> ABIv2.Element.ParameterType? {
         switch BaseParameterType(rawValue: string) {
         case .address?:
             return .address
         case .uint?:
-            return .uint(bits: length == 0 ? 256: length)
+            return .uint(bits: length == 0 ? 256 : length)
         case .int?:
-            return .int(bits: length == 0 ? 256: length)
+            return .int(bits: length == 0 ? 256 : length)
         case .bool?:
             return .bool
         case .function?:
@@ -46,7 +46,7 @@ public struct ABIv2TypeParser {
             return nil
         }
     }
-    
+
     public static func parseTypeString(_ string: String) throws -> ABIv2.Element.ParameterType {
         let (type, tail) = recursiveParseType(string)
         guard let t = type, tail == nil else { throw ParsingError.elementTypeInvalid }

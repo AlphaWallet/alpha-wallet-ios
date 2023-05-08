@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct PriceAlertsViewModelInput {
     let updateAlert: AnyPublisher<(value: Bool, indexPath: IndexPath), Never>
@@ -22,7 +22,7 @@ class PriceAlertsViewModel {
     private let alertService: PriceAlertServiceType
     private let token: Token
     private var cancelable = Set<AnyCancellable>()
-    
+
     init(alertService: PriceAlertServiceType, token: Token) {
         self.alertService = alertService
         self.token = token
@@ -119,4 +119,3 @@ extension PriceTarget {
         }
     }
 }
-

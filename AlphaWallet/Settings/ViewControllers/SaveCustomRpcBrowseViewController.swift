@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 21/12/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import UIKit
 
 protocol SaveCustomRpcBrowseViewControllerDataDelegate: AnyObject {
     func didFinish(in viewController: SaveCustomRpcBrowseViewController, customRpcArray: [CustomRPC])
@@ -132,7 +132,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: browseView.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: browseView.trailingAnchor)
+            searchBar.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
         ])
     }
 
@@ -146,7 +146,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
             buttonsBar.bottomAnchor.constraint(equalTo: browseView.safeAreaLayoutGuide.bottomAnchor, constant: -4.0),
             buttonsBar.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: tableViewController.tableView.bottomAnchor, constant: 4.0)
+            buttonsBar.topAnchor.constraint(equalTo: tableViewController.tableView.bottomAnchor, constant: 4.0),
         ])
     }
 
@@ -242,7 +242,7 @@ extension SaveCustomRpcBrowseViewController: HandleAddMultipleCustomRpcViewContr
 
     func handleAddMultipleCustomRpcFailure(added: NSArray, failed: NSArray, duplicates: NSArray, remaining: NSArray) {
         guard let addedCustomRpc: [CustomRPC] = added as? [CustomRPC], let duplicatedCustomRpc: [CustomRPC] = duplicates as? [CustomRPC], let failedCustomRpc: [CustomRPC] = failed as? [CustomRPC] else { return }
-        let toBeRemovedCustomRpcs = addedCustomRpc+duplicatedCustomRpc+failedCustomRpc
+        let toBeRemovedCustomRpcs = addedCustomRpc + duplicatedCustomRpc + failedCustomRpc
         dataController.remove(customRpcs: toBeRemovedCustomRpcs)
         tableViewController.tableView.reloadData()
         var errorMessage: String = ""

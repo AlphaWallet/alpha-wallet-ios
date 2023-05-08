@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletCore
 import AlphaWalletOpenSea
 import Combine
+import Foundation
 
 public typealias Stats = AlphaWalletOpenSea.NftCollectionStats
 
@@ -16,7 +16,7 @@ public final class OpenSea {
     private let openSea: AlphaWalletOpenSea.OpenSea
 
     private let excludeContracts: [(AlphaWallet.Address, ChainId)] = [
-        (Constants.uefaMainnet.0, Constants.uefaMainnet.1.chainID)
+        (Constants.uefaMainnet.0, Constants.uefaMainnet.1.chainID),
     ]
 
     public init(analytics: AnalyticsLogger, server: RPCServer, config: Config) {
@@ -40,7 +40,7 @@ public final class OpenSea {
         guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
 
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
-        
+
         guard OpenSea.isServerSupported(key.server) else {
             return .just([:])
         }
@@ -106,4 +106,3 @@ extension OpenSea: OpenSeaDelegate {
         }
     }
 }
-

@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension BigUInt: EventFilterEncodable {
     public func eventFilterEncoded() -> String? {
@@ -40,4 +40,4 @@ extension String: EventFilterEncodable {
         guard let data = self.data(using: .utf8) else { return nil }
         return data.sha3(.keccak256).toHexString().addHexPrefix()
     }
-} 
+}

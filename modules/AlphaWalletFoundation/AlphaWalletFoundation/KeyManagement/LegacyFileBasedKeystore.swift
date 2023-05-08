@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import BigInt
-import Foundation
-import CryptoSwift
-import TrustKeystore
 import Combine
+import CryptoSwift
+import Foundation
+import TrustKeystore
 
 fileprivate typealias LegacyKeyStore = TrustKeystore.KeyStore
 

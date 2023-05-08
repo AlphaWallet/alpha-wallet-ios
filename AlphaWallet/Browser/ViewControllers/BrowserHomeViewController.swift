@@ -2,10 +2,10 @@
 // Created by James Sangalli on 8/12/18.
 //
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 protocol BrowserHomeViewControllerDelegate: AnyObject {
     func didTapShowMyDappsViewController(in viewController: BrowserHomeViewController)
@@ -51,7 +51,7 @@ class BrowserHomeViewController: UIViewController {
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController?.navigationBar as? DappBrowserNavigationBar
     }
-    lazy private var collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let fixedGutter = CGFloat(24)
         let availableWidth = UIScreen.main.bounds.size.width - (2 * fixedGutter)
@@ -92,7 +92,7 @@ class BrowserHomeViewController: UIViewController {
         view.addSubview(collectionView)
 
         NSLayoutConstraint.activate([
-            collectionView.anchorsConstraint(to: view)
+            collectionView.anchorsConstraint(to: view),
         ])
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -167,7 +167,7 @@ extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
 }
 
 fileprivate extension BrowserHomeViewController {
-    
+
     func makeDataSource() -> BrowserHomeViewModel.DataSource {
         let dataSource = BrowserHomeViewModel.DataSource(collectionView: collectionView, cellProvider: { [weak self] collectionView, indexPath, viewModel in
             guard let strongSelf = self else { return UICollectionViewCell() }
@@ -209,7 +209,7 @@ extension BrowserHomeViewController: DappViewCellDelegate {
                 message: cell.title,
                 okTitle: R.string.localizable.removeButtonTitle(),
                 okStyle: .destructive) else { return }
-            
+
             deleteBookmark.send(cell.bookmark)
         }
     }

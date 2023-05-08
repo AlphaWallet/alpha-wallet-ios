@@ -11,9 +11,9 @@ protocol TextViewDelegate: AnyObject {
 }
 
 extension TextViewDelegate {
-    func didChange(inTextView textView: TextView) { }
-    func doneButtonTapped(for textView: TextView) { }
-    func nextButtonTapped(for textView: TextView) { }
+    func didChange(inTextView textView: TextView) {}
+    func doneButtonTapped(for textView: TextView) {}
+    func nextButtonTapped(for textView: TextView) {}
 }
 
 class TextView: UIControl {
@@ -177,7 +177,7 @@ class TextView: UIControl {
     func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
         let addressControlsStackView = [
             pasteButton,
-            clearButton
+            clearButton,
         ].asStackView(axis: .horizontal)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -208,7 +208,7 @@ class TextView: UIControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets)
+            stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets),
         ])
 
         return view
@@ -230,7 +230,7 @@ class TextView: UIControl {
 
     @objc private func pasteButtonSelected(_ sender: UIButton) {
         guard let pastedText = UIPasteboard.general.string?.trimmed else { return }
-        
+
         value = pastedText
         delegate?.didPaste(in: self)
     }

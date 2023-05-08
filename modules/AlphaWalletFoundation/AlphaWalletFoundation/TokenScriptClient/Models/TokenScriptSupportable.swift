@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.05.2022.
 //
 
+import BigInt
 import Foundation
-import BigInt 
 
 public protocol TokenScriptSupportable {
     var name: String { get }

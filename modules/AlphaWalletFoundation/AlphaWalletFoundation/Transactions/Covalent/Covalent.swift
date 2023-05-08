@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
+import BigInt
 import Foundation
 import SwiftyJSON
-import BigInt
 
 public enum Covalent {}
 
@@ -45,45 +45,45 @@ extension Covalent {
         var signature: String
         var params: [Param]
 
-            struct Param: Equatable {
-                var name: String = ""
-                var type: String = ""
-                var indexed: Bool = false
-                var decoded: Bool = false
-                var value: String?
+        struct Param: Equatable {
+            var name: String = ""
+            var type: String = ""
+            var indexed: Bool = false
+            var decoded: Bool = false
+            var value: String?
 
-                init(name: String, type: String, indexed: Bool, decoded: Bool, value: String?) {
-                    self.name = name
-                    self.type = type
-                    self.indexed = indexed
-                    self.decoded = decoded
-                    self.value = value
-                }
-
-                init() {
-                    self.name = ""
-                    self.type = ""
-                    self.indexed = false
-                    self.decoded = false
-                    self.value = nil
-                }
-
-                init(json: JSON) throws {
-                    guard
-                        let name = json["name"].string,
-                        let type = json["type"].string,
-                        let indexed = json["indexed"].bool,
-                        let decoded = json["decoded"].bool else {
-                        throw DecodyingError.fieldMismatch
-                    }
-
-                    self.name = name
-                    self.type = type
-                    self.indexed = indexed
-                    self.decoded = decoded
-                    self.value = json["value"].string
-                }
+            init(name: String, type: String, indexed: Bool, decoded: Bool, value: String?) {
+                self.name = name
+                self.type = type
+                self.indexed = indexed
+                self.decoded = decoded
+                self.value = value
             }
+
+            init() {
+                self.name = ""
+                self.type = ""
+                self.indexed = false
+                self.decoded = false
+                self.value = nil
+            }
+
+            init(json: JSON) throws {
+                guard
+                    let name = json["name"].string,
+                    let type = json["type"].string,
+                    let indexed = json["indexed"].bool,
+                    let decoded = json["decoded"].bool else {
+                    throw DecodyingError.fieldMismatch
+                }
+
+                self.name = name
+                self.type = type
+                self.indexed = indexed
+                self.decoded = decoded
+                self.value = json["value"].string
+            }
+        }
 
         init(json: JSON) throws {
             guard
@@ -139,7 +139,7 @@ extension Covalent {
             self.decoded = try? DecodedLogEvent(json: json["decoded"])
             self.rawLogTopics = json["raw_log_topics"].arrayValue.compactMap { $0.string }
         }
-        
+
         var params: [String: DecodedLogEvent.Param] {
             var params: [String: DecodedLogEvent.Param] = [:]
 
@@ -349,7 +349,7 @@ extension Covalent {
                 self.logoUrl = json["logo_url"].stringValue
                 self.balance = json["balance"].stringValue
                 self.nftBalances = json["nft_data"].arrayValue.compactMap { try? NFTAsset(json: $0) }
-            } 
+            }
         }
     }
 }

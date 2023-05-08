@@ -1,11 +1,11 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public struct SwapSupportState {
     let server: RPCServer
@@ -19,7 +19,7 @@ public enum SwapSupportingType {
 }
 
 open class TokenSwapper: ObservableObject {
-    private (set) public var storage: SwapSupportStateStorage & SwapPairsStorage & SwapToolStorage & SwapRouteStorage & SwapQuoteStorage = InMemoryTokenSwapperStorage()
+    public private (set) var storage: SwapSupportStateStorage & SwapPairsStorage & SwapToolStorage & SwapRouteStorage & SwapQuoteStorage = InMemoryTokenSwapperStorage()
     private var inflightFetchSupportedServersPublisher: AnyPublisher<[RPCServer], PromiseError>?
     private var inflightFetchSupportedToolsPublisher: AnyPublisher<[SwapTool], Never>?
     private let serversProvider: ServersProvidable
@@ -39,10 +39,10 @@ open class TokenSwapper: ObservableObject {
 
     public var objectWillChange: AnyPublisher<Void, Never> {
         return Publishers.Merge3(
-                storage.allSupportedTools.dropFirst().mapToVoid(),
-                storage.supportedServers.dropFirst().mapToVoid(),
-                storage.supportedTokens.dropFirst().mapToVoid()
-            ).receive(on: queue)
+            storage.allSupportedTools.dropFirst().mapToVoid(),
+            storage.supportedServers.dropFirst().mapToVoid(),
+            storage.supportedTokens.dropFirst().mapToVoid()
+        ).receive(on: queue)
             .eraseToAnyPublisher()
     }
 
@@ -50,7 +50,7 @@ open class TokenSwapper: ObservableObject {
                 serversProvider: ServersProvidable,
                 networking: TokenSwapperNetworking,
                 analyticsLogger: AnalyticsLogger) {
-        
+
         self.reachabilityManager = reachabilityManager
         self.networking = networking
         self.serversProvider = serversProvider
@@ -227,8 +227,7 @@ extension TokenSwapper {
 }
 
 extension TokenSwapper {
-    enum functional {
-    }
+    enum functional {}
 }
 
 fileprivate extension TokenSwapper.functional {

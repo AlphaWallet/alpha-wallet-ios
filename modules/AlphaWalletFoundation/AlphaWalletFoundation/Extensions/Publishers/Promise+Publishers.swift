@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 15.09.2022.
 //
 
-import PromiseKit
-import Combine
 import AlphaWalletCore
+import Combine
+import PromiseKit
 
 extension Promise {
     public func publisher(queue: DispatchQueue = .main) -> AnyPublisher<T, PromiseError> {
@@ -121,18 +121,18 @@ extension Publisher {
                     }
 
                     cancellableWrapper.cancellable =
-                    handleEvents(receiveCancel: {
-                        continuation.resume(throwing: Task.CancellationError())
-                    }).sink { completion in
-                        if case let .failure(error) = completion {
-                            continuation.resume(throwing: error)
-                        } else if !didSendValue {
-                            continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                        handleEvents(receiveCancel: {
+                            continuation.resume(throwing: Task.CancellationError())
+                        }).sink { completion in
+                            if case .failure(let error) = completion {
+                                continuation.resume(throwing: error)
+                            } else if !didSendValue {
+                                continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                            }
+                        } receiveValue: { value in
+                            continuation.resume(with: .success(value))
+                            didSendValue = true
                         }
-                    } receiveValue: { value in
-                        continuation.resume(with: .success(value))
-                        didSendValue = true
-                    }
                 }
             }
         }

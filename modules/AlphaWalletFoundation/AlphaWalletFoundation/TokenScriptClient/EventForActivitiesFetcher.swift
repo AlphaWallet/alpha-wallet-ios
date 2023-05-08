@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 24.10.2022.
 //
 
-import Foundation
 import AlphaWalletCore
+import AlphaWalletWeb3
 import BigInt
 import Combine
-import AlphaWalletWeb3
+import Foundation
 
 final class EventForActivitiesFetcher {
     enum FetcherError: Error {

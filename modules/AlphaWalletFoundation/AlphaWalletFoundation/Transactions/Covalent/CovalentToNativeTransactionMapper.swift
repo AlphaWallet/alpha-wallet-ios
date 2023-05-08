@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension Covalent {
     struct ToNativeTransactionMapper {

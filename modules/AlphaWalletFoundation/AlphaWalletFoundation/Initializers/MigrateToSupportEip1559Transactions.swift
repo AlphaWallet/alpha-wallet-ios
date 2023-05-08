@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 10.03.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletLogger
+import Combine
+import Foundation
 
 public final class MigrateToSupportEip1559Transactions: Service {
     private let serversProvider: ServersProvidable

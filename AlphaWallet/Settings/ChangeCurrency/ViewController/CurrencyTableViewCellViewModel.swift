@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct CurrencyTableViewCellViewModel: Hashable {
     let code: String

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 27.10.2020.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: WalletConnectSessionCoordinator)
@@ -31,7 +31,7 @@ class WalletConnectSessionCoordinator: Coordinator {
     }()
     private let serversProvider: ServersProvidable
     private let session: AlphaWallet.WalletConnect.Session
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
 
@@ -74,7 +74,7 @@ extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
         let servers = selection.asServersArray
         analytics.log(action: Analytics.Action.switchedServer, properties: [
-            Analytics.Properties.source.rawValue: "walletConnect"
+            Analytics.Properties.source.rawValue: "walletConnect",
         ])
         try? walletConnectProvider.update(session.topicOrUrl, servers: servers)
     }
@@ -82,7 +82,7 @@ extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
     func didClose(in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
         analytics.log(action: Analytics.Action.cancelsSwitchServer, properties: [
-            Analytics.Properties.source.rawValue: "walletConnect"
+            Analytics.Properties.source.rawValue: "walletConnect",
         ])
     }
 }

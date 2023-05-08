@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct BookmarksViewModelInput {
     let deleteBookmark: AnyPublisher<BookmarkObject, Never>
@@ -22,7 +22,7 @@ class BookmarksViewViewModel {
     lazy var emptyViewModel: DappsHomeEmptyViewModel = {
         return DappsHomeEmptyViewModel(headerViewViewModel: headerViewModel, title: R.string.localizable.dappBrowserMyDappsEmpty())
     }()
-    
+
     init(bookmarksStore: BookmarksStore) {
         self.bookmarksStore = bookmarksStore
     }
@@ -63,7 +63,7 @@ class BookmarksViewViewModel {
 extension BookmarksViewViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<BookmarksViewViewModel.Section, MyDappCellViewModel>
     typealias DataSource = UITableViewDiffableDataSource<BookmarksViewViewModel.Section, MyDappCellViewModel>
-    
+
     enum Section: Int, CaseIterable {
         case bookmarks
     }

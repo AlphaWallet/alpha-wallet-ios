@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 27.02.2023.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 private class SelectAssetHeaderView: UIView {
 
@@ -37,7 +37,7 @@ private class SelectAssetHeaderView: UIView {
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            closeButton.centerYAnchor.constraint(equalTo: centerYAnchor)
+            closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
         translatesAutoresizingMaskIntoConstraints = false
     }
@@ -121,4 +121,3 @@ extension EditableSelectAssetAmountView: UITextFieldDelegate {
         return true
     }
 }
-

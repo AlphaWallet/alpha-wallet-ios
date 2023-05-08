@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct PriceAlertTableViewCellViewModel: Hashable {
     let alert: PriceAlert
@@ -19,7 +19,7 @@ struct PriceAlertTableViewCellViewModel: Hashable {
         self.alert = alert
         titleAttributedString = .init(string: alert.title, attributes: [
             .font: Fonts.regular(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
         icon = alert.icon
         isSelected = alert.isEnabled

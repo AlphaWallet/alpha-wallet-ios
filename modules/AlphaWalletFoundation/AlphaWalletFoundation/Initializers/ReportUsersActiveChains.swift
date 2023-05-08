@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public final class ReportUsersActiveChains: Service {
     private let serversProvider: ServersProvidable

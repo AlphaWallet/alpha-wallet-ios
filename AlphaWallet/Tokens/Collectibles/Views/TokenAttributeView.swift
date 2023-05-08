@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit 
+import UIKit
 
 protocol TokenAttributeViewDelegate: AnyObject {
     func didSelect(in view: TokenAttributeView)
@@ -51,7 +51,7 @@ class TokenAttributeView: UIView {
             .spacer(height: 0, flexible: true),
             subStackView,
             .spacer(height: 0, flexible: true),
-            separatorView
+            separatorView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         subStackView.translatesAutoresizingMaskIntoConstraints = false

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.09.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 extension Constants {
     //Misc
@@ -19,7 +19,7 @@ extension Constants {
         static let server = "AlphaWallet"
         static let websiteUrl = URL(string: Constants.website)!
         static let icons = [
-            "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
+            "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media",
         ]
         static let connectionTimeout: TimeInterval = 10
     }

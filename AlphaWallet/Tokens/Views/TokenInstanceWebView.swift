@@ -1,13 +1,13 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
-import BigInt
-import PromiseKit
-import WebKit
-import Combine
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
+import Combine
+import Foundation
+import PromiseKit
+import UIKit
+import WebKit
 
 protocol RequestSignMessageDelegate: AnyObject {
     func requestSignMessage(message: SignMessageType,
@@ -28,8 +28,8 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
-    lazy private var webView: WKWebView = {
+    private lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
+    private lazy var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
@@ -191,12 +191,12 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
 
         let containerCssId = generateContainerCssId(forTokenId: id)
         string += """
-                  \nweb3.tokens.dataChanged(old, web3.tokens.data, "\(containerCssId)")
-                  """
+            \nweb3.tokens.dataChanged(old, web3.tokens.data, "\(containerCssId)")
+            """
         let javaScript = """
-                         console.log(`update() ran`)
-                         const old = web3.tokens.data
-                         """ + string
+            console.log(`update() ran`)
+            const old = web3.tokens.data
+            """ + string
 
         //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet. Seems like it is necessary for `afterDocumentIsLoaded` to always be true here in order to avoid `Can't find variable: web3` errors when used for token cards
         if isStandalone {
@@ -251,10 +251,10 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         }
 
         let javaScriptWrappedInScope = """
-                                       {
-                                          \(javaScript)
-                                       }
-                                       """
+            {
+               \(javaScript)
+            }
+            """
         if afterDocumentIsLoaded {
             let userScript = WKUserScript(source: javaScriptWrappedInScope, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
             webView.configuration.userContentController.addUserScript(userScript)
@@ -352,15 +352,15 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                     account: account,
                     source: .tokenScript,
                     requester: nil)
-                .handleEvents(receiveCancel: {
-                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
-                })
-                .sinkAsync(receiveCompletion: { _ in
-                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
-                }, receiveValue: { value in
-                    let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
-                    self.notifyFinish(callbackId: command.id, value: .success(callback))
-                })
+                    .handleEvents(receiveCancel: {
+                        self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
+                    })
+                    .sinkAsync(receiveCompletion: { _ in
+                        self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
+                    }, receiveValue: { value in
+                        let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
+                        self.notifyFinish(callbackId: command.id, value: .success(callback))
+                    })
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signEip712v3And4, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
             }

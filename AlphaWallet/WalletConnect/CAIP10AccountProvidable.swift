@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 06.01.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 import WalletConnectSign
 
 protocol CAIP10AccountProvidable {
@@ -44,7 +44,7 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
     private let activeWalletSubject: CurrentValueSubject<Wallet?, Never> = .init(nil)
     private let keystore: Keystore
     private var cancellable = Set<AnyCancellable>()
-    
+
     var accounts: AnyPublisher<Set<CAIP10Account>, Never> {
         accountsSubject
             .compactMap { $0 }

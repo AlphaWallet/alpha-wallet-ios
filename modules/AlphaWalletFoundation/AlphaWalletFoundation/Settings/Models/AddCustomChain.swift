@@ -1,7 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public enum AddCustomChainError: Error {
     case cancelled
@@ -34,8 +34,7 @@ public protocol AddCustomChainDelegate: AnyObject {
 
 // TODO: Remove when other classes which implement AddCustomChainDelegate protocol add this function.
 extension AddCustomChainDelegate {
-    public func notifyRpcURlHostnameFailure() {
-    }
+    public func notifyRpcURlHostnameFailure() {}
 }
 
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
@@ -138,12 +137,12 @@ public class AddCustomChain {
     }
 
     private func handleOperation(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
-            switch operation {
-            case .add:
-                return self.queueAddCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType)
-            case .edit(let originalRpc):
-                return self.queueEditCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, originalRpc: originalRpc)
-             }
+        switch operation {
+        case .add:
+            return self.queueAddCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType)
+        case .edit(let originalRpc):
+            return self.queueEditCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, originalRpc: originalRpc)
+        }
     }
 
     private func queueAddCustomChain(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
@@ -159,7 +158,7 @@ public class AddCustomChain {
             seal.send(())
             seal.send(completion: .finished)
 
-            return AnyCancellable { }
+            return AnyCancellable {}
         }
     }
 
@@ -176,7 +175,7 @@ public class AddCustomChain {
             seal.send(())
             seal.send(completion: .finished)
 
-            return AnyCancellable { }
+            return AnyCancellable {}
         }
     }
 
@@ -244,8 +243,7 @@ public class AddCustomChain {
 }
 
 extension AddCustomChain {
-    public enum functional {
-    }
+    public enum functional {}
 }
 
 //Experimental. Having some of the logic in barely-functional style. Most importantly, immutable. Static functions in an inner class enforce that state of value-type arguments are not modified, but it's still possible to modify reference-typed arguments. For now, avoid those. Inner class is required instead of a `fileprivate` class because one of the value they provide is being easier to test, so they must be accessible from the testsuite

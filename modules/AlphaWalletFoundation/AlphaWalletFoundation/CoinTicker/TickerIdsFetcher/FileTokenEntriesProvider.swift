@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 05.09.2022.
 //
 
-import Foundation
+import AlphaWalletCore
 import Combine
 import CombineExt
-import AlphaWalletCore
+import Foundation
 
 public final class FileTokenEntriesProvider: TokenEntriesProvider {
     private let absoluteFilename: String

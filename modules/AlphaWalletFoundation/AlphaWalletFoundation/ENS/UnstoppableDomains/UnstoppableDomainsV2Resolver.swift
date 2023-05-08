@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 27.01.2022.
 //
 
-import Foundation
-import Combine
-import SwiftyJSON
-import AlphaWalletENS
 import AlphaWalletCore
+import AlphaWalletENS
 import AlphaWalletLogger
+import Combine
+import Foundation
+import SwiftyJSON
 
 struct UnstoppableDomainsV2ApiError: Error {
     var localizedDescription: String
@@ -104,7 +104,7 @@ extension UnstoppableDomainsV2Resolver {
         case errorCodeNotFound
     }
 
-    struct AddressResolution {
+    enum AddressResolution {
         struct Meta {
             let networkId: Int?
             let domain: String
@@ -135,7 +135,7 @@ extension UnstoppableDomainsV2Resolver {
         }
     }
 
-    struct DomainResolution {
+    enum DomainResolution {
         struct Response {
             struct Pagination {
                 let perPage: Int

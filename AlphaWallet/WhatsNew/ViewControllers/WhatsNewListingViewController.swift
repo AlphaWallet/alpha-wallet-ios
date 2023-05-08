@@ -18,14 +18,14 @@ class WhatsNewListingViewController: UIViewController {
 
         return view
     }()
-    
+
     init(viewModel: WhatsNewListingViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(containerView)
         NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view)
+            containerView.anchorsConstraint(to: view),
         ])
     }
 

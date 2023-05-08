@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 // swiftlint:disable type_body_length
 enum OpenSeaNonFungibleTokenDisplayHelper: String {
@@ -48,7 +48,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         "Sluggish",
         "Sluggish",
         "Catatonic",
-        "Catatonic"
+        "Catatonic",
     ]
 
     private static let ethertuplisRarity = [
@@ -60,7 +60,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         "Very Rare",
         "Epic",
         "Legendary",
-        "MOOOON"
+        "MOOOON",
     ]
 
     private static let cryptoFightersRank = [
@@ -68,7 +68,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         "1st Colonel",
         "2nd Colonel",
         "1st Major",
-        "2nd Major"
+        "2nd Major",
     ]
 
     private static let cryptoFightersCooldown = [
@@ -78,7 +78,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         "6 hours",
         "12 hours",
         "1 day",
-        "3 days"
+        "3 days",
     ]
 
     init(contract: AlphaWallet.Address) {
@@ -165,7 +165,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             return [:]
         case .fighter:
             return [
-                "prize_cooldown_index": "Recruitment Speed"
+                "prize_cooldown_index": "Recruitment Speed",
             ]
         case .gods:
             return [:]
@@ -183,7 +183,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         case .mlbcb:
             return [
                 "uniform_number": "Jersey Number",
-                "team_name": "Team"
+                "team_name": "Team",
             ]
         case .myth:
             return [:]
@@ -218,7 +218,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         case .ck:
             return .toHide([
                 "generation",
-                "cooldown_index"
+                "cooldown_index",
             ])
         case .emona, .emond:
             return .toHide([
@@ -234,12 +234,12 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             ])
         case .etht:
             return .toHide([
-            "health",
-            "intelligence",
-            "agility",
-            "strength",
-            "armor",
-            "damage",
+                "health",
+                "intelligence",
+                "agility",
+                "strength",
+                "armor",
+                "damage",
             ])
         case .ethtown_hero:
             return .toHide([
@@ -631,7 +631,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         return traitsToProperNames[name] ?? name.replacingOccurrences(of: "_", with: " ").titleCasedWords()
     }
 
-// swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     func mapTraitsToDisplayValue(name: String, value: String) -> String {
         let defaultConvertedValue = value.replacingOccurrences(of: "_", with: " ").titleCasedWords()
         switch self {
@@ -797,7 +797,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             return defaultConvertedValue
         }
     }
-// swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
 
     func shouldDisplayAttribute(name: String) -> Bool {
         if subtitle1TraitName == name || subtitle2TraitName == name || subtitle3TraitName == name {

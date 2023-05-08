@@ -199,13 +199,13 @@ class CircularLoadingIndicatorView: UIView {
     }
 
     private func draw(backgroundLayer layer: CAShapeLayer) {
-        let path = UIBezierPath(arcCenter: pathCenter, radius: radius, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true)
+        let path = UIBezierPath(arcCenter: pathCenter, radius: radius, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: true)
         layer.path = path.cgPath
     }
 
     private func draw(fillLayer layer: CAShapeLayer) {
 
-        let startAngle = (-CGFloat.pi/2)
+        let startAngle = (-CGFloat.pi / 2)
         let endAngle = 2 * CGFloat.pi + startAngle
 
         let path = UIBezierPath(arcCenter: pathCenter, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)

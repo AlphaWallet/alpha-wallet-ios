@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.03.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 extension UIControl {
     func publisher(forEvent event: Event = .primaryActionTriggered) -> Publishers.Control {
@@ -89,7 +89,7 @@ extension Publisher {
     ///
     /// - Returns: A publisher of a tuple of the previous and current elements from the upstream publisher.
     func withPrevious() -> AnyPublisher<(previous: Output?, current: Output), Failure> {
-        scan(Optional<(Output?, Output)>.none) { ($0?.1, $1) }
+        scan((Output?, Output)?.none) { ($0?.1, $1) }
             .compactMap { $0 }
             .eraseToAnyPublisher()
     }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 28.09.2021.
 //
 
-import SafariServices
 import os.log
+import SafariServices
 
 let SFExtensionMessageKey = "message"
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {

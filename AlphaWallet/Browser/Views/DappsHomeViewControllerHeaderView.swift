@@ -22,7 +22,7 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
         let buttonsStackView = [
             myDappsButton,
             .spacerWidth(40),
-            historyButton
+            historyButton,
         ].asStackView(distribution: .equalSpacing, contentHuggingPriority: .required)
 
         exitEditingModeButton.addTarget(self, action: #selector(exitEditMode), for: .touchUpInside)

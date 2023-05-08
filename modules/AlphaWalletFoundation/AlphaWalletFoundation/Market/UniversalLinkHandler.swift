@@ -3,8 +3,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 ///
 // Universal link format
@@ -105,15 +105,15 @@ public class UniversalLinkHandler {
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         guard let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes) else { return nil }
         let order = Order(
-                price: price,
-                indices: tokenIndices,
-                expiry: expiry,
-                contractAddress: contractAddress,
-                count: BigUInt(tokenIndices.count),
-                nonce: BigUInt(0),
-                tokenIds: [],
-                spawnable: false,
-                nativeCurrencyDrop: false
+            price: price,
+            indices: tokenIndices,
+            expiry: expiry,
+            contractAddress: contractAddress,
+            count: BigUInt(tokenIndices.count),
+            nonce: BigUInt(0),
+            tokenIds: [],
+            spawnable: false,
+            nativeCurrencyDrop: false
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
@@ -134,22 +134,22 @@ public class UniversalLinkHandler {
         let r = Data(bytes: Array(bytes[40...71])).hex()
         let s = Data(bytes: Array(bytes[72...103])).hex()
         let order = Order(
-                price: BigUInt(0),
-                indices: [UInt16](),
-                expiry: BigUInt(Data(bytes: expiry)),
-                contractAddress: contractAddress,
-                count: BigUInt(Data(bytes: amount)),
-                nonce: BigUInt(Data(bytes: nonce)),
-                tokenIds: [BigUInt](),
-                spawnable: false,
-                nativeCurrencyDrop: true
+            price: BigUInt(0),
+            indices: [UInt16](),
+            expiry: BigUInt(Data(bytes: expiry)),
+            contractAddress: contractAddress,
+            count: BigUInt(Data(bytes: amount)),
+            nonce: BigUInt(Data(bytes: nonce)),
+            tokenIds: [BigUInt](),
+            spawnable: false,
+            nativeCurrencyDrop: true
         )
         let message = getMessageFromNativeCurrencyDropLink(
-                prefix: prefix,
-                nonce: nonce,
-                amount: amount,
-                expiry: expiry,
-                contractAddress: contractBytes
+            prefix: prefix,
+            nonce: nonce,
+            amount: amount,
+            expiry: expiry,
+            contractAddress: contractBytes
         )
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
@@ -320,11 +320,11 @@ public class UniversalLinkHandler {
     }
 
     private func getMessageFromNativeCurrencyDropLink(
-            prefix: [UInt8],
-            nonce: [UInt8],
-            amount: [UInt8],
-            expiry: [UInt8],
-            contractAddress: [UInt8]
+        prefix: [UInt8],
+        nonce: [UInt8],
+        amount: [UInt8],
+        expiry: [UInt8],
+        contractAddress: [UInt8]
     ) -> [UInt8] {
         var message = [UInt8]()
         message.append(contentsOf: prefix)
@@ -359,4 +359,3 @@ public class UniversalLinkHandler {
     }
 
 }
-

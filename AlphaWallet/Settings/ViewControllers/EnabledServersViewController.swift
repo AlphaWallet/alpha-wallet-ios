@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol EnabledServersViewControllerDelegate: AnyObject {
     func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController)
@@ -36,13 +36,13 @@ class EnabledServersViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
     }
@@ -77,7 +77,7 @@ class EnabledServersViewController: UIViewController {
                 okTitle: R.string.localizable.delete(),
                 okStyle: .destructive) else { return }
 
-                deleteCustomRpc.send(customRpc)
+            deleteCustomRpc.send(customRpc)
         }
     }
 
@@ -168,7 +168,7 @@ extension EnabledServersViewController: UITableViewDelegate {
             complete(true)
         }
 
-         let configuration = UISwipeActionsConfiguration(actions: [editAction, deleteAction])
+        let configuration = UISwipeActionsConfiguration(actions: [editAction, deleteAction])
 
         return configuration
     }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.08.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class Erc875NonFungibleRowView: TokenCardViewRepresentable {
     private let titleLabel = UILabel()
@@ -35,7 +35,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFit
         imageView.loading = .disabled
-        
+
         return imageView
     }()
 
@@ -83,18 +83,18 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         case .backedByOpenSea:
             imageLargeSizeContraints = [
                 col1.heightAnchor.constraint(equalToConstant: 40),
-                previewContainerView.widthAnchor.constraint(equalTo: widthAnchor)
+                previewContainerView.widthAnchor.constraint(equalTo: widthAnchor),
             ]
         case .notBackedByOpenSea:
             imageLargeSizeContraints = [
                 previewContainerView.heightAnchor.constraint(equalTo: heightAnchor),
-                previewContainerView.widthAnchor.constraint(equalTo: widthAnchor)
+                previewContainerView.widthAnchor.constraint(equalTo: widthAnchor),
             ]
         }
 
         NSLayoutConstraint.activate([
             tokenIconImageView.anchorsConstraint(to: previewContainerView),
-            tokenCardWebView.anchorsConstraint(to: previewContainerView)
+            tokenCardWebView.anchorsConstraint(to: previewContainerView),
         ])
 
         clipsToBounds = true
@@ -107,7 +107,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
     private lazy var descriptionCo1 = [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5)
     private lazy var col1 = [
         [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5),
-        descriptionCo1
+        descriptionCo1,
     ].asStackView(axis: .vertical, spacing: 2)
 
     private var _constraints: [NSLayoutConstraint] = []
@@ -154,7 +154,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
                     col0,
                     .spacer(height: 12),
                     [.spacerWidth(10), col1, .spacerWidth(10)].asStackView(axis: .horizontal),
-                    .spacer(height: 16)
+                    .spacer(height: 16),
                 ]
             case .notBackedByOpenSea:
                 borderWidth = 0

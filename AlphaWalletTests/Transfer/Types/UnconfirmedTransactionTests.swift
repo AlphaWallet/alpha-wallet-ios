@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 01.12.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
 import AlphaWalletWeb3
+import BigInt
+import XCTest
 
 class UnconfirmedTransactionTests: XCTestCase {
 
@@ -69,7 +69,7 @@ class UnconfirmedTransactionTests: XCTestCase {
                 name: "Name",
                 symbol: "Symbol",
                 status: .available,
-                values: [:])
+                values: [:]),
         ], contractAddress: contract, hasAssetDefinition: false).select(with: .allFor(tokenId: tokenId))]
 
         let transaction = try TransactionType(nonFungibleToken: token, tokenHolders: tokenHolders).buildSendErc721Token(recipient: recipient, account: Constants.nullAddress)

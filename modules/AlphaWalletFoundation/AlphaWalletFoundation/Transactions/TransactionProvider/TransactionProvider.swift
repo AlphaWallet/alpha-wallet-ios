@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class TransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore

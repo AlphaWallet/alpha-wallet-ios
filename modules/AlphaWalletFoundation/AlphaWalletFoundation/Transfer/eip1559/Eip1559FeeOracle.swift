@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.08.2022.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 class Eip1559FeeOracle {
     private let suggestEip1559: SuggestEip1559

@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit
 import StatefulViewController
+import UIKit
 
 final class LoadingView: UIView {
     private let imageView = UIImageView()
@@ -67,7 +67,7 @@ extension LoadingView {
         let loadingView = LoadingView(insets: .init(top: DataEntry.Metric.SearchBar.height, left: 0, bottom: 0, right: 0))
         loadingView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         loadingView.label.textColor = Configuration.Color.Semantic.alternativeText
-        loadingView.loadingIndicator.color =  Configuration.Color.Semantic.alternativeText
+        loadingView.loadingIndicator.color = Configuration.Color.Semantic.alternativeText
         loadingView.label.font = Fonts.regular(size: 18)
 
         return loadingView

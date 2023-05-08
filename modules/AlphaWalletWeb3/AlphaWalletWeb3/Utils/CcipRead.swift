@@ -71,7 +71,7 @@ class CcipRead {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             let body = [
                 "sender": senderString,
-                "data": dataString
+                "data": dataString,
             ]
             do {
                 let jsonData = try JSONEncoder().encode(body)
@@ -152,41 +152,41 @@ class CcipRead {
         }()
 
         var start = 0
-        var end = start + 32*2
+        var end = start + 32 * 2
         let rawSender: String = dataString[start..<end]
         //20 byte address -> 40 in hex
         let sender: String = String(rawSender.dropFirst(rawSender.count - 40))
 
-        start = 32*2
-        end = start + 32*2
+        start = 32 * 2
+        end = start + 32 * 2
         let urlsOffsetRaw = dataString[start..<end]
         let urlsOffset = Int(urlsOffsetRaw, radix: 16)!
 
         start = urlsOffset * 2
-        end = start + 32*2
+        end = start + 32 * 2
         let urlsLengthRaw = dataString[start..<end]
         let urlsLength = Int(urlsLengthRaw, radix: 16)!
 
-        start = urlsOffset*2 + 32*2
+        start = urlsOffset * 2 + 32 * 2
         end = dataString.count
         let urlsData = dataString[start..<end]
 
         var urls: [String?] = []
         for i in 0..<urlsLength {
-            let offsetStart = i*32*2
+            let offsetStart = i * 32 * 2
             let urlRaw = parseBytes(data: urlsData, start: offsetStart)
             let url = String(data: Data(hex: urlRaw), encoding: .utf8)
             urls.append(url)
         }
 
-        let callDataOffsetStart = 64*2
+        let callDataOffsetStart = 64 * 2
         let callData = parseBytes(data: dataString, start: callDataOffsetStart)
 
-        start = 96*2
-        end = start + 4*2
+        start = 96 * 2
+        end = start + 4 * 2
         let callbackSelector = dataString[start..<end]
 
-        let extraData = parseBytes(data: dataString, start: 128*2)
+        let extraData = parseBytes(data: dataString, start: 128 * 2)
 
         return .init(urls: urls.compactMap { $0 }, sender: sender, callbackSelector: callbackSelector, callData: callData, extraData: extraData)
     }
@@ -200,16 +200,16 @@ class CcipRead {
 
     private static func parseBytes(data: String, start: Int) -> String {
         let offsetStart = start
-        let offSetEnd = offsetStart + 32*2
+        let offSetEnd = offsetStart + 32 * 2
         let offset = data[offsetStart..<offSetEnd]
 
         let lengthStartRaw = offset
         let lengthStart = Int(lengthStartRaw, radix: 16)! * 2
-        let lengthEnd = lengthStart + 32*2
+        let lengthEnd = lengthStart + 32 * 2
         let lengthRaw = data[lengthStart..<lengthEnd]
 
         let length = Int(lengthRaw, radix: 16)! * 2
-        let raw = data[lengthEnd..<(lengthEnd+length)]
+        let raw = data[lengthEnd..<(lengthEnd + length)]
         return raw
     }
 

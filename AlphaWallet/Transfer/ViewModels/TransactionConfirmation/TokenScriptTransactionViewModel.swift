@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 extension TransactionConfirmationViewModel {
     class TokenScriptTransactionViewModel: TransactionConfirmationViewModelType {

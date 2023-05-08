@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 01.04.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class ErcTokenDetector {
     private let tokensService: TokensService

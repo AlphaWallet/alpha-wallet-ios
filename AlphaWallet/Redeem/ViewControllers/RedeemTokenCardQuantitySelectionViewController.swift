@@ -6,8 +6,8 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectQuantity(token: Token, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController)
@@ -54,7 +54,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
     init(viewModel: RedeemTokenCardQuantitySelectionViewModel,
          assetDefinitionStore: AssetDefinitionStore) {
-        
+
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -171,4 +171,3 @@ extension RedeemTokenCardQuantitySelectionViewController: VerifiableStatusViewCo
         delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
-

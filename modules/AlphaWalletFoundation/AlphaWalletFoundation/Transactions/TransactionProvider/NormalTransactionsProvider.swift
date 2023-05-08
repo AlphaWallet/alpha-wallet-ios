@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 enum TransactionFetchType: String {
     case normal

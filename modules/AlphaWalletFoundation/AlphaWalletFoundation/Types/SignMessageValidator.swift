@@ -24,7 +24,7 @@ public struct DappOrTokenScriptEip712v3And4Validator {
 }
 
 public struct TypedMessageValidator {
-    public init() { }
+    public init() {}
 
     public func validate(message: [EthTypedData]) throws {
         guard !message.isEmpty else { throw SignMessageValidatorError.emptyMessage }

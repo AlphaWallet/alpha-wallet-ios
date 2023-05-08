@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
-struct SlippageViewModelInput { }
+struct SlippageViewModelInput {}
 
 struct SlippageViewModelOutput {
     let views: AnyPublisher<[SwapSlippage], Never>
@@ -30,7 +30,7 @@ class SlippageViewModel {
             var cases = cases
             switch selectedSlippage {
             case .custom:
-                if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true; }) {
+                if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true }) {
                     cases[index] = selectedSlippage
                 }
             case .onePercents, .fivePercents, .tenPercents:
@@ -38,7 +38,7 @@ class SlippageViewModel {
             }
             return cases.map { .init(value: $0, isSelected: selectedSlippage == $0) }
         }.receive(on: RunLoop.main)
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
 
         return .init(views: views, availableSlippages: availableSlippages)
     }

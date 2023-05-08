@@ -21,7 +21,7 @@ class BrowserHistoryCell: UITableViewCell {
 
         let labelsVerticalStackView = [
             titleLabel,
-            urlLabel
+            urlLabel,
         ].asStackView(axis: .vertical)
 
         let mainStackView = [.spacerWidth(29), iconImageViewHolder, .spacerWidth(26), labelsVerticalStackView, .spacerWidth(29)].asStackView(axis: .horizontal, alignment: .center)

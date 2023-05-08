@@ -4,10 +4,10 @@
 //
 //  Created by Vladyslav Shepitko on 03.02.2021.
 //
-import FirebaseCore
-import FirebaseCrashlytics
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import FirebaseCore
+import FirebaseCrashlytics
 
 extension AlphaWallet {
     final class FirebaseCrashlyticsReporter: CrashlyticsReporter {
@@ -31,13 +31,13 @@ extension AlphaWallet {
             return FirebaseCrashlyticsReporter()
         }()
 
-        private init() { }
+        private init() {}
 
         func track(wallets: [Wallet]) {
             let wallets = wallets.map { $0.description }.joined(separator: ", ")
             let keysAndValues: [String: Any] = [
                 ReportKey.walletAddresses.rawValue: wallets,
-             ] as [String: Any]
+            ] as [String: Any]
 
             crashlytics.setCustomKeysAndValues(keysAndValues)
         }
@@ -45,7 +45,7 @@ extension AlphaWallet {
         func trackActiveWallet(wallet: Wallet) {
             let keysAndValues: [String: Any] = [
                 ReportKey.activeWalletAddress.rawValue: wallet.description,
-             ] as [String: Any]
+            ] as [String: Any]
 
             crashlytics.setCustomKeysAndValues(keysAndValues)
         }
@@ -70,7 +70,7 @@ extension AlphaWallet {
             func logNftJsonFileIfNeeded(address: AlphaWallet.Address, server: RPCServer, balance: NonFungibleBalance) -> Bool {
                 switch balance {
                 case .assets(let rawAssets):
-                let result = rawAssets.filter { Double($0.json.count / 1048576) > fileSizeThreshold }
+                    let result = rawAssets.filter { Double($0.json.count / 1048576) > fileSizeThreshold }
                     if result.isEmpty {
                         return false
                     } else {
@@ -119,7 +119,7 @@ extension AlphaWallet {
                 "address": address.eip55String,
                 "chainId": String(server.chainID),
                 "fileSize": "\(fileSize)MB",
-                "source": source.description
+                "source": source.description,
             ])
 
             crashlytics.record(error: error)

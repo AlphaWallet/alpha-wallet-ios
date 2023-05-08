@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.07.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol SessionsProvider: AnyObject {
     var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> { get }
@@ -139,7 +139,7 @@ open class BaseSessionsProvider: SessionsProvider {
                 tokensDataStore: tokensDataStore,
                 server: server,
                 ercTokenProvider: ercTokenProvider)
-            
+
             return EtherscanCompatibleApiNetworking(
                 server: server,
                 wallet: wallet,

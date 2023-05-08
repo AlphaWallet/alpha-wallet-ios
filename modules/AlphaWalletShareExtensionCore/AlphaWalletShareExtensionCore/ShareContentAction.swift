@@ -71,11 +71,11 @@ public enum ShareContentAction {
         switch self {
         case .url(let url):
             components.queryItems = [
-                .init(name: "q", value: url.absoluteString)
+                .init(name: "q", value: url.absoluteString),
             ]
         case .string(let text):
             components.queryItems = [
-                .init(name: "q", value: text)
+                .init(name: "q", value: text),
             ]
         case .openApp:
             return .init()

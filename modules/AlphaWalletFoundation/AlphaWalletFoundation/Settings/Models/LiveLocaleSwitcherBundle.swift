@@ -6,7 +6,7 @@ private var liveLocaleSwitcherBundleKey = 0
 
 ///Switch in-app locale without restarting app. Need to re-create UI though. There is a mix of use of the words "locale" and "language". When referring to the "language bundle", the word "language" is explicitly used, since that's Apple's terminology.
 public class LiveLocaleSwitcherBundle: Bundle {
-    public override func localizedString(forKey key: String, value: String?, table tableName: String?) -> String {
+    override public func localizedString(forKey key: String, value: String?, table tableName: String?) -> String {
         if let languageBundle = objc_getAssociatedObject(self, &liveLocaleSwitcherBundleKey) as? Bundle {
             return languageBundle.localizedString(forKey: key, value: value, table: tableName)
         } else {
@@ -14,7 +14,7 @@ public class LiveLocaleSwitcherBundle: Bundle {
         }
     }
 
-    public override func url(forResource name: String?, withExtension ext: String?) -> URL? {
+    override public func url(forResource name: String?, withExtension ext: String?) -> URL? {
         //We want to match "html", but exclude "nib" (for "xib"). Safe to whitelist instead of blacklist
         if ext == "html", let languageBundle = objc_getAssociatedObject(self, &liveLocaleSwitcherBundleKey) as? Bundle {
             //Some resources are not localized. Eg. HTML files used by Web3Swift. Rather than whitelist/blacklist, we just fall back to the right bundle

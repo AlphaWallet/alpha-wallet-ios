@@ -72,7 +72,7 @@ class TokenHistoryPeriodSelectorView: UIView {
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 10, left: 30, bottom: 10, right: 30)),
-            heightAnchor.constraint(equalToConstant: 50)
+            heightAnchor.constraint(equalToConstant: 50),
         ])
     }
 

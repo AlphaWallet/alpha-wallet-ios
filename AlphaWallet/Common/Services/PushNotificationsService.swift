@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
 import UserNotifications
-import AlphaWalletFoundation
 
 final class UNUserNotificationsService: NSObject, PushNotificationsService {
     private var notificationCenter: UNUserNotificationCenter {

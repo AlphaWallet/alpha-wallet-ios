@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct ConfigureTransaction {
+public enum ConfigureTransaction {
     public static var gasLimitMax: Int = 6370515
     public static var gasFeeMax: Int64 = 3_000_000_000_000_000_000
 }

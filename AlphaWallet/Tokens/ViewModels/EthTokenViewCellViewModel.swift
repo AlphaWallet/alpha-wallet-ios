@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
+import BigInt
+import Combine
 import Foundation
 import UIKit
-import BigInt
-import AlphaWalletFoundation
-import Combine
 
 struct EthTokenViewCellViewModel: TokenIdentifiable {
     private let safeShortTitleInPluralForm: String
@@ -43,14 +43,14 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: safeShortTitleInPluralForm, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: amountShort + " " + symbolInPluralForm, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Screen.TokenCard.Font.subtitle,
         ])
     }
 
@@ -92,7 +92,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
 
         return NSAttributedString(string: changePercentage, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Screen.TokenCard.Font.valueChangeLabel,
         ])
     }
 
@@ -110,7 +110,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
     var priceChangeAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChange, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Screen.TokenCard.Font.valueChangeLabel,
         ])
     }
 
@@ -129,7 +129,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
 
         return NSAttributedString(string: amountAccordingRPCServer ?? UiTweaks.noPriceMarker, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.valueChangeValue
+            .font: Screen.TokenCard.Font.valueChangeValue,
         ])
     }
 
@@ -152,7 +152,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
     func fiatValueAttributedString(currencyAmount: String?) -> NSAttributedString {
         return NSAttributedString(string: amountAccordingRPCServer(currencyAmount: currencyAmount) ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.valueChangeValue
+            .font: Screen.TokenCard.Font.valueChangeValue,
         ])
     }
 
@@ -176,7 +176,7 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
     }
 }
 
-extension EthTokenViewCellViewModel: Hashable { }
+extension EthTokenViewCellViewModel: Hashable {}
 
 extension AnyPublisher: Equatable {
     public static func == (lhs: AnyPublisher, rhs: AnyPublisher) -> Bool {

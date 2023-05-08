@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 import Kanna
 
 public struct UserEntryOrigin {

@@ -87,7 +87,7 @@ class ContainerCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             stackViewConstraints,
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
 
         background.addSubview(cellSeparators.top)
@@ -116,4 +116,4 @@ class ContainerCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate(subviewConstraints)
     }
-} 
+}

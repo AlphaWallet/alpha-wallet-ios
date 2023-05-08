@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 18.08.2021.
 //
 
-import UIKit
+import AlphaWalletFoundation
 import BigInt
 import StatefulViewController
-import AlphaWalletFoundation
+import UIKit
 
 protocol ActivitiesViewDelegate: AnyObject {
     func didPressActivity(activity: Activity, in view: ActivitiesView)
@@ -59,7 +59,7 @@ class ActivitiesView: UIView {
         addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: self)
+            tableView.anchorsIgnoringBottomSafeArea(to: self),
         ])
 
         emptyView = EmptyView.activitiesEmptyView()
@@ -227,8 +227,7 @@ extension ActivitiesView: UITableViewDataSource {
         return ActivitiesViewController.functional.headerView(for: section, viewModel: viewModel)
     }
 
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-    }
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {}
 
     fileprivate func headerView(for section: Int) -> UIView {
         let container = UIView()
@@ -241,7 +240,7 @@ extension ActivitiesView: UITableViewDataSource {
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
+            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0)),
         ])
         return container
     }

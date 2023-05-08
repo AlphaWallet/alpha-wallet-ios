@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct UnsignedTransaction {
     public let value: BigUInt
@@ -23,7 +23,7 @@ public struct UnsignedTransaction {
                 gasLimit: BigUInt,
                 server: RPCServer,
                 transactionType: TransactionType) {
-        
+
         self.value = value
         self.account = account
         self.to = to

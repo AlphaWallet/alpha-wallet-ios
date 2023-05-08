@@ -6,11 +6,10 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
-protocol TokenCardRedemptionViewControllerDelegate: AnyObject, CanOpenURL {
-}
+protocol TokenCardRedemptionViewControllerDelegate: AnyObject, CanOpenURL {}
 
 class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {
     private var viewModel: TokenCardRedemptionViewModel
@@ -80,7 +79,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            containerView.anchorsIgnoringBottomSafeArea(to: view)
+            containerView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 
@@ -129,8 +128,7 @@ extension TokenCardRedemptionViewController: VerifiableStatusViewController {
     }
 }
 
-extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {
-}
+extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {}
 
 extension TokenCardRedemptionViewController: CanOpenURL {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {

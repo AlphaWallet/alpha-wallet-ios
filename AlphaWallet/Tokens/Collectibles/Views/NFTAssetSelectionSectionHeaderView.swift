@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol SelectionPositioningView: AnyObject {
     var positioningView: UIView { get }
@@ -47,7 +47,7 @@ extension NFTAssetSelectionViewController {
                 topSeparatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
                 topSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
                 topSeparatorView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
-                topSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor)
+                topSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             ])
         }
 
@@ -73,4 +73,3 @@ extension NFTAssetSelectionViewController {
         }
     }
 }
-

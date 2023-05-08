@@ -125,7 +125,7 @@ class PrivateXMLHandler {
         baseTokenType != nil
     }
     private let baseTokenType: TokenType?
-    lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
+    private lazy var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
     private lazy var tokenElement: XMLElement? = {
         return XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext)
@@ -263,9 +263,9 @@ class PrivateXMLHandler {
             let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
             results = cards.compactMap { eachCard in
                 guard let name = eachCard["name"],
-                  let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
-                   let eventName = ethereumEventElement["type"],
-                   let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
+                      let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
+                      let eventName = ethereumEventElement["type"],
+                      let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
                 let optionalContract: AlphaWallet.Address?
                 if let eventContractName = ethereumEventElement["contract"],
                    let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: xml, xmlContext: xmlContext) {
@@ -341,7 +341,7 @@ class PrivateXMLHandler {
                 return
             }
 
-            if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+            if let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
                 labelInPluralForm = name
             } else {
                 labelInPluralForm = _labelInSingularForm
@@ -350,7 +350,7 @@ class PrivateXMLHandler {
         return labelInPluralForm
     }()
 
-    static private var lang: String {
+    private static var lang: String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -441,17 +441,17 @@ class PrivateXMLHandler {
             return (html: "", style: "")
         } else {
             return (html: """
-                          <script type="text/javascript">
-                          \(script)
-                          </script>
-                          \(sanitizedHtml)
-                          """,
+                <script type="text/javascript">
+                \(script)
+                </script>
+                \(sanitizedHtml)
+                """,
                     style: """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           """)
+                        \(AssetDefinitionStore.standardTokenScriptStyles)
+                        <style type="text/css">
+                        \(style)
+                        </style>
+                        """)
         }
     }
 
@@ -489,14 +489,14 @@ class PrivateXMLHandler {
     }
 
     func getToken(
-            name: String,
-            symbol: String,
-            fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
-            index: UInt16,
-            inWallet account: Wallet,
-            server: RPCServer,
-            tokenType: TokenType,
-            assetDefinitionStore: AssetDefinitionStore
+        name: String,
+        symbol: String,
+        fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+        index: UInt16,
+        inWallet account: Wallet,
+        server: RPCServer,
+        tokenType: TokenType,
+        assetDefinitionStore: AssetDefinitionStore
     ) -> TokenScript.Token {
         guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
@@ -595,10 +595,10 @@ class PrivateXMLHandler {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
             guard let server = server else { return nil }
             return XMLHandler.functional.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: self.contractNamesAndAddresses)
-                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         } else {
             return XMLHandler.getRecipientAddress(fromEthereumFunctionElement: ethereumFunctionElement, xmlContext: xmlContext)
-                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         }
     }
 
@@ -625,10 +625,10 @@ class PrivateXMLHandler {
 
     private func extractSelectionsForToken() -> [TokenScriptSelection] {
         XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
-            guard let id = each["name"], let filter = each["filter"]  else { return nil }
+            guard let id = each["name"], let filter = each["filter"] else { return nil }
             let names = (
-                    singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
-                    plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+                singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
             )
             let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
             return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
@@ -658,14 +658,14 @@ class PrivateXMLHandler {
 
     fileprivate static func getHoldingContracts(xml: XMLDocument, xmlContext: XmlContext) -> [(AlphaWallet.Address, Int)] {
         let fromTokenAsTopLevel: [(AlphaWallet.Address, Int)] = XMLHandler.getAddressElementsForHoldingContracts(fromRoot: xml, xmlContext: xmlContext)
-                .map { (contract: $0.text, chainId: $0["network"]) }
-                .compactMap { (contract, chainId) in
-                    if let contract = contract.flatMap({ AlphaWallet.Address(string: $0) }), let chainId = chainId.flatMap({ Int($0) }) {
-                        return (contract: contract, chainId: chainId)
-                    } else {
-                        return nil
-                    }
+            .map { (contract: $0.text, chainId: $0["network"]) }
+            .compactMap { (contract, chainId) in
+                if let contract = contract.flatMap({ AlphaWallet.Address(string: $0) }), let chainId = chainId.flatMap({ Int($0) }) {
+                    return (contract: contract, chainId: chainId)
+                } else {
+                    return nil
                 }
+            }
         let fromActionAsTopLevel: [(AlphaWallet.Address, Int)]
         if let server = XMLHandler.getServerForNativeCurrencyAction(fromRoot: xml, xmlContext: xmlContext) {
             fromActionAsTopLevel = [(Constants.nativeCryptoAddressInDatabase, server.chainID)]
@@ -749,7 +749,7 @@ public struct XMLHandler {
 
     public var fields: [AttributeId: AssetAttribute] {
         var fields: [AttributeId: AssetAttribute] = [:]
-            //TODO cache?
+        //TODO cache?
         if let baseXMLHandler = baseXMLHandler {
             let overrides = privateXMLHandler.fields
             let base = baseXMLHandler.fields
@@ -961,14 +961,14 @@ public struct XMLHandler {
             let overriddenValues = overriden.values
 
             return TokenScript.Token(
-                    tokenIdOrEvent: overriden.tokenIdOrEvent,
-                    tokenType: overriden.tokenType,
-                    index: overriden.index,
-                    name: overriden.name,
-                    symbol: overriden.symbol,
-                    status: overriden.status,
-                    //TODO cache?
-                    values: baseValues.merging(overriddenValues) { _, new in new }
+                tokenIdOrEvent: overriden.tokenIdOrEvent,
+                tokenType: overriden.tokenType,
+                index: overriden.index,
+                name: overriden.name,
+                symbol: overriden.symbol,
+                status: overriden.status,
+                //TODO cache?
+                values: baseValues.merging(overriddenValues) { _, new in new }
             )
         } else {
             return overriden

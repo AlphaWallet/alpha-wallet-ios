@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.10.2020.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 extension AlphaWallet.WalletConnect {
 

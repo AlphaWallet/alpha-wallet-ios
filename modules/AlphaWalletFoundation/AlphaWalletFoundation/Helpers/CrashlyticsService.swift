@@ -19,7 +19,7 @@ public let crashlytics = CrashlyticsService()
 public final class CrashlyticsService: NSObject, CrashlyticsReporter {
     private var services: AtomicArray<CrashlyticsReporter> = .init()
 
-    public override init() { }
+    override public init() {}
 
     public func register(_ service: CrashlyticsReporter) {
         services.append(service)
@@ -41,4 +41,3 @@ public final class CrashlyticsService: NSObject, CrashlyticsReporter {
         return services.contains(where: { $0.logLargeNftJsonFiles(for: actions, fileSizeThreshold: fileSizeThreshold) })
     }
 }
-

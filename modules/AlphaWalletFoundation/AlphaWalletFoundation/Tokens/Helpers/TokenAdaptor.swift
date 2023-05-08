@@ -6,12 +6,12 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
 import Combine
+import Foundation
 
-extension TokenHolder: ObservableObject { }
+extension TokenHolder: ObservableObject {}
 
 public struct TokenAdaptor {
     let nftProvider: NFTProvider
@@ -62,7 +62,7 @@ public struct TokenAdaptor {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-            //TODO Event support, if/when designed for fungibles
+        //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(
             withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
             server: token.server,
@@ -333,21 +333,21 @@ public struct TokenAdaptor {
             status = .available
         }
         return TokenScript.Token(
-                tokenIdOrEvent: tokenIdOrEvent,
-                tokenType: nonFungible.tokenType.asTokenType,
-                index: 0,
-                name: nonFungible.contractName,
-                symbol: "",
-                status: status,
-                values: values)
+            tokenIdOrEvent: tokenIdOrEvent,
+            tokenType: nonFungible.tokenType.asTokenType,
+            index: 0,
+            name: nonFungible.contractName,
+            symbol: "",
+            status: status,
+            values: values)
     }
 
     private func getTokenHolder(for tokens: [TokenScript.Token], token: TokenScriptSupportable) -> TokenHolder {
         let xmlHandler = xmlHandler(token: token)
         return TokenHolder(
-                tokens: tokens,
-                contractAddress: token.contractAddress,
-                hasAssetDefinition: xmlHandler.hasAssetDefinition)
+            tokens: tokens,
+            contractAddress: token.contractAddress,
+            hasAssetDefinition: xmlHandler.hasAssetDefinition)
     }
 
 }

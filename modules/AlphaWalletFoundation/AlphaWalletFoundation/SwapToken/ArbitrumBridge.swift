@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 04.10.2021.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public typealias BridgeTokenURLProviderType = BuyTokenURLProviderType
 
@@ -48,5 +48,5 @@ public final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURL
 
     public func start() {
         //no-op
-    } 
+    }
 }

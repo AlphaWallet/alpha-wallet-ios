@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct ImportWalletViewModel {
     //Must be computed because localization can be overridden by user dynamically
@@ -42,7 +42,7 @@ struct ImportWalletViewModel {
         return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14 : 16),
-            .foregroundColor: Configuration.Color.Semantic.importSeedText
+            .foregroundColor: Configuration.Color.Semantic.importSeedText,
         ])
     }
 

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct SwapStep {
     public let tool: String

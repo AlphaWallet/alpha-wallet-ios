@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct TransferTokensCardQuantitySelectionViewModel {
     let token: Token
@@ -11,7 +11,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     let session: WalletSession
     var headerTitle: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
-		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
+        return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var maxValue: Int {
@@ -20,6 +20,6 @@ struct TransferTokensCardQuantitySelectionViewModel {
 
     var subtitleText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
-		return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
+        return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

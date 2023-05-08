@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {

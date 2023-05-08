@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 29.11.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import Foundation
 
 public typealias ImportTokenScriptOverridesFileEvent = Result<TokenScriptOverridesForContract, OpenURLError>
 public typealias TokenScriptOverridesForContract = (contract: AlphaWallet.Address, server: RPCServer, destinationFileInUse: Bool, filename: String)
@@ -151,11 +151,10 @@ public class TokenScriptOverridesFileManager {
             try watcher.start { [weak self] results in
                 switch results {
                 case .noChanges: break
-                case .updated: self?.invalidateTokenScriptOverrides() }
+                case .updated: self?.invalidateTokenScriptOverrides()
+                }
             }
-        } catch {
-
-        }
+        } catch {}
 
         directoryWatcher = watcher
     }
@@ -164,6 +163,6 @@ public class TokenScriptOverridesFileManager {
         guard let contents = inboxContents else { return }
         for each in contents {
             try? fileManager.removeItem(at: each)
-         }
+        }
     }
 }

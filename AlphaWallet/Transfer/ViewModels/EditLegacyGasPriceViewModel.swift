@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.04.2023.
 //
 
-import Combine
 import AlphaWalletFoundation
 import BigInt
+import Combine
 
 protocol EditGasPriceViewModel {
     var gasPrice: FillableValue<GasPrice> { get }
@@ -16,9 +16,7 @@ protocol EditGasPriceViewModel {
     func save()
 }
 
-struct EditLegacyGasPriceViewModelInput {
-
-}
+struct EditLegacyGasPriceViewModelInput {}
 
 struct EditLegacyGasPriceViewModelOuput {
     let title: AnyPublisher<String, Never>

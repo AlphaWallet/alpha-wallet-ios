@@ -1,10 +1,10 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import Foundation
-import QRCodeReaderViewController
-import BigInt
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import BigInt
+import Foundation
+import QRCodeReaderViewController
 
 protocol ScanQRCodeCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ScanQRCodeCoordinator)
@@ -51,7 +51,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
          navigationController: UINavigationController,
          account: Wallet?,
          domainResolutionService: DomainResolutionServiceType) {
-        
+
         self.analytics = analytics
         self.account = account
         self.domainResolutionService = domainResolutionService

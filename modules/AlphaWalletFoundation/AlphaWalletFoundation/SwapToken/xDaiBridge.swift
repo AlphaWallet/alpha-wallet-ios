@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 04.10.2021.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
     public var objectWillChange: AnyPublisher<Void, Never> {
@@ -46,5 +46,5 @@ public final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProv
 
     public func start() {
         //no-op
-    } 
+    }
 }

@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 import RealmSwift
 
 class TransactionObject: Object {
@@ -75,21 +75,21 @@ extension Transaction {
             token: token)
 
         return Transaction(
-                id: transaction.id,
-                server: transaction.original.server,
-                blockNumber: 0,
-                transactionIndex: 0,
-                from: from.eip55String,
-                to: transaction.original.to?.eip55String ?? "",
-                value: transaction.original.value.description,
-                gas: transaction.original.gasLimit.description,
-                gasPrice: transaction.original.gasPrice,
-                gasUsed: "",
-                nonce: String(transaction.original.nonce),
-                date: Date(),
-                localizedOperations: operations,
-                state: .pending,
-                isErc20Interaction: isErc20Interaction)
+            id: transaction.id,
+            server: transaction.original.server,
+            blockNumber: 0,
+            transactionIndex: 0,
+            from: from.eip55String,
+            to: transaction.original.to?.eip55String ?? "",
+            value: transaction.original.value.description,
+            gas: transaction.original.gasLimit.description,
+            gasPrice: transaction.original.gasPrice,
+            gasUsed: "",
+            nonce: String(transaction.original.nonce),
+            date: Date(),
+            localizedOperations: operations,
+            state: .pending,
+            isErc20Interaction: isErc20Interaction)
     }
 
     //TODO add support for more types of pending transactions

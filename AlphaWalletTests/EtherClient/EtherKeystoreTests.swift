@@ -1,11 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
-import LocalAuthentication
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import LocalAuthentication
+import XCTest
 
 class EtherKeystoreTests: XCTestCase {
     private var cancellable = Set<AnyCancellable>()

@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol CreateInitialWalletViewControllerDelegate: AnyObject {
     func didTapCreateWallet(inViewController viewController: CreateInitialWalletViewController)
@@ -47,7 +47,7 @@ class CreateInitialWalletViewController: UIViewController {
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 

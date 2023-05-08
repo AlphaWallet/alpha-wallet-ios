@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 18/4/22.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class RPCDisplaySelectableTableViewCell: UITableViewCell {
 
@@ -111,7 +111,7 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
             accessoryStackView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
             accessoryStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20.0),
 
-            unavailableToSelectView.anchorsConstraint(to: self)
+            unavailableToSelectView.anchorsConstraint(to: self),
         ])
     }
 
@@ -171,7 +171,7 @@ private class ServerInformationView: UIView {
     }
 
     // MARK: Private
-    
+
     private func constructView() {
         primaryTextLabel.translatesAutoresizingMaskIntoConstraints = false
         secondaryTextLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -195,7 +195,7 @@ class RPCDisplayTableViewCell: RPCDisplaySelectableTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletLogger
 import Foundation
 import RealmSwift
-import AlphaWalletLogger
 
 public class DatabaseMigration: Initializer {
     let account: Wallet
@@ -31,7 +31,7 @@ public class DatabaseMigration: Initializer {
             Bookmark.self,
             History.self,
             EnjinTokenObject.self,
-            GasPriceObject.self
+            GasPriceObject.self,
         ]
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
@@ -113,7 +113,7 @@ public class DatabaseMigration: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { old, new in
                     guard let uid = old?["primaryKey"] as? String else { return }
                     let info = migration.create(TokenInfoObject.className(), value: [
-                        "uid": uid
+                        "uid": uid,
                     ])
                     new?["_info"] = info
                 }
@@ -167,7 +167,7 @@ extension DatabaseMigration {
             realmUrl,
             realmUrl.appendingPathExtension("lock"),
             realmUrl.appendingPathExtension("note"),
-            realmUrl.appendingPathExtension("management")
+            realmUrl.appendingPathExtension("management"),
         ]
 
         return realmUrls

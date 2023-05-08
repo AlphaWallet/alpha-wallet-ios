@@ -108,7 +108,7 @@ class SaveCustomRpcManualEntryView: UIView {
             symbolTextField.defaultLayout(),
             explorerEndpointTextField.defaultLayout(),
             isTestNetworkView,
-            .spacer(height: 40)
+            .spacer(height: 40),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)

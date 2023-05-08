@@ -6,9 +6,9 @@
 //
 
 import AlphaWalletCore
-import PromiseKit
 import BigInt
 import Combine
+import PromiseKit
 
 final class GetTokenType {
     private var inFlightPromises: [String: AnyPublisher<TokenType, SessionTaskError>] = [:]
@@ -39,8 +39,8 @@ final class GetTokenType {
                             seal(.success(tokenType))
                         }
                     }.receive(on: queue)
-                    .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
-                    .eraseToAnyPublisher()
+                        .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
+                        .eraseToAnyPublisher()
 
                     self?.inFlightPromises[key] = promise
 

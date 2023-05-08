@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import APIKit
+import Foundation
 import JSONRPCKit
 
 public struct EtherServiceRequest<Batch: JSONRPCKit.Batch>: APIKit.Request {

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 18.08.2021.
 //
 
-import UIKit
-import Combine
-import StatefulViewController 
 import AlphaWalletFoundation
+import Combine
+import StatefulViewController
+import UIKit
 
 extension NSNotification.Name {
     static let invalidateLayout = NSNotification.Name(rawValue: "InvalidateLayout")
@@ -75,11 +75,11 @@ class NFTAssetsPageView: UIView, PageViewType {
             searchBar.leadingAnchor.constraint(equalTo: leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: trailingAnchor),
             searchBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SearchBar.height),
-            
+
             collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         fixCollectionViewBackgroundColor()
 

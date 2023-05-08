@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol KeystoreBackupIntroductionViewControllerDelegate: AnyObject {
     func didClose(in viewController: KeystoreBackupIntroductionViewController)

@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import BigInt
+import Combine
 import Foundation
 import UIKit
-import AlphaWalletFoundation
-import Combine
 
 struct TransactionDetailsViewModelInput {
     let openUrl: AnyPublisher<Void, Never>
@@ -69,7 +69,7 @@ class TransactionDetailsViewModel {
                         return .standalone(transaction)
                     }
                 }
-            
+
             return Publishers.Merge(whenTransactionHasChanged, Just(self.transactionRow))
                 .removeDuplicates()
                 .eraseToAnyPublisher()
@@ -136,7 +136,7 @@ class TransactionDetailsViewModel {
         let gasUsed = BigUInt(transactionRow.gasUsed) ?? BigUInt()
         let gasPrice = BigUInt(transactionRow.gasPrice) ?? BigUInt()
         let gasLimit = BigUInt(transactionRow.gas) ?? BigUInt()
-        
+
         let gasFee: BigUInt
         switch transactionRow.state {
         case .completed, .error:
@@ -145,7 +145,7 @@ class TransactionDetailsViewModel {
             gasFee = gasPrice * gasLimit
         }
         let rate = coinTicker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
-        
+
         return GasViewModel(fee: gasFee, symbol: server.symbol, rate: rate, formatter: fullFormatter)
     }
 

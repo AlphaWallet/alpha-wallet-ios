@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 20.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ModalViewControllerDelegate: AnyObject {
     func didDismiss(_ controller: ModalViewController)
@@ -118,7 +118,7 @@ private class _ModalViewController: UIViewController {
         let subview = [
             headerView,
             scrollableContainerView,
-            footerStackView
+            footerStackView,
         ].asStackView(axis: .vertical)
 
         subview.translatesAutoresizingMaskIntoConstraints = false

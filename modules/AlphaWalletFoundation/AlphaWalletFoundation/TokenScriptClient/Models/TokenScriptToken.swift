@@ -6,8 +6,8 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import WebKit
 
 extension TokenScript {
@@ -48,22 +48,22 @@ extension TokenScript {
 
         public static var empty: Token {
             return Token(
-                    tokenIdOrEvent: .tokenId(tokenId: Constants.nullTokenIdBigUInt),
-                    tokenType: TokenType.erc875,
-                    index: 0,
-                    name: "Tokens",
-                    symbol: "",
-                    status: .available,
-                    values: [
-                        "locality": .init(defaultValueWithSyntax: .directoryString),
-                        "venue": .init(defaultValueWithSyntax: .directoryString),
-                        "match": .init(defaultValueWithSyntax: .integer),
-                        "time": .init(defaultValueWithSyntax: .generalisedTime),
-                        "numero": .init(defaultValueWithSyntax: .integer),
-                        "category": .init(defaultValueWithSyntax: .directoryString),
-                        "countryA": .init(defaultValueWithSyntax: .directoryString),
-                        "countryB": .init(defaultValueWithSyntax: .directoryString)
-                    ]
+                tokenIdOrEvent: .tokenId(tokenId: Constants.nullTokenIdBigUInt),
+                tokenType: TokenType.erc875,
+                index: 0,
+                name: "Tokens",
+                symbol: "",
+                status: .available,
+                values: [
+                    "locality": .init(defaultValueWithSyntax: .directoryString),
+                    "venue": .init(defaultValueWithSyntax: .directoryString),
+                    "match": .init(defaultValueWithSyntax: .integer),
+                    "time": .init(defaultValueWithSyntax: .generalisedTime),
+                    "numero": .init(defaultValueWithSyntax: .integer),
+                    "category": .init(defaultValueWithSyntax: .directoryString),
+                    "countryA": .init(defaultValueWithSyntax: .directoryString),
+                    "countryB": .init(defaultValueWithSyntax: .directoryString),
+                ]
             )
         }
 
@@ -111,17 +111,17 @@ public func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId
     } else {
         let containerCssId = generateContainerCssId(forTokenId: tokenId)
         return """
-               <html>
-               <head>
-               <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1, shrink-to-fit=no">
-               \(style)
-               </head>
-               <body>
-               <div id="\(containerCssId)" class="token-card">
-               \(html)
-               </div>
-               </body>
-               </html>
-               """
+            <html>
+            <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1, shrink-to-fit=no">
+            \(style)
+            </head>
+            <body>
+            <div id="\(containerCssId)" class="token-card">
+            \(html)
+            </div>
+            </body>
+            </html>
+            """
     }
 }

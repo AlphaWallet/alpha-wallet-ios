@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 21/12/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 enum SaveCustomRpcOverallTab {
     case browse
@@ -179,7 +179,7 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
             childViewController.view.topAnchor.constraint(equalTo: overallView.containerView.topAnchor),
             childViewController.view.leadingAnchor.constraint(equalTo: overallView.containerView.leadingAnchor),
             childViewController.view.trailingAnchor.constraint(equalTo: overallView.containerView.trailingAnchor),
-            childViewController.view.bottomAnchor.constraint(equalTo: overallView.containerView.bottomAnchor)
+            childViewController.view.bottomAnchor.constraint(equalTo: overallView.containerView.bottomAnchor),
         ])
         childViewController.didMove(toParent: self)
     }
@@ -379,4 +379,3 @@ extension SaveCustomRpcBrowseDataController: EnableServersHeaderViewDelegate {
     }
 
 }
-

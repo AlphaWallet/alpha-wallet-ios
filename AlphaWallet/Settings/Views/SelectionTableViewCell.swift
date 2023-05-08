@@ -21,7 +21,7 @@ class SelectionTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         let stackView = [
-            iconImageView, titleLabel, .spacerWidth(flexible: true)
+            iconImageView, titleLabel, .spacerWidth(flexible: true),
         ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
@@ -30,7 +30,7 @@ class SelectionTableViewCell: UITableViewCell {
             iconImageView.widthAnchor.constraint(equalToConstant: 40),
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
 
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 20))
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 20)),
         ])
     }
 

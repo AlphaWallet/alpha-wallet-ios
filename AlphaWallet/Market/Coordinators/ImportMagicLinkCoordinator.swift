@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
 protocol ImportMagicLinkCoordinatorDelegate: AnyObject, CanOpenURL, BuyCryptoDelegate {
     func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController?

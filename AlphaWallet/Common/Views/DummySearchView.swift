@@ -44,6 +44,4 @@ final class DummySearchView: UIView {
     }
 }
 
-extension DummySearchView: ReusableTableHeaderViewType {
-    
-}
+extension DummySearchView: ReusableTableHeaderViewType {}

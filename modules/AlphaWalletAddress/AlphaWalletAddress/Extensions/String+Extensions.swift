@@ -73,11 +73,11 @@ extension StringProtocol {
         var i = startIndex
 
         while let nextIndex = index(i, offsetBy: size, limitedBy: endIndex) {
-            chunks.append(self[i ..< nextIndex])
+            chunks.append(self[i..<nextIndex])
             i = nextIndex
         }
 
-        let finalChunk = self[i ..< endIndex]
+        let finalChunk = self[i..<endIndex]
 
         if finalChunk.isEmpty == false {
             chunks.append(finalChunk)

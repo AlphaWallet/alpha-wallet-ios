@@ -24,7 +24,7 @@ public struct Event: Codable {
         decoder.dateDecodingStrategy = .iso8601
         return try? JSONDecoder().decode([Event].self, from: data)
     }
-    
+
     public static func from(data: Data) -> Event? {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601

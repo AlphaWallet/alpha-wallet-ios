@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 @testable import AlphaWalletFoundation
+import XCTest
 
 class RPCServerTests: XCTestCase {
 

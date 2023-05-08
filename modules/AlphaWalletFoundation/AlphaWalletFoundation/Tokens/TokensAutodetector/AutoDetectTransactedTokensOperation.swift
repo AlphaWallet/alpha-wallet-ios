@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.02.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 protocol AutoDetectTransactedTokensOperationDelegate: AnyObject {
     var isAutoDetectingTransactedTokens: Bool { get set }
@@ -18,8 +18,8 @@ protocol AutoDetectTransactedTokensOperationDelegate: AnyObject {
 final class AutoDetectTransactedTokensOperation: Operation {
     private var cancellable: AnyCancellable?
     private let wallet: Wallet
-    
-    weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
+
+    private weak var delegate: AutoDetectTransactedTokensOperationDelegate?
     override var isExecuting: Bool {
         return delegate?.isAutoDetectingTransactedTokens ?? false
     }

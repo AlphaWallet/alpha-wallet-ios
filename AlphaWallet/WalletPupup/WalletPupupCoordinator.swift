@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.03.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol WalletPupupCoordinatorDelegate: AnyObject {
     func didSelect(action: PupupAction, in coordinator: WalletPupupCoordinator)
@@ -15,7 +15,7 @@ protocol WalletPupupCoordinatorDelegate: AnyObject {
 
 class WalletPupupCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: WalletPupupCoordinatorDelegate?
 

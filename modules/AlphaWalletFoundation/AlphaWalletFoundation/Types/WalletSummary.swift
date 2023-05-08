@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 26.05.2021.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct WalletSummary {
     private let totalAmount: WalletBalance.ValueForCurrency?
@@ -34,7 +34,7 @@ public struct WalletSummary {
     }
 }
 
-extension WalletSummary: Hashable { }
+extension WalletSummary: Hashable {}
 
 public extension Double {
     var nilIfNan: Double? {

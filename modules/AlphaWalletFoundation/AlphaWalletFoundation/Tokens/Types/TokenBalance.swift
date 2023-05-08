@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import AlphaWalletOpenSea
+import Foundation
 import RealmSwift
 
 public struct TokenBalanceValue {

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 import UIKit
 
 struct SelectedSwapToolsCollectionViewModelInput {
@@ -20,7 +20,7 @@ struct SelectedSwapToolsCollectionViewModelOutput {
 
 class SelectedSwapToolsCollectionViewModel {
     private var storage: SwapToolStorage
-    
+
     init(storage: SwapToolStorage) {
         self.storage = storage
     }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.08.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let config: Config

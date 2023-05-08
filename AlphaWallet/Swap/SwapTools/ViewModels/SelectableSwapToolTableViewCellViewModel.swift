@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct SelectableSwapToolTableViewCellViewModel: Hashable {
     let name: String
@@ -22,11 +22,11 @@ struct SelectableSwapToolTableViewCellViewModel: Hashable {
     var infoViewModel: InformationViewModel {
         let title = NSAttributedString(string: name, attributes: [
             .font: Fonts.regular(size: 18),
-            .foregroundColor: Configuration.Color.Semantic.defaultTitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
         ])
         let description = NSAttributedString(string: name, attributes: [
             .font: Fonts.regular(size: 16),
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
         return InformationViewModel(title: title, description: description)
     }

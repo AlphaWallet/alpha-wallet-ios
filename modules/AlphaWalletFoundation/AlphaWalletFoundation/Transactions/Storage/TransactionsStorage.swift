@@ -1,8 +1,8 @@
-import Foundation
 import AlphaWalletLogger
 import BigInt
-import RealmSwift
 import Combine
+import Foundation
+import RealmSwift
 
 open class TransactionDataStore {
     //TODO if we move this to instance-side, we have to be careful it's the same instance we are accessing, otherwise we wouldn't find the pending transaction information when we need it
@@ -400,21 +400,21 @@ extension TransactionDataStore.functional {
     static func nonEmptyIdTransactionPredicate(server: RPCServer) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(server: server),
-            transactionIdNonEmptyPredicate()
+            transactionIdNonEmptyPredicate(),
         ])
     }
 
     static func nonEmptyIdTransactionPredicate(servers: [RPCServer]) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(servers: servers),
-            transactionIdNonEmptyPredicate()
+            transactionIdNonEmptyPredicate(),
         ])
     }
 
     static func transactionPredicate(withTransactionId transactionId: String, server: RPCServer) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(server: server),
-            transactionIdPredicate(transactionId: transactionId)
+            transactionIdPredicate(transactionId: transactionId),
         ])
     }
 
@@ -422,7 +422,7 @@ extension TransactionDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             nonEmptyIdTransactionPredicate(server: server),
             nonERC20InteractionPredicate(),
-            TransactionState.predicate(for: transactionState)
+            TransactionState.predicate(for: transactionState),
         ])
     }
 
@@ -430,14 +430,14 @@ extension TransactionDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             nonEmptyIdTransactionPredicate(server: server),
             noncePredicate(nonce: nonce),
-            TransactionState.predicate(for: transactionState)
+            TransactionState.predicate(for: transactionState),
         ])
     }
 
     static func transactionPredicate(server: RPCServer, transactionState: TransactionState) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             nonEmptyIdTransactionPredicate(server: server),
-            TransactionState.predicate(for: transactionState)
+            TransactionState.predicate(for: transactionState),
         ])
     }
 
@@ -445,7 +445,7 @@ extension TransactionDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(server: server),
             transactionIdNonEmptyPredicate(),
-            NSPredicate(format: "ANY localizedOperations.contract == '\(operationContract.eip55String)'")
+            NSPredicate(format: "ANY localizedOperations.contract == '\(operationContract.eip55String)'"),
         ])
     }
 }

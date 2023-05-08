@@ -1,8 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct BrowserHistoryViewModelInput {
     let deleteRecord: AnyPublisher<BrowserHistoryViewModel.DeleteRecordAction, Never>

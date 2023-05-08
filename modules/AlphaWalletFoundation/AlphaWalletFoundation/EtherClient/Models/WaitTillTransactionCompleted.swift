@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 20.08.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 public final class WaitTillTransactionCompleted {
-    
+
     enum TransactionError: Error {
         case `internal`(Error)
         case timeout

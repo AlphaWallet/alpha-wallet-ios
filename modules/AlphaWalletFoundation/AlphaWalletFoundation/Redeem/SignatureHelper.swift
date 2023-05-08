@@ -6,8 +6,8 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public class SignatureHelper {
     class func signatureAsHex(for message: String, account: AlphaWallet.Address, keystore: Keystore, prompt: String) async throws -> String? {

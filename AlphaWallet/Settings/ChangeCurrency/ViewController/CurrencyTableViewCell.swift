@@ -52,7 +52,7 @@ class CurrencyTableViewCell: UITableViewCell {
             codeLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12),
 
             nameLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12)
+            nameLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12),
         ])
 
         backgroundColor = Configuration.Color.Semantic.tableViewCellBackground

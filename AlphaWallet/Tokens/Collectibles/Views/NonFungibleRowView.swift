@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 15.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class NonFungibleRowView: TokenCardViewRepresentable {
     private let titleLabel = UILabel()
@@ -24,7 +24,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFill
         imageView.loading = .disabled
-        
+
         return imageView
     }()
 
@@ -34,7 +34,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
     private lazy var col0 = thumbnailImageView
     private lazy var col1 = [
         [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5),
-        [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5)
+        [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5),
     ].asStackView(axis: .vertical, spacing: 2)
 
     private var _constraints: [NSLayoutConstraint] = []
@@ -53,7 +53,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         col1.translatesAutoresizingMaskIntoConstraints = false
         imageLargeSizeContraints = [
             col1.heightAnchor.constraint(equalToConstant: 40),
-            thumbnailImageView.widthAnchor.constraint(equalTo: widthAnchor)
+            thumbnailImageView.widthAnchor.constraint(equalTo: widthAnchor),
         ]
 
         clipsToBounds = true
@@ -91,7 +91,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
                 col0,
                 .spacer(height: 12),
                 [.spacerWidth(10), col1, .spacerWidth(10)].asStackView(axis: .horizontal),
-                .spacer(height: 16)
+                .spacer(height: 16),
             ].asStackView(axis: .vertical)
             stackView.translatesAutoresizingMaskIntoConstraints = false
 

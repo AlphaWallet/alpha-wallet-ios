@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct ShowSeedPhraseViewModel {
     private let error: KeystoreError?
@@ -11,7 +11,7 @@ struct ShowSeedPhraseViewModel {
 
     var subtitle: String = R.string.localizable.walletsShowSeedPhraseSubtitle()
     var buttonTitle: String = R.string.localizable.walletsShowSeedPhraseTestSeedPhrase()
-    
+
     var subtitleColor: UIColor {
         return Configuration.Color.Semantic.defaultSubtitleText
     }

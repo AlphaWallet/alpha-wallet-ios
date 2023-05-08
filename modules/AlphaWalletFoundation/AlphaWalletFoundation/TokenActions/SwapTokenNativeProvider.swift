@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 10.05.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class SwapTokenNativeProvider: SupportedTokenActionsProvider, TokenActionProvider {
     private let tokenSwapper: TokenSwapper

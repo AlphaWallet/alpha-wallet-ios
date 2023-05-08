@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Foundation
 import SwiftyJSON
 
 extension NftAsset {
@@ -11,7 +11,7 @@ extension NftAsset {
     }
 }
 
-struct TokenIdConverter {
+enum TokenIdConverter {
     static func toTokenIdSubstituted(string: String) -> String {
         if let tokenId = BigInt(string) {
             let string = String(tokenId, radix: 16)

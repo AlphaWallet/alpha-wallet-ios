@@ -15,7 +15,7 @@ class WhatsNewHeaderView: UIView {
         label.textColor = Configuration.Color.Semantic.defaultForegroundText
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            label.heightAnchor.constraint(equalToConstant: 42.0)
+            label.heightAnchor.constraint(equalToConstant: 42.0),
         ])
         return label
     }()
@@ -36,7 +36,7 @@ class WhatsNewHeaderView: UIView {
             titleLabel.topAnchor.constraint(equalTo: topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
 }
@@ -49,7 +49,7 @@ class WhatsNewSubHeaderView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             view.widthAnchor.constraint(equalToConstant: 4.0),
-            view.heightAnchor.constraint(equalToConstant: 4.0)
+            view.heightAnchor.constraint(equalToConstant: 4.0),
         ])
         return view
     }()
@@ -94,7 +94,7 @@ class WhatsNewEntryView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             view.widthAnchor.constraint(equalToConstant: 24.0),
-            view.heightAnchor.constraint(equalToConstant: 24.0)
+            view.heightAnchor.constraint(equalToConstant: 24.0),
         ])
         return view
     }()
@@ -128,7 +128,7 @@ class WhatsNewEntryView: UIView {
             tickViewImageView.trailingAnchor.constraint(equalTo: entryLabel.leadingAnchor, constant: -8.0),
             entryLabel.topAnchor.constraint(equalTo: topAnchor),
             entryLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -48.0),
-            entryLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8.0)
+            entryLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8.0),
         ])
     }
 }

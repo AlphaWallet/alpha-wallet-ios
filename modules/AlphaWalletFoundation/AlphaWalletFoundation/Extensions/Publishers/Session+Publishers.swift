@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 10.05.2022.
 //
 
-import Foundation
 import APIKit
-import JSONRPCKit
 import Combine
+import Foundation
+import JSONRPCKit
 
 extension APIKitSession {
 

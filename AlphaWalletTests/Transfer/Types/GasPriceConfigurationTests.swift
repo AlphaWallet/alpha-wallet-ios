@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import XCTest
 
 class GasPriceConfigurationTests: XCTestCase {
 

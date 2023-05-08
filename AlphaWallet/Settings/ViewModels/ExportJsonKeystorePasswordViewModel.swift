@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 2/12/21.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct ExportJsonKeystorePasswordViewModelInput {
     let text: AnyPublisher<String?, Never>
@@ -59,7 +59,7 @@ class ExportJsonKeystorePasswordViewModel {
 
         let validPassword = !containsIllegalCharacters(password: currentPasswordString)
 
-        return (validPassword ? currentPasswordString: originalPasswordString, validPassword)
+        return (validPassword ? currentPasswordString : originalPasswordString, validPassword)
     }
 
     private func validate(password: String) -> StringValidatorResult {

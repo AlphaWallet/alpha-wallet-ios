@@ -32,7 +32,7 @@ class LabeledServerImageView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0)),
         ])
 
         configure(viewModel: viewModel)

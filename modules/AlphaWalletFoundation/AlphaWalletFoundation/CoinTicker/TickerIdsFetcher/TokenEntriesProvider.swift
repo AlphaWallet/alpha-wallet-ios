@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 05.09.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 /// Provides tokens groups
 public protocol TokenEntriesProvider {

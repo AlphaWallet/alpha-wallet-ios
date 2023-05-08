@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct InfoButtonViewModel {
     let isHidden: Bool
@@ -21,13 +21,13 @@ extension SwapStepsViewModel {
         var toolAttributedString: NSAttributedString {
             NSAttributedString(string: "\(swapStep.tool.uppercased()) Contract", attributes: [
                 .font: Fonts.bold(size: 15),
-                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
             ])
         }
         var descriptionAttributedString: NSAttributedString {
             NSAttributedString(string: "Single transaction including:", attributes: [
                 .font: Fonts.regular(size: 15),
-                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
             ])
         }
 
@@ -55,7 +55,7 @@ extension SwapStepsViewModel {
             let description = "\(subStep.type.capitalized) to \(amountString) \(subStep.token.symbol) via \(subStep.tool)"
             return NSAttributedString(string: "\(index + 1). \(description)", attributes: [
                 .font: Fonts.regular(size: 15),
-                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
             ])
         }
 

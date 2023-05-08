@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Erc875DropCurrency: ContractMethod {
     let signedOrder: SignedOrder
@@ -31,7 +31,7 @@ public struct Erc875DropCurrency: ContractMethod {
             BigUInt(v),
             Data(_hex: r),
             Data(_hex: s),
-            recipient
+            recipient,
         ]
         let functionEncoder = Function(name: "dropCurrency", parameters: [
             .uint(bits: 256),
@@ -40,7 +40,7 @@ public struct Erc875DropCurrency: ContractMethod {
             .uint(bits: 8),
             .bytes(32),
             .bytes(32),
-            .address
+            .address,
         ])
         let encoder = ABIEncoder()
         try encoder.encode(function: functionEncoder, arguments: parameters)

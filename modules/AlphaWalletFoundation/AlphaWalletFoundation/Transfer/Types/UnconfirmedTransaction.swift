@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct UnconfirmedTransaction {
     public let transactionType: TransactionType

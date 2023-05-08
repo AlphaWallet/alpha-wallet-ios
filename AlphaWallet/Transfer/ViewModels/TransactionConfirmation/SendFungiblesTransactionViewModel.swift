@@ -5,17 +5,17 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 extension TransactionConfirmationViewModel {
     class SendFungiblesTransactionViewModel: TransactionConfirmationViewModelType {
         @Published private var transactedToken: Loadable<TransactedToken, Error> = .loading
         @Published private var balanceViewModel: TransactionBalance = .init(balance: .zero, newBalance: .zero, rate: nil)
         @Published private var etherCurrencyRate: Loadable<CurrencyRate, Error> = .loading
-        
+
         private let configurator: TransactionConfigurator
         private let recipientResolver: RecipientResolver
         private let session: WalletSession
@@ -161,7 +161,7 @@ extension TransactionConfirmationViewModel {
                 let amount = NumberFormatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
                 if let rate = balanceViewModel.rate {
                     let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
-                    
+
                     return "\(amount) \(symbol) ≈ \(amountInFiat)"
                 } else {
                     return "\(amount) \(symbol)"

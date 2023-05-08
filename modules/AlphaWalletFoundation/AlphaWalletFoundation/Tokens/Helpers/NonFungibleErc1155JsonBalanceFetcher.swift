@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 20.07.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletOpenSea
 import BigInt
+import Combine
+import Foundation
 import SwiftyJSON
 
 //TODO: think about the name, remove queue later, replace with any publisher

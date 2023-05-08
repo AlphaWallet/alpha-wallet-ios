@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 import Kanna
 
 extension String {

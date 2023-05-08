@@ -3,9 +3,7 @@
 import Foundation
 import UIKit
 
-protocol ReusableTableHeaderViewType: UIView, WithReusableIdentifier {
-
-}
+protocol ReusableTableHeaderViewType: UIView, WithReusableIdentifier {}
 
 extension TokensViewController {
 
@@ -28,8 +26,8 @@ extension TokensViewController {
                 NSLayoutConstraint.deactivate(snapConstraints)
 
                 snapConstraints = subview.anchorsConstraint(to: contentView) +
-                topSeparator.anchorSeparatorToTop(to: contentView) +
-                bottomSeparator.anchorSeparatorToBottom(to: contentView)
+                    topSeparator.anchorSeparatorToTop(to: contentView) +
+                    bottomSeparator.anchorSeparatorToBottom(to: contentView)
 
                 NSLayoutConstraint.activate(snapConstraints)
             }
@@ -149,7 +147,7 @@ extension TokensViewController {
             NSLayoutConstraint.activate([
                 topSeparator.heightAnchor.constraint(equalToConstant: 1),
                 bottomSeparator.heightAnchor.constraint(equalToConstant: 1),
-                stackView.anchorsConstraint(to: self)
+                stackView.anchorsConstraint(to: self),
             ])
 
             stackView.addArrangedSubviews([topSeparator, subview, bottomSeparator])

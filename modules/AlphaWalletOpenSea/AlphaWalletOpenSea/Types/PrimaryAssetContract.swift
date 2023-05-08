@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 31.01.2022.
 //
 
-import Foundation
 import AlphaWalletAddress
+import Foundation
 import SwiftyJSON
 
 public struct PrimaryAssetContract: Codable {

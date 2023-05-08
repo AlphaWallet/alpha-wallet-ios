@@ -1,10 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletCore
+import AlphaWalletWeb3
 import BigInt
 import Combine
-import AlphaWalletWeb3
+import Foundation
 
 final class EventSourceForActivities {
     typealias EventForActivityPublisher = AnyPublisher<[EventActivityInstance], Never>

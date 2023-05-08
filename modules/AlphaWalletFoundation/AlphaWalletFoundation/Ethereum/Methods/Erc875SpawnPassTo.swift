@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Erc875SpawnPassTo: ContractMethod {
     let expiry: BigUInt
@@ -33,7 +33,7 @@ public struct Erc875SpawnPassTo: ContractMethod {
             .uint(bits: 8),
             .bytes(32),
             .bytes(32),
-            .address
+            .address,
         ])
         let encoder = ABIEncoder()
         try encoder.encode(function: functionEncoder, arguments: parameters)

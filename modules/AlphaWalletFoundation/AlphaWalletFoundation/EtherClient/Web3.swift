@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 14.09.2022.
 //
 
-import Foundation
 import AlphaWalletWeb3
 import BigInt
+import Foundation
 
 extension Web3.Utils {
     /*

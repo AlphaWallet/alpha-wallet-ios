@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
 import AlphaWalletWeb3
+import BigInt
 import Combine
+import Foundation
 
 ///Fetching ERC1155 tokens in 2 steps:
 ///

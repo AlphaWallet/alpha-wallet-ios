@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.06.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol TickerIdsFetcher: AnyObject {
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never>
@@ -25,7 +25,7 @@ public class TickerIdsFetcherImpl: TickerIdsFetcher {
     public func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         let spamNeedle = AddressAndRPCServer(address: token.contractAddress, server: token.server)
         if spamTokens.isSpamToken(spamNeedle) { return .empty() }
-        
+
         let publishers = providers.map { $0.tickerId(for: token) }
 
         func firstMatchingTickerId(_ publishers: [AnyPublisher<TickerIdString?, Never>]) -> AnyPublisher<TickerIdString?, Never> {

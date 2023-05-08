@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.02.2022.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import WalletConnectSwift
-import AlphaWalletFoundation
 
 struct WalletConnectV1Session: Codable {
     let topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl

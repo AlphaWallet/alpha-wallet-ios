@@ -25,7 +25,7 @@ public struct Erc1155SafeTransferFrom: ContractMethod {
             recipient,
             tokenIdAndValue.tokenId,
             tokenIdAndValue.value,
-            Data()
+            Data(),
         ]
         let encoder = ABIEncoder()
         try encoder.encode(function: function, arguments: parameters)

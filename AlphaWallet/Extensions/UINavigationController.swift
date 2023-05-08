@@ -12,7 +12,7 @@ extension UINavigationController {
 
         return instance
     }
-    
+
     /// Removes all instances of view controller from navigation stack of type `T` skipping instance `avoidToRemove`
     func removeViewControllerOfSameType<T>(except avoidToRemove: T) where T: UIViewController {
         viewControllers = viewControllers.filter { !($0 is T) || $0 == avoidToRemove }
@@ -27,7 +27,7 @@ extension UINavigationController {
         navigationBar.isTranslucent = false
         view.backgroundColor = Configuration.Color.Semantic.navigationBarBackgroundColor
     }
-    
+
     //Remove after iOS 11.2 will patch this bug.
     func applyTintAdjustment() {
         navigationBar.tintAdjustmentMode = .normal

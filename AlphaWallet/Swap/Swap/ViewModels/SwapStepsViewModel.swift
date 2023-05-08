@@ -5,13 +5,11 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
-struct SwapStepsViewModelInput {
-
-}
+struct SwapStepsViewModelInput {}
 
 struct SwapStepsViewModelOutput {
     let areFeesHidden: AnyPublisher<Bool, Never>
@@ -30,8 +28,8 @@ final class SwapStepsViewModel {
             .eraseToAnyPublisher()
 
         let swapStepsViewModels = swapSteps
-                .map { $0.map { SwapStepsViewModel.SwapStepViewModel(swapStep: $0) } }
-                .eraseToAnyPublisher()
+            .map { $0.map { SwapStepsViewModel.SwapStepViewModel(swapStep: $0) } }
+            .eraseToAnyPublisher()
 
         return .init(areFeesHidden: areFeesHidden, swapStepsViewModels: swapStepsViewModels)
     }

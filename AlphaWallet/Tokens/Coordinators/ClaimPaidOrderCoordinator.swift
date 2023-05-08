@@ -3,9 +3,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Foundation
 
 protocol ClaimOrderCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: Error)
@@ -33,7 +33,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
         }
     }
     private let networkService: NetworkService
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
@@ -64,7 +64,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             let transaction = try TransactionType.prebuilt(token.server).buildClaimPaidErc875MagicLink(
                 recipient: session.account.address,
                 signedOrder: signedOrder)
-            
+
             let coordinator = TransactionConfirmationCoordinator(
                 presentingViewController: navigationController,
                 session: session,

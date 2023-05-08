@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 09.06.2022.
 //
 
-import XCTest
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
+import XCTest
 
 class EnsRecordsStorageTests: XCTestCase {
 

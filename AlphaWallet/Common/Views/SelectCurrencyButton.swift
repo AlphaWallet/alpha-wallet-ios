@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 15.05.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 class SelectCurrencyButton: UIControl {
 
@@ -73,13 +73,13 @@ class SelectCurrencyButton: UIControl {
         }
     }
 
-    private lazy var whenHasTokenView: UIView =  {
+    private lazy var whenHasTokenView: UIView = {
         let stackView = [currencyIconImageView, .spacerWidth(7), textLabel, .spacerWidth(7), expandImageView].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
 
-    private lazy var whenHasNoTokenView: UIView =  {
+    private lazy var whenHasNoTokenView: UIView = {
         let view = HasNoTokenView()
         return view
     }()
@@ -165,7 +165,7 @@ fileprivate class HasNoTokenView: UIControl {
         cornerRadius = 20
         titleLabel.attributedText = NSAttributedString.init(string: "Select Token", attributes: [
             .font: Fonts.bold(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultInverseText
+            .foregroundColor: Configuration.Color.Semantic.defaultInverseText,
         ])
     }
 

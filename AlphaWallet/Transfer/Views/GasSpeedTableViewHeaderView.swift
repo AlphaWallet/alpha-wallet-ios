@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 25.08.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class GasSpeedTableViewHeaderView: UIView {
 
@@ -37,7 +37,7 @@ class GasSpeedTableViewHeaderView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self, edgeInsets: GasSpeedTableViewHeaderView.contentInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: GasSpeedTableViewHeaderView.contentInsets),
         ])
     }
 

@@ -5,8 +5,8 @@
 //  Created by Nimit Parekh on 06/04/20.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class SettingTableViewCell: UITableViewCell {
     private let iconImageView: UIImageView = {
@@ -48,18 +48,18 @@ class SettingTableViewCell: UITableViewCell {
         return label
     }()
     var walletNameCancelable: AnyCancellable?
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
 
         let col1 = [
             titleLabel,
-            subTitleLabel
+            subTitleLabel,
         ].asStackView(axis: .vertical, spacing: 0)
 
         let stackView = [
-            iconImageView, col1
+            iconImageView, col1,
         ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,7 @@ class SettingTableViewCell: UITableViewCell {
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 10))
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 10)),
         ])
     }
 

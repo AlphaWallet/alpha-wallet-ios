@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 import Kanna
 
 public enum FunctionError: LocalizedError {
@@ -154,15 +154,15 @@ public struct FunctionOrigin {
     public func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], assetAttributeProvider: CallForAssetAttributeProvider) -> AssetInternalValue? {
         guard let functionName = functionType.functionName else { return nil }
         guard let subscribable = callSmartContractFunction(
-                tokenId: tokenId,
-                attributeAndValues: attributeAndValues,
-                localRefs: localRefs,
-                account: account,
-                server: server,
-                originContract: originContractOrRecipientAddress,
-                functionName: functionName,
-                output: functionType.output,
-                assetAttributeProvider: assetAttributeProvider) else { return nil }
+            tokenId: tokenId,
+            attributeAndValues: attributeAndValues,
+            localRefs: localRefs,
+            account: account,
+            server: server,
+            originContract: originContractOrRecipientAddress,
+            functionName: functionName,
+            output: functionType.output,
+            assetAttributeProvider: assetAttributeProvider) else { return nil }
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.sinkAsync { value in
             guard let value = value else { return }
@@ -332,15 +332,15 @@ public struct FunctionOrigin {
     }
 
     private func callSmartContractFunction(
-            tokenId: TokenId,
-            attributeAndValues: [AttributeId: AssetInternalValue],
-            localRefs: [AttributeId: AssetInternalValue],
-            account: Wallet,
-            server: RPCServer,
-            originContract: AlphaWallet.Address,
-            functionName: String,
-            output: AssetFunctionCall.ReturnType,
-            assetAttributeProvider: CallForAssetAttributeProvider
+        tokenId: TokenId,
+        attributeAndValues: [AttributeId: AssetInternalValue],
+        localRefs: [AttributeId: AssetInternalValue],
+        account: Wallet,
+        server: RPCServer,
+        originContract: AlphaWallet.Address,
+        functionName: String,
+        output: AssetFunctionCall.ReturnType,
+        assetAttributeProvider: CallForAssetAttributeProvider
     ) -> Subscribable<AssetInternalValue>? {
         assert(functionType.isCall)
         guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }

@@ -6,8 +6,8 @@
 //  Copyright © 2017 Alexander Vlasov. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension ABIElement.ParameterType {
     func encode(_ value: AnyObject) -> Data? {
@@ -92,7 +92,7 @@ extension ABIElement.ParameterType.StaticType {
 
     func encode(_ values: [AnyObject]) -> Data? {
         switch self {
-        case let .array(type, length):
+        case .array(let type, let length):
             if values.count != length {
                 return nil
             }
@@ -166,7 +166,7 @@ extension ABIElement.ParameterType.DynamicType {
 
     func encode(_ values: [AnyObject]) -> Data? {
         switch self {
-        case let .dynamicArray(type):
+        case .dynamicArray(let type):
             var data = Data()
             for value in values {
                 guard let encoded = type.encode(value) else { return nil }
@@ -175,7 +175,7 @@ extension ABIElement.ParameterType.DynamicType {
             let length = values.count
             guard let encodedLen = BigUInt(length).abiEncode(bits: 256) else { return nil }
             return encodedLen + data
-        case let .arrayOfDynamicTypes(type, length: length):
+        case .arrayOfDynamicTypes(let type, length: let length):
             let typesArray = Array(repeating: ABIElement.ParameterType.dynamicABIType(type), count: Int(length))
             return TypesEncoder.encode(types: typesArray, parameters: values)
 //            var data = Data()
@@ -209,4 +209,3 @@ extension ABIElement {
         }
     }
 }
-

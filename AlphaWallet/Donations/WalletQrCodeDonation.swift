@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import CoreSpotlight
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletLogger
+import CoreSpotlight
+import Foundation
 
 class WalletQrCodeDonation {
     //TODO maybe change to include wallet address

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import Foundation
-import Combine
-import UIKit
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import UIKit
 
 struct SwapOptionsViewModelInput {
     let selection: AnyPublisher<IndexPath, Never>
@@ -53,21 +53,21 @@ class SwapOptionsViewModel {
             }.store(in: &cancelable)
 
         let sessions = Publishers.CombineLatest(configurator.$sessions, configurator.$server)
-                .receive(on: queue)
-                .map { [weak configurator] sessions, server -> [ServerImageViewModel] in
-                    guard let configurator = configurator else { return [] }
-                    return sessions.map {
-                        let isAvailableToSelect = configurator.isAvailable(server: $0.server)
-                        return ServerImageViewModel(server: .server($0.server), isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
-                    }
-                }.map { sessions -> SwapOptionsViewModel.SessionsSnapshot in
-                    var snapshot = SwapOptionsViewModel.SessionsSnapshot()
-                    snapshot.appendSections([.sessions])
-                    snapshot.appendItems(sessions)
+            .receive(on: queue)
+            .map { [weak configurator] sessions, server -> [ServerImageViewModel] in
+                guard let configurator = configurator else { return [] }
+                return sessions.map {
+                    let isAvailableToSelect = configurator.isAvailable(server: $0.server)
+                    return ServerImageViewModel(server: .server($0.server), isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
+                }
+            }.map { sessions -> SwapOptionsViewModel.SessionsSnapshot in
+                var snapshot = SwapOptionsViewModel.SessionsSnapshot()
+                snapshot.appendSections([.sessions])
+                snapshot.appendItems(sessions)
 
-                    return snapshot
-                }.receive(on: RunLoop.main)
-                .eraseToAnyPublisher()
+                return snapshot
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
 
         let errorString = anyError
             .map { $0.description }

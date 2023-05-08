@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.09.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class SwapRouteSummaryView: UIView {
     private let amountToSwapHeaderLabel: UILabel = {
@@ -45,7 +45,7 @@ class SwapRouteSummaryView: UIView {
 
         return label
     }()
-    
+
     private lazy var toTokenServerImageView: RoundedImageView = {
         let iconView = RoundedImageView(size: DataEntry.Metric.ImageView.serverIconSize)
         return iconView
@@ -65,7 +65,7 @@ class SwapRouteSummaryView: UIView {
             .spacer(height: 5),
             currentPriceLabel,
             .spacer(height: 10),
-            timeoutLabel
+            timeoutLabel,
         ].asStackView(axis: .vertical, alignment: .leading)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 

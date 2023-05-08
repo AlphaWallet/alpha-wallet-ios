@@ -15,7 +15,7 @@ extension Collection where Element == UIView {
         }
     }
     // swiftlint:enable all
-    
+
     func hideAll() {
         for each in self {
             each.isHidden = true

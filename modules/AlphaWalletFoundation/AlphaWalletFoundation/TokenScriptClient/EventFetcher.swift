@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 24.10.2022.
 //
 
-import Foundation
+import AlphaWalletWeb3
 import BigInt
 import Combine
-import AlphaWalletWeb3
+import Foundation
 
 extension WalletSession {
     enum SessionError: Error {

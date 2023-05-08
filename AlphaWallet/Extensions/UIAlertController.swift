@@ -1,11 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
-import class PromiseKit.Promise
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import class PromiseKit.Promise
+import UIKit
 
 enum PopoverPresentationControllerSource {
     case barButtonItem(UIBarButtonItem)
@@ -20,16 +20,16 @@ enum AlertControllerPreferredStyle {
 extension UIAlertController {
 
     static func askPassword(
-            title: String = "",
-            message: String = "",
-            completion: @escaping (Result<String, ConfirmationError>) -> Void
+        title: String = "",
+        message: String = "",
+        completion: @escaping (Result<String, ConfirmationError>) -> Void
     ) -> UIAlertController {
         let alertController = UIAlertController(
-                title: title,
-                message: message,
-                preferredStyle: .alert
+            title: title,
+            message: message,
+            preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ -> Void in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
             let textField = alertController.textFields![0] as UITextField
             let password = textField.text ?? ""
             completion(.success(password))
@@ -37,7 +37,7 @@ extension UIAlertController {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
             completion(.failure(ConfirmationError.cancel))
         }))
-        alertController.addTextField(configurationHandler: { (textField: UITextField!) -> Void in
+        alertController.addTextField(configurationHandler: { (textField: UITextField!) in
             textField.placeholder = R.string.localizable.password()
             textField.isSecureTextEntry = true
         })
@@ -63,9 +63,9 @@ extension UIAlertController {
             popoverSource = source
         }
         let alertController = UIAlertController(
-                title: title,
-                message: message,
-                preferredStyle: preferredStyle)
+            title: title,
+            message: message,
+            preferredStyle: preferredStyle)
         switch popoverSource {
         case .some(.barButtonItem(let barButtonItem)):
             alertController.popoverPresentationController?.barButtonItem = barButtonItem
@@ -135,7 +135,7 @@ extension UIAlertController {
 
             viewController.present(alertController, animated: true)
 
-            return AnyCancellable { }
+            return AnyCancellable {}
         }
     }
 }

@@ -6,8 +6,8 @@
 //  Copyright © 2017 Alexander Vlasov. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension ABIElement.ParameterType.StaticType {
     func decode(expectedType: ABIElement.ParameterType.StaticType, data: Data, tailPointer: BigUInt) -> (bytesConsumed: Int?, value: Any?) {
@@ -41,11 +41,11 @@ extension ABIElement.ParameterType.StaticType {
             guard data.count <= length else { break }
             return (32, data)
         case .array(let type, let length):
-            guard data.count <= length*32 else { break }
+            guard data.count <= length * 32 else { break }
             var returnArray = [Any]()
             var len = 0
             for i in 0..<length {
-                let dataSlice = data[i*32 ..< (i+1)*32]
+                let dataSlice = data[i * 32..<(i + 1) * 32]
                 let decoded = type.decode(expectedType: type, data: dataSlice, tailPointer: BigUInt(0))
                 guard let value = decoded.value, let consumed = decoded.bytesConsumed else { break }
                 len += consumed
@@ -68,9 +68,9 @@ extension ABIElement.ParameterType.DynamicType {
             let realTail = originalTail - tailPointer
             guard realTail >= BigUInt(32) else { break }
             guard let sliceStart = Int(String(realTail)) else { break }
-            let lengthData = Data(data[sliceStart ..< sliceStart+32])
+            let lengthData = Data(data[sliceStart..<sliceStart + 32])
             guard let length = Int(String(BigUInt(lengthData))) else { break }
-            let realData = Data(data[sliceStart+32 ..< sliceStart+32+length])
+            let realData = Data(data[sliceStart + 32..<sliceStart + 32 + length])
             return (totalConsumed, realData)
         case .string:
             var totalConsumed = 0
@@ -83,9 +83,9 @@ extension ABIElement.ParameterType.DynamicType {
             }
 //            guard realTail >= BigUInt(32) else { break }
             guard let sliceStart = Int(String(realTail)) else { break }
-            let lengthData = Data(data[sliceStart ..< sliceStart+32])
+            let lengthData = Data(data[sliceStart..<sliceStart + 32])
             guard let length = Int(String(BigUInt(lengthData))) else { break }
-            let realData = Data(data[sliceStart+32 ..< sliceStart+32+length])
+            let realData = Data(data[sliceStart + 32..<sliceStart + 32 + length])
             return (totalConsumed, String(data: realData, encoding: .utf8))
         case .dynamicArray(let type):
             var totalConsumed = 0
@@ -95,12 +95,12 @@ extension ABIElement.ParameterType.DynamicType {
             let realTail = originalTail - tailPointer
             guard realTail >= BigUInt(32) else { break }
             guard let sliceStart = Int(String(realTail)) else { break }
-            let lengthData = Data(data[sliceStart ..< sliceStart+32])
+            let lengthData = Data(data[sliceStart..<sliceStart + 32])
             guard let length = Int(String(BigUInt(lengthData))) else { break }
             var returnArray = [Any]()
             var len = 0
             for i in 0..<length {
-                let dataSlice = data[i*32 ..< (i+1)*32]
+                let dataSlice = data[i * 32..<(i + 1) * 32]
                 let decoded = type.decode(expectedType: type, data: dataSlice, tailPointer: BigUInt(0))
                 guard let value = decoded.value, let consumed = decoded.bytesConsumed else { break }
                 len += consumed
@@ -116,12 +116,12 @@ extension ABIElement.ParameterType.DynamicType {
             let realTail = originalTail - tailPointer
             guard realTail >= BigUInt(32) else { break }
             guard let sliceStart = Int(String(realTail)) else { break }
-            let lengthData = Data(data[sliceStart ..< sliceStart+32])
+            let lengthData = Data(data[sliceStart..<sliceStart + 32])
             guard let length = Int(String(BigUInt(lengthData))) else { break }
             var returnArray = [Any]()
             var len = 0
             for i in 0..<length {
-                let dataSlice = data[i*32 ..< (i+1)*32]
+                let dataSlice = data[i * 32..<(i + 1) * 32]
                 let decoded = type.decode(expectedType: type, data: dataSlice, tailPointer: BigUInt(0))
                 guard let value = decoded.value, let consumed = decoded.bytesConsumed else { break }
                 len += consumed
@@ -211,20 +211,20 @@ extension ABIElement {
                 return nil
             }
             var eventContent = [String: Any]()
-            eventContent["name"]=event.name
+            eventContent["name"] = event.name
             let logs = eventLog.topics
             var dataForProcessing = eventLog.data
             var tailPointer = BigUInt(0)
             if logs.isEmpty && !event.inputs.isEmpty {
                 return nil
             }
-            for i in 0 ..< event.inputs.count {
+            for i in 0..<event.inputs.count {
                 let el = event.inputs[i]
                 if el.indexed {
-                    if i+1 >= logs.count {
+                    if i + 1 >= logs.count {
                         return nil
                     }
-                    let elementData = logs[i+1]
+                    let elementData = logs[i + 1]
                     let expectedType = el.type
                     switch expectedType {
                     case .staticABIType(let type):

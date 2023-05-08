@@ -26,7 +26,7 @@ public struct Erc1155SafeBatchTransferFrom: ContractMethod {
             .address,
             .array(.uint(bits: 256), tokenIds.count),
             .array(.uint(bits: 256), values.count),
-            .dynamicBytes
+            .dynamicBytes,
         ])
 
         let parameters: [Any] = [
@@ -34,7 +34,7 @@ public struct Erc1155SafeBatchTransferFrom: ContractMethod {
             recipient,
             tokenIds,
             values,
-            Data()
+            Data(),
         ]
         let encoder = ABIEncoder()
         try encoder.encode(function: function, arguments: parameters)

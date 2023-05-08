@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension ABIv2 {
     // JSON Decoding
@@ -122,7 +122,7 @@ extension ABIv2.Element {
                 return returnArray
             }
 
-            guard function.outputs.count*32 <= data.count else { return nil }
+            guard function.outputs.count * 32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0
             guard let values = ABIv2Decoder.decode(types: function.outputs, data: data) else { return nil }
@@ -145,8 +145,8 @@ extension ABIv2.Element {
         case 0:
             break
         case 4:
-            sig = rawData[0 ..< 4]
-            data = Data(rawData[4 ..< rawData.count])
+            sig = rawData[0..<4]
+            data = Data(rawData[4..<rawData.count])
         default:
             return nil
         }
@@ -163,7 +163,7 @@ extension ABIv2.Element {
                 return returnArray
             }
 
-            guard function.inputs.count*32 <= data.count else { return nil }
+            guard function.inputs.count * 32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0
             guard let values = ABIv2Decoder.decode(types: function.inputs, data: data) else { return nil }
@@ -193,7 +193,7 @@ extension ABIv2.Element {
                 return returnArray
             }
 
-            guard function.inputs.count*32 <= data.count else { return nil }
+            guard function.inputs.count * 32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0
             guard let values = ABIv2Decoder.decode(types: function.inputs, data: data) else { return nil }

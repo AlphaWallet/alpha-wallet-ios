@@ -4,7 +4,7 @@ import Foundation
 
 public enum Currency: String, CaseIterable, Codable {
     private static let outputLocale = NSLocale(localeIdentifier: "en_US_POSIX")
-    
+
     public static var `default`: Currency = .USD
 
     case AUD

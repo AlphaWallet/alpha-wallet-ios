@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 15.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct TransactionInProgressViewModel {
     let server: RPCServer
@@ -17,7 +17,7 @@ struct TransactionInProgressViewModel {
         return NSAttributedString(string: R.string.localizable.aWalletTokenTransactionInProgressTitle(), attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 28),
-            .foregroundColor: Configuration.Color.Semantic.defaultTitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
         ])
     }
 
@@ -30,7 +30,7 @@ struct TransactionInProgressViewModel {
         return NSMutableAttributedString(string: x, attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 17),
-            .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
+            .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
         ])
     }
 
@@ -46,4 +46,3 @@ struct TransactionInProgressViewModel {
         return Configuration.Color.Semantic.defaultViewBackground
     }
 }
-

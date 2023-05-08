@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 20.07.2022.
 //
 
-import XCTest
-import AlphaWalletFoundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
+import XCTest
 
 func fakeWalletAddressStore(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) -> WalletAddressesStore {
     var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)

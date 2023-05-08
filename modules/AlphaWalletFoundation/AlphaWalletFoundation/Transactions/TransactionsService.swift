@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import Combine
+import Foundation
 
 public class TransactionsService {
     private let transactionDataStore: TransactionDataStore
@@ -13,7 +13,7 @@ public class TransactionsService {
     private let fetchLatestTransactionsQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Fetch Latest Transactions"
-            //A limit is important for many reasons. One of which is Etherscan has a rate limit of 5 calls/sec/IP address according to https://etherscan.io/apis
+        //A limit is important for many reasons. One of which is Etherscan has a rate limit of 5 calls/sec/IP address according to https://etherscan.io/apis
         queue.maxConcurrentOperationCount = 3
         return queue
     }()
@@ -172,7 +172,7 @@ public class TransactionsService {
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensService.token(for: $0, server: transaction.original.server) }
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
-        
+
         transactionDataStore.add(transactions: [transaction])
     }
 }

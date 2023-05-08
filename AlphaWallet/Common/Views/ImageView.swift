@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 06.03.2023.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 import Kingfisher
 
 class ImageView: UIImageView {

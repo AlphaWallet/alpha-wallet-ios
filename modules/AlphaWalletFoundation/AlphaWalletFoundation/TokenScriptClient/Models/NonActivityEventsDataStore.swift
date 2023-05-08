@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import RealmSwift
-import Combine
 
 public protocol NonActivityEventsDataStore {
     func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstanceValue?
@@ -113,7 +113,7 @@ extension NonActivityMultiChainEventsDataStore.functional {
             EventsActivityDataStore.functional.isChainIdMatchPredicate(server: server),
             EventsActivityDataStore.functional.isTokenContractMatchPredicate(contract: tokenContract),
             EventsActivityDataStore.functional.isEventNameMatchPredicate(eventName: eventName),
-            isFilterMatchPredicate(filterName: filterName, filterValue: filterValue)
+            isFilterMatchPredicate(filterName: filterName, filterValue: filterValue),
         ])
     }
 
@@ -121,4 +121,3 @@ extension NonActivityMultiChainEventsDataStore.functional {
         EventsActivityDataStore.functional.matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
     }
 }
-

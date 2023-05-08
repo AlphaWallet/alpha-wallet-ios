@@ -22,7 +22,7 @@ class WalletTokenViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -35,16 +35,16 @@ class WalletTokenViewCell: UITableViewCell {
         background.translatesAutoresizingMaskIntoConstraints = false
         let stackView = [
             tokenImageView,
-            [cryptoValueLabel, titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)
+            [cryptoValueLabel, titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5),
         ].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
-        
+
         NSLayoutConstraint.activate([
             tokenImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
     }
 

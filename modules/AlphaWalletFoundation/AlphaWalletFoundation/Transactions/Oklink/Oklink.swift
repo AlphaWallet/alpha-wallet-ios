@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
+import BigInt
 import Foundation
 import SwiftyJSON
-import BigInt
 
 public enum Oklink {}
 
@@ -15,10 +15,10 @@ protocol JsonInitializable {
     init?(json: JSON)
 }
 
-extension Oklink.Transaction: JsonInitializable { }
+extension Oklink.Transaction: JsonInitializable {}
 
 extension Oklink {
-    
+
     struct TransactionListResponse<T: JsonInitializable> {
         let code: Int
         let message: String
@@ -45,8 +45,7 @@ extension Oklink {
             guard
                 let page = json["page"].string.flatMap({ Int($0) }),
                 let limit = json["limit"].string.flatMap({ Int($0) }),
-                let totalPage = json["totalPage"].string.flatMap({ Int($0) })
-            else { return nil }
+                let totalPage = json["totalPage"].string.flatMap({ Int($0) }) else { return nil }
 
             self.page = page
             self.limit = limit

@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import UIKit
 
 protocol ConfigureTransactionViewControllerDelegate: AnyObject {
     func didSaved(in viewController: ConfigureTransactionViewController)
@@ -47,7 +47,7 @@ class ConfigureTransactionViewController: UIViewController {
 
         let stackView = [
             containerView,
-            stateView
+            stateView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
@@ -86,7 +86,7 @@ class ConfigureTransactionViewController: UIViewController {
                     guard let subview = self?.gasSpeedViews[each.gasSpeed] else { continue }
 
                     subview.view.configure(viewModel: each)
-                    
+
                     subview.view.isHidden = each.isHidden
                     subview.seperator.isHidden = each.isHidden
                 }
@@ -187,7 +187,7 @@ class ConfigureTransactionViewController: UIViewController {
             warningIcon.widthAnchor.constraint(equalToConstant: 24),
             warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
 
-            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50)
+            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50),
         ])
 
         return background

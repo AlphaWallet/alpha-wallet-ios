@@ -6,10 +6,10 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 protocol NFTCollectionViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectAssetSelection(in viewController: NFTCollectionViewController)

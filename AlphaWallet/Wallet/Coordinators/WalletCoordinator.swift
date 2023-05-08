@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 protocol WalletCoordinatorDelegate: AnyObject {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator)
@@ -174,7 +174,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
             coordinator: scanQRCodeCoordinator,
             usage: .importWalletOnly,
             supportedResolutions: QRCodeResolutionCoordinator.SupportedQrCodeResolution.jsonOrSeedPhraseResolution)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .importWalletScreen)

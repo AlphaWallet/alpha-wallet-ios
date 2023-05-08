@@ -1,8 +1,8 @@
+import AlphaWalletFoundation
 // Copyright SIX DAY LLC. All rights reserved.
 import Foundation
-import UIKit
 import StoreKit
-import AlphaWalletFoundation
+import UIKit
 
 class HelpUsCoordinator: Coordinator {
     private let hostViewController: UIViewController

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.01.2023.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletWeb3
+import BigInt
+import Foundation
 
 struct Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
     typealias Response = [BigInt: BigUInt]

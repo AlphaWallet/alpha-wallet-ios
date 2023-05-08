@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 10.11.2021.
 //
 
-import Foundation
-import Combine
-import WalletConnectSign
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import Foundation
+import WalletConnectSign
 
 enum ProposalOrServer {
     case server(RPCServer)

@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 protocol ArrayType {}
 extension Array: ArrayType {}
@@ -104,7 +104,7 @@ struct RLP {
         }
         let divisor = BigUInt(256)
         var encoded = Data()
-        guard let prefix = lengthToBinary(length/divisor) else { return nil }
+        guard let prefix = lengthToBinary(length / divisor) else { return nil }
         let suffix = length % divisor
 
         var prefixData = Data([prefix])
@@ -277,7 +277,7 @@ struct RLP {
             } else if prefixByte <= 0xb7 && length > BigUInt(prefixByte - 0x80) {
                 let dataLength = BigUInt(prefixByte - 0x80)
                 return (BigUInt(1), dataLength, .data)
-            } else if try prefixByte <= 0xbf && length > BigUInt(prefixByte - 0xb7) && length >  BigUInt(prefixByte - 0xb7) + toBigUInt(slice(data: input, offset: BigUInt(1), length: BigUInt(prefixByte - 0xb7))) {
+            } else if try prefixByte <= 0xbf && length > BigUInt(prefixByte - 0xb7) && length > BigUInt(prefixByte - 0xb7) + toBigUInt(slice(data: input, offset: BigUInt(1), length: BigUInt(prefixByte - 0xb7))) {
                 let lengthOfLength = BigUInt(prefixByte - 0xb7)
                 let dataLength = try toBigUInt(slice(data: input, offset: BigUInt(1), length: BigUInt(prefixByte - 0xb7)))
                 return (1 + lengthOfLength, dataLength, .data)
@@ -298,13 +298,13 @@ struct RLP {
 
     internal static func slice(data: Data, offset: BigUInt, length: BigUInt) throws -> Data {
         if BigUInt(data.count) < offset + length { throw DecodeError.initFailure }
-        let slice = data[UInt64(offset) ..< UInt64(offset + length)]
+        let slice = data[UInt64(offset)..<UInt64(offset + length)]
         return Data(slice)
     }
 
     internal static func slice(data: Data, start: BigUInt) throws -> Data {
         if BigUInt(data.count) < start { throw DecodeError.initFailure }
-        let slice = data[UInt64(start) ..< UInt64(data.count)]
+        let slice = data[UInt64(start)..<UInt64(data.count)]
         return Data(slice)
     }
 
@@ -314,8 +314,8 @@ struct RLP {
         } else if raw.count == 1 {
             return BigUInt.init(raw)
         } else {
-            let slice = raw[0 ..< raw.count - 1]
-            return try BigUInt(raw[raw.count-1]) + toBigUInt(slice)*256
+            let slice = raw[0..<raw.count - 1]
+            return try BigUInt(raw[raw.count - 1]) + toBigUInt(slice) * 256
         }
     }
 }

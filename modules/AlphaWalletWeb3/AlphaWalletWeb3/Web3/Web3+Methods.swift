@@ -29,7 +29,7 @@ public enum JSONRPCmethod: Encodable {
     case unlockAccount
     case getLogs
     case custom(String, params: Int)
-    
+
     public var requiredNumOfParameters: Int {
         switch self {
         case .call:

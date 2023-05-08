@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 10.06.2022.
 //
 
-import Kingfisher
 import AlphaWalletFoundation
+import Kingfisher
 
 public final class ConfigureImageStorage: Initializer {
     public init() {}

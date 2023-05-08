@@ -1,13 +1,12 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public typealias TokenId = BigUInt
 public typealias AttributeId = String
 
-public enum TokenScript {
-}
+public enum TokenScript {}
 
 extension TokenScript {
     public static let repoServer = "https://repo.tokenscript.org/\(supportedTokenScriptNamespaceVersion)"

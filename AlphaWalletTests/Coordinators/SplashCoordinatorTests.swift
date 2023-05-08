@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
+import XCTest
 
 class SplashCoordinatorTests: XCTestCase {
     func testStart() {

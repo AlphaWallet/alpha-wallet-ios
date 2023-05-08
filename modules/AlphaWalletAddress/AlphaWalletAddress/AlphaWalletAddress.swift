@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletCore
 import Foundation
 import TrustKeystore
-import AlphaWalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}

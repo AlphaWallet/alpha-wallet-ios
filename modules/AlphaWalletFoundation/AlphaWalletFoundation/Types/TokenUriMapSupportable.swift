@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 16.03.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol TokenUriMapSupportable {
     func map(uri: URL) -> URL?

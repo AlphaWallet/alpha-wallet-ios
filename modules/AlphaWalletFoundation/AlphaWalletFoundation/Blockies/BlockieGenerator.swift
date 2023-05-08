@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 20.11.2020.
 //
 
-import Foundation
-import BlockiesSwift
-import UIKit.UIImage
-import Combine
-import AlphaWalletENS
 import AlphaWalletCore
+import AlphaWalletENS
+import BlockiesSwift
+import Combine
+import Foundation
+import UIKit.UIImage
 
 public protocol NftAssetImageProvider: AnyObject {
     func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError>

@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 public protocol BlockNumberStorage {
     func latestBlock(server: RPCServer) -> BlockNumber
@@ -89,4 +89,3 @@ extension Config: BlockNumberStorage {
         defaults.set(latestBlock, forKey: latestBlockKey)
     }
 }
-

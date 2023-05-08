@@ -22,7 +22,7 @@ public final class Bookmark: Object {
         return URL(string: url)
     }
 
-    public override class func primaryKey() -> String? {
+    override public class func primaryKey() -> String? {
         return "id"
     }
 }

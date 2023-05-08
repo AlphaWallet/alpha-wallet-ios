@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 22.09.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import BigInt
+import UIKit
 
 struct SelectableSwapRouteTableViewCellViewModel: Hashable {
     private let exchange: String
@@ -28,7 +28,7 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
     var swapViaExchangeAttributedString: NSAttributedString {
         return NSAttributedString(string: exchange, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Fonts.regular(size: 18)
+            .font: Fonts.regular(size: 18),
         ])
     }
 
@@ -40,14 +40,14 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
         let string = NumberFormatter.shortCrypto.string(double: amount.doubleValue, minimumFractionDigits: 6, maximumFractionDigits: 8)
         return NSAttributedString(string: "\(string) \(toTokenSymbol)", attributes: [
             .foregroundColor: Configuration.Color.Semantic.alternativeText,
-            .font: Fonts.bold(size: 20)
+            .font: Fonts.bold(size: 20),
         ])
     }
 
     var tagAttributedString: NSAttributedString {
         return NSAttributedString(string: tag, attributes: [
             .foregroundColor: Configuration.Color.Semantic.appTint,
-            .font: Fonts.bold(size: 14)
+            .font: Fonts.bold(size: 14),
         ])
     }
 
@@ -55,7 +55,7 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
         return fees.map { value -> NSAttributedString in
             return NSAttributedString(string: value, attributes: [
                 .foregroundColor: Configuration.Color.Semantic.alternativeText,
-                .font: Fonts.regular(size: 16)
+                .font: Fonts.regular(size: 16),
             ])
         }
     }

@@ -61,7 +61,7 @@ public class StringValidator {
     }
 
     public func containsIllegalCharacters(string inputString: String) -> Bool {
-        guard case let Result.failure(StringValidator.Errors.list(errors)) = validate(string: inputString) else { return false }
+        guard case Result.failure(StringValidator.Errors.list(let errors)) = validate(string: inputString) else { return false }
         let filteredErrors: [StringValidator.Rule] = errors.compactMap { error in
             switch error {
             case StringValidator.Rule.lengthLessThan, StringValidator.Rule.lengthLessThanOrEqualTo, StringValidator.Rule.lengthMoreThan, StringValidator.Rule.lengthMoreThanOrEqualTo:
@@ -73,4 +73,3 @@ public class StringValidator {
         return !filteredErrors.isEmpty
     }
 }
-

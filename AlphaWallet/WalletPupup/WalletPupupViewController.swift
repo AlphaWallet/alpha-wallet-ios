@@ -30,7 +30,7 @@ class WalletPupupViewController: UIViewController {
 
         view.addSubview(containerView)
         NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view)
+            containerView.anchorsConstraint(to: view),
         ])
     }
 
@@ -110,7 +110,7 @@ extension WalletPupupViewController {
 
             addSubview(stackView)
             NSLayoutConstraint.activate([
-                stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+                stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             ])
         }
 

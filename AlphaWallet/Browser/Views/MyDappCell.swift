@@ -13,7 +13,7 @@ class MyDappCell: UITableViewCell {
         let labelsVerticalStackView = [
             titleLabel,
             urlLabel].asStackView(axis: .vertical)
-        
+
         let mainStackView = [.spacerWidth(29), iconImageViewHolder, .spacerWidth(26), labelsVerticalStackView, .spacerWidth(29)].asStackView(axis: .horizontal, alignment: .center)
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(mainStackView)

@@ -1,7 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletOpenSea
+import Foundation
 
 extension NonFungibleFromJsonTokenType {
     var asTokenType: TokenType {

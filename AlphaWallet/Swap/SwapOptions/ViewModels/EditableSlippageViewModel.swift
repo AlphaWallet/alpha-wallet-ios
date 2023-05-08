@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct EditableSlippageViewModelInput {
     let text: AnyPublisher<String?, Never>
@@ -24,7 +24,7 @@ class EditableSlippageViewModel {
     var titleAttributedString: NSAttributedString {
         return .init(string: "Custom: ", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Configuration.Color.Semantic.searchBarTint
+            .foregroundColor: Configuration.Color.Semantic.searchBarTint,
         ])
     }
 

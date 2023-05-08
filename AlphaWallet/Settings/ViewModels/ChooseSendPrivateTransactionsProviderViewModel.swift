@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct ChooseSendPrivateTransactionsProviderViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -69,7 +69,7 @@ extension ChooseSendPrivateTransactionsProviderViewModel {
     enum Section: Int, Hashable, CaseIterable {
         case providers
     }
-    
+
     struct ViewState {
         let title: String = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         let snapshot: Snapshot

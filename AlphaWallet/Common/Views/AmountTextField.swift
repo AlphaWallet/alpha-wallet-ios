@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol AmountTextFieldDelegate: AnyObject {
     func shouldReturn(in textField: AmountTextField) -> Bool
@@ -14,10 +14,10 @@ protocol AmountTextFieldDelegate: AnyObject {
 }
 
 extension AmountTextFieldDelegate {
-    func changeAmount(in textField: AmountTextField) { }
-    func changeType(in textField: AmountTextField) { }
-    func doneButtonTapped(for textField: AmountTextField) { }
-    func nextButtonTapped(for textField: AmountTextField) { }
+    func changeAmount(in textField: AmountTextField) {}
+    func changeType(in textField: AmountTextField) {}
+    func doneButtonTapped(for textField: AmountTextField) {}
+    func nextButtonTapped(for textField: AmountTextField) {}
 }
 
 final class AmountTextField: UIControl {
@@ -30,7 +30,7 @@ final class AmountTextField: UIControl {
     private(set) lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: Configuration.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText
+            .font: Configuration.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText,
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
@@ -56,7 +56,7 @@ final class AmountTextField: UIControl {
         button.contentEdgeInsets = .zero
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
+
         return button
     }()
 
@@ -183,7 +183,7 @@ final class AmountTextField: UIControl {
         NSLayoutConstraint.activate([
             view.heightAnchor.constraint(equalTo: stackView.heightAnchor),
             stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets),
-            alternativeAmountLabelContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 27)
+            alternativeAmountLabelContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 27),
         ])
 
         return view
@@ -204,14 +204,14 @@ final class AmountTextField: UIControl {
                 textField?.textColor = errorState.textFieldTextColor
 
                 textField?.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-                    .font: Configuration.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
+                    .font: Configuration.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor,
                 ])
             }.store(in: &cancelable)
 
         output.currentPair
             .sink { [weak selectCurrencyButton, weak self] in
                 guard let `self` = self else { return }
-                
+
                 if let pair = $0 {
                     selectCurrencyButton?.hasToken = true
                     selectCurrencyButton?.text = pair.symbol
@@ -231,7 +231,7 @@ final class AmountTextField: UIControl {
             .assign(to: \.text, on: textField)
             .store(in: &cancelable)
     }
-    
+
     @discardableResult override func becomeFirstResponder() -> Bool {
         return textField.becomeFirstResponder()
     }

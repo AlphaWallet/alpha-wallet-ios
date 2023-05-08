@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.03.2022.
 //
 
-import XCTest
 import AlphaWalletCore
+import XCTest
 
 class WebImageUrlTests: XCTestCase {
 

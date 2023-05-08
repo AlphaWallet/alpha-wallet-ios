@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 26.11.2020.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public protocol TokenActionsIdentifiable {
     var contractAddress: AlphaWallet.Address { get }
@@ -35,7 +35,7 @@ open class TokenActionsService: SupportedTokenActionsProvider, TokenActionServic
     @Published private var services: [SupportedTokenActionsProvider] = []
     private var cancelable = Set<Combine.AnyCancellable>()
 
-    private (set) lazy public var objectWillChange: AnyPublisher<Void, Never> = {
+    public private (set) lazy var objectWillChange: AnyPublisher<Void, Never> = {
         return $services
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }) }
             .mapToVoid()

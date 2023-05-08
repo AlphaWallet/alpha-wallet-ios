@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol PingInfuraCoordinatorDelegate: AnyObject {
     func didPing(in coordinator: PingInfuraCoordinator)

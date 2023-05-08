@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 1/12/21.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 @objc protocol ExportJsonKeystoreCoordinatorDelegate {
     func didComplete(in coordinator: ExportJsonKeystoreCoordinator)
@@ -64,7 +64,7 @@ extension ExportJsonKeystoreCoordinator: ExportJsonKeystorePasswordDelegate {
         let viewModel = ExportJsonKeystoreFileViewModel(keystore: keystore, wallet: wallet, password: password)
         let controller = ExportJsonKeystoreFileViewController(viewModel: viewModel)
         controller.navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
+            UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected)),
         ]
         controller.delegate = self
 

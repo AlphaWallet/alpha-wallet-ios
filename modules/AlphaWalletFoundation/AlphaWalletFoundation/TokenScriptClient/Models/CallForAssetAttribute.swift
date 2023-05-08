@@ -3,14 +3,14 @@
 import Foundation
 
 public struct CallForAssetAttribute {
-    static private let abiTemplate: [String: Any] = [
+    private static let abiTemplate: [String: Any] = [
         "type": "function",
         "name": "<to provide>",
         "inputs": "<to provide>",
         "outputs": "<to provide>",
         "payable": false,
         "stateMutability": "view",
-        "constant": true
+        "constant": true,
     ]
 
     public let abi: String
@@ -29,7 +29,7 @@ public struct CallForAssetAttribute {
             [
                 "name": "",
                 "type": output.type.rawValue,
-            ]
+            ],
         ] as [[String: String]]
         name = functionName
         guard let data = try? JSONSerialization.data(withJSONObject: abiDictionary, options: .prettyPrinted), let abi = String(data: data, encoding: .utf8) else { return nil }

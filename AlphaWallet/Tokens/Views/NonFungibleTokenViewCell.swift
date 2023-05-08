@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
 import Kingfisher
+import UIKit
 
 class NonFungibleTokenViewCell: UITableViewCell {
     private let background = UIView()
@@ -18,7 +18,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -33,7 +33,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         let col0 = tokenImageView
         let col1 = [
             titleLabel,
-            [tickersAmountLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+            [tickersAmountLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15),
         ].asStackView(axis: .vertical, spacing: 5)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -43,7 +43,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
             tokenImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
     }
 

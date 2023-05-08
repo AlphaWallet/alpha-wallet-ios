@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension ABIv2.Element {
 
@@ -84,7 +84,7 @@ extension ABIv2.Element {
                     return 32
                 }
                 if self.isStatic {
-                    return 32*length
+                    return 32 * length
                 }
                 return 32
             case .tuple(types: let types):
@@ -144,19 +144,19 @@ extension ABIv2.Element {
 extension ABIv2.Element.ParameterType: Equatable {
     public static func == (lhs: ABIv2.Element.ParameterType, rhs: ABIv2.Element.ParameterType) -> Bool {
         switch (lhs, rhs) {
-        case let (.uint(length1), .uint(length2)):
+        case (.uint(let length1), .uint(let length2)):
             return length1 == length2
-        case let (.int(length1), .int(length2)):
+        case (.int(let length1), .int(let length2)):
             return length1 == length2
         case (.address, .address):
             return true
         case (.bool, .bool):
             return true
-        case let (.bytes(length1), .bytes(length2)):
+        case (.bytes(let length1), .bytes(let length2)):
             return length1 == length2
         case (.function, .function):
             return true
-        case let (.array(type1, length1), .array(type2, length2)):
+        case (.array(let type1, let length1), .array(let type2, let length2)):
             return type1 == type2 && length1 == length2
         case (.dynamicBytes, .dynamicBytes):
             return true

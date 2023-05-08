@@ -55,7 +55,7 @@ class PromptViewController: ModalViewController {
         buttonsBar.buttons[0].addTarget(self, action: #selector(actionButtonSelected), for: .touchUpInside)
 
         titleLabel.text = viewModel.title
-        descriptionLabel.text = viewModel.description 
+        descriptionLabel.text = viewModel.description
     }
 
     @objc private func actionButtonSelected(_ sender: UIButton) {
@@ -86,7 +86,7 @@ extension PromptViewController: ModalViewControllerDelegate {
         let views: [UIView] = [
             [.spacerWidth(16), titleLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
             .spacer(height: 20),
-            [.spacerWidth(16), descriptionLabel, .spacerWidth(16)].asStackView(axis: .horizontal)
+            [.spacerWidth(16), descriptionLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
         ]
 
         stackView.addArrangedSubviews(views)

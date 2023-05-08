@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 7/11/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol SaveCustomRpcCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: SaveCustomRpcCoordinator)

@@ -55,7 +55,7 @@ class EnterKeystorePasswordViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             passwordTextField.defaultLayout(),
-            label
+            label,
         ])
 
         view.addSubview(containerView)
@@ -67,7 +67,7 @@ class EnterKeystorePasswordViewController: UIViewController {
             containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -DataEntry.Metric.Container.xMargin),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 
@@ -121,7 +121,7 @@ extension EnterKeystorePasswordViewController: TextFieldDelegate {
         currentPasswordString.replaceSubrange(stringRange, with: string)
 
         let validPassword = !viewModel.containsIllegalCharacters(password: currentPasswordString)
-        setButtonState(for: validPassword ? currentPasswordString: originalPasswordString)
+        setButtonState(for: validPassword ? currentPasswordString : originalPasswordString)
 
         return validPassword
     }

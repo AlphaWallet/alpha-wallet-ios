@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ToolsViewControllerDelegate: AnyObject {
     func consoleSelected(in controller: ToolsViewController)
@@ -19,7 +19,7 @@ class ToolsViewController: UIViewController {
 
         return tableView
     }()
-    
+
     weak var delegate: ToolsViewControllerDelegate?
 
     init(viewModel: ToolsViewModel) {
@@ -29,7 +29,7 @@ class ToolsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 

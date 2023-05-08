@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 24.08.2022.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public final class SwapTokenProvider: SupportedTokenActionsProvider, TokenActionProvider, TokenActionServiceProvidable {
     private let subProviders: [SupportedTokenActionsProvider & TokenActionProvider]

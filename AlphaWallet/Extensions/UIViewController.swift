@@ -1,11 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import AVFoundation
 import Foundation
 import MBProgressHUD
 import SafariServices
 import UIKit
-import AlphaWalletFoundation
 
 enum ConfirmationError: Error {
     case cancel
@@ -25,11 +25,11 @@ extension UIView {
 }
 
 extension UIViewController {
-#if DEBUG
-    var isSplashScreen: Bool {
-        self == SplashViewController()
-    }
-#endif
+    #if DEBUG
+        var isSplashScreen: Bool {
+            self == SplashViewController()
+        }
+    #endif
 
     @discardableResult func displaySuccess(title: String? = .none, message: String? = .none) -> UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
@@ -161,9 +161,9 @@ extension UIViewController {
     @MainActor func promptUserOpenSettingsToChangeCameraPermission() async {
         //TODO app will be killed by iOS after user changes camera permission. Ideally, we should note that the user has reached here and on app launch, prompt user if they want to resume
         let result = await confirm(title: R.string.localizable.cameraQrCodeDeniedPromptTitle(),
-            message: R.string.localizable.cameraQrCodeDeniedPromptMessage(),
-            okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(),
-            okStyle: .default)
+                                   message: R.string.localizable.cameraQrCodeDeniedPromptMessage(),
+                                   okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(),
+                                   okStyle: .default)
 
         switch result {
         case .success:

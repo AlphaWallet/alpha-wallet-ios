@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     let tokenHolder: TokenHolder

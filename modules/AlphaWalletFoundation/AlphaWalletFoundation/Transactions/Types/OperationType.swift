@@ -39,4 +39,4 @@ public enum OperationType: String {
     }
 }
 
-extension OperationType: Decodable { }
+extension OperationType: Decodable {}

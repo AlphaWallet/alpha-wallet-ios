@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.07.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol TokenIdentifiable {
     var contractAddress: AlphaWallet.Address { get }
@@ -53,9 +53,9 @@ public struct TokenScriptOverrides {
     }
 }
 
-extension TokenViewModel: BalanceRepresentable { }
+extension TokenViewModel: BalanceRepresentable {}
 
-extension TokenScriptOverrides: Hashable { }
+extension TokenScriptOverrides: Hashable {}
 
 extension TokenViewModel: TokenFilterable {
     public var balanceNft: [TokenBalanceValue] { balance.balance }
@@ -66,8 +66,8 @@ extension TokenViewModel: TokenSortable {
     public var value: BigUInt { balance.value }
 }
 
-extension TokenViewModel: TokenScriptOverridesSupportable { }
-extension TokenViewModel: TokenBalanceSupportable { }
+extension TokenViewModel: TokenScriptOverridesSupportable {}
+extension TokenViewModel: TokenBalanceSupportable {}
 
 extension TokenViewModel: Equatable {
     public static func == (lhs: TokenViewModel, rhs: TokenViewModel) -> Bool {

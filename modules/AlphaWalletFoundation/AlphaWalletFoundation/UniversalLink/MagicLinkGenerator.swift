@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 01.03.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public class MagicLinkGenerator {
     private let keystore: Keystore
@@ -43,7 +43,7 @@ public class MagicLinkGenerator {
             tokenType: magicLinkData.tokenType)
     }
 
-        //note that the price must be in szabo for a sell link, price must be rounded
+    //note that the price must be in szabo for a sell link, price must be rounded
     public func generateSellLink(magicLinkData: MagicLinkGenerator.MagicLinkData,
                                  linkExpiryDate: Date,
                                  ethCost: Double) async throws -> String {

@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
+import XCTest
 
 extension TokensFilter {
     static func make() -> TokensFilter {
@@ -47,7 +47,7 @@ extension WalletDataProcessingPipeline {
 
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
-        
+
         let tokensService = AlphaWalletTokensService(
             sessionsProvider: sessionsProvider,
             tokensDataStore: tokensDataStore,
@@ -100,7 +100,7 @@ extension WalletDataProcessingPipeline {
             sessionsProvider: sessionsProvider,
             eventsDataStore: eventsDataStore,
             transactionsService: transactionsService)
-        
+
         dep.sessionsProvider.start()
         dep.fetcher.start()
         dep.pipeline.start()

@@ -122,9 +122,7 @@ public class InMemoryStorage: StorageType {
         return paths[0]
     }()
 
-    public init() {
-
-    }
+    public init() {}
 
     public func dataExists(forKey key: String) -> Bool {
         let url = fileURL(with: key, fileExtension: fileExtension)
@@ -207,7 +205,7 @@ public extension URL {
         let protectionType = attributes[.protectionKey] as? FileProtectionType
         if protectionType != .some(FileProtectionType.none) {
             try FileManager.default.setAttributes([
-                FileAttributeKey.protectionKey: FileProtectionType.none
+                FileAttributeKey.protectionKey: FileProtectionType.none,
             ], ofItemAtPath: relativePath)
         }
     }

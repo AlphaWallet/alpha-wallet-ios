@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 18.01.2023.
 //
 
-import Foundation
-import Combine
+import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3
-import BigInt
-import AlphaWalletCore
 import APIKit
+import BigInt
+import Combine
+import Foundation
 import JSONRPCKit
 
 public protocol BlockchainProvider {

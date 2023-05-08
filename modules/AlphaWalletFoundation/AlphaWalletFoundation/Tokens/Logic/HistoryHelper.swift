@@ -47,11 +47,11 @@ public struct HistoryHelper {
 
             var changeSum: Double = 0
             var percChangeSum: Double = 0
-            for i in 0 ..< value.count - 1 {
-                let change = value[i+1].value - value[i].value
+            for i in 0..<value.count - 1 {
+                let change = value[i + 1].value - value[i].value
 
                 changeSum += change
-                percChangeSum += change / value[i+1].value
+                percChangeSum += change / value[i + 1].value
             }
             return (changeSum, percChangeSum * 100)
         }

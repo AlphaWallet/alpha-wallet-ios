@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct ShowSeedPhraseIntroductionViewModel {
 
@@ -29,7 +29,7 @@ struct ShowSeedPhraseIntroductionViewModel {
             .paragraphStyle: style,
             .font: Screen.Backup.subtitleFont,
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .kern: 0.0
+            .kern: 0.0,
         ], range: NSRange(location: 0, length: subtitle.count))
 
         return attributeString
@@ -46,7 +46,7 @@ struct ShowSeedPhraseIntroductionViewModel {
             .paragraphStyle: style,
             .font: Screen.Backup.descriptionFont,
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .kern: 0.0
+            .kern: 0.0,
         ], range: NSRange(location: 0, length: description.count))
 
         attributedString.addAttribute(.font, value: Screen.Backup.descriptionBoldFont, range: NSRange(location: 17, length: 5))

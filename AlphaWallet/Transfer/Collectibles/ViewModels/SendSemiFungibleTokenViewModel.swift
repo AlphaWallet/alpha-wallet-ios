@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 final class SendSemiFungibleTokenViewModel {
     let token: Token

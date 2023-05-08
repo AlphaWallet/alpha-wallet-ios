@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 1/12/21.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 @objc protocol ExportJsonKeystoreFileDelegate {
     func didExport(fileUrl: URL, in viewController: UIViewController)
@@ -48,7 +48,7 @@ class ExportJsonKeystoreFileViewController: UIViewController {
             textViewLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             textViewLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 

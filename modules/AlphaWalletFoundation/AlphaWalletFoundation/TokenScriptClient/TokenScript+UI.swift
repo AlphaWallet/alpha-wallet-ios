@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import UIKit
 import PromiseKit
+import UIKit
 
 public protocol TokenScriptLocalRefsSource {
     var localRefs: [AttributeId: AssetInternalValue] { get }
@@ -24,7 +24,7 @@ extension TokenScript {
             server: server,
             account: session.account,
             assetDefinitionStore: assetDefinitionStore)
-        
+
         let resolveTokenLevelSubscribableAttributes = Array(tokenLevelAttributeValues.values).filterToSubscribables.createPromiseForSubscribeOnce()
 
         firstly {

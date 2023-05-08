@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 04.04.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 import UIKit
 
 extension NotificationCenter {

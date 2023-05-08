@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 04.06.2021.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 struct JSONCodingKeys: CodingKey {
     var stringValue: String

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 13.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct TransactionConfirmationHeaderViewModel {
     let title: String?
@@ -30,10 +30,10 @@ struct TransactionConfirmationHeaderViewModel {
 
     var titleAttributedString: NSAttributedString? {
         guard let title = title else { return nil }
-        
+
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Fonts.regular(size: 17)
+            .font: Fonts.regular(size: 17),
         ])
     }
 
@@ -42,7 +42,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: name, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 13),
         ])
     }
 
@@ -51,7 +51,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: details, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ])
     }
 

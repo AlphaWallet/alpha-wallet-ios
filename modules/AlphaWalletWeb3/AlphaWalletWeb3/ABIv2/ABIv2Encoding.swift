@@ -6,10 +6,10 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct ABIv2Encoder { }
+public struct ABIv2Encoder {}
 
 extension ABIv2Encoder {
     public static func convertToBigUInt(_ value: AnyObject) -> BigUInt? {
@@ -141,7 +141,7 @@ extension ABIv2Encoder {
         guard types.count == values.count else { return nil }
         var tails = [Data]()
         var heads = [Data]()
-        for i in 0 ..< types.count {
+        for i in 0..<types.count {
             guard let encoding = encodeSingleType(type: types[i], value: values[i]) else { return nil }
             if types[i].isStatic {
                 heads.append(encoding)
@@ -158,7 +158,7 @@ extension ABIv2Encoder {
         var tailsPointer = BigUInt(headsConcatenated.count)
         headsConcatenated = Data()
         var tailsConcatenated = Data()
-        for i in 0 ..< types.count {
+        for i in 0..<types.count {
             let head = heads[i]
             let tail = tails[i]
             if !types[i].isStatic {
@@ -224,20 +224,20 @@ extension ABIv2Encoder {
                     dataGuess = string.data(using: .utf8)
                 }
                 guard let data = dataGuess else { break }
-                let minLength = ((data.count + 31) / 32)*32
+                let minLength = ((data.count + 31) / 32) * 32
                 guard let paddedData = data.setLengthRight(UInt64(minLength)) else { break }
                 let length = BigUInt(data.count)
                 guard let head = length.abiEncode(bits: 256) else { break }
-                let total = head+paddedData
+                let total = head + paddedData
                 return total
             }
         case .dynamicBytes:
             guard let data = convertToData(value) else { break }
-            let minLength = ((data.count + 31) / 32)*32
+            let minLength = ((data.count + 31) / 32) * 32
             guard let paddedData = data.setLengthRight(UInt64(minLength)) else { break }
             let length = BigUInt(data.count)
             guard let head = length.abiEncode(bits: 256) else { break }
-            let total = head+paddedData
+            let total = head + paddedData
             return total
         case .array(type: let subType, length: let length):
             switch type.arraySize {
@@ -248,7 +248,7 @@ extension ABIv2Encoder {
                 if subType.isStatic {
                     // work in a previous context
                     var toReturn = Data()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let enc = encodeSingleType(type: subType, value: val[i])
                         guard let encoding = enc else { break }
                         toReturn.append(encoding)
@@ -260,7 +260,7 @@ extension ABIv2Encoder {
                     // create new context
                     var tails = [Data]()
                     var heads = [Data]()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let enc = encodeSingleType(type: subType, value: val[i])
                         guard let encoding = enc else { return nil }
                         heads.append(Data(repeating: 0x0, count: 32))
@@ -273,7 +273,7 @@ extension ABIv2Encoder {
                     var tailsPointer = BigUInt(headsConcatenated.count)
                     headsConcatenated = Data()
                     var tailsConcatenated = Data()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let head = heads[i]
                         let tail = tails[i]
                         if tail != Data() {
@@ -286,7 +286,7 @@ extension ABIv2Encoder {
                             tailsConcatenated.append(tail)
                         }
                     }
-                    let total =  lengthEncoding + headsConcatenated + tailsConcatenated
+                    let total = lengthEncoding + headsConcatenated + tailsConcatenated
 //                    print("Dynamic array of dynamic types encoding :\n" + String(total.toHexString()))
                     return total
                 }
@@ -297,7 +297,7 @@ extension ABIv2Encoder {
                 if subType.isStatic {
                     // work in a previous context
                     var toReturn = Data()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let enc = encodeSingleType(type: subType, value: val[i])
                         guard let encoding = enc else { break }
                         toReturn.append(encoding)
@@ -309,7 +309,7 @@ extension ABIv2Encoder {
                     // create new context
                     var tails = [Data]()
                     var heads = [Data]()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let enc = encodeSingleType(type: subType, value: val[i])
                         guard let encoding = enc else { return nil }
                         heads.append(Data(repeating: 0x0, count: 32))
@@ -322,7 +322,7 @@ extension ABIv2Encoder {
                     var tailsPointer = BigUInt(headsConcatenated.count)
                     headsConcatenated = Data()
                     var tailsConcatenated = Data()
-                    for i in 0 ..< val.count {
+                    for i in 0..<val.count {
                         let tail = tails[i]
                         guard let newHead = tailsPointer.abiEncode(bits: 256) else { return nil }
                         headsConcatenated.append(newHead)
@@ -340,7 +340,7 @@ extension ABIv2Encoder {
             var tails = [Data]()
             var heads = [Data]()
             guard let val = value as? [AnyObject] else { break }
-            for i in 0 ..< subTypes.count {
+            for i in 0..<subTypes.count {
                 let enc = encodeSingleType(type: subTypes[i], value: val[i])
                 guard let encoding = enc else { return nil }
                 if subTypes[i].isStatic {
@@ -358,7 +358,7 @@ extension ABIv2Encoder {
             var tailsPointer = BigUInt(headsConcatenated.count)
             headsConcatenated = Data()
             var tailsConcatenated = Data()
-            for i in 0 ..< subTypes.count {
+            for i in 0..<subTypes.count {
                 let head = heads[i]
                 let tail = tails[i]
                 if !subTypes[i].isStatic {

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
 
-import Combine
 import Alamofire
+import Combine
 
 public enum PromiseError: Error {
     case some(error: Error)
@@ -18,7 +18,7 @@ public enum PromiseError: Error {
             self = .some(error: error)
         }
     }
-    
+
     public var embedded: Error {
         switch self {
         case .some(let error):

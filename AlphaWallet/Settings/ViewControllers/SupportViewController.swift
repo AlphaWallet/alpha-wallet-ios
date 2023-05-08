@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 04.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol SupportViewControllerDelegate: AnyObject, CanOpenURL {
     func supportActionSelected(in viewController: SupportViewController, action: SupportViewModel.SupportAction)
@@ -25,7 +25,7 @@ class SupportViewController: UIViewController {
         let tableView = UITableView.buildGroupedTableView()
         tableView.register(SettingTableViewCell.self)
         tableView.delegate = self
-        
+
         return tableView
     }()
 
@@ -38,7 +38,7 @@ class SupportViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
     }
 
@@ -46,7 +46,7 @@ class SupportViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        
+
         bind(viewModel: viewModel)
     }
 

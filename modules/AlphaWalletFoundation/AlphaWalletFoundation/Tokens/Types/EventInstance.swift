@@ -49,11 +49,11 @@ class EventInstance: Object {
         self._data = event._data
     }
 
-    public override static func primaryKey() -> String? {
+    override public static func primaryKey() -> String? {
         return "primaryKey"
     }
 
-    public override static func ignoredProperties() -> [String] {
+    override public static func ignoredProperties() -> [String] {
         return ["_data", "data"]
     }
 

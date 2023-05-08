@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 10.12.2021.
 //
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator)
@@ -136,7 +136,7 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
             navigationController: navigationController,
             account: session.account,
             domainResolutionService: domainResolutionService)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)

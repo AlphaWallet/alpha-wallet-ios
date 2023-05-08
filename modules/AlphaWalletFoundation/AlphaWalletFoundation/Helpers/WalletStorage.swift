@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 22.06.2022.
 //
 
-import Foundation
 import AlphaWalletCore
+import Foundation
 
 public protocol WalletStorage {
     func name(for address: AlphaWallet.Address) -> String?

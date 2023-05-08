@@ -56,7 +56,7 @@ class ButtonsBarBackgroundView: UIView {
         return [
             leadingAnchor.constraint(equalTo: view.leadingAnchor),
             trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
     }
 
@@ -64,4 +64,3 @@ class ButtonsBarBackgroundView: UIView {
         return nil
     }
 }
-

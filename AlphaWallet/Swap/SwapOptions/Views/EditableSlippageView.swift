@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.03.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 final class EditableSlippageView: UIControl {
 
@@ -35,7 +35,7 @@ final class EditableSlippageView: UIControl {
         NSLayoutConstraint.activate([
             stachView.anchorsConstraint(to: self),
 
-            textField.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 70, medium: 70, small: 60))
+            textField.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 70, medium: 70, small: 60)),
         ])
 
         bind(viewModel: viewModel)

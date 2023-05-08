@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
 import Kingfisher
+import UIKit
 
 struct ApprecationViewModel {
     let valueAttributedString: NSAttributedString
@@ -50,7 +50,7 @@ class ApprecationView: UIView {
             iconView.widthAnchor.constraint(equalToConstant: 9),
             iconView.heightAnchor.constraint(equalToConstant: 9),
 
-            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
     }
 
@@ -92,7 +92,7 @@ class EthTokenViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -112,7 +112,7 @@ class EthTokenViewCell: UITableViewCell {
         let row1 = [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5, alignment: .center)
         let col1 = [
             [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
-            row1
+            row1,
         ].asStackView(axis: .vertical)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -123,7 +123,7 @@ class EthTokenViewCell: UITableViewCell {
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 16, bottom: 15, right: 16)),
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
     }
 

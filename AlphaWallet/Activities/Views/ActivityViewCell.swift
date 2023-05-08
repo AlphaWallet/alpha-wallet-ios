@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import UIKit
 
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()
@@ -11,7 +11,7 @@ class ActivityViewCell: UITableViewCell {
     private var viewModel: ActivityCellViewModel? {
         didSet {
             guard let tokenScriptRendererView = tokenScriptRendererView else { return }
-            
+
             if let oldValue = oldValue {
                 if oldValue.activity.id == viewModel?.activity.id {
                     //no-op
@@ -41,7 +41,7 @@ class ActivityViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             background.anchorsConstraint(to: contentView),
 
-            contentView.heightAnchor.constraint(equalToConstant: 80)
+            contentView.heightAnchor.constraint(equalToConstant: 80),
         ])
     }
 

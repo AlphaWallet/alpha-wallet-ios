@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
 import AlphaWalletWeb3
+import BigInt
 import Combine
+import Foundation
 
 struct Erc1155TokenIds: Codable {
     typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]
@@ -143,7 +143,7 @@ public class Erc1155TokenIdsFetcher {
 
     // MARK: Serialization
 
-    static private func fileUrl(forWallet address: AlphaWallet.Address, server: RPCServer) -> URL {
+    private static func fileUrl(forWallet address: AlphaWallet.Address, server: RPCServer) -> URL {
         return documentDirectory.appendingPathComponent("\(address.eip55String)-\(server.chainID)-v2.json")
     }
 
@@ -152,7 +152,7 @@ public class Erc1155TokenIdsFetcher {
         return try? JSONDecoder().decode(Erc1155TokenIds.self, from: data)
     }
 
-    static private func fileUrlV1(forWallet address: AlphaWallet.Address, server: RPCServer) -> URL {
+    private static func fileUrlV1(forWallet address: AlphaWallet.Address, server: RPCServer) -> URL {
         return documentDirectory.appendingPathComponent("\(address.eip55String)-\(server.chainID).json")
     }
 
@@ -345,7 +345,7 @@ extension Erc1155TokenIdsFetcher.functional {
 
     static func combinedBlockNumbersProcessed(old: Erc1155TokenIds.BlockNumbersProcessed, newEntry: (UInt64, UInt64)) -> Erc1155TokenIds.BlockNumbersProcessed {
         var result: Erc1155TokenIds.BlockNumbersProcessed = old
-        let tempNewRange = newEntry.0..<(newEntry.1+1)
+        let tempNewRange = newEntry.0..<(newEntry.1 + 1)
         result.append(tempNewRange)
         result = coalesce(result)
         return result

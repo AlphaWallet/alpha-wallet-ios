@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ServersCoordinatorDelegate: AnyObject {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator)
@@ -41,7 +41,7 @@ class ServersCoordinator: Coordinator {
             .palm,
             .palmTestnet,
             .okx,
-            .sepolia
+            .sepolia,
         ] + RPCServer.customServers
     }
 
@@ -80,7 +80,7 @@ class ServersCoordinator: Coordinator {
 
     init(viewModel: ServersViewModel,
          navigationController: UINavigationController) {
-        
+
         self.navigationController = navigationController
         self.viewModel = viewModel
     }

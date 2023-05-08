@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 01.12.2022.
 //
 import AlphaWalletCore
-import Foundation
 import BigInt
+import Foundation
 
 public struct WalletConnectTransaction {
     public let value: BigUInt

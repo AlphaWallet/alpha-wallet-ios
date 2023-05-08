@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.06.2022.
 //
 
-import Foundation
-import Combine
 import BigInt
+import Combine
+import Foundation
 
 public protocol TokenImportable {
     func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool) -> Token
@@ -87,7 +87,7 @@ extension ImportToken.ImportTokenError {
     }
 }
 
-final public class ImportToken: TokenImportable, TokenOrContractFetchable {
+public final class ImportToken: TokenImportable, TokenOrContractFetchable {
     public enum ImportTokenError: Error {
         case nativeCryptoNotSupported
         case serverIsDisabled

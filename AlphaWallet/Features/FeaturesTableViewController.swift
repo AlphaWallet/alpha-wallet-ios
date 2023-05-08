@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 7/1/22.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class FeaturesTableViewController: UITableViewController {
 

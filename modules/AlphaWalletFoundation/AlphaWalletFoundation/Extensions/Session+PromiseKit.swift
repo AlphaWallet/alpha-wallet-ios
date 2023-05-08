@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletLogger
 import APIKit
+import Foundation
 import JSONRPCKit
 import PromiseKit
 

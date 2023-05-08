@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 20.02.2023.
 //
 
-import Foundation
 import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 protocol DappRequesterDelegate: AnyObject, RequestSignMessageDelegate {
 

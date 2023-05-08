@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.03.2023.
 //
 
-import Foundation
-import CoreFoundation
 import Combine
 import CombineExt
+import CoreFoundation
+import Foundation
 
 class ActivitiesGenerator {
     private let sessionsProvider: SessionsProvider

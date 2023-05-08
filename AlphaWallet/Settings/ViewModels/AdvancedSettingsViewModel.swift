@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 01.06.2020.
 //
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct AdvancedSettingsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -109,7 +109,7 @@ extension AdvancedSettingsViewModel.functional {
             features.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
             features.isAvailable(.isAnalyticsUIEnabled) ? .analytics : nil,
             .crashReporter,
-            features.isAvailable(.isLanguageSwitcherEnabled) ? .changeLanguage: nil,
+            features.isAvailable(.isLanguageSwitcherEnabled) ? .changeLanguage : nil,
             features.isAvailable(.isChangeCurrencyEnabled) ? .changeCurrency : nil,
             canExportToJSONKeystore ? .exportJSONKeystore : nil,
             .tools,

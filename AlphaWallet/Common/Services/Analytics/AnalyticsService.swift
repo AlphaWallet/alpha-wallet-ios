@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 06.11.2020.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 public final class AnalyticsService: NSObject, AnalyticsServiceType {
     private var mixpanelService: MixpanelService?
@@ -24,25 +24,15 @@ public final class AnalyticsService: NSObject, AnalyticsServiceType {
         }
     }
 
-    public func applicationDidBecomeActive() {
+    public func applicationDidBecomeActive() {}
 
-    }
+    public func application(continue userActivity: NSUserActivity) {}
 
-    public func application(continue userActivity: NSUserActivity) {
+    public func application(open url: URL, sourceApplication: String?, annotation: Any) {}
 
-    }
+    public func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) {}
 
-    public func application(open url: URL, sourceApplication: String?, annotation: Any) {
-
-    }
-
-    public func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) {
-
-    }
-
-    public func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-
-    }
+    public func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {}
 
     public func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {
         guard config.isSendAnalyticsEnabled else { return }

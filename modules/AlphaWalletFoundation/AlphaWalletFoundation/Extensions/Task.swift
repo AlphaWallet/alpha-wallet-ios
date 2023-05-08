@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.03.2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 extension Task {
     public func store(in cancellables: inout Set<AnyCancellable>) {

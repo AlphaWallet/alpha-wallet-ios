@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol TransactionInProgressCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: TransactionInProgressCoordinator)

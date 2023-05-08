@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 23.09.2021.
 //
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 protocol SwitchChainRequestViewControllerDelegate: AnyObject {
     func didClose(in viewController: SwitchChainRequestViewController)
@@ -125,7 +125,7 @@ extension SwitchChainRequestViewController {
         case .promptAndAddAndActivateServer:
             views += [
                 .spacer(height: 20),
-                enableTestnetButton
+                enableTestnetButton,
             ]
         }
 
@@ -180,4 +180,3 @@ extension SwitchChainRequestViewController {
         return SwitchChainRequestViewControllerBridgeToPromise(viewController: viewController, configuration: configuration).promise
     }
 }
-

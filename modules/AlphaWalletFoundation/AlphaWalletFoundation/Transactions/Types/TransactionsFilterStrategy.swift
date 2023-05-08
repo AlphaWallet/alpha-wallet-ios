@@ -1,6 +1,6 @@
 //Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation 
+import Foundation
 
 public enum TransactionsFilterStrategy {
     case all
@@ -13,12 +13,12 @@ public enum TransactionsFilterStrategy {
         case .filter(let filter, let token):
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: token.server),
-                filter.predicate
+                filter.predicate,
             ])
         case .predicate(let p):
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers),
-                p
+                p,
             ])
         case .all:
             predicate = TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
@@ -31,7 +31,7 @@ public enum TransactionsFilterStrategy {
         let oldestBlockNumberPredicate = oldestBlockNumber.flatMap {[
             NSCompoundPredicate(orPredicateWithSubpredicates: [
                 TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0),
-                isPendingTransction
+                isPendingTransction,
             ])]
         } ?? []
 
@@ -40,11 +40,11 @@ public enum TransactionsFilterStrategy {
         case .filter(let filter, let token):
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: token.server),
-                filter.predicate
+                filter.predicate,
             ] + oldestBlockNumberPredicate)
         case .all:
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
+                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers),
             ] + oldestBlockNumberPredicate)
         case .predicate(let p):
             predicate = p

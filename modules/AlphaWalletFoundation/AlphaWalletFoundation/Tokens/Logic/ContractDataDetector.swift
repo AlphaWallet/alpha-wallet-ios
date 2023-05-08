@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
-import PromiseKit
 import BigInt
 import Combine
+import Foundation
+import PromiseKit
 
 public enum ContractData {
     case name(String)

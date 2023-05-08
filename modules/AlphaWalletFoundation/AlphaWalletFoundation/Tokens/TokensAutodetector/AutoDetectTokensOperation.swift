@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.02.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 protocol AutoDetectTokensOperationDelegate: AnyObject {
     var isAutoDetectingTokens: Bool { get set }
@@ -19,7 +19,7 @@ final class AutoDetectTokensOperation: Operation {
     private let tokens: [ContractToImport]
     private var cancellable: AnyCancellable?
 
-    weak private var delegate: AutoDetectTokensOperationDelegate?
+    private weak var delegate: AutoDetectTokensOperationDelegate?
     override var isExecuting: Bool {
         return delegate?.isAutoDetectingTokens ?? false
     }
@@ -58,5 +58,5 @@ final class AutoDetectTokensOperation: Operation {
 
                 self?.delegate?.didDetect(tokensOrContracts: values)
             })
-    } 
+    }
 }

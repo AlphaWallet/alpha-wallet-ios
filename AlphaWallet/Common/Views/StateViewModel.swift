@@ -7,7 +7,7 @@ struct StateViewModel {
 
     var titleTextColor: UIColor {
         return Configuration.Color.Semantic.defaultForegroundText
-   }
+    }
 
     var titleFont: UIFont {
         return Fonts.semibold(size: 18)

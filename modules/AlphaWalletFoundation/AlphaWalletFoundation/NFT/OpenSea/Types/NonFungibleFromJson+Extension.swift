@@ -1,16 +1,16 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
 import AlphaWalletCore
 import AlphaWalletOpenSea
+import BigInt
+import Foundation
 
 extension NonFungibleFromJson {
     public func nftCollectionImageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
         return WebImageURL(string: contractImageUrl, rewriteGoogleContentSizeUrl: size) ??
-        WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ??
-        animationUrl.flatMap { WebImageURL(string: $0, rewriteGoogleContentSizeUrl: size) } ??
-        WebImageURL(string: imageUrl, rewriteGoogleContentSizeUrl: size)
+            WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ??
+            animationUrl.flatMap { WebImageURL(string: $0, rewriteGoogleContentSizeUrl: size) } ??
+            WebImageURL(string: imageUrl, rewriteGoogleContentSizeUrl: size)
     }
 }
 

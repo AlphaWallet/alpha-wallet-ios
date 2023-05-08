@@ -81,7 +81,7 @@ public extension DirectoryContentsWatcher {
 
          - note: By default it throttles to 60 FPS, some editors can generate stupid multiple saves that mess with file system e.g. Sublime with AutoSave plugin is a mess and generates different file sizes, this will limit wasted time trying to load faster than 60 FPS, and no one should even notice it's throttled.
          */
-        public init(path: String, refreshInterval: TimeInterval = 1/60, queue: DispatchQueue = DispatchQueue.main) {
+        public init(path: String, refreshInterval: TimeInterval = 1 / 60, queue: DispatchQueue = DispatchQueue.main) {
             self.path = path
             self.refreshInterval = refreshInterval
             self.queue = queue
@@ -104,7 +104,7 @@ public extension DirectoryContentsWatcher {
          Stops observing changes.
          */
         public func stop() throws {
-            guard case let .Started(_, _, _, cancel) = state else {
+            guard case .Started(_, _, _, let cancel) = state else {
                 throw Error.alreadyStopped
             }
             cancelReload?()
@@ -123,9 +123,9 @@ public extension DirectoryContentsWatcher {
             }
 
             let source = DispatchSource.makeFileSystemObjectSource(
-                    fileDescriptor: handle,
-                    eventMask: [.delete, .write, .extend, .attrib, .link, .rename, .revoke],
-                    queue: queue
+                fileDescriptor: handle,
+                eventMask: [.delete, .write, .extend, .attrib, .link, .rename, .revoke],
+                queue: queue
             )
 
             let cancelBlock = {
@@ -175,7 +175,7 @@ public extension DirectoryContentsWatcher {
          Force refresh, can only be used if the watcher was started and it's not processing.
          */
         public func refresh() {
-            guard case let .Started(_, _, closure, _) = state, isProcessing == false else {
+            guard case .Started(_, _, let closure, _) = state, isProcessing == false else {
                 return
             }
             isProcessing = true

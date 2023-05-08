@@ -251,8 +251,8 @@ public enum Analytics {
     }
 
     public enum WalletConnectAction: String {
-       case bridgeUrl
-       case connectionUrl
+        case bridgeUrl
+        case connectionUrl
     }
 
     public enum ShortcutType: String {

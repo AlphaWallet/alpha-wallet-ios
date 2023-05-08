@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 12.05.2021.
 //
 
-import UIKit
+import AlphaWalletFoundation
 import Charts
 import Combine
-import AlphaWalletFoundation
+import UIKit
 
 class TokenHistoryChartView: UIView {
     private let marker = XYMarkerView(

@@ -7,9 +7,9 @@
 /// This service subscribes to the AlphaWalletTokensService for add tokens notifications.
 /// When a spam token is detected, this service will hide it.
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 class SpamTokenService {
 

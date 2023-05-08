@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 18.08.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct FeeHistory {
     let baseFeePerGas: [Double]

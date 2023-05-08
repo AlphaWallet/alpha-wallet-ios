@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct CreateInitialViewModel {
 
@@ -14,7 +14,7 @@ struct CreateInitialViewModel {
         return .init(string: R.string.localizable.gettingStartedSubtitle(), attributes: [
             .font: font,
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .paragraphStyle: paragraph
+            .paragraphStyle: paragraph,
         ])
     }
 

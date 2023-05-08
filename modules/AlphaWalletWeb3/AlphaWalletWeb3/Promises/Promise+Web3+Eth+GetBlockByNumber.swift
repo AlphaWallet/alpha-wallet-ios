@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 extension Web3.Eth {
@@ -15,12 +15,12 @@ extension Web3.Eth {
         let block = String(number, radix: 16).addHexPrefix()
         return getBlockByNumberPromise(block, fullTransactions: fullTransactions)
     }
-    
+
     public func getBlockByNumberPromise(_ number: BigUInt, fullTransactions: Bool = false) -> Promise<Block> {
         let block = String(number, radix: 16).addHexPrefix()
         return getBlockByNumberPromise(block, fullTransactions: fullTransactions)
     }
-    
+
     public func getBlockByNumberPromise(_ number: String, fullTransactions: Bool = false) -> Promise<Block> {
         let request = JSONRPCrequest(method: .getBlockByNumber, params: JSONRPCparams(params: [number, fullTransactions]))
         let rp = web3.dispatch(request)

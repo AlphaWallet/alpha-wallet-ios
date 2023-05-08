@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol EnabledServersCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: EnabledServersCoordinator)

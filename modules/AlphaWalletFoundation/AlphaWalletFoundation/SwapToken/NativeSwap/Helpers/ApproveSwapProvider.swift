@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.04.2022.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public protocol ApproveSwapProviderDelegate: AnyObject {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)
@@ -54,36 +54,36 @@ public final class ApproveSwapProvider {
             owner: configurator.session.account.address,
             spender: swapQuote.estimate.spender,
             amount: fromAmount)
-        .map { (swapQuote, $0.hasEnough, $0.shortOf) }
-        .mapError { SwapError(error: $0.unwrapped) }
-        .flatMap { [configurator] swapQuote, isApproved, shortOf -> AnyPublisher<SwapQuote, SwapError> in
-            if isApproved {
-                return .just(swapQuote)
-            } else {
-                self.delegate?.changeState(in: self, state: .waitingForUsersAllowanceApprove)
+            .map { (swapQuote, $0.hasEnough, $0.shortOf) }
+            .mapError { SwapError(error: $0.unwrapped) }
+            .flatMap { [configurator] swapQuote, isApproved, shortOf -> AnyPublisher<SwapQuote, SwapError> in
+                if isApproved {
+                    return .just(swapQuote)
+                } else {
+                    self.delegate?.changeState(in: self, state: .waitingForUsersAllowanceApprove)
 
-                return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: configurator.server, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf)
-                .flatMap { isApproved -> AnyPublisher<SwapQuote, SwapError> in
-                    if isApproved {
-                        return .just(swapQuote)
-                    } else {
-                        return .fail(SwapError.userCancelledApproval)
-                    }
-                }.eraseToAnyPublisher()
-            }
-        }.sink(receiveCompletion: { result in
-            guard case .failure(let error) = result else { return }
-            infoLog("[Swap] Error while swapping. Error: \(error)")
-            self.delegate?.didFailure(in: self, error: error)
-        }, receiveValue: { [weak self] swapQuote in
-            guard let strongSelf = self else { return }
+                    return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: configurator.server, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf)
+                        .flatMap { isApproved -> AnyPublisher<SwapQuote, SwapError> in
+                            if isApproved {
+                                return .just(swapQuote)
+                            } else {
+                                return .fail(SwapError.userCancelledApproval)
+                            }
+                        }.eraseToAnyPublisher()
+                }
+            }.sink(receiveCompletion: { result in
+                guard case .failure(let error) = result else { return }
+                infoLog("[Swap] Error while swapping. Error: \(error)")
+                self.delegate?.didFailure(in: self, error: error)
+            }, receiveValue: { [weak self] swapQuote in
+                guard let strongSelf = self else { return }
 
-            strongSelf.delegate?.changeState(in: strongSelf, state: .waitingForUsersSwapApprove)
-            let fromToken = TokenToSwap(tokenFromQuate: swapQuote.action.fromToken)
-            let toToken = TokenToSwap(tokenFromQuate: swapQuote.action.toToken)
+                strongSelf.delegate?.changeState(in: strongSelf, state: .waitingForUsersSwapApprove)
+                let fromToken = TokenToSwap(tokenFromQuate: swapQuote.action.fromToken)
+                let toToken = TokenToSwap(tokenFromQuate: swapQuote.action.toToken)
 
-            strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
-        }).store(in: &cancellable)
+                strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
+            }).store(in: &cancellable)
     }
 
     private func promptApproval(unsignedSwapTransaction: UnsignedSwapTransaction, token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt) -> AnyPublisher<Bool, SwapError> {

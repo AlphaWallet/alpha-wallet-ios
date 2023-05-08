@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import Combine
+import UIKit
 
 protocol TextFieldDelegate: AnyObject {
     func shouldReturn(in textField: TextField) -> Bool
@@ -14,8 +14,8 @@ extension TextFieldDelegate {
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
         return true
     }
-    func doneButtonTapped(for textField: TextField) { }
-    func nextButtonTapped(for textField: TextField) { }
+    func doneButtonTapped(for textField: TextField) {}
+    func nextButtonTapped(for textField: TextField) {}
 }
 
 class TextField: UIControl {
@@ -90,7 +90,7 @@ class TextField: UIControl {
         label.font = Configuration.Font.textFieldStatus
         label.textColor = Configuration.Color.Semantic.textFieldStatus
         label.textAlignment = .left
-        
+
         return label
     }()
 
@@ -159,8 +159,8 @@ class TextField: UIControl {
     }()
 
     var textInset: CGSize {
-       get { return CGSize(width: (textField as! _TextField).insetX, height: (textField as! _TextField).insetY) }
-       set { (textField as! _TextField).insetX = newValue.width; (textField as! _TextField).insetY = newValue.height; }
+        get { return CGSize(width: (textField as! _TextField).insetX, height: (textField as! _TextField).insetY) }
+        set { (textField as! _TextField).insetX = newValue.width; (textField as! _TextField).insetY = newValue.height }
     }
 
     override var isFirstResponder: Bool {
@@ -191,7 +191,7 @@ class TextField: UIControl {
     }
 
     private var cancellable = Set<AnyCancellable>()
-    
+
     private func bind(viewModel: TextFieldViewModel) {
         let input = TextFieldViewModelInput(textChanged: text.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
@@ -322,7 +322,7 @@ extension TextField {
         textField.textField.autocapitalizationType = .none
         textField.textField.spellCheckingType = .no
         textField.returnKeyType = .next
-        
+
         return textField
     }
 

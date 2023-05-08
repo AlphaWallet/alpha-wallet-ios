@@ -1,9 +1,9 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import LocalAuthentication
 import UIKit
-import AlphaWalletFoundation
 
 protocol BackupSeedPhraseCoordinatorDelegate: AnyObject {
     func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator)

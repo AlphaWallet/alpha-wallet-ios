@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 20.01.2023.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct BlockchainParams {
     public let maxGasLimit: BigUInt

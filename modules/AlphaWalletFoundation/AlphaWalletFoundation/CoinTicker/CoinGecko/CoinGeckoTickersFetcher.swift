@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 24.05.2022.
 //
 
+import AlphaWalletCore
 import Combine
 import Foundation
-import AlphaWalletCore
 
 public final class CoinGeckoTickersFetcher: BaseCoinTickersFetcher, CoinTickersFetcherProvider {
 
@@ -36,7 +36,7 @@ public final class CoinGeckoTickersFetcher: BaseCoinTickersFetcher, CoinTickersF
             supportedTickerIdsFetcher,
             AlphaWalletRemoteTickerIdsFetcher(
                 provider: fileTokenEntriesProvider,
-                tickerIdsFetcher: supportedTickerIdsFetcher)
+                tickerIdsFetcher: supportedTickerIdsFetcher),
         ])
 
         self.init(

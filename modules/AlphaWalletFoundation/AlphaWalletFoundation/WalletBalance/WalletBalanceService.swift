@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 25.05.2021.
 //
 
-import Foundation
 import BigInt
 import Combine
 import CombineExt
+import Foundation
 
 public protocol TokenBalanceProviderTests {
     func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet)

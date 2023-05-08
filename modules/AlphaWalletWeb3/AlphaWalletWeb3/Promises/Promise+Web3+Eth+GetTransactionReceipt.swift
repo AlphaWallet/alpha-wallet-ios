@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 extension Web3.Eth {
@@ -15,7 +15,7 @@ extension Web3.Eth {
         let hashString = txhash.toHexString().addHexPrefix()
         return self.getTransactionReceiptPromise(hashString)
     }
-    
+
     public func getTransactionReceiptPromise(_ txhash: String) -> Promise<TransactionReceipt> {
         let request = JSONRPCrequest(method: .getTransactionReceipt, params: JSONRPCparams(params: [txhash]))
         let rp = web3.dispatch(request)

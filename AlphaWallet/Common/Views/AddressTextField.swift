@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol AddressTextFieldDelegate: AnyObject {
     func displayError(error: Error, for textField: AddressTextField)
@@ -14,13 +14,9 @@ protocol AddressTextFieldDelegate: AnyObject {
 }
 
 extension AddressTextFieldDelegate {
-    func doneButtonTapped(for textField: AddressTextField) {
+    func doneButtonTapped(for textField: AddressTextField) {}
 
-    }
-
-    func nextButtonTapped(for textField: AddressTextField) {
-
-    }
+    func nextButtonTapped(for textField: AddressTextField) {}
 }
 
 final class AddressTextField: UIControl {
@@ -43,10 +39,10 @@ final class AddressTextField: UIControl {
         textField.autocorrectionType = .no
         textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = Configuration.Font.textField
-        
+
         return textField
     }()
-    lazy private var ensAddressLabel: AddressOrEnsNameLabel = {
+    private lazy var ensAddressLabel: AddressOrEnsNameLabel = {
         let label = AddressOrEnsNameLabel(domainResolutionService: domainResolutionService)
         label.addressFormat = .truncateMiddle
         label.shouldShowLoadingIndicator = true
@@ -217,7 +213,7 @@ final class AddressTextField: UIControl {
 
         let addressControlsStackView = [
             pasteButton,
-            clearButton
+            clearButton,
         ].asStackView(axis: .horizontal)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -227,7 +223,7 @@ final class AddressTextField: UIControl {
             ensAddressLabel.loadingIndicator,
             ensAddressLabel.blockieImageView,
             ensAddressLabel,
-            statusLabel
+            statusLabel,
         ].asStackView(axis: .horizontal, spacing: 5, alignment: .center)
 
         let stackView = [
@@ -243,7 +239,7 @@ final class AddressTextField: UIControl {
             addressControlsStackView.bottomAnchor.constraint(equalTo: controlsContainer.bottomAnchor),
             addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: controlsContainer.leadingAnchor),
             controlsContainer.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TextField.Default.controlsContainerHeight),
-            controlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 50)
+            controlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
         ])
 
         return stackView

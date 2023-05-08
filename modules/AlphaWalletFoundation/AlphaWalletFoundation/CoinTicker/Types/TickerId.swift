@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 29.03.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct TickerId: Codable, Hashable {
     let id: String

@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Activity {
     public enum NativeViewType {

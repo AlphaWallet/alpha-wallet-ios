@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 06.04.2022.
 //
 
+import Foundation
 import Realm
 import RealmSwift
-import Foundation
 
 public func fakeRealm(wallet: Wallet, inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
     let uuid = UUID().uuidString
@@ -64,7 +64,7 @@ extension RealmStore {
 
     public class func storage(for wallet: Wallet) -> RealmStore {
         return RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
-    } 
+    }
 }
 
 extension Realm {
@@ -72,7 +72,7 @@ extension Realm {
     public static func realm(for account: Wallet) -> Realm {
         let migration = DatabaseMigration(account: account)
         migration.perform()
-        
+
         return try! Realm(configuration: migration.config)
     }
 
@@ -86,7 +86,7 @@ extension Realm {
             TickerIdObject.self,
             KnownTickerIdObject.self,
             CoinTickerObject.self,
-            AssignedCoinTickerIdObject.self
+            AssignedCoinTickerIdObject.self,
         ]
 
         configuration.schemaVersion = 2

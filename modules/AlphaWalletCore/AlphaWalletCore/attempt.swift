@@ -20,7 +20,7 @@ public func attempt<T>(maximumRetryCount: Int = 3, delayBeforeRetry: DispatchTim
             if case PMKError.cancelled = error {
                 throw error
             }
-            return after(.seconds(Int.random(in: 0 ..< delayUpperRangeValueFrom0To))).then(on: nil, attempt)
+            return after(.seconds(Int.random(in: 0..<delayUpperRangeValueFrom0To))).then(on: nil, attempt)
         }
     }
 

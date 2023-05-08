@@ -18,8 +18,8 @@ struct GetENSRecordWithResolverAddrEncode {
 
 struct GetENSRecordWithResolverResolveEncode {
     let abi = """
-              [ { "constant" : false, "inputs" : [ { "name" : "name", "type" : "bytes" }, { "name" : "data", "type" : "bytes" } ], "name" : "resolve", "outputs" : [ { "name" : "", "type" : "bytes" } ], "payable" : false, "stateMutability" : "nonpayable", "type" : "function" } ]
-              """
+        [ { "constant" : false, "inputs" : [ { "name" : "name", "type" : "bytes" }, { "name" : "data", "type" : "bytes" } ], "name" : "resolve", "outputs" : [ { "name" : "", "type" : "bytes" } ], "payable" : false, "stateMutability" : "nonpayable", "type" : "function" } ]
+        """
     let name = "resolve"
 }
 

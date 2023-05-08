@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol AssetDefinitionStoreCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: AssetDefinitionStoreCoordinator)

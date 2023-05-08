@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.09.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 public protocol RampNetworking {
     func retrieveAssets() -> AnyPublisher<[Asset], PromiseError>
@@ -32,7 +32,7 @@ public final class BaseRampNetworking: RampNetworking {
 }
 //NOTE: internal because we use it also for debugging
 extension BaseRampNetworking {
-    struct RampRequest: URLRequestConvertible { 
+    struct RampRequest: URLRequestConvertible {
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: Constants.Ramp.exchangeUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }

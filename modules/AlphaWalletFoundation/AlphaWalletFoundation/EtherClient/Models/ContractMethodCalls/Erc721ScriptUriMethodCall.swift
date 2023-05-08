@@ -9,24 +9,24 @@ import Foundation
 
 struct GetScriptUri {
     let abi = """
-                            [
-                                {
-                                  "constant" : false,
-                                  "inputs" : [
-                                  ],
-                                  "name" : "scriptURI",
-                                  "outputs" : [
-                                    {
-                                      "name" : "",
-                                      "type" : "string"
-                                    }
-                                  ],
-                                  "payable" : false,
-                                  "stateMutability" : "nonpayable",
-                                  "type" : "function"
-                                }
-                            ]
-                            """
+        [
+            {
+              "constant" : false,
+              "inputs" : [
+              ],
+              "name" : "scriptURI",
+              "outputs" : [
+                {
+                  "name" : "",
+                  "type" : "string"
+                }
+              ],
+              "payable" : false,
+              "stateMutability" : "nonpayable",
+              "type" : "function"
+            }
+        ]
+        """
     let name = "scriptURI"
 
 }

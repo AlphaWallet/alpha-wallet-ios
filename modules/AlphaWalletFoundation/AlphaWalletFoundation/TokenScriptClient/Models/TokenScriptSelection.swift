@@ -8,4 +8,3 @@ public struct TokenScriptSelection {
     public let names: (singular: String, plural: String?)
     public let denial: String?
 }
-

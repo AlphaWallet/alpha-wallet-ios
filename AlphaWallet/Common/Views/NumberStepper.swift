@@ -74,7 +74,7 @@ class NumberStepper: UIControl {
 
     private lazy var rightButton: UIButton = {
         let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
         button.setTitleColor(buttonsTextColor, for: .normal)
         button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
@@ -123,8 +123,8 @@ class NumberStepper: UIControl {
         }
     }
 
-    required
-    public init?(coder aDecoder: NSCoder) {
+    public required
+    init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setup()
     }
@@ -133,7 +133,7 @@ class NumberStepper: UIControl {
     public init(frame: CGRect) {
         super.init(frame: frame)
         setup()
-		layout()
+        layout()
     }
 
     func setup() {
@@ -149,11 +149,11 @@ class NumberStepper: UIControl {
     }
 
     func layout() {
-		let xMargin = CGFloat(3)
+        let xMargin = CGFloat(3)
         NSLayoutConstraint.activate([
             leftButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7),
             leftButton.trailingAnchor.constraint(equalTo: label.leadingAnchor, constant: -xMargin),
-			leftButton.widthAnchor.constraint(equalToConstant: 44),
+            leftButton.widthAnchor.constraint(equalToConstant: 44),
             leftButton.topAnchor.constraint(equalTo: topAnchor),
             leftButton.bottomAnchor.constraint(equalTo: bottomAnchor),
 

@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 10/12/21.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct ExportJsonKeystoreFileViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

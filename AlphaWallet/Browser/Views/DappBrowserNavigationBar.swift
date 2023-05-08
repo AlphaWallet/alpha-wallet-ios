@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol DappBrowserNavigationBarDelegate: AnyObject {
     func didTyped(text: String, in navigationBar: DappBrowserNavigationBar)
@@ -20,7 +20,7 @@ private enum State {
     case browserOnly
 }
 
-private struct Layout {
+private enum Layout {
     static let textFieldHeight: CGFloat = 40
     static let width: CGFloat = 34
     static let moreButtonWidth: CGFloat = 24
@@ -102,7 +102,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         backButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
-        
+
         return backButton
     }()
     private let forwardButton: UIButton = {
@@ -189,7 +189,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             homeButton,
             spacer3,
             moreButton,
-            cancelEditingButton
+            cancelEditingButton,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -211,7 +211,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             forwardButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
-            homeButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth)
+            homeButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
         ])
     }
 

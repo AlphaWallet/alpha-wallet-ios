@@ -8,7 +8,7 @@
 import Foundation
 import WebKit
 
-public enum Browser { }
+public enum Browser {}
 
 extension Browser {
     public static let locationChangedEventName = "locationChanged"

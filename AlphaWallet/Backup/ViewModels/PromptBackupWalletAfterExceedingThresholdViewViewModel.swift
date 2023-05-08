@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalletViewModel {
     private let formatter: NumberFormatter

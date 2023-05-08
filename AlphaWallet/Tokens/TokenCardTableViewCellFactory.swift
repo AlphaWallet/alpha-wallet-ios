@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 15.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol TokenCardRowViewLayoutConfigurable {
     func configureLayout(layout: GridOrListLayout)
@@ -24,7 +24,7 @@ final class TokenCardViewFactory {
     private let tokenImageFetcher: TokenImageFetcher
 
     let assetDefinitionStore: AssetDefinitionStore
-    
+
     init(token: Token,
          assetDefinitionStore: AssetDefinitionStore,
          wallet: Wallet,
@@ -78,7 +78,7 @@ final class TokenCardViewFactory {
                 layout: layout,
                 gridEdgeInsets: gridEdgeInsets,
                 listEdgeInsets: listEdgeInsets)
-        } 
+        }
 
         return rowView
     }

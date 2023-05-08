@@ -26,7 +26,7 @@ public protocol Lock {
 }
 
 open class SecuredLock: Lock {
-    private struct Keys {
+    private enum Keys {
         static let service = "alphawallet.lock"
         static let account = "alphawallet.account"
     }
@@ -52,7 +52,7 @@ open class SecuredLock: Lock {
         return dateFormatter.date(from: timeString)!
     }
     public var isIncorrectMaxAttemptTimeSet: Bool {
-        guard let timeString = securedStorage.get(maxAttemptTime, prompt: nil, withContext: nil), !timeString.isEmpty  else {
+        guard let timeString = securedStorage.get(maxAttemptTime, prompt: nil, withContext: nil), !timeString.isEmpty else {
             return false
         }
         return true

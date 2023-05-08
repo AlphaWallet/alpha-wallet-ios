@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 1/12/21.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 @objc protocol ExportJsonKeystorePasswordDelegate {
     func exportKeystoreButtonSelected(with password: String, in viewController: ExportJsonKeystorePasswordViewController)
@@ -53,7 +53,7 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
             textFieldLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             textFieldLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 

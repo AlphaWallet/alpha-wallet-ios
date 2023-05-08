@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import MessageUI
 import AlphaWalletFoundation
+import MessageUI
+import UIKit
 
 protocol ContactUsBannerViewDelegate: AnyObject {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView)
@@ -19,14 +19,14 @@ class ContactUsBannerView: UIView {
 
     private var emailTemplate: String {
         return """
-               \n\n\n
+            \n\n\n
 
-               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
-               \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
-               \(R.string.localizable.aHelpContactEmailDeviceModel("\(AlphaWallet.Device.type.rawValue) \(AlphaWallet.Device.type == .unknown ? " - \(UIDevice.current.model)" : "")"))
-               \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
-               \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
-               """
+            \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+            \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
+            \(R.string.localizable.aHelpContactEmailDeviceModel("\(AlphaWallet.Device.type.rawValue) \(AlphaWallet.Device.type == .unknown ? " - \(UIDevice.current.model)" : "")"))
+            \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
+            \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
+            """
     }
 
     override init(frame: CGRect) {

@@ -6,8 +6,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 import PromiseKit
 
 public protocol Web3RequestProvider {
@@ -31,7 +31,7 @@ public class Web3HttpProvider: Web3RequestProvider {
     }
 
     private static func generateBasicAuthCredentialsHeaderValue(fromURL url: URL) -> String? {
-        guard let username = url.user, let password = url.password  else { return nil }
+        guard let username = url.user, let password = url.password else { return nil }
         return "\(username):\(password)".data(using: .utf8)?.base64EncodedString()
     }
 
@@ -134,4 +134,3 @@ public class Web3HttpProvider: Web3RequestProvider {
         return Web3HttpProvider.post(requests, providerURL: url, headers: headers, queue: queue, session: session)
     }
 }
-

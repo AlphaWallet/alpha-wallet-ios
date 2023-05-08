@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 15.09.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public protocol CoinTickersFetcherProvider {
     func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool, currency: Currency)
@@ -45,7 +45,7 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
             CoinGeckoTickersFetcher(
                 storage: storage,
                 transporter: transporter,
-                analytics: analytics)
+                analytics: analytics),
         ], storage: storage)
     }
 

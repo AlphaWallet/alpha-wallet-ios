@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 class KeyboardChecker: NSObject {
 
@@ -130,7 +130,7 @@ class KeyboardChecker: NSObject {
         UIResponder.keyboardWillChangeFrameNotification,
         UIResponder.keyboardDidChangeFrameNotification,
         UIResponder.keyboardWillHideNotification,
-        UIResponder.keyboardDidHideNotification
+        UIResponder.keyboardDidHideNotification,
     ]
 
     var publisher: AnyPublisher<KeyboardChecker.KeyboardState, Never> {

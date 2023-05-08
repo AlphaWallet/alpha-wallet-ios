@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.09.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public class BaseCoinTickersFetcher {
     private let pricesCacheLifetime: TimeInterval = 60 * 60
@@ -33,7 +33,7 @@ public class BaseCoinTickersFetcher {
             FileStorage().fileURL(with: $0, fileExtension: "json")
         }.forEach { try? FileManager.default.removeItem(at: $0) }
     }
-    
+
     public func cancel() {
         inlightPromises.values.values.forEach { $0.cancel() }
         inlightPromises.removeAll()
@@ -150,7 +150,7 @@ public class BaseCoinTickersFetcher {
 
     private func hasExpired(history mappedChartHistory: MappedChartHistory, for period: ChartHistoryPeriod) -> Bool {
         guard ReachabilityManager().isReachable else { return false }
-        
+
         let hasCacheExpired: Bool
         switch period {
         case .day:

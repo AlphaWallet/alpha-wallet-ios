@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 24.08.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol BuyCryptoUsingThirdPartyCoordinatorDelegate: AnyObject {
     func openUrlInBrowser(url: URL, animated: Bool)
@@ -36,7 +36,7 @@ class BuyCryptoUsingThirdPartyCoordinator: Coordinator {
         if let url = service.url(token: token, wallet: wallet) {
             analytics.log(navigation: service.analyticsNavigation, properties: [
                 Analytics.Properties.name.rawValue: service.analyticsName,
-                Analytics.Properties.source.rawValue: source.rawValue
+                Analytics.Properties.source.rawValue: source.rawValue,
             ])
 
             delegate?.openUrlInBrowser(url: url, animated: true)

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 05.09.2022.
 //
 
-import Foundation
+import AlphaWalletCore
 import Combine
 import CombineExt
-import AlphaWalletCore
+import Foundation
 
 //TODO: Future impl for remote TokenEntries provider
 public final class RemoteTokenEntriesProvider: TokenEntriesProvider {

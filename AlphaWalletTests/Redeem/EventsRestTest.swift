@@ -6,10 +6,10 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import Foundation
+import XCTest
 
 class EventsRestTest: XCTestCase {
 

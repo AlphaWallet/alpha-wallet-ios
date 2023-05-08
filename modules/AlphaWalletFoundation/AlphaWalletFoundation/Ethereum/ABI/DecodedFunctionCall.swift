@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct FunctionCall {
+public enum FunctionCall {
     public struct Argument: CustomStringConvertible {
         public let type: ABIType
         public let value: Any?
@@ -27,7 +27,7 @@ public struct FunctionCall {
         private func toString(_ value: Any?) -> String {
             if let value = value as? AlphaWallet.Address {
                 return value.eip55String
-            //We special-case Bool otherwise it will be printed as "1" below
+                //We special-case Bool otherwise it will be printed as "1" below
             } else if type == .bool, let value = value as? Bool {
                 return value.description
             } else if let value = value as? CustomStringConvertible {
@@ -41,7 +41,7 @@ public struct FunctionCall {
 
 public struct DecodedFunctionCall {
     public enum FunctionType {
-//NOTE: Not sure if we need these functions
+        //NOTE: Not sure if we need these functions
 //        case erc20TotalSupply
 //        case erc20BalanceOf(address: AlphaWallet.Address)
 //        case erc20Allowance(address: AlphaWallet.Address, address: AlphaWallet.Address)

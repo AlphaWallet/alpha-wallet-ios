@@ -1,11 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class PasswordGeneratorTests: XCTestCase {
-    
+
     func testGenerateRandom() {
         let password = PasswordGenerator.generateRandom()
 

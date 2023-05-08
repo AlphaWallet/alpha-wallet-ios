@@ -15,7 +15,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
         return textView
     }()
 
-    private var viewModel: SignatureConfirmationDetailsViewModel 
+    private var viewModel: SignatureConfirmationDetailsViewModel
 
     lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
@@ -93,7 +93,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
 
     func configure(viewModel: SignatureConfirmationDetailsViewModel) {
         self.viewModel = viewModel
-        
+
         navigationItem.title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
 

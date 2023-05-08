@@ -24,7 +24,7 @@ final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
     func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {
         return .just((openSea: [:], enjin: ()))
     }
-    
+
     func enjinToken(tokenId: TokenId) -> EnjinToken? {
         return nil
     }

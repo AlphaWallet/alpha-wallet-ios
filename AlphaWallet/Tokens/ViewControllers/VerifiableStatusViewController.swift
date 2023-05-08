@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 @objc protocol VerifiableStatusViewController: CanOpenURL2 {
     func showContractWebPage()

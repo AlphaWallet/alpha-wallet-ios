@@ -10,7 +10,7 @@ import Foundation
 public final class CleanupWallets: Initializer {
     private let keystore: Keystore
     private let config: Config
-    
+
     public init(keystore: Keystore, config: Config) {
         self.keystore = keystore
         self.config = config

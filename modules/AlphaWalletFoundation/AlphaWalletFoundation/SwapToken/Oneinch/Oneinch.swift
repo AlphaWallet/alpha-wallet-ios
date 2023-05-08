@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 11.11.2020.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
-    private (set) public var assets: Loadable<[AlphaWallet.Address: Oneinch.Asset], Error> = .loading
+    public private (set) var assets: Loadable<[AlphaWallet.Address: Oneinch.Asset], Error> = .loading
     private let queue = DispatchQueue(label: "org.alphawallet.swift.Oneinch")
     private var cancelable = Set<AnyCancellable>()
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()

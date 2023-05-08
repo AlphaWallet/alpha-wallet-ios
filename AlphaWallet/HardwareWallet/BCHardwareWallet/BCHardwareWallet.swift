@@ -1,9 +1,9 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletFoundation
 import AlphaWalletHardwareWallet
+import Foundation
 
 class BCHardwareWalletCreator: HardwareWalletFactory {
     func createWallet() -> HardwareWallet {

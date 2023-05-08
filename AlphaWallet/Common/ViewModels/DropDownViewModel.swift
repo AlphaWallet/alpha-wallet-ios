@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 10.08.2021.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 protocol DropDownItemType: Equatable {
     var title: String { get }
@@ -34,7 +34,7 @@ struct DropDownViewModel<T: DropDownItemType> {
     func attributedString(item: T) -> NSAttributedString {
         return NSAttributedString(string: item.title, attributes: [
             .font: Fonts.regular(size: 23),
-            .foregroundColor: Configuration.Color.Semantic.popupSecondaryFont
+            .foregroundColor: Configuration.Color.Semantic.popupSecondaryFont,
         ])
     }
 

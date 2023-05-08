@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public protocol BuyTokenURLProviderType: TokenActionProvider {
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL?

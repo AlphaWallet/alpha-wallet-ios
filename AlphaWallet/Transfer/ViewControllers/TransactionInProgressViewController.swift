@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 15.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol TransactionInProgressViewControllerDelegate: AnyObject {
     func didDismiss(in controller: TransactionInProgressViewController)
@@ -77,7 +77,7 @@ class TransactionInProgressViewController: UIViewController {
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
         ])
     }
 

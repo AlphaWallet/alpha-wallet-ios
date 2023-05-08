@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 20.08.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
 import CombineExt
+import Foundation
 
 public typealias BlockNumber = Int
 

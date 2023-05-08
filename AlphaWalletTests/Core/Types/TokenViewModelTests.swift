@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.07.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class TokenViewModelTests: XCTestCase {
 

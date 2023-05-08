@@ -1,7 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class TransactionConfirmationRowDescriptionView: UIView {
     private let titleLabel: UILabel = {
@@ -22,7 +22,7 @@ class TransactionConfirmationRowDescriptionView: UIView {
         let row1 = [
             .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.left),
             titleLabel,
-            .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.right)
+            .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.right),
         ].asStackView(axis: .horizontal)
 
         let stackView = [
@@ -57,4 +57,3 @@ class TransactionConfirmationRowDescriptionView: UIView {
 struct TransactionRowDescriptionTableViewCellViewModel {
     let title: String
 }
-

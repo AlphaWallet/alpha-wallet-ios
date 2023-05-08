@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class TransactionConfirmationRowInfoView: UIView {
 
@@ -37,7 +37,7 @@ class TransactionConfirmationRowInfoView: UIView {
 
         let stackView = [
             titleLabel,
-            subTitleLabel
+            subTitleLabel,
         ].asStackView(axis: .vertical)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false

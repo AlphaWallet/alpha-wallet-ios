@@ -54,7 +54,7 @@ class PriceAlertTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             iconImageView.heightAnchor.constraint(equalToConstant: 18),
             iconImageView.widthAnchor.constraint(equalToConstant: 18),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 14, left: 0, bottom: 14, right: 0))
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 14, left: 0, bottom: 14, right: 0)),
         ])
 
         switchButton.addTarget(self, action: #selector(toggleSelectionState), for: .valueChanged)

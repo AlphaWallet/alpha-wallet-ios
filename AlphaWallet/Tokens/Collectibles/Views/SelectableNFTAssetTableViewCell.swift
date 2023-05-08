@@ -56,7 +56,7 @@ class SelectableAssetTableViewCell: ContainerTableViewCell {
             selectedAmountView.centerYAnchor.constraint(equalTo: view.positioningView.centerYAnchor),
 
             selectedAmountView.heightAnchor.constraint(equalToConstant: 35),
-            selectedAmountView.widthAnchor.constraint(equalToConstant: 35)
+            selectedAmountView.widthAnchor.constraint(equalToConstant: 35),
         ]
 
         NSLayoutConstraint.activate(selectionViewPositioningConstraints)

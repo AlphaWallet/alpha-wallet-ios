@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 05.03.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ServerUnavailableCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: ServerUnavailableCoordinator, result: Swift.Result<Void, Error>)

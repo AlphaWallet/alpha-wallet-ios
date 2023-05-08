@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 final class SwapStepsView: UIView {
     private let viewModel: SwapStepsViewModel
@@ -30,7 +30,7 @@ final class SwapStepsView: UIView {
 
         let bottomLine: UIView = UIView.separator()
         let edgeInsets = UIEdgeInsets(top: 15, left: 25, bottom: 15, right: 25)
-        stackView.translatesAutoresizingMaskIntoConstraints =  false
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stackView)
         addSubview(swapLine)
@@ -50,13 +50,13 @@ final class SwapStepsView: UIView {
     private func bind(viewModel: SwapStepsViewModel) {
         let output = viewModel.transform(input: .init())
         output.swapStepsViewModels
-        .map { $0.map { viewModel in SwapStepView(viewModel: viewModel) } }
-        .sink { [stackView] views in
-            stackView.removeAllArrangedSubviews()
-            stackView.addArrangedSubviews(views)
+            .map { $0.map { viewModel in SwapStepView(viewModel: viewModel) } }
+            .sink { [stackView] views in
+                stackView.removeAllArrangedSubviews()
+                stackView.addArrangedSubviews(views)
 
-            NSLayoutConstraint.activate(self.buildContraints(for: views))
-        }.store(in: &cancelable)
+                NSLayoutConstraint.activate(self.buildContraints(for: views))
+            }.store(in: &cancelable)
     }
 
     private func buildContraints(for views: [UIView]) -> [NSLayoutConstraint] {
@@ -66,7 +66,7 @@ final class SwapStepsView: UIView {
             return [
                 swapLine.topAnchor.constraint(equalTo: views[0].centerYAnchor),
                 swapLine.bottomAnchor.constraint(equalTo: views[views.count - 1].centerYAnchor),
-                swapLine.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 4.5)
+                swapLine.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 4.5),
             ]
         }
     }

@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import BigInt
+import Combine
+import Foundation
 
 class EtherscanGasPriceEstimator {
     private let networkService: NetworkService
@@ -23,7 +23,7 @@ class EtherscanGasPriceEstimator {
                 LegacyGasEstimates(standard: BigUInt(estimates.standard), others: [
                     GasSpeed.slow: BigUInt(estimates.slow),
                     GasSpeed.fast: BigUInt(estimates.fast),
-                    GasSpeed.rapid: BigUInt(estimates.rapid)
+                    GasSpeed.rapid: BigUInt(estimates.rapid),
                 ])
             }.mapError { PromiseError.some(error: $0) }
             .receive(on: RunLoop.main)

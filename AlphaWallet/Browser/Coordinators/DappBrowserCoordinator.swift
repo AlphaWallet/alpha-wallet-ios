@@ -1,10 +1,10 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import UIKit
-import WebKit
+import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
-import AlphaWalletCore
+import UIKit
+import WebKit
 
 protocol DappBrowserCoordinatorDelegate: DappRequesterDelegate, CanOpenURL {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
@@ -120,7 +120,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             wallet: wallet,
             server: server,
             browserOnly: browserOnly)
-        
+
         let browserViewController = BrowserViewController(viewModel: viewModel)
         browserViewController.delegate = self
         browserViewController.webView.uiDelegate = self
@@ -307,7 +307,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             (action: addBookmarkAction, flag: !browserOnly),
             (action: switchNetworkAction, flag: !browserOnly),
             (action: scanQrCodeAction, flag: !browserOnly),
-            (action: cancelAction, flag: true)
+            (action: cancelAction, flag: true),
         ]
 
         for each in mappedAlertActionsToDisplay {

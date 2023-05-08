@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 final class SwapQuoteFieldView: UIView {
     private lazy var titleLabel: UILabel = {
@@ -29,10 +29,10 @@ final class SwapQuoteFieldView: UIView {
     init(edgeInsets: UIEdgeInsets, viewModel: SwapQuoteFieldViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints =  false
+        translatesAutoresizingMaskIntoConstraints = false
 
         let stackview = [titleLabel, .spacerWidth(flexible: true), valueLabel].asStackView()
-        stackview.translatesAutoresizingMaskIntoConstraints =  false
+        stackview.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stackview)
 
@@ -40,7 +40,7 @@ final class SwapQuoteFieldView: UIView {
             stackview.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             titleLabel.leadingAnchor.constraint(equalTo: stackview.leadingAnchor),
             valueLabel.trailingAnchor.constraint(equalTo: stackview.trailingAnchor),
-            heightAnchor.constraint(greaterThanOrEqualToConstant: ScreenChecker.size(big: 60, medium: 60, small: 44))
+            heightAnchor.constraint(greaterThanOrEqualToConstant: ScreenChecker.size(big: 60, medium: 60, small: 44)),
         ])
 
         bind(viewModel: viewModel)
@@ -48,7 +48,7 @@ final class SwapQuoteFieldView: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    } 
+    }
 
     private func bind(viewModel: SwapQuoteFieldViewModel) {
         cancelable.cancellAll()

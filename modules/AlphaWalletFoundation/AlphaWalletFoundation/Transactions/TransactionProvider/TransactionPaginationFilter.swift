@@ -29,7 +29,7 @@ struct TransactionPaginationFilter {
     func process<T: TransactionPaginationSupportable>(transactions: [T], pagination: TransactionsPagination) -> (transactions: [T], pagination: TransactionsPagination) {
         let newPagination: TransactionsPagination
         let txs: [T]
-        
+
         if transactions.count == pagination.limit {
             txs = transactions.filter { tx in !pagination.lastFetched.contains(where: { $0 == tx.hash }) }
 
@@ -62,7 +62,7 @@ struct TransactionPaginationFilter {
                 }
             }
         }
-        
+
         return (transactions: txs, pagination: newPagination)
     }
 }

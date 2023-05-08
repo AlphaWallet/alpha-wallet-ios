@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol NFTAssetSelectionCoordinatorDelegate: AnyObject {
     func didFinish(in coordinator: NFTAssetSelectionCoordinator)

@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 //TODO: In the future, this can include invoking functions other than for sending of Ether and tokens
 //TODO: apply FungibleAmount instead of String
@@ -58,7 +58,7 @@ public struct Eip681Parser {
 
         return formatter
     }()
-    
+
     private let decimalParser = DecimalParser()
 
     //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-681.md

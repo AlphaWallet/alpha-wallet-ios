@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 13.04.2023.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public final class Eip1559GasPriceEstimator: NSObject, GasPriceEstimator {
     private let server: RPCServer
@@ -83,7 +83,7 @@ public final class Eip1559GasPriceEstimator: NSObject, GasPriceEstimator {
             oracleResult = Eip1559FeeOracleResult(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
 
             let estimates = Eip1559FeeEstimates(estimates: [
-                .standard: oracleResult
+                .standard: oracleResult,
             ])
 
             estimatesSubject = .init(estimates)

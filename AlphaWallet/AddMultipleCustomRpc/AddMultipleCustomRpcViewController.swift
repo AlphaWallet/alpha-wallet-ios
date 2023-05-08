@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 30/12/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 @objc protocol AddMultipleCustomRpcViewControllerResponse: AnyObject {
     func addMultipleCustomRpcCompleted()

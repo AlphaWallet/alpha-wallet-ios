@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 class LockViewModel {
     let lock: Lock
@@ -10,7 +10,7 @@ class LockViewModel {
     init(lock: Lock) {
         self.lock = lock
     }
-    
+
     var charCount: Int {
         //This step is required for old clients to support 4 digit passcode.
         var count = 0

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 02.03.2023.
 //
 
-import Foundation
-import AlphaWalletOpenSea
 import AlphaWalletFoundation
+import AlphaWalletOpenSea
+import Foundation
 
 final class NftCollectionDisplayHelper {
     private (set) var tokenId: TokenId

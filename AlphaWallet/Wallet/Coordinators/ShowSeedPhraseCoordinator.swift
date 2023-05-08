@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import UIKit
-import LocalAuthentication
 import AlphaWalletFoundation
+import LocalAuthentication
+import UIKit
 
 protocol ShowSeedPhraseCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ShowSeedPhraseCoordinator)
@@ -128,4 +128,3 @@ extension ShowSeedPhraseCoordinator: ShowSeedPhraseIntroductionViewControllerDel
         delegate?.didCancel(in: self)
     }
 }
-

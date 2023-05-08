@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 02.03.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 extension SignatureConfirmationDetailsViewModel {
     enum Configuration {
@@ -145,7 +145,7 @@ extension SignatureConfirmationDetailsViewModel {
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: singleMessageLabelFont,
                 .foregroundColor: singleMessageLabelTextColor,
-                .paragraphStyle: pag
+                .paragraphStyle: pag,
             ]
 
             return NSAttributedString(string: message, attributes: attributes)
@@ -156,7 +156,7 @@ extension SignatureConfirmationDetailsViewModel {
             let par = NSMutableParagraphStyle()
             par.alignment = textAlignment
 
-            attributedString.addAttribute(.paragraphStyle, value: par, range: NSRange(0 ..< attributedString.length))
+            attributedString.addAttribute(.paragraphStyle, value: par, range: NSRange(0..<attributedString.length))
 
             return attributedString
         }

@@ -1,9 +1,9 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
-import LocalAuthentication
 import AlphaWalletFoundation
 import Combine
+import LocalAuthentication
+import UIKit
 
 protocol ShowSeedPhraseViewControllerDelegate: AnyObject {
     var contextToShowSeedPhrase: LAContext { get }
@@ -108,7 +108,7 @@ class ShowSeedPhraseViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -7),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)

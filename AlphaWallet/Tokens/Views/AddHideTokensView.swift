@@ -113,4 +113,3 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
         delegate?.view(self, didSelectAddHideTokensButton: sender)
     }
 }
-

@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
 import Kingfisher
+import UIKit
 
 class FungibleTokenViewCell: UITableViewCell {
     private let background = UIView()
@@ -44,7 +44,7 @@ class FungibleTokenViewCell: UITableViewCell {
         let row1 = [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5, alignment: .center)
         let col1 = [
             [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
-            row1
+            row1,
         ].asStackView(axis: .vertical)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class FungibleTokenViewCell: UITableViewCell {
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 20, bottom: 16, right: 12)),
-            background.anchorsConstraint(to: contentView)
+            background.anchorsConstraint(to: contentView),
         ])
     }
 

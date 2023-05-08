@@ -1,11 +1,11 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Combine
-import UIKit
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import UIKit
 
 class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     private let navigationSubject = CurrentValueSubject<ApplicationNavigation, Never>(.onboarding)
@@ -152,7 +152,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
 
     private func setupSplashViewController(on navigationController: UINavigationController) {
         navigationController.viewControllers = [
-            SplashViewController()
+            SplashViewController(),
         ]
         navigationController.setNavigationBarHidden(true, animated: false)
     }
@@ -272,7 +272,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
             title: nil,
             message: R.string.localizable.tokenscriptImportOk(filename),
             preferredStyle: .alert)
-        
+
         controller.popoverPresentationController?.sourceView = presenter.view
         controller.addAction(.init(title: R.string.localizable.oK(), style: .default))
 

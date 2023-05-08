@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SetTransferTokensCardExpiryDateViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController)
@@ -199,10 +199,10 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let expiryDate = linkExpiryDate()
         guard expiryDate > Date() else {
             UIAlertController.alert(
-                    message: R.string.localizable.aWalletTokenTransferLinkExpiryTimeAtLeastNowTitle(),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self)
+                message: R.string.localizable.aWalletTokenTransferLinkExpiryTimeAtLeastNowTitle(),
+                alertButtonTitles: [R.string.localizable.oK()],
+                alertButtonStyles: [.cancel],
+                viewController: self)
             return
         }
 

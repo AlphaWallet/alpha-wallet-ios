@@ -33,7 +33,7 @@ class TransactionSectionHeaderView: UITableViewHeaderFooterView {
             right: 0)
 
         NSLayoutConstraint.activate([
-            titleLabel.anchorsConstraint(to: contentView, edgeInsets: edgeInsets)
+            titleLabel.anchorsConstraint(to: contentView, edgeInsets: edgeInsets),
         ])
     }
 

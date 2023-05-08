@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 protocol SendSemiFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController)
@@ -87,7 +87,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
             targetAddressTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
             amountHeaderView,
             selectTokenCardAmountView,
-            assetsHeaderView
+            assetsHeaderView,
         ] + generateViewsForSelectedTokenHolders(viewModel: viewModel))
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
@@ -118,13 +118,13 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
         continueButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         continueButton.addTarget(self, action: #selector(continueButtonSelected), for: .touchUpInside)
     }
-    
+
     private func generateViewsForSelectedTokenHolders(viewModel: SendSemiFungibleTokenViewModel) -> [UIView] {
         var subviews: [UIView] = []
         for (index, each) in viewModel.tokenHolders.enumerated() {
             subviews += [
                 generateViewFor(tokenHolder: each, index: index),
-                UIView.separator()
+                UIView.separator(),
             ]
         }
 

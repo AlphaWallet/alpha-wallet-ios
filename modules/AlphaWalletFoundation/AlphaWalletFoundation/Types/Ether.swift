@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Ether {
     public let ether: BigInt

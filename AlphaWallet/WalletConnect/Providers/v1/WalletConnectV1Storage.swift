@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.01.2023.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 class WalletConnectV1Storage {
     enum Keys {

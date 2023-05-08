@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol NewTokenViewControllerDelegate: AnyObject {
     func didAddToken(ercToken: ErcToken, in viewController: NewTokenViewController)
@@ -145,7 +145,7 @@ class NewTokenViewController: UIViewController {
             symbolTextField.defaultLayout(),
             decimalsTextFieldLayout,
             balanceTextFieldLayout,
-            nameTextField.defaultLayout()
+            nameTextField.defaultLayout(),
         ])
 
         buttonsBar.buttons[0].isEnabled = true
@@ -161,7 +161,7 @@ class NewTokenViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
     }

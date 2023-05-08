@@ -9,7 +9,7 @@ public protocol UniversalLinkInPasteboardServiceDelegate: AnyObject {
 public class UniversalLinkInPasteboardService {
     public weak var delegate: UniversalLinkInPasteboardServiceDelegate?
 
-    public init() { }
+    public init() {}
     public func start() {
         if UIPasteboard.general.hasURLs {
             guard let url = UIPasteboard.general.url else { return }

@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct ElevateWalletSecurityViewModel {
     let isHdWallet: Bool
@@ -44,7 +44,7 @@ struct ElevateWalletSecurityViewModel {
         attributeString.addAttributes([
             .paragraphStyle: style,
             .font: Screen.Backup.subtitleFont,
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ], range: NSRange(location: 0, length: subtitle.count))
 
         return attributeString
@@ -59,7 +59,7 @@ struct ElevateWalletSecurityViewModel {
         attributeString.addAttributes([
             .paragraphStyle: style,
             .font: descriptionFont,
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ], range: NSRange(location: 0, length: description.count))
 
         return attributeString

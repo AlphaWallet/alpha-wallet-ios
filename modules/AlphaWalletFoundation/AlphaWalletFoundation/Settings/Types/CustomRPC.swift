@@ -11,7 +11,7 @@ public struct CustomRPC: Codable, Hashable {
     public let explorerEndpoint: String?
     public let etherscanCompatibleType: RPCServer.EtherscanCompatibleType
     public let isTestnet: Bool
-    
+
     public static func custom(chainId: Int) -> CustomRPC {
         return .init(chainID: chainId, nativeCryptoTokenName: nil, chainName: "", symbol: nil, rpcEndpoint: "", explorerEndpoint: "", etherscanCompatibleType: .unknown, isTestnet: false)
     }

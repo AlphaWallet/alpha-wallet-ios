@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
-import StatefulViewController
-import Combine
 import AlphaWalletFoundation
+import Combine
+import StatefulViewController
+import UIKit
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
     func controller(_ controller: SelectTokenViewController, didSelectToken token: Token)
@@ -41,7 +41,7 @@ class SelectTokenViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraint(to: view),
         ])
 
         loadingView = LoadingView.tokenSelectionLoadingView()
@@ -92,7 +92,7 @@ class SelectTokenViewController: UIViewController {
                 }
                 navigationItem.title = viewState.title
             }.store(in: &cancellable)
-    } 
+    }
 }
 
 extension SelectTokenViewController: StatefulViewController {

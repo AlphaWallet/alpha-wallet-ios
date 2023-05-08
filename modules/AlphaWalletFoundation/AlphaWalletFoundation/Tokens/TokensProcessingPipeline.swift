@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.07.2022.
 //
 
-import Foundation
 import Combine
 import CombineExt
+import Foundation
 
 public protocol TokensProcessingPipeline {
     var tokenViewModels: AnyPublisher<[TokenViewModel], Never> { get }

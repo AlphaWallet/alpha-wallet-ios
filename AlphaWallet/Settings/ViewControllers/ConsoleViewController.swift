@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
 import StatefulViewController
+import UIKit
 
 protocol ConsoleViewControllerDelegate: AnyObject {
     func didClose(in viewController: ConsoleViewController)
@@ -31,9 +31,9 @@ class ConsoleViewController: UIViewController {
 
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraint(to: view),
         ])
-        
+
         emptyView = EmptyView.consoleEmptyView()
     }
 

@@ -3,12 +3,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
+import AlphaWalletCore
+import AlphaWalletLogger
+import BigInt
+import Combine
 import Foundation
 import SwiftyJSON
-import Combine
-import AlphaWalletCore
-import BigInt
-import AlphaWalletLogger
 
 /// Etherscan and Blockout api networking
 class EtherscanCompatibleApiNetworking: ApiNetworking {
@@ -260,36 +260,36 @@ extension EtherscanCompatibleApiNetworking.functional {
             }
 
             let localizedTokenObj = LocalizedOperation(
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                    type: operationType.rawValue,
-                    value: transactionJson["value"].stringValue,
-                    tokenId: transactionJson["tokenID"].stringValue,
-                    symbol: transactionJson["tokenSymbol"].stringValue,
-                    name: transactionJson["tokenName"].stringValue,
-                    decimals: transactionJson["tokenDecimal"].intValue)
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                type: operationType.rawValue,
+                value: transactionJson["value"].stringValue,
+                tokenId: transactionJson["tokenID"].stringValue,
+                symbol: transactionJson["tokenSymbol"].stringValue,
+                name: transactionJson["tokenName"].stringValue,
+                decimals: transactionJson["tokenDecimal"].intValue)
 
             let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
 
             return Transaction(
-                    id: transactionJson["hash"].stringValue,
-                    server: server,
-                    blockNumber: transactionJson["blockNumber"].intValue,
-                    transactionIndex: transactionJson["transactionIndex"].intValue,
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                    value: "0",
-                    gas: transactionJson["gas"].stringValue,
-                    gasPrice: gasPrice,
-                    gasUsed: transactionJson["gasUsed"].stringValue,
-                    nonce: transactionJson["nonce"].stringValue,
-                    date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                    localizedOperations: [localizedTokenObj],
-                    //The API only returns successful transactions
-                    state: .completed,
-                    isErc20Interaction: true)
+                id: transactionJson["hash"].stringValue,
+                server: server,
+                blockNumber: transactionJson["blockNumber"].intValue,
+                transactionIndex: transactionJson["transactionIndex"].intValue,
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                value: "0",
+                gas: transactionJson["gas"].stringValue,
+                gasPrice: gasPrice,
+                gasUsed: transactionJson["gasUsed"].stringValue,
+                nonce: transactionJson["nonce"].stringValue,
+                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                localizedOperations: [localizedTokenObj],
+                //The API only returns successful transactions
+                state: .completed,
+                isErc20Interaction: true)
         }
         return mergeTransactionOperationsIntoSingleTransaction(transactions)
     }

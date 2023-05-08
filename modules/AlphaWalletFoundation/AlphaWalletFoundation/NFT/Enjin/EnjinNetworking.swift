@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 27.04.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import Apollo
 import Combine
+import Foundation
 
 final class EnjinNetworking {
 
@@ -124,7 +124,7 @@ final class EnjinNetworking {
     }
 }
 
-final private class NetworkInterceptorProvider: InterceptorProvider {
+private final class NetworkInterceptorProvider: InterceptorProvider {
     // These properties will remain the same throughout the life of the `InterceptorProvider`, even though they
     // will be handed to different interceptors.
     private let store: ApolloStore
@@ -150,8 +150,7 @@ final private class NetworkInterceptorProvider: InterceptorProvider {
             ResponseCodeInterceptor(),
             JSONResponseParsingInterceptor(cacheKeyForObject: store.cacheKeyForObject),
             AutomaticPersistedQueryInterceptor(),
-            CacheWriteInterceptor(store: store)
+            CacheWriteInterceptor(store: store),
         ]
     }
 }
-

@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Foundation
 
 public struct AssetAttributeSyntaxValue: Hashable {
     public static func == (lhs: AssetAttributeSyntaxValue, rhs: AssetAttributeSyntaxValue) -> Bool {

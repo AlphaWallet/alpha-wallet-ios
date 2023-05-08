@@ -1,7 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SeedPhraseBackupIntroductionViewControllerDelegate: AnyObject {
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController)
@@ -38,13 +38,13 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             imageView,
             UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel1,
-            ].asStackView(axis: .vertical)
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         view.addSubview(footerBar)
-        
+
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
@@ -53,7 +53,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 

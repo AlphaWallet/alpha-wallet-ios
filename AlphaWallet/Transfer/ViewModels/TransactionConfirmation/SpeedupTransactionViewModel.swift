@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import Foundation
 
 extension TransactionConfirmationViewModel {
     class SpeedupTransactionViewModel: TransactionConfirmationViewModelType {
@@ -78,7 +78,7 @@ extension TransactionConfirmationViewModel {
                 shouldHideChevron: !sections[section].isExpandable)
 
             let headerName = sections[section].title
-            
+
             switch sections[section] {
             case .gas:
                 let gasFee = gasFeeString(for: configurator, rate: etherCurrencyRate.value)

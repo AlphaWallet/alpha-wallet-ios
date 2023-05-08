@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 public enum URLServiceProvider {
     case discord

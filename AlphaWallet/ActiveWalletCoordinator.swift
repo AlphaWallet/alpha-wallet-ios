@@ -1,9 +1,9 @@
-import UIKit
-import PromiseKit
-import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
-import AlphaWalletCore
+import Combine
+import PromiseKit
+import UIKit
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {
@@ -445,7 +445,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
         switch (type, wallet.type) {
         case (.send, .real), (.swap, .real), (.request, _),
-            (_, _) where Config().development.shouldPretendIsRealWallet:
+             (_, _) where Config().development.shouldPretendIsRealWallet:
             let coordinator = PaymentCoordinator(
                 navigationController: navigationController,
                 flow: type,
@@ -658,8 +658,7 @@ extension ActiveWalletCoordinator: CanOpenURL {
     }
 }
 
-extension ActiveWalletCoordinator: TransactionsCoordinatorDelegate {
-}
+extension ActiveWalletCoordinator: TransactionsCoordinatorDelegate {}
 
 extension ActiveWalletCoordinator: ConsoleCoordinatorDelegate {
     func didCancel(in coordinator: ConsoleCoordinator) {
@@ -715,7 +714,7 @@ extension ActiveWalletCoordinator {
 
         showPaymentFlow(for: type, server: server, navigationController: presentationNavigationController)
     }
-    
+
     func openUrlInBrowser(url: URL, animated: Bool = true) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         showTab(.browser)
@@ -1208,8 +1207,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     }
 }
 
-extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {
-}
+extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {}
 
 extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
 

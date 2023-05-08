@@ -1,8 +1,8 @@
 // Copyright Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import ObjectiveC
-import Combine
 
 public struct Config {
     public struct Development {
@@ -145,7 +145,7 @@ public struct Config {
         return dictionary["\(server.chainID)"]?.intValue
     }
 
-    public struct Keys {
+    public enum Keys {
         static let chainID = "chainID"
         static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"
         static let currency = "currencyID"

@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 09.11.2021.
 //
 
-import Foundation
-import WalletConnectSwift
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Foundation
+import WalletConnectSwift
 
 struct WalletConnectRequestDecoder {
 

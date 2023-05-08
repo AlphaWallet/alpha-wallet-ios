@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.11.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
 protocol SupportCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: SupportCoordinator)

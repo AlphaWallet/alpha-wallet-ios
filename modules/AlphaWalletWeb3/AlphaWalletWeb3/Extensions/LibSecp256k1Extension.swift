@@ -1,20 +1,20 @@
+import BigInt
 import Foundation
 import secp256k1_ios
-import BigInt
 
-public struct SECP256K1 {
+public enum SECP256K1 {
     public struct UnmarshaledSignature {
         var v: UInt8
         var r = [UInt8](repeating: 0, count: 32)
         var s = [UInt8](repeating: 0, count: 32)
     }
 
-    static var secp256k1_N  = BigUInt("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", radix: 16)!
+    static var secp256k1_N = BigUInt("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", radix: 16)!
     static var secp256k1_halfN = secp256k1_N >> 2
 }
 
 extension SECP256K1 {
-    static var context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN|SECP256K1_CONTEXT_VERIFY))
+    static var context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
 
     static func signForRecovery(hash: Data, privateKey: Data, useExtraEntropy: Bool = true) -> (serializedSignature: Data?, rawSignature: Data?) {
         if hash.count != 32 || privateKey.count != 32 { return (nil, nil) }
@@ -34,7 +34,7 @@ extension SECP256K1 {
             guard let serializedSignature = SECP256K1.serializeSignature(recoverableSignature: &recoverableSignature) else { continue }
             let rawSignature = Data(toByteArray(recoverableSignature))
             return (serializedSignature, rawSignature)
-                //            print("Signature required \(rounds) rounds")
+            //            print("Signature required \(rounds) rounds")
         }
         print("Signature required 1024 rounds and failed")
         return (nil, nil)
@@ -56,26 +56,26 @@ extension SECP256K1 {
             arrayOfPointers.deinitialize(count: numToCombine)
             arrayOfPointers.deallocate()
         }
-        for i in 0 ..< numToCombine {
+        for i in 0..<numToCombine {
             let key = keys[i]
             guard let pubkey = SECP256K1.parsePublicKey(serializedKey: key) else { return nil }
             storage.append(pubkey)
         }
-        for i in 0 ..< numToCombine {
-            withUnsafePointer(to: &storage[i]) { (ptr) -> Void in
+        for i in 0..<numToCombine {
+            withUnsafePointer(to: &storage[i]) { (ptr) in
                 arrayOfPointers.advanced(by: i).pointee = ptr
             }
         }
         let immutablePointer = UnsafePointer(arrayOfPointers)
         var publicKey: secp256k1_pubkey = secp256k1_pubkey()
 
-            //        let bufferPointer = UnsafeBufferPointer(start: immutablePointer, count: numToCombine)
-            //        for (index, value) in bufferPointer.enumerated() {
-            //            print("pointer value \(index): \(value!)")
-            //            let val = value?.pointee
-            //            print("value \(index): \(val!)")
-            //        }
-            //
+        //        let bufferPointer = UnsafeBufferPointer(start: immutablePointer, count: numToCombine)
+        //        for (index, value) in bufferPointer.enumerated() {
+        //            print("pointer value \(index): \(value!)")
+        //            let val = value?.pointee
+        //            print("value \(index): \(val!)")
+        //        }
+        //
         let result = withUnsafeMutablePointer(to: &publicKey) { (pubKeyPtr: UnsafeMutablePointer<secp256k1_pubkey>) -> Int32 in
             let res = secp256k1_ec_pubkey_combine(context!, pubKeyPtr, immutablePointer, numToCombine)
             return res

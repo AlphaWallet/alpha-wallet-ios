@@ -97,7 +97,7 @@ extension ChartHistory {
 
     init(json: JSON, currency: Currency) throws {
         guard json["prices"].null == nil else { throw DecodingError.jsonDecodeFailure }
-        
+
         self.currency = currency
         self.prices = json["prices"].arrayValue.map { json -> HistoryValue in
             let timestamp = json.arrayValue[0].numberValue.doubleValue / 1000.0

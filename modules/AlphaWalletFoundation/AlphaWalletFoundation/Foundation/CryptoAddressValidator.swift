@@ -12,7 +12,7 @@ public enum AddressValidatorType {
     }
 }
 
-public struct CryptoAddressValidator {
+public enum CryptoAddressValidator {
     //TODO do we still need this?
     public static func isValidAddress(_ value: String?, type: AddressValidatorType = .ethereum) -> Bool {
         guard value?.count == type.addressLength else {

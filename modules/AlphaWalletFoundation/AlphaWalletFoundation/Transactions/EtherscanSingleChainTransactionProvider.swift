@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
+import AlphaWalletCore
 import BigInt
 import Combine
-import AlphaWalletCore
+import Foundation
 
 class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
@@ -204,7 +204,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     //This inner class reaches into the internals of its outer coordinator class to call some methods. It exists so we can wrap operations into an Operation class and feed it into a queue, so we don't put much logic into it
     //TODO: get rid of operations, use publishers
     class FetchLatestTransactionsOperation: Operation {
-        weak private var provider: EtherscanSingleChainTransactionProvider?
+        private weak var provider: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: GetTransactions.SortOrder
         private var cancellable: AnyCancellable?

@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct GenerateTransferMagicLinkViewModel {
     private let magicLinkData: MagicLinkGenerator.MagicLinkData
@@ -96,7 +96,7 @@ struct GenerateTransferMagicLinkViewModel {
             keystore: keystore,
             session: session,
             prompt: R.string.localizable.keystoreAccessKeySign()).generateTransferLink(
-                magicLinkData: magicLinkData,
-                linkExpiryDate: linkExpiryDate)
+            magicLinkData: magicLinkData,
+            linkExpiryDate: linkExpiryDate)
     }
 }

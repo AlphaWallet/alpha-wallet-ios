@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 09.05.2022.
 //
 
-import Foundation
+import AlphaWalletENS
 import AlphaWalletLogger
 import AlphaWalletOpenSea
-import AlphaWalletENS
+import Foundation
 
 public class ConfigureApp: Initializer {
     public init() {}

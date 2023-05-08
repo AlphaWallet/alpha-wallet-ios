@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 22.02.2023.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct WebImageViewModelInput {
     let loadUrl: AnyPublisher<WebImageViewModel.SetContentEvent, Never>
@@ -68,13 +68,13 @@ class WebImageViewModel {
             case .loading, .noContent: return false
             }
         }.flatMap { [avPlayerViewModel] _ in avPlayerViewModel.viewState }
-        .compactMap { viewState -> Bool? in
-            switch viewState {
-            case .loading: return nil
-            case .done(let mediaType): return mediaType == .video //NOTE: hide placeholder only when failure or loaded content type is video, skip when loading
-            case .failure: return false
-            }
-        }.eraseToAnyPublisher()
+            .compactMap { viewState -> Bool? in
+                switch viewState {
+                case .loading: return nil
+                case .done(let mediaType): return mediaType == .video //NOTE: hide placeholder only when failure or loaded content type is video, skip when loading
+                case .failure: return false
+                }
+            }.eraseToAnyPublisher()
 
         let loadingViewAlpha = input.viewLoading
             .map { $0 == .enabled ? CGFloat(1) : CGFloat(0) }

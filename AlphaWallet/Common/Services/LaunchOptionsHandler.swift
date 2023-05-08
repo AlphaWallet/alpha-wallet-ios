@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 26.04.2023.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 public protocol LaunchOptionsHandler {
     func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool

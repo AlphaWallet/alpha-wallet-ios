@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 04.04.2022.
 //
 
-import Foundation
+import AlphaWalletCore
 import Combine
 import CombineExt
-import AlphaWalletCore
+import Foundation
 
 final class PendingTransactionSchedulerProvider: SchedulerProvider {
     private let fetchPendingTransactionsQueue: OperationQueue
@@ -41,12 +41,12 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
                 //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
-                guard let tx = pendingTransaction, let blockNumber = Int(tx.blockNumber), blockNumber > 0  else { return }
+                guard let tx = pendingTransaction, let blockNumber = Int(tx.blockNumber), blockNumber > 0 else { return }
 
                 self?.handle(response: .success(tx))
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let error) = result else { return }
-                
+
                 self?.handle(response: .failure(error))
             })
             .mapToVoid()

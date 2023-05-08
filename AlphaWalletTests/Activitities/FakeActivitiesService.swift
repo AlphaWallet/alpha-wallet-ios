@@ -1,12 +1,12 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
 
 class FakeActivitiesService: ActivitiesServiceType {
     let sessionsProvider: SessionsProvider = FakeSessionsProvider(servers: [.main])
-    
+
     var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> {
         Just([])
             .eraseToAnyPublisher()

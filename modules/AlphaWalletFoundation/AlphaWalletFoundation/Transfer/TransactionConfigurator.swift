@@ -1,10 +1,10 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public class TransactionConfigurator {
     private let tokensService: TokensProcessingPipeline

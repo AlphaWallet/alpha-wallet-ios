@@ -1,21 +1,21 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class AccountViewCell: UITableViewCell {
     private let addressOrEnsName = UILabel()
     private let apprecation24hourLabel = UILabel()
     private let balanceLabel = UILabel()
     private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
-    lazy private var selectedIndicator: UIView = {
+    private lazy var selectedIndicator: UIView = {
         let indicator = UIView()
         indicator.layer.cornerRadius = DataEntry.Metric.SelectionIndicator.width / 2.0
         indicator.borderWidth = 0.0
         indicator.backgroundColor = Configuration.Color.Semantic.indicator
         NSLayoutConstraint.activate([
             indicator.widthAnchor.constraint(equalToConstant: DataEntry.Metric.SelectionIndicator.width),
-            indicator.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SelectionIndicator.height)
+            indicator.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SelectionIndicator.height),
         ])
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.isHidden = true
@@ -32,7 +32,7 @@ class AccountViewCell: UITableViewCell {
 
         let leftStackView = [
             [balanceLabel, apprecation24hourLabel].asStackView(spacing: 10),
-            addressOrEnsName
+            addressOrEnsName,
         ].asStackView(axis: .vertical)
 
         let stackView = [blockieImageView, leftStackView, .spacerWidth(10)].asStackView(spacing: 12, alignment: .top)
@@ -47,7 +47,7 @@ class AccountViewCell: UITableViewCell {
             stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -25),
             selectedIndicator.centerYAnchor.constraint(equalTo: centerYAnchor),
-            selectedIndicator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: DataEntry.Metric.SelectionIndicator.leadingOffset)
+            selectedIndicator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: DataEntry.Metric.SelectionIndicator.leadingOffset),
         ])
     }
 

@@ -1,12 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 struct MyDappCellViewModel: Hashable {
     let bookmark: BookmarkObject
-    
+
     var imageUrl: URL? {
         Favicon.get(for: bookmark.url)
     }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 15.11.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct Erc875NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder

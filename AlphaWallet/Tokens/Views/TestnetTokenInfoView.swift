@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 20.12.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct TestnetTokenInfoViewModel {
     var attributedText: NSAttributedString {
@@ -17,7 +17,7 @@ struct TestnetTokenInfoViewModel {
         return .init(string: R.string.localizable.tokenTestnetWarning(), attributes: [
             .font: Fonts.regular(size: 17),
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .paragraphStyle: style
+            .paragraphStyle: style,
         ])
     }
 }
@@ -37,7 +37,7 @@ class TestnetTokenInfoView: UIView {
         addSubview(textLabel)
         translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            textLabel.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            textLabel.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
     }
 

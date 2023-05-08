@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.08.2020.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     public var objectWillChange: AnyPublisher<Void, Never> {
@@ -33,7 +33,7 @@ public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         components.path = method.rawValue
         components.queryItems = [
             URLQueryItem(name: Version.key, value: version.rawValue),
-            URLQueryItem(name: Uniswap.Theme.key, value: theme.rawValue)
+            URLQueryItem(name: Uniswap.Theme.key, value: theme.rawValue),
         ] + input.urlQueryItems
 
         //NOTE: URLComponents doesn't allow path to contain # symbol
@@ -73,7 +73,7 @@ public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
                 ]
             case .input(let address):
                 return [
-                    .init(name: Keys.input, value: functional.rewriteContractInput(address))
+                    .init(name: Keys.input, value: functional.rewriteContractInput(address)),
                 ]
             case .none:
                 return []
@@ -98,7 +98,7 @@ public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     public func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [
-            .init(type: .swap(service: self))
+            .init(type: .swap(service: self)),
         ]
     }
 

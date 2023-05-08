@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 21.09.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
 import StatefulViewController
+import UIKit
 
 final class SelectSwapToolViewController: UIViewController {
     private let viewModel: SelectSwapToolViewModel
@@ -34,7 +34,7 @@ final class SelectSwapToolViewController: UIViewController {
 
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            tableView.anchorsIgnoringBottomSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
 
         emptyView = EmptyView.swapToolsEmptyView()

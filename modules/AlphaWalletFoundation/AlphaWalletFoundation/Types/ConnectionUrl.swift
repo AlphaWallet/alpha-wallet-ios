@@ -86,10 +86,10 @@ public struct WalletConnectV1URL: Hashable, Codable {
         }
         let urlStr = !str.hasPrefix("wc://") ? str.replacingOccurrences(of: "wc:", with: "wc://") : str
         guard let url = URL(string: urlStr),
-            let topic = url.user,
-            let version = url.host,
-            let components = NSURLComponents(url: url, resolvingAgainstBaseURL: false) else {
-                return nil
+              let topic = url.user,
+              let version = url.host,
+              let components = NSURLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return nil
         }
         var dict = [String: String]()
         for query in components.queryItems ?? [] {
@@ -98,9 +98,9 @@ public struct WalletConnectV1URL: Hashable, Codable {
             }
         }
         guard let bridge = dict["bridge"],
-            let bridgeUrl = URL(string: bridge),
-            let key = dict["key"] else {
-                return nil
+              let bridgeUrl = URL(string: bridge),
+              let key = dict["key"] else {
+            return nil
         }
         self.topic = topic
         self.version = version
@@ -141,8 +141,7 @@ public struct WalletConnectV2URI: Equatable {
         guard let topic = components.user,
               let version = components.host,
               let symKey = query?["symKey"],
-              let relayProtocol = query?["relay-protocol"]
-        else { return nil }
+              let relayProtocol = query?["relay-protocol"] else { return nil }
         let relayData = query?["relay-data"]
         self.version = version
         self.topic = topic

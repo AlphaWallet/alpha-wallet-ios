@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 4/1/22.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 class AddMultipleCustomRpcModel: NSObject {
 
@@ -19,5 +19,5 @@ class AddMultipleCustomRpcModel: NSObject {
         self.remainingCustomRpc = remainingCustomRpc
         super.init()
     }
-    
+
 }

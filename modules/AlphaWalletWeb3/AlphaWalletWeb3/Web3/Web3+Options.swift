@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol Web3OptionsInheritable {
     var options: Web3Options { get }
@@ -21,8 +21,7 @@ public struct Web3Options {
     public var value: BigUInt?
     public var excludeZeroGasPrice: Bool = false
 
-    public init() {
-    }
+    public init() {}
 
     public static func defaultOptions() -> Web3Options {
         var options = Web3Options()

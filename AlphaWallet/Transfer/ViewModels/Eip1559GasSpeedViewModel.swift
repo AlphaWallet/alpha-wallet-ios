@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.08.2022.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Foundation
 
 struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
     let gasSpeed: GasSpeed
@@ -36,7 +36,7 @@ struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
     var titleAttributedString: NSAttributedString? {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17)
+            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17),
         ])
     }
 
@@ -45,7 +45,7 @@ struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
 
         return NSAttributedString(string: estimatedTime, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ])
     }
 
@@ -62,7 +62,7 @@ struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
                 double: fee.doubleValue * rate.value,
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 6)
-            
+
             string = "< ~\(feeString) \(symbol) (\(amountInFiat))"
         } else {
             string = "< ~\(feeString) \(symbol)"
@@ -70,7 +70,7 @@ struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
 
         return NSAttributedString(string: string, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 15)
+            .font: Fonts.regular(size: 15),
         ])
     }
 
@@ -94,14 +94,14 @@ struct Eip1559GasSpeedViewModel: GasSpeedViewModelType {
     private func value(value: String) -> NSAttributedString {
         NSAttributedString(string: value, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 13),
         ])
     }
 
     private func propertyName(placeholder: String) -> NSAttributedString {
         return NSAttributedString(string: placeholder, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-            .font: isSelected ? Fonts.semibold(size: 13) : Fonts.regular(size: 13)
+            .font: isSelected ? Fonts.semibold(size: 13) : Fonts.regular(size: 13),
         ])
     }
 }

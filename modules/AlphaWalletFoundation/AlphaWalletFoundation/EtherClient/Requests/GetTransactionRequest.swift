@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletLogger
 import Foundation
 import JSONRPCKit
-import AlphaWalletLogger
 
 struct GetTransactionRequest: JSONRPCKit.Request {
     typealias Response = EthereumTransaction?
@@ -25,7 +25,7 @@ struct GetTransactionRequest: JSONRPCKit.Request {
         guard let dict = resultObject as? [String: AnyObject] else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)
         }
-        
+
         return EthereumTransaction(dictionary: dict)
     }
 }

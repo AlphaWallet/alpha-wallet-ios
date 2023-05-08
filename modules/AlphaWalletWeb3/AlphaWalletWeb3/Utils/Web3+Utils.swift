@@ -6,12 +6,12 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
 import CryptoSwift
+import Foundation
 
 extension Web3 {
-    public struct Utils { }
+    public struct Utils {}
 }
 
 extension Web3.Utils {
@@ -104,7 +104,7 @@ extension Web3.Utils {
         prefix += String(personalMessage.count)
         guard let prefixData = prefix.data(using: .ascii) else { return nil }
         var data = Data()
-        if personalMessage.count >= prefixData.count && prefixData == personalMessage[0 ..< prefixData.count] {
+        if personalMessage.count >= prefixData.count && prefixData == personalMessage[0..<prefixData.count] {
             data.append(personalMessage)
         } else {
             data.append(prefixData)
@@ -125,12 +125,12 @@ extension Web3.Utils {
         guard components.count == 1 || components.count == 2 else { return nil }
         let unitDecimals = decimals
         guard let beforeDecPoint = BigUInt(components[0], radix: 10) else { return nil }
-        var mainPart = beforeDecPoint*BigUInt(10).power(unitDecimals)
+        var mainPart = beforeDecPoint * BigUInt(10).power(unitDecimals)
         if components.count == 2 {
             let numDigits = components[1].count
             guard numDigits <= unitDecimals else { return nil }
             guard let afterDecPoint = BigUInt(components[1], radix: 10) else { return nil }
-            let extraPart = afterDecPoint*BigUInt(10).power(unitDecimals-numDigits)
+            let extraPart = afterDecPoint * BigUInt(10).power(unitDecimals - numDigits)
             mainPart += extraPart
         }
         return mainPart
@@ -175,7 +175,7 @@ extension Web3.Utils {
         let (quotient, remainder) = bigNumber.quotientAndRemainder(dividingBy: divisor)
         let fullRemainder = String(remainder)
         let fullPaddedRemainder = fullRemainder.leftPadding(toLength: unitDecimals, withPad: "0")
-        let remainderPadded = fullPaddedRemainder[0 ..< toDecimals]
+        let remainderPadded = fullPaddedRemainder[0..<toDecimals]
         if remainderPadded == String(repeating: "0", count: toDecimals) {
             if quotient != 0 {
                 return String(quotient)
@@ -198,23 +198,23 @@ extension Web3.Utils {
         return String(quotient) + decimalSeparator + remainderPadded
     }
 
-    static public func personalECRecover(_ personalMessage: String, signature: String) -> EthereumAddress? {
+    public static func personalECRecover(_ personalMessage: String, signature: String) -> EthereumAddress? {
         guard let data = Data.fromHex(personalMessage) else { return nil }
         guard let sig = Data.fromHex(signature) else { return nil }
         return Web3.Utils.personalECRecover(data, signature: sig)
     }
 
-    static public func personalECRecoverPublicKey(message: Data, r: [UInt8], s: [UInt8], v: UInt8) -> Data? {
+    public static func personalECRecoverPublicKey(message: Data, r: [UInt8], s: [UInt8], v: UInt8) -> Data? {
         guard let signatureData = SECP256K1.marshalSignature(v: v, r: r, s: s) else { return nil }
         guard let hash = Web3.Utils.hashPersonalMessage(message) else { return nil }
 
         return SECP256K1.recoverPublicKey(hash: hash, signature: signatureData)
     }
 
-    static public func personalECRecover(_ personalMessage: Data, signature: Data) -> EthereumAddress? {
+    public static func personalECRecover(_ personalMessage: Data, signature: Data) -> EthereumAddress? {
         if signature.count != 65 { return nil }
-        let rData = signature[0 ..< 32].bytes
-        let sData = signature[32 ..< 64].bytes
+        let rData = signature[0..<32].bytes
+        let sData = signature[32..<64].bytes
         let vData = signature[64]
         guard let signatureData = SECP256K1.marshalSignature(v: vData, r: rData, s: sData) else { return nil }
         guard let hash = Web3.Utils.hashPersonalMessage(personalMessage) else { return nil }
@@ -222,10 +222,10 @@ extension Web3.Utils {
         return Web3.Utils.publicToAddress(publicKey)
     }
 
-    static public func hashECRecover(hash: Data, signature: Data) -> EthereumAddress? {
+    public static func hashECRecover(hash: Data, signature: Data) -> EthereumAddress? {
         if signature.count != 65 { return nil }
-        let rData = signature[0 ..< 32].bytes
-        let sData = signature[32 ..< 64].bytes
+        let rData = signature[0..<32].bytes
+        let sData = signature[32..<64].bytes
         let vData = signature[64]
         guard let signatureData = SECP256K1.marshalSignature(v: vData, r: rData, s: sData) else { return nil }
         guard let publicKey = SECP256K1.recoverPublicKey(hash: hash, signature: signatureData) else { return nil }
@@ -233,19 +233,19 @@ extension Web3.Utils {
     }
 
     /// returns Ethereum variant of sha3 (keccak256) of data. Returns nil is data is empty
-    static public func keccak256(_ data: Data) -> Data? {
+    public static func keccak256(_ data: Data) -> Data? {
         if data.isEmpty { return nil }
         return data.sha3(.keccak256)
     }
 
     /// returns Ethereum variant of sha3 (keccak256) of data. Returns nil is data is empty
-    static public func sha3(_ data: Data) -> Data? {
+    public static func sha3(_ data: Data) -> Data? {
         if data.isEmpty { return nil }
         return data.sha3(.keccak256)
     }
 
     /// returns sha256 of data. Returns nil is data is empty
-    static public func sha256(_ data: Data) -> Data? {
+    public static func sha256(_ data: Data) -> Data? {
         if data.isEmpty { return nil }
         return data.sha256()
     }

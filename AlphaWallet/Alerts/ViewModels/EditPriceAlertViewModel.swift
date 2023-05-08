@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct EditPriceAlertViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -32,7 +32,7 @@ final class EditPriceAlertViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let currencyService: CurrencyService
 
-    var title: String { configuration.title } 
+    var title: String { configuration.title }
     let token: Token
 
     init(configuration: EditPriceAlertViewModel.Configuration, token: Token, tokensService: TokensProcessingPipeline, alertService: PriceAlertServiceType, currencyService: CurrencyService) {

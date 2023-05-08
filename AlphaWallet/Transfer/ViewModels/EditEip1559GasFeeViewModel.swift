@@ -5,13 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.04.2023.
 //
 
-import Combine
 import AlphaWalletFoundation
 import BigInt
+import Combine
 
-struct EditEip1559GasFeeViewModelInput {
-
-}
+struct EditEip1559GasFeeViewModelInput {}
 
 struct EditEip1559GasFeeViewModelOuput {
     let maxFeeHeader: AnyPublisher<String, Never>

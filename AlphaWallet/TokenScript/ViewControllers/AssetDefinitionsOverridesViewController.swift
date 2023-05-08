@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
-import StatefulViewController
 import Combine
+import StatefulViewController
+import UIKit
 
 protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
     func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController)
@@ -33,7 +33,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
 
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraint(to: view),
         ])
 
         emptyView = EmptyView.tokenscriptOverridesEmptyView()

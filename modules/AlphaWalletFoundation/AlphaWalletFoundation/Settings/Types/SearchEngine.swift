@@ -8,7 +8,7 @@ public enum SearchEngine: Int {
 
     public static var `default`: SearchEngine {
         .duckDuckGo
-    } 
+    }
 
     public var host: String {
         switch self {

@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 14.08.2020.
 //
 
-import UIKit
-import BigInt
-import PromiseKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import BigInt
 import Combine
+import PromiseKit
+import UIKit
 
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
@@ -30,7 +30,7 @@ class TransactionConfirmationCoordinator: Coordinator {
 
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
-        
+
         return controller
     }()
     private lazy var hostViewController: FloatingPanelController = {

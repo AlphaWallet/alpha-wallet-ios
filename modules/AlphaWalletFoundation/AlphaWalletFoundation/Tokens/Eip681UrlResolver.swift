@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 // TODO: prepare tests for Eip681UrlResolver
 public final class Eip681UrlResolver {
@@ -213,7 +213,7 @@ public class DecimalParser {
         return formatter
     }()
 
-    public init() { }
+    public init() {}
 
     public func parseAnyDecimal(from string: String?) -> Decimal? {
         if let string = string {
@@ -227,8 +227,8 @@ public class DecimalParser {
                 if let decimal = Decimal(string: string, locale: .en_US) {
                     return decimal
                 }
-             }
-         }
+            }
+        }
         return nil
     }
 

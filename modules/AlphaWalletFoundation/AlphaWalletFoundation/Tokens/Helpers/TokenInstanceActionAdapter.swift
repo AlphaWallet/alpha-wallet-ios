@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 01.03.2023.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletLogger
+import BigInt
+import Foundation
 
 public struct TokenInstanceActionAdapter {
     private let session: WalletSession
@@ -43,7 +43,7 @@ public struct TokenInstanceActionAdapter {
                 case .erc875, .erc721ForTickets:
                     results = [
                         .init(type: .nftSell),
-                        .init(type: .nonFungibleTransfer)
+                        .init(type: .nonFungibleTransfer),
                     ]
                 case .nativeCryptocurrency, .erc20:
                     results = []
@@ -65,7 +65,7 @@ public struct TokenInstanceActionAdapter {
                 case .erc20, .nativeCryptocurrency:
                     let actions: [TokenInstanceAction] = [
                         .init(type: .erc20Send),
-                        .init(type: .erc20Receive)
+                        .init(type: .erc20Receive),
                     ]
 
                     return actions + tokenActionsProvider.actions(token: token)
@@ -84,7 +84,7 @@ public struct TokenInstanceActionAdapter {
                         //TODO .erc20Send and .erc20Receive names aren't appropriate
                         let actions: [TokenInstanceAction] = [
                             .init(type: .erc20Send),
-                            .init(type: .erc20Receive)
+                            .init(type: .erc20Receive),
                         ]
 
                         return actions + tokenActionsProvider.actions(token: token)

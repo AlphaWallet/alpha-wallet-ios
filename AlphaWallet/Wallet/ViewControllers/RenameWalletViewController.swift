@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.03.2021.
 //
 
-import UIKit
-import Combine
 import AlphaWalletAddress
+import Combine
+import UIKit
 
 protocol RenameWalletViewControllerDelegate: AnyObject {
     func didFinish(in viewController: RenameWalletViewController)
@@ -23,7 +23,7 @@ class RenameWalletViewController: UIViewController {
         textField.inputAccessoryButtonType = .done
         textField.label.text = R.string.localizable.walletRenameEnterNameTitle()
         textField.placeholder = "Wallet Name"
-        
+
         return textField
     }()
     private let buttonsBar: HorizontalButtonsBar = {
@@ -53,7 +53,7 @@ class RenameWalletViewController: UIViewController {
             nameTextFieldLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             nameTextFieldLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 
@@ -62,7 +62,7 @@ class RenameWalletViewController: UIViewController {
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         buttonsBar.buttons[0].setTitle(R.string.localizable.walletRenameSave(), for: .normal)
-        
+
         bind(viewModel: viewModel)
     }
 

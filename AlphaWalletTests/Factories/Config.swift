@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 extension Config {
     static func make(defaults: UserDefaults = .test, enabledServers: [RPCServer] = [.main]) -> Config {

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 31.08.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 struct DappRequesterViewModel: RequesterViewModel {
     let requester: Requester
@@ -16,7 +16,7 @@ struct DappRequesterViewModel: RequesterViewModel {
 
         var dappNameHeader: String { R.string.localizable.walletConnectDappName() }
         viewModels += [
-            .header(.init(title: .normal(requester.shortName), headerName: dappNameHeader, viewState: .init(section: 0)))
+            .header(.init(title: .normal(requester.shortName), headerName: dappNameHeader, viewState: .init(section: 0))),
         ]
 
         if let dappUrl = requester.url {
@@ -29,7 +29,7 @@ struct DappRequesterViewModel: RequesterViewModel {
         if let server = requester.server {
             var dappServerHeader: String { R.string.localizable.settingsNetworkButtonTitle() }
             viewModels += [
-                .header(.init(title: .normal(server.name), headerName: dappServerHeader, viewState: .init(section: 0)))
+                .header(.init(title: .normal(server.name), headerName: dappServerHeader, viewState: .init(section: 0))),
             ]
         }
 

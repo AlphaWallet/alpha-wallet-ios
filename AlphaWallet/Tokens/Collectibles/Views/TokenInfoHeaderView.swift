@@ -17,7 +17,7 @@ struct TokenInfoHeaderViewModel {
     var attributedTitle: NSAttributedString {
         return .init(string: title, attributes: [
             .font: Fonts.bold(size: 24),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 }
@@ -38,7 +38,7 @@ class TokenInfoHeaderView: UIView {
         addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            label.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
     }
 

@@ -37,9 +37,9 @@ class VerticalButtonsBar: UIView, ButtonsBarViewType {
     private let spacing: CGFloat = 16.0
     private var buttonCount: Int = 0
     private var observation: NSKeyValueObservation?
-    
+
     // MARK: Public
-    @objc dynamic private (set) var buttons: [BarButton] = []
+    @objc private (set) dynamic var buttons: [BarButton] = []
 
     // MARK: - Init
 
@@ -84,7 +84,7 @@ class VerticalButtonsBar: UIView, ButtonsBarViewType {
         primaryButton.childView.borderWidth = 0
         buttonViews.append(primaryButton)
         if numberOfButtons > 1 {
-            (1 ..< numberOfButtons).forEach { _ in
+            (1..<numberOfButtons).forEach { _ in
                 buttonViews.append(createButton(viewModel: .secondaryButton))
             }
         }
@@ -92,7 +92,7 @@ class VerticalButtonsBar: UIView, ButtonsBarViewType {
         setupButtons(views: buttonViews)
         setupView(numberOfButtons: numberOfButtons)
     }
-    
+
     private func setupStackView(views: [UIView]) {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.removeAllArrangedSubviews()

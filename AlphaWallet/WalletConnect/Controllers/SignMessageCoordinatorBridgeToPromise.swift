@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.10.2020.
 //
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 private class SignMessageCoordinatorBridgeToPromise {
     private let analytics: AnalyticsLogger

@@ -1,5 +1,5 @@
-import Foundation
 import BigInt
+import Foundation
 
 public enum FungibleAmount {
 
@@ -7,7 +7,7 @@ public enum FungibleAmount {
         case fiat(value: Double, currency: Currency)
         case crypto(value: Double)
     }
-    
+
     case amount(Double)
     case allFunds
     case notSet
@@ -166,7 +166,7 @@ extension TransactionType {
         case .erc1155Token(let token, _):
             return token.server
         case .prebuilt(let server):
-             return server
+            return server
         }
     }
 
@@ -259,7 +259,7 @@ extension TransactionType {
         if tokenIdsAndValues.count == 1 {
             data = (try? Erc1155SafeTransferFrom(recipient: recipient, account: account, tokenIdAndValue: tokenIdsAndValues[0]).encodedABI()) ?? Data()
         } else {
-            data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: account, tokenIdsAndValues: tokenIdsAndValues).encodedABI())  ?? Data()
+            data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: account, tokenIdsAndValues: tokenIdsAndValues).encodedABI()) ?? Data()
         }
 
         return UnconfirmedTransaction(transactionType: self, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol ShowSeedPhraseIntroductionViewControllerDelegate: AnyObject {
     func didShowSeedPhrase(in viewController: ShowSeedPhraseIntroductionViewController)
@@ -65,7 +65,7 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
             container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             container.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
     }
 

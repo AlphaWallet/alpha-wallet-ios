@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 12.05.2021.
 //
 
-import UIKit
-import StatefulViewController
 import AlphaWalletFoundation
+import StatefulViewController
+import UIKit
 
 struct ActivityPageViewModel {
     var title: String {
@@ -34,7 +34,7 @@ class ActivitiesPageView: UIView, PageViewType {
     var viewModel: ActivityPageViewModel
     weak var delegate: ActivitiesPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
-    
+
     init(analytics: AnalyticsLogger,
          keystore: Keystore,
          wallet: Wallet,
@@ -77,7 +77,7 @@ class ActivitiesPageView: UIView, PageViewType {
         activitiesView.applySearch(keyword: nil)
 
         activitiesView.endLoading()
-    } 
+    }
 }
 
 extension ActivitiesPageView: ActivitiesViewDelegate {

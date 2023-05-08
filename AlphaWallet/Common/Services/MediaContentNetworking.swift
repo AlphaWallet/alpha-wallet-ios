@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.02.2023.
 //
 
-import Foundation
 import Alamofire
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 protocol MediaContentNetworking {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>

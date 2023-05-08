@@ -193,7 +193,7 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
             }
         }
     }
-    
+
     public let nativeCurrency: NativeCurrency?
     public var blockExplorerUrls: [ExplorerUrl]?
     public let chainName: String?

@@ -9,8 +9,8 @@
 //  https://github.com/danielgindi/Charts
 //
 
-import Foundation
 import Charts
+import Foundation
 
 #if canImport(UIKit)
     import UIKit
@@ -23,24 +23,24 @@ open class BalloonMarker: MarkerImage {
     @objc open var textColor: UIColor
     @objc open var insets: UIEdgeInsets
     @objc open var minimumSize = CGSize()
-    
+
     fileprivate var label: String?
     fileprivate var _labelSize: CGSize = CGSize()
     fileprivate var _paragraphStyle: NSMutableParagraphStyle?
     fileprivate var _drawAttributes: [NSAttributedString.Key: Any] = [:]
-    
+
     @objc public init(color: UIColor, font: UIFont, textColor: UIColor, insets: UIEdgeInsets) {
         self.color = color
         self.font = font
         self.textColor = textColor
         self.insets = insets
-        
+
         _paragraphStyle = NSParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle
         _paragraphStyle?.alignment = .center
         super.init()
     }
-    
-    open override func offsetForDrawing(atPoint point: CGPoint) -> CGPoint {
+
+    override open func offsetForDrawing(atPoint point: CGPoint) -> CGPoint {
         var offset = self.offset
         var size = self.size
 
@@ -73,17 +73,17 @@ open class BalloonMarker: MarkerImage {
 
         return offset
     }
-    
-    open override func draw(context: CGContext, point: CGPoint) {
+
+    override open func draw(context: CGContext, point: CGPoint) {
         guard let label = label else { return }
-        
+
         let offset = self.offsetForDrawing(atPoint: point)
         let size = self.size
-        
+
         var rect = CGRect(origin: CGPoint(x: point.x + offset.x, y: point.y + offset.y), size: size)
         rect.origin.x -= size.width / 2.0
         rect.origin.y -= size.height
-        
+
         context.saveGState()
 
         context.setFillColor(color.cgColor)
@@ -145,7 +145,7 @@ open class BalloonMarker: MarkerImage {
                 y: rect.origin.y))
             context.fillPath()
         }
-        
+
         if offset.y > 0 {
             rect.origin.y += self.insets.top + arrowSize.height
         } else {
@@ -153,30 +153,30 @@ open class BalloonMarker: MarkerImage {
         }
 
         rect.size.height -= self.insets.top + self.insets.bottom
-        
+
         UIGraphicsPushContext(context)
-        
+
         label.draw(in: rect, withAttributes: _drawAttributes)
-        
+
         UIGraphicsPopContext()
-        
+
         context.restoreGState()
     }
-    
-    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight) {
+
+    override open func refreshContent(entry: ChartDataEntry, highlight: Highlight) {
         setLabel(String(entry.y))
     }
-    
+
     @objc open func setLabel(_ newLabel: String) {
         label = newLabel
-        
+
         _drawAttributes.removeAll()
         _drawAttributes[.font] = self.font
         _drawAttributes[.paragraphStyle] = _paragraphStyle
         _drawAttributes[.foregroundColor] = self.textColor
-        
+
         _labelSize = label?.size(withAttributes: _drawAttributes) ?? CGSize.zero
-        
+
         var size = CGSize()
         size.width = _labelSize.width + self.insets.left + self.insets.right
         size.height = _labelSize.height + self.insets.top + self.insets.bottom

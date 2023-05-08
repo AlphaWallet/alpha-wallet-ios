@@ -5,8 +5,8 @@
 //  Copyright © 2017 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 fileprivate typealias GlobalContract = Contract
 

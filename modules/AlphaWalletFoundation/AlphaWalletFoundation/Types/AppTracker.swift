@@ -3,7 +3,7 @@ import Foundation
 
 public class AppTracker {
 
-    struct Keys {
+    enum Keys {
         static let launchCountTotal = "launchCountTotal"
         static let launchCountForCurrentBuild = "launchCountForCurrentBuild-" + String(Bundle.main.buildNumberInt)
         static let completedSharing = "completedSharing"
@@ -51,11 +51,11 @@ public class AppTracker {
 
     public var description: String {
         return """
-        launchCountTotal: \(launchCountTotal)
-        launchCountForCurrentBuild: \(launchCountForCurrentBuild)
-        completedRating: \(completedRating)
-        completedSharing: \(completedSharing)
-        completedPromptForNewsletter: \(hasCompletedPromptForNewsletter)
-        """
+            launchCountTotal: \(launchCountTotal)
+            launchCountForCurrentBuild: \(launchCountForCurrentBuild)
+            completedRating: \(completedRating)
+            completedSharing: \(completedSharing)
+            completedPromptForNewsletter: \(hasCompletedPromptForNewsletter)
+            """
     }
 }

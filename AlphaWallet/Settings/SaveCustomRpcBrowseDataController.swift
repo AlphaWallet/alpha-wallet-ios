@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 21/12/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SaveCustomRpcBrowseDataObserver: AnyObject {
     func dataHasChanged(rows: Int)

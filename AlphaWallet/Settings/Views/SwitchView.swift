@@ -50,7 +50,7 @@ class SwitchView: UIView {
             stackView.topAnchor.constraint(lessThanOrEqualTo: topAnchor),
             stackView.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            heightAnchor.constraint(equalToConstant: height)
+            heightAnchor.constraint(equalToConstant: height),
         ])
     }
 

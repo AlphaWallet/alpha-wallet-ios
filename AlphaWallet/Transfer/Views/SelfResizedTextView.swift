@@ -20,7 +20,7 @@ class SelfResizedTextView: UITextView {
         super.init(frame: .zero, textContainer: nil)
         backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         textColor = Configuration.Color.Semantic.defaultForegroundText
-        
+
         self.translatesAutoresizingMaskIntoConstraints = false
         scrollViewContentSizeObserver = self.observe(\SelfResizedTextView.contentSize, options: [.new]) { [weak self] (_, change) in
             guard let strongSelf = self, let newSize = change.newValue else { return }

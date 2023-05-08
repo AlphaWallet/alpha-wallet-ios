@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 23.05.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public protocol SwapQuoteStorage {
     var swapQuote: SwapQuote? { get }
@@ -56,7 +56,7 @@ public struct InMemoryTokenSwapperStorage: SwapSupportStateStorage, SwapPairsSto
     private var allSupportedToolsSubject: CurrentValueSubject<[SwapTool], Never> = .init([])
     private var swapRoutesSubject: CurrentValueSubject<[SwapRoute], Never> = .init([])
     private var prefferedSwapRouteSubject: CurrentValueSubject<SwapRoute?, Never> = .init(nil)
-    private (set) public var swapQuote: SwapQuote?
+    public private (set) var swapQuote: SwapQuote?
     public var supportedServers: AnyPublisher<[SwapSupportState], Never> {
         supportedServersSubject.eraseToAnyPublisher()
     }
@@ -137,13 +137,13 @@ public struct InMemoryTokenSwapperStorage: SwapSupportStateStorage, SwapPairsSto
         return prefferedSwapRouteSubject.value?.id == swapRoute.id
     }
 
-    mutating public func set(swapQuote: SwapQuote) {
+    public mutating func set(swapQuote: SwapQuote) {
         self.swapQuote = swapQuote
     }
 
-    mutating public func invalidatePrefferedSwapRoute() {
+    public mutating func invalidatePrefferedSwapRoute() {
         prefferedSwapRouteSubject.send(.none)
-        
+
         addOrUpdate(swapRoutes: [])
     }
 }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 26.05.2021.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct WalletBalance {
     fileprivate struct BalanceRepresentable: Hashable {
@@ -88,7 +88,7 @@ extension Balance: CustomStringConvertible {
     }
 }
 
-extension WalletBalance: Hashable { }
+extension WalletBalance: Hashable {}
 
 public extension WalletBalance {
     public struct ValueForCurrency: Equatable, Hashable {

@@ -34,7 +34,7 @@ class AccountViewTableSectionHeader: UIView {
             bottomSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             topConstraint,
-            bottomConstraint
+            bottomConstraint,
         ]
 
         NSLayoutConstraint.activate(constraintsWhenVisible)

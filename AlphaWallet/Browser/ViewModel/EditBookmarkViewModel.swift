@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct EditBookmarkViewModelInput {
     let saveSelected: AnyPublisher<(title: String, url: String), Never>

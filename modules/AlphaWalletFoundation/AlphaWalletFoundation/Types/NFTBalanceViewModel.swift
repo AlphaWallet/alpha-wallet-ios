@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 22.03.2022.
 //
 
+import BigInt
 import Foundation
-import BigInt 
 
 struct NFTBalanceViewModel: BalanceViewModelType {
     private let _balance: BalanceRepresentable
@@ -35,5 +35,5 @@ struct NFTBalanceViewModel: BalanceViewModelType {
         let actualBalance = Array(_balance.balanceNft.filter { isNonZeroBalance($0.balance, tokenType: _balance.type) })
         return actualBalance.count
     }
-    
+
 }

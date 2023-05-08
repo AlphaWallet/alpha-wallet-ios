@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore

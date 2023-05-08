@@ -1,15 +1,15 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol WhatsNewExperimentCoordinatorDelegate: AnyObject {
     func didEnd(in coordinator: WhatsNewExperimentCoordinator)
 }
 
 class WhatsNewExperimentCoordinator: Coordinator {
-    static private let key = "experiments.whatsnew.1"
-    static private let walletLastCreatedWindowSkipWhatsNew = TimeInterval(3)
+    private static let key = "experiments.whatsnew.1"
+    private static let walletLastCreatedWindowSkipWhatsNew = TimeInterval(3)
 
     static var lastCreatedWalletTimestamp: Date?
 
@@ -54,12 +54,12 @@ class WhatsNewExperimentCoordinator: Coordinator {
         addCoordinator(coordinator)
         let listings = WhatsNewListing(listing: [
             WhatsNew(
-                    //TODO localize later. Might not keep this longer term
-                    title: "",
-                    changes: [
-                        "* Dark Mode",
-                        "* Mainnet and testnets can now be enabled at the same time",
-                    ])
+                //TODO localize later. Might not keep this longer term
+                title: "",
+                changes: [
+                    "* Dark Mode",
+                    "* Mainnet and testnets can now be enabled at the same time",
+                ]),
         ])
         coordinator.start(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(), shouldShowCheckmarks: false))
     }

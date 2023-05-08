@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.09.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public protocol CoinTickerNetworking {
     func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError>

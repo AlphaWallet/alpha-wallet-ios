@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 21.01.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol WalletAddressesStoreMigration {
     func migrate(to store: WalletAddressesStore) -> WalletAddressesStore

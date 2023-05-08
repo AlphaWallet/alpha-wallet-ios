@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletAddress
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)
@@ -136,7 +136,7 @@ class TokensCoordinator: Coordinator {
 
         tokensViewController.navigationItem.rightBarButtonItems = [
             moreBarButton,
-            qrCodeBarButton
+            qrCodeBarButton,
         ]
         tokensViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: tokensViewController.blockieImageView)
         tokensViewController.blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
@@ -248,7 +248,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func buyCryptoSelected(in viewController: UIViewController) {
         delegate?.buyCrypto(wallet: wallet, server: .main, viewController: viewController, source: .walletTab)
     }
-    
+
     func viewWillAppear(in viewController: UIViewController) {
         guard !viewWillAppearHandled else { return }
         viewWillAppearHandled = true
@@ -510,7 +510,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
             alertService: alertService,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher)
-        
+
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()

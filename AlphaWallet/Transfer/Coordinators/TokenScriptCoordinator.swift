@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 13.12.2021.
 //
 
-import UIKit
+import AlphaWalletCore
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
-import AlphaWalletCore
+import UIKit
 
 protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)
@@ -170,9 +170,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
     }
 }
 
-extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {
-
-}
+extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {}
 
 extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 
@@ -199,7 +197,7 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
             let coordinator = TransactionInProgressCoordinator(
                 presentingViewController: strongSelf.navigationController,
                 server: strongSelf.session.server)
-            
+
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

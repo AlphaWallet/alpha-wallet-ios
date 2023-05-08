@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 04.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
+import UIKit
 
 struct SupportViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

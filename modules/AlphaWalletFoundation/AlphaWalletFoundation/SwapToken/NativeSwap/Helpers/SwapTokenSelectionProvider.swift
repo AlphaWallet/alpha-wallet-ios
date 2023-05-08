@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class SwapTokenSelectionProvider: TokenFilterProtocol {
     private let configurator: SwapOptionsConfigurator
@@ -33,8 +33,7 @@ public final class SwapTokenSelectionProvider: TokenFilterProtocol {
     public func filter(token: TokenFilterable) -> Bool {
         guard
             let swapPairs = configurator.swapPairs(for: configurator.server),
-            let selection = pendingTokenSelection
-        else { return false }
+            let selection = pendingTokenSelection else { return false }
 
         let fromToken = SwappableToken(address: configurator.swapPair.from.contractAddress, server: configurator.swapPair.from.server)
         let selectedToToken = configurator.swapPair.to.flatMap { SwappableToken(address: $0.contractAddress, server: $0.server) }
@@ -57,5 +56,5 @@ public final class SwapTokenSelectionProvider: TokenFilterProtocol {
 
             return containsInToTokens && nonSameAsFrom
         }
-    } 
+    }
 }

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 23.08.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public final class Coinbase: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     public var objectWillChange: AnyPublisher<Void, Never> {

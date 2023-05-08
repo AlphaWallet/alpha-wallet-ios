@@ -1,9 +1,9 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import WebKit
 import AlphaWalletLogger
+import BigInt
+import Foundation
+import WebKit
 
 public enum DappAction {
     case signMessage(String)

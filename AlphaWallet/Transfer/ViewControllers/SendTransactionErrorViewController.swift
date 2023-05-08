@@ -1,7 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol SendTransactionErrorViewControllerDelegate: AnyObject {
     func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, in viewController: SendTransactionErrorViewController)
@@ -56,14 +56,14 @@ class SendTransactionErrorViewController: UIViewController {
             [.spacerWidth(15), descriptionLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
             .spacer(height: 20),
             linkButton,
-            footerBar
+            footerBar,
         ].asStackView(axis: .vertical, spacing: 0)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: view)
+            stackView.anchorsConstraint(to: view),
         ])
     }
 

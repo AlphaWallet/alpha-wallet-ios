@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 07.03.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import Foundation
 import SwiftyJSON
 
 public struct TransactionsResponse<T> {
@@ -53,4 +53,3 @@ public protocol ApiNetworking {
 
     func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
 }
-

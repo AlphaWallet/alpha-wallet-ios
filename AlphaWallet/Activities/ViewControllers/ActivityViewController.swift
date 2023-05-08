@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol ActivityViewControllerDelegate: AnyObject, RequestSignMessageDelegate {
     func reinject(viewController: ActivityViewController)
@@ -24,7 +24,7 @@ class ActivityViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -34,7 +34,7 @@ class ActivityViewController: UIViewController {
     private let timestampLabel = UILabel()
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
-    lazy private var tokenScriptRendererView: TokenInstanceWebView = {
+    private lazy var tokenScriptRendererView: TokenInstanceWebView = {
         let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
@@ -121,7 +121,7 @@ class ActivityViewController: UIViewController {
             tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
         ] + roundedBackground.createConstraintsWithContainer(view: view)
-        + stateView.anchorConstraints(to: tokenImageView, size: .init(width: 24, height: 24), bottomOffset: .zero)
+            + stateView.anchorConstraints(to: tokenImageView, size: .init(width: 24, height: 24), bottomOffset: .zero)
         let footerConstraints: [NSLayoutConstraint] = footerBar.anchorsConstraint(to: view)
         constraints += footerConstraints
         NSLayoutConstraint.activate(constraints)
@@ -243,7 +243,7 @@ class ActivityViewController: UIViewController {
 }
 
 extension ActivityViewController: TokenInstanceWebViewDelegate {
-    
+
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,

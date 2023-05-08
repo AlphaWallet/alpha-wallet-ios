@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 26.02.2021.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class MixpanelCoordinatorTests: XCTestCase {
     func testMixpanelSdkTypeConvertation() {
@@ -19,7 +19,7 @@ class MixpanelCoordinatorTests: XCTestCase {
             URL(string: Constants.website)!,
             Float(0.0),
             0.0,
-            UInt(10)
+            UInt(10),
         ]
 
         struct UnsuportedValue: AnalyticsEventPropertyValue {

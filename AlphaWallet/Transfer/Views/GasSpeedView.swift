@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 20.08.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class GasSpeedView: UIView {
     static let height: CGFloat = CGFloat(100)
@@ -66,7 +66,7 @@ class GasSpeedView: UIView {
         let stackView = [
             .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 16)),
             row,
-            .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 16))
+            .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 16)),
         ].asStackView(axis: .vertical)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,13 +74,13 @@ class GasSpeedView: UIView {
         addSubview(stackView)
         addSubview(selectionImageView)
 
-        NSLayoutConstraint.activate([ 
+        NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 1),
             selectionImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            selectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor)
+            selectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
 

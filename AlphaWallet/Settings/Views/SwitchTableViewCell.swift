@@ -48,7 +48,7 @@ class SwitchTableViewCell: UITableViewCell {
         accessoryType = .none
 
         let stackView = [
-            iconImageView, titleLabel, .spacerWidth(flexible: true), switchView
+            iconImageView, titleLabel, .spacerWidth(flexible: true), switchView,
         ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
@@ -57,7 +57,7 @@ class SwitchTableViewCell: UITableViewCell {
             iconImageView.widthAnchor.constraint(equalToConstant: 40),
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
 
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 20))
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 20)),
         ])
     }
 

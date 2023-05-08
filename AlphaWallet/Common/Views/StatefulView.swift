@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import UIKit
 import StatefulViewController
+import UIKit
 
 protocol StatefulSubView: UIView {
     func hasContent() -> Bool
@@ -15,7 +15,7 @@ protocol StatefulSubView: UIView {
 extension UITableView: StatefulSubView {
     func hasContent() -> Bool {
         if numberOfSections > 0 {
-            let rows = (0 ..< numberOfSections).reduce(0, { sum, i in
+            let rows = (0..<numberOfSections).reduce(0, { sum, i in
                 var sum = sum
                 sum += numberOfRows(inSection: i)
 

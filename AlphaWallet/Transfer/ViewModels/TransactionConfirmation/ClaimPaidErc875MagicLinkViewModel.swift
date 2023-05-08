@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.06.2022.
 //
 
-import Foundation
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import Foundation
 
 extension TransactionConfirmationViewModel {
     class ClaimPaidErc875MagicLinkViewModel: TransactionConfirmationViewModelType {
@@ -29,7 +29,7 @@ extension TransactionConfirmationViewModel {
              price: BigUInt,
              numberOfTokens: UInt,
              tokensService: TokensProcessingPipeline) {
-            
+
             self.configurator = configurator
             self.price = price
             self.numberOfTokens = numberOfTokens

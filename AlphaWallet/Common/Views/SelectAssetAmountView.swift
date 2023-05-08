@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 31.08.2021.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class SelectAssetAmountView: UIView {
 
@@ -57,7 +57,7 @@ class SelectAssetAmountView: UIView {
             NSLayoutConstraint.activate([
                 countLabel.widthAnchor.constraint(equalToConstant: 50),
                 stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+                stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             ])
 
             return view
@@ -66,7 +66,7 @@ class SelectAssetAmountView: UIView {
         addSubview(centeredView)
         NSLayoutConstraint.activate([
             centeredView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            centeredView.heightAnchor.constraint(equalToConstant: 70)
+            centeredView.heightAnchor.constraint(equalToConstant: 70),
         ])
 
         backgroundColor = Configuration.Color.Semantic.defaultViewBackground

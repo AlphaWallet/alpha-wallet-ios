@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.12.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public class AssetDefinitionNetworking {
     private let networkService: NetworkService
@@ -78,7 +78,7 @@ extension AssetDefinitionNetworking {
                 "X-Client-Name": TokenScript.repoClientName,
                 "X-Client-Version": appVersion,
                 "X-Platform-Name": TokenScript.repoPlatformName,
-                "X-Platform-Version": UIDevice.current.systemVersion
+                "X-Platform-Version": UIDevice.current.systemVersion,
             ]
         }
 

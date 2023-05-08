@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation 
+import Foundation
 
 public struct EthereumAddressValidator {
     private let validationError: ValidationError
@@ -8,8 +8,8 @@ public struct EthereumAddressValidator {
     public init(msg: String) {
         validationError = ValidationError(msg: msg)
     }
-    
+
     public func isValid(value: String) -> ValidationError? {
         return !CryptoAddressValidator.isValidAddress(value) ? validationError : nil
     }
-} 
+}

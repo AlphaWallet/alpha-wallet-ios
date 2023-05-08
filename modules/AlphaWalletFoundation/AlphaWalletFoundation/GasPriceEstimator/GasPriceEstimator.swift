@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 10.05.2022.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import BigInt
+import Combine
+import Foundation
 
 public protocol GasPriceEstimator {
     var gasPrice: FillableValue<GasPrice> { get }

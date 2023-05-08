@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 23.03.2023.
 //
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 struct ConfirmButtonViewModelInput {
     let trigger: AnyPublisher<Void, Never>
@@ -30,7 +30,7 @@ class ConfirmButtonViewModel {
     init(configurator: TransactionConfigurator, title: String) {
         self.configurator = configurator
         self.title = title
-        
+
         //NOTE: prev impl wanted some delay after changing transaction configuration
         Publishers.Merge(configurator.$gasLimit.mapToVoid(), configurator.gasPriceEstimator.gasPricePublisher.mapToVoid())
             .handleEvents(receiveOutput: { [weak self] _ in self?.isButtonEnabled = false })

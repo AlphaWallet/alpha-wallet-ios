@@ -47,8 +47,8 @@ public final class StringFormatter {
             var index = 0
             var value = number
             while (value / 1000) >= 1 {
-               value /= 1000
-               index += 1
+                value /= 1000
+                index += 1
             }
             return (value, suffix[index])
         }

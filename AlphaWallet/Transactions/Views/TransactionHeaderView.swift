@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct TransactionHeaderViewModel {
     private let transactionViewModel: TransactionViewModel
@@ -106,7 +106,7 @@ class TransactionHeaderView: UIView {
         label.font = Fonts.semibold(size: 17)
         label.textColor = Configuration.Color.Semantic.defaultHeadlineText
         label.numberOfLines = 0
-        
+
         return label
     }()
 
@@ -144,7 +144,7 @@ class TransactionHeaderView: UIView {
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        
+
         let stackView = [
             dateLabel,
             .spacer(height: 10),
@@ -152,7 +152,7 @@ class TransactionHeaderView: UIView {
             .spacer(height: 10),
             titleLabel,
             .spacer(height: 10),
-            toLabel
+            toLabel,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
@@ -168,7 +168,7 @@ class TransactionHeaderView: UIView {
 
             line.trailingAnchor.constraint(equalTo: trailingAnchor),
             line.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
-            line.leadingAnchor.constraint(equalTo: leadingAnchor)
+            line.leadingAnchor.constraint(equalTo: leadingAnchor),
         ])
     }
 

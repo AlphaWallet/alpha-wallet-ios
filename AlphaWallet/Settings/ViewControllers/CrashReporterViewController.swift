@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 class CrashReporterViewController: UIViewController {
 
@@ -35,7 +35,7 @@ class CrashReporterViewController: UIViewController {
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: DataEntry.Metric.Analytics.spacing, left: 0, bottom: 0, right: 0))
+            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: DataEntry.Metric.Analytics.spacing, left: 0, bottom: 0, right: 0)),
         ])
 
         let labeledSwitchViewContainerView = TokensViewController.ContainerView<SwitchView>(subview: switchView)
@@ -47,9 +47,9 @@ class CrashReporterViewController: UIViewController {
             [
                 .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.left),
                 descriptionLabel,
-                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.right)
+                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.right),
             ].asStackView(axis: .horizontal, alignment: .center),
-            labeledSwitchViewContainerView
+            labeledSwitchViewContainerView,
         ])
         switchView.delegate = self
     }

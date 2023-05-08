@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 17.07.2020.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct SelectTokenViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -77,7 +77,7 @@ final class SelectTokenViewModel {
             }).removeDuplicates()
             .map { self.buildSnapshot(for: $0) }
             .eraseToAnyPublisher()
-        
+
         let viewState = Publishers.CombineLatest(snapshot, loadingState.removeDuplicates())
             .map { SelectTokenViewModel.ViewState(snapshot: $0.0, loadingState: $0.1) }
             .eraseToAnyPublisher()

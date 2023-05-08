@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 12/4/22.
 //
 
-import Foundation
 import AlphaWalletLogger
+import Foundation
 
 public class CachedERC1155ContractDictionary {
     private let fileUrl: URL

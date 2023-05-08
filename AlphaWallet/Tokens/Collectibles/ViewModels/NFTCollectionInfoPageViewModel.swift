@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
+import AlphaWalletCore
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
-import AlphaWalletCore
+import UIKit
 
 struct NFTCollectionInfoPageViewModelInput {
     let selection: AnyPublisher<IndexPath, Never>
@@ -119,7 +119,7 @@ final class NFTCollectionInfoPageViewModel {
             guard let strongSelf = self, let helper = helper else { return [] }
             return strongSelf.buildViewTypes(helper: helper)
         }.handleEvents(receiveOutput: { [weak self] in self?.viewTypes = $0 })
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func buildViewHelper(for tokenHolder: AnyPublisher<TokenHolder?, Never>) -> AnyPublisher<NftCollectionDisplayHelper?, Never> {
@@ -192,7 +192,7 @@ final class NFTCollectionInfoPageViewModel {
 
         return [
             .header(viewModel: .init(title: R.string.localizable.semifungiblesProjectInfo())),
-            .field(viewModel: descriptionViewModel)
+            .field(viewModel: descriptionViewModel),
         ]
     }
 
@@ -227,7 +227,7 @@ final class NFTCollectionInfoPageViewModel {
         }
 
         let descriptionSectionViewModels = [
-            collectionDisplayHelper.descriptionViewModel
+            collectionDisplayHelper.descriptionViewModel,
         ].compactMap { viewModel -> NFTCollectionInfoPageViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
@@ -246,7 +246,7 @@ final class NFTCollectionInfoPageViewModel {
             collectionDisplayHelper.twitterUsernameViewModel,
             collectionDisplayHelper.discordUrlViewModel,
             collectionDisplayHelper.telegramUrlViewModel,
-            collectionDisplayHelper.externalUrlViewModel
+            collectionDisplayHelper.externalUrlViewModel,
         ].compactMap { viewModel -> NFTCollectionInfoPageViewModel.ViewType? in
             return viewModel.flatMap { NFTCollectionInfoPageViewModel.ViewType.field(viewModel: $0) }
         }

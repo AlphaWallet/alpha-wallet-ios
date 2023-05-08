@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 24.05.2022.
 //
 
-import Combine
-import Foundation
 import AlphaWalletCore
+import Combine
 import CombineExt
+import Foundation
 
 public protocol SupportedTickerIdsFetcherConfig {
     var tickerIdsLastFetchedDate: Date? { get set }

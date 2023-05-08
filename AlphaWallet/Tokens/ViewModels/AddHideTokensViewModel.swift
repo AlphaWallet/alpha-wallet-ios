@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import Combine
 import AlphaWalletFoundation
+import Combine
+import Foundation
 
 struct AddHideTokensViewModelInput {
     let sortTokensParam: AnyPublisher<SortTokensParam, Never>
@@ -304,7 +304,7 @@ extension AddHideTokensViewModel {
     }
 }
 
-extension TokenViewModel: TokenIdentifiable { }
+extension TokenViewModel: TokenIdentifiable {}
 
 extension AddHideTokensViewModel {
     enum functional {}

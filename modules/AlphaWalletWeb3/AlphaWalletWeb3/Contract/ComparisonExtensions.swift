@@ -6,8 +6,8 @@
 //  Copyright © 2018 Bankex Foundation. All rights reserved.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 extension BigUInt: EventFilterComparable {
     public func isEqualTo(_ other: AnyObject) -> Bool {
@@ -93,4 +93,3 @@ extension EthereumAddress: EventFilterComparable {
         }
     }
 }
-

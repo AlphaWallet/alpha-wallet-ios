@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.05.2022.
 //
 
-import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Foundation
 
 public struct Token: Equatable, Hashable {
     public let primaryKey: String
@@ -94,8 +94,8 @@ extension Token: TokenScriptSupportable {
     public var valueBI: BigUInt { value }
     public var balanceNft: [TokenBalanceValue] { balance }
 }
-extension Token: TokenFilterable { }
-extension Token: TokenSortable { }
-extension Token: TokenActionsIdentifiable { }
-extension Token: BalanceRepresentable { }
-extension Token: TokenIdentifiable { }
+extension Token: TokenFilterable {}
+extension Token: TokenSortable {}
+extension Token: TokenActionsIdentifiable {}
+extension Token: BalanceRepresentable {}
+extension Token: TokenIdentifiable {}

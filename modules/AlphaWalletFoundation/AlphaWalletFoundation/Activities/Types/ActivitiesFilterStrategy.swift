@@ -75,14 +75,14 @@ extension ActivitiesFilterStrategy.functional {
         if operationTypes.isEmpty {
             return NSCompoundPredicate(andPredicateWithSubpredicates: [
                 isInCompletedOrPandingState,
-                isMatchingSomeOperationContract
+                isMatchingSomeOperationContract,
             ])
         } else {
             let hasAnyValidOperationTypes = NSPredicate(format: "ANY localizedOperations.type IN %@", operationTypes.map { $0.rawValue })
             return NSCompoundPredicate(andPredicateWithSubpredicates: [
                 isInCompletedOrPandingState,
                 isMatchingSomeOperationContract,
-                hasAnyValidOperationTypes
+                hasAnyValidOperationTypes,
             ])
         }
     }

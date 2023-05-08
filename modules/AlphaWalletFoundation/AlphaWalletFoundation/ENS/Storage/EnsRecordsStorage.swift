@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 06.06.2022.
 //
 
-import Foundation
 import AlphaWalletCore
-import Combine
 import AlphaWalletENS
+import Combine
+import Foundation
 
 public protocol EnsRecordsStorage: AnyObject {
     var allRecords: [EnsRecord] { get }

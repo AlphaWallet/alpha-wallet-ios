@@ -50,10 +50,10 @@ class ActivityStateView: UIView {
             heightAnchor.constraint(equalToConstant: size.height),
             widthAnchor.constraint(equalToConstant: size.width),
             trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: bottomOffset.x),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomOffset.y)
+            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomOffset.y),
         ]
     }
-    
+
     private func removePendingLoadingIndicatorView() {
         guard let view = pendingLoadingIndicatorView else { return }
 
@@ -72,12 +72,12 @@ class ActivityStateView: UIView {
             let view = createPendingLoadingIndicatorView()
             view.startAnimating()
             addSubview(view)
-            
+
             pendingLoadingIndicatorView = view
 
             NSLayoutConstraint.activate(view.anchorsConstraint(to: self))
         }
-        
+
         stateImageView.image = viewModel.stateImage
     }
 }

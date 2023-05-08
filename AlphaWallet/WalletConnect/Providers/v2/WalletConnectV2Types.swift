@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 11.11.2021.
 //
 
+import AlphaWalletFoundation
 import Foundation
 import WalletConnectSign
-import AlphaWalletFoundation
 
 typealias SessionNamespace = WalletConnectSign.SessionNamespace
 typealias Blockchain = WalletConnectSign.Blockchain
@@ -34,7 +34,7 @@ struct WalletConnectV2Session: Codable {
 
     mutating func update(namespaces _namespaces: [String: SessionNamespace]) {
         namespaces = _namespaces
-    } 
+    }
 }
 
 extension WalletSession {

@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 04.04.2023.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol GasSpeedViewModelType {
     var gasSpeed: GasSpeed { get }

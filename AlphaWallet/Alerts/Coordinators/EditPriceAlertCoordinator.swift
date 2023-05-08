@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol EditPriceAlertCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: EditPriceAlertCoordinator)
@@ -51,7 +51,7 @@ class EditPriceAlertCoordinator: Coordinator {
             tokensService: tokensService,
             alertService: alertService,
             currencyService: currencyService)
-        
+
         let viewController = EditPriceAlertViewController(viewModel: viewModel, tokenImageFetcher: tokenImageFetcher)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
@@ -72,4 +72,3 @@ extension EditPriceAlertCoordinator: EditPriceAlertViewControllerDelegate {
         delegate?.didClose(in: self)
     }
 }
-

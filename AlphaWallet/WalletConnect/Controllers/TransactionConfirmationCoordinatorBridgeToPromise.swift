@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.10.2020.
 //
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 protocol SendTransactionDelegate: AnyObject {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
@@ -138,7 +138,7 @@ extension TransactionConfirmationCoordinator {
             keystore: keystore,
             tokensService: tokensService,
             networkService: networkService)
-        
+
         return bridge.promise(transaction: transaction, configuration: configuration, source: source)
     }
 }

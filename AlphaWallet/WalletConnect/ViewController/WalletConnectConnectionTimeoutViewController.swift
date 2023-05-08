@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.10.2021.
 //
 
-import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import PromiseKit
+import UIKit
 
 struct WalletConnectConnectionTimeoutViewModel {
     let title: String = R.string.localizable.walletConnectErrorConnectionTimeoutTitle()

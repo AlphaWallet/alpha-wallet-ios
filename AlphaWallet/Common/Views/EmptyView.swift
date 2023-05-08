@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit
 import StatefulViewController
+import UIKit
 
 protocol EmptyViewPlacement {
     func resolveContraints(superView: UIView, container: UIView) -> [NSLayoutConstraint]
@@ -35,7 +35,7 @@ class EmptyView: UIView {
         let attributedTitle = title.flatMap { value in
             return NSAttributedString.init(string: value, attributes: [
                 .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-                .font: Fonts.regular(size: 16)
+                .font: Fonts.regular(size: 16),
             ])
         }
         return configure(attributedTitle: attributedTitle)
@@ -70,9 +70,9 @@ class EmptyView: UIView {
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setTitle(title, for: .normal)
             button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
-            
+
             NSLayoutConstraint.activate([
-                button.widthAnchor.constraint(equalToConstant: width)
+                button.widthAnchor.constraint(equalToConstant: width),
             ])
 
             return button
@@ -97,7 +97,7 @@ class EmptyView: UIView {
     func build() -> Self {
         stackView.removeAllArrangedSubviews()
         stackView.addArrangedSubviews([imageView, titleLabel, button].compactMap({ $0 }))
-        
+
         return self
     }
 }
@@ -125,7 +125,7 @@ final class FilterTokensEmptyViewDefaultPlacement: EmptyViewPlacement {
             container.trailingAnchor.constraint(equalTo: superView.trailingAnchor),
             container.leadingAnchor.constraint(equalTo: superView.leadingAnchor),
             container.centerXAnchor.constraint(equalTo: superView.centerXAnchor),
-            container.bottomAnchor.constraint(equalTo: superView.centerYAnchor, constant: -30)
+            container.bottomAnchor.constraint(equalTo: superView.centerYAnchor, constant: -30),
         ]
     }
 }
@@ -142,7 +142,7 @@ final class FilterTokensHoldersEmptyViewDefaultPlacement: EmptyViewPlacement {
             container.trailingAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.trailingAnchor),
             container.leadingAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.leadingAnchor),
             container.centerXAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.centerXAnchor),
-            container.centerYAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.centerYAnchor, constant: verticalOffset)
+            container.centerYAnchor.constraint(equalTo: superView.safeAreaLayoutGuide.centerYAnchor, constant: verticalOffset),
         ]
     }
 }

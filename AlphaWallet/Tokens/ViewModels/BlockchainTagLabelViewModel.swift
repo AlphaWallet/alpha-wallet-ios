@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct BlockchainTagLabelViewModel {
 
     private let server: RPCServer
-    
+
     let isHidden: Bool
 
     init(server: RPCServer) {

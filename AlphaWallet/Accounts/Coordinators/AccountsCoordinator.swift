@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AlphaWalletFoundation
+import Combine
 import Foundation
 import UIKit
-import Combine
-import AlphaWalletFoundation
 
 protocol AccountsCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: AccountsCoordinator)
@@ -108,35 +108,35 @@ class AccountsCoordinator: Coordinator {
             R.string.localizable.walletWatchButtonTitle(),
             //TODO localize
             isBCHardwareWalletEnabled ? "Add \(BCHardwareWallet.name)" : nil,
-            R.string.localizable.cancel()
+            R.string.localizable.cancel(),
         ].compactMap { $0 }
         let alertButtonStyles: [UIAlertAction.Style] = [
             .default,
             .default,
             .default,
             isBCHardwareWalletEnabled ? .default : nil,
-            .cancel
+            .cancel,
         ].compactMap { $0 }
         UIAlertController.alert(title: nil,
-                message: nil,
-                alertButtonTitles: alertButtonTitles,
-                alertButtonStyles: alertButtonStyles,
-                viewController: navigationController,
-                style: .actionSheet(source: .barButtonItem(barButtonItem))) { [weak self] index in
-                    guard let strongSelf = self else { return }
-                    if index == 0 {
-                        strongSelf.showCreateWallet()
-                    } else if index == 1 {
-                        strongSelf.showImportWallet()
-                    } else if index == 2 {
-                        strongSelf.showWatchWallet()
-                    } else if index == 3 {
-                        if isBCHardwareWalletEnabled {
-                            strongSelf.showAddHardwareWallet()
-                        }
-                    }
+                                message: nil,
+                                alertButtonTitles: alertButtonTitles,
+                                alertButtonStyles: alertButtonStyles,
+                                viewController: navigationController,
+                                style: .actionSheet(source: .barButtonItem(barButtonItem))) { [weak self] index in
+            guard let strongSelf = self else { return }
+            if index == 0 {
+                strongSelf.showCreateWallet()
+            } else if index == 1 {
+                strongSelf.showImportWallet()
+            } else if index == 2 {
+                strongSelf.showWatchWallet()
+            } else if index == 3 {
+                if isBCHardwareWalletEnabled {
+                    strongSelf.showAddHardwareWallet()
+                }
+            }
         }
-	}
+    }
 
     private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)

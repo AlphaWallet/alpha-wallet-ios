@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupportable {
 
@@ -25,7 +25,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupporta
     private lazy var chainOverlayImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        
+
         return imageView
     }()
 

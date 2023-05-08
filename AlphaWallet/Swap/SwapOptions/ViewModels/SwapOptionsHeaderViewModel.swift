@@ -14,7 +14,7 @@ struct SwapOptionsHeaderViewModel {
     var attributedTitle: NSAttributedString {
         return NSAttributedString(string: title.uppercased(), attributes: [
             .font: Fonts.semibold(size: 15),
-            .foregroundColor: Configuration.Color.Semantic.tableViewCellSecondaryFont
+            .foregroundColor: Configuration.Color.Semantic.tableViewCellSecondaryFont,
         ])
     }
 

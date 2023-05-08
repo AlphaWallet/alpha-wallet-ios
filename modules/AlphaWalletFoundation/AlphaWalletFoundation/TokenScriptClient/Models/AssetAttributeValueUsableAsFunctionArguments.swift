@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import TrustKeystore
 import AlphaWalletWeb3
+import BigInt
+import Foundation
+import TrustKeystore
 
 public enum AssetAttributeValueUsableAsFunctionArguments {
     case address(AlphaWallet.Address)

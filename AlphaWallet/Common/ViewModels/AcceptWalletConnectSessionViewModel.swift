@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.06.2022.
 //
 
-import Foundation
 import AlphaWalletFoundation
 import Combine
+import Foundation
 
 struct MissingRpcServerError: Error {
     let servers: [RPCServer]
@@ -25,7 +25,7 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
     var connectionIconUrl: URL? { proposal.iconUrl }
 
     var serversViewModel: ServersViewModel {
-        let servers = serverChoices.filter { serversProvider.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
+        let servers = serverChoices.filter { serversProvider.enabledServers.contains($0) }.compactMap { RPCServerOrAuto.server($0) }
         let serversToConnect: [RPCServerOrAuto] = serversToConnect.map { .server($0) }
         //NOTE: multiple server selection is disable for this case
         return ServersViewModel(servers: servers, selectedServers: serversToConnect, displayWarningFooter: false)

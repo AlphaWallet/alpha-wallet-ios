@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
@@ -43,7 +43,7 @@ extension UINavigationBarAppearance {
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
         appearance.titleTextAttributes = [
             .foregroundColor: Configuration.Color.Semantic.navigationBarPrimaryFont,
-            .font: Fonts.semibold(size: 17) as Any
+            .font: Fonts.semibold(size: 17) as Any,
         ]
         appearance.largeTitleTextAttributes = [
             .foregroundColor: Configuration.Color.Semantic.navigationBarPrimaryFont,
@@ -51,7 +51,7 @@ extension UINavigationBarAppearance {
         ]
         //NOTE: Hides back button text
         appearance.backButtonAppearance.normal.titleTextAttributes = [
-            .foregroundColor: Configuration.Color.Semantic.backButtonText
+            .foregroundColor: Configuration.Color.Semantic.backButtonText,
         ]
 
         return appearance
@@ -69,11 +69,11 @@ extension UITabBarAppearance {
 
         tabBarItemAppearance.normal.titleTextAttributes = [
             .font: Fonts.regular(size: 13),
-            .foregroundColor: Configuration.Color.Semantic.tabBarUnselected
+            .foregroundColor: Configuration.Color.Semantic.tabBarUnselected,
         ]
         tabBarItemAppearance.selected.titleTextAttributes = [
             .font: Fonts.semibold(size: 13),
-            .foregroundColor: Configuration.Color.Semantic.appTint
+            .foregroundColor: Configuration.Color.Semantic.appTint,
         ]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
@@ -105,7 +105,7 @@ class TabBarController: UITabBarController, PopInteractable {
     }
 }
 
-struct Fonts {
+enum Fonts {
     static func regular(size: CGFloat) -> UIFont {
         return UIFont(resource: R.font.sourceSansProRegular, size: size)!
     }
@@ -162,7 +162,7 @@ enum DataEntry {
                 static let spaceFromTextFieldToStatusLabel: CGFloat = 4
                 static let controlsContainerHeight: CGFloat = ScreenChecker.size(big: 30, medium: 30, small: 25)
             }
-            
+
             enum Rounded {
                 static let edgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
                 static let cornerRadius: CGFloat = height / 2
@@ -337,7 +337,7 @@ extension UIImageView {
         let imageView = UIImageView(image: R.image.iconsSystemArrowRight())
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: 24.0),
-            imageView.heightAnchor.constraint(equalToConstant: 24.0)
+            imageView.heightAnchor.constraint(equalToConstant: 24.0),
         ])
         return imageView
     }

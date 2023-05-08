@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 17.01.2023.
 //
 
-import Foundation
 import AlphaWalletWeb3
+import Foundation
 
 struct Erc20NameMethodCall: ContractMethodCall {
     typealias Response = String

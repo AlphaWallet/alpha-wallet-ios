@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.09.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import Combine
+import Foundation
 
 public protocol OneinchNetworking {
     func retrieveAssets() -> AnyPublisher<[Oneinch.Asset], PromiseError>

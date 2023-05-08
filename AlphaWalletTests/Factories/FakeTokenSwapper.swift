@@ -6,8 +6,8 @@
 //
 
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
 
 final class FakeReachabilityManager: ReachabilityManagerProtocol {
     private let subject: CurrentValueSubject<Bool, Never>

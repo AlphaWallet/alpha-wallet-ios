@@ -1,9 +1,9 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import UIKit
-import LocalAuthentication
 import AlphaWalletFoundation
 import Combine
+import LocalAuthentication
+import UIKit
 
 protocol VerifySeedPhraseViewControllerDelegate: AnyObject {
     var contextToVerifySeedPhrase: LAContext { get }
@@ -118,13 +118,13 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseTextView.delegate = self
 
         let stackView = [
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20: 30),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 30),
             subtitleLabel,
             UIView.spacer(height: 10),
             seedPhraseTextView,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 0: 7),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 0 : 7),
             errorLabel,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 5: 24),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 5 : 24),
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -138,14 +138,14 @@ class VerifySeedPhraseViewController: UIViewController {
         view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
+            seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100 : 140),
 
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20.0),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20.0),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: buttonsBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)

@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 18.08.2021.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct SelectableAssetContainerViewModel {
     private let selected: Int
@@ -22,14 +22,14 @@ struct SelectableAssetContainerViewModel {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: name, attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
-    
+
     var descriptionAttributedString: NSAttributedString {
         return NSAttributedString(string: R.string.localizable.semifungiblesInfiniteFungibleToken(), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Screen.TokenCard.Font.subtitle,
         ])
     }
 

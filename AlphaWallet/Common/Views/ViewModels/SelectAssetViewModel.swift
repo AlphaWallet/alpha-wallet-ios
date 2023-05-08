@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 27.02.2023.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 struct SelectAssetViewModelInput {
     let increase: AnyPublisher<Void, Never>

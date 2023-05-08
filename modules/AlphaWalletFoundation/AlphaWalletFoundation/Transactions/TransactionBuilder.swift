@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 21.01.2023.
 //
 
-import Foundation
 import BigInt
 import Combine
+import Foundation
 
 public final class TransactionBuilder {
     private typealias ContractData = (name: String, symbol: String, decimals: Int, tokenType: TokenType)
@@ -43,21 +43,21 @@ public final class TransactionBuilder {
         return buildOperationForTokenTransfer(for: transaction)
             .map { [server] operations -> Transaction? in
                 return Transaction(
-                        id: transaction.hash,
-                        server: server,
-                        blockNumber: Int(transaction.blockNumber)!,
-                        transactionIndex: Int(transaction.transactionIndex)!,
-                        from: from.description,
-                        to: to,
-                        value: transaction.value,
-                        gas: transaction.gas,
-                        gasPrice: BigUInt(transaction.gasPrice.drop0x).flatMap { GasPrice.legacy(gasPrice: $0) },
-                        gasUsed: transaction.gasUsed,
-                        nonce: transaction.nonce,
-                        date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
-                        localizedOperations: operations,
-                        state: state,
-                        isErc20Interaction: false)
+                    id: transaction.hash,
+                    server: server,
+                    blockNumber: Int(transaction.blockNumber)!,
+                    transactionIndex: Int(transaction.transactionIndex)!,
+                    from: from.description,
+                    to: to,
+                    value: transaction.value,
+                    gas: transaction.gas,
+                    gasPrice: BigUInt(transaction.gasPrice.drop0x).flatMap { GasPrice.legacy(gasPrice: $0) },
+                    gasUsed: transaction.gasUsed,
+                    nonce: transaction.nonce,
+                    date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
+                    localizedOperations: operations,
+                    state: state,
+                    isErc20Interaction: false)
             }.eraseToAnyPublisher()
     }
 

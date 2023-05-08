@@ -243,7 +243,7 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
             cell.cellPadding = 0
             intrinsicContentWidth += cell.intrinsicWidth
         }
-        let cellPadding = (bounds.width - intrinsicContentWidth)/(2.0 * CGFloat(numberOfCells))
+        let cellPadding = (bounds.width - intrinsicContentWidth) / (2.0 * CGFloat(numberOfCells))
         cells.forEach { cell in
             cell.cellPadding = cellPadding
             cell.width = cell.intrinsicWidth
@@ -310,7 +310,7 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
         NSLayoutConstraint.activate([
             line.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             line.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: -firstCell.cellPadding),
-            line.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: lastCell.cellPadding)
+            line.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: lastCell.cellPadding),
         ])
     }
 

@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 09.05.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 fileprivate extension RunLoop.SchedulerTimeType.Stride {
     func nextRandomInterval(upTo value: Int = 5) -> RunLoop.SchedulerTimeType.Stride {
-        let jitter = Int.random(in: 0 ..< value)
+        let jitter = Int.random(in: 0..<value)
         return .init(self.timeInterval + Double(jitter))
     }
 }
@@ -126,34 +126,34 @@ extension Publisher {
     }
 
     /**
-       Retries the failed upstream publisher using the given retry behavior.
-       - parameter behavior: The retry behavior that will be used in case of an error.
-       - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
-       if the publisher should retry.
-       - parameter tolerance: The allowed tolerance in firing delayed events.
-       - parameter scheduler: The scheduler that will be used for delaying the retry.
-       - parameter options: Options relevant to the scheduler’s behavior.
-       - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
-       */
+     Retries the failed upstream publisher using the given retry behavior.
+     - parameter behavior: The retry behavior that will be used in case of an error.
+     - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
+     if the publisher should retry.
+     - parameter tolerance: The allowed tolerance in firing delayed events.
+     - parameter scheduler: The scheduler that will be used for delaying the retry.
+     - parameter options: Options relevant to the scheduler’s behavior.
+     - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
+     */
     public func retry<S: Combine.Scheduler>(_ behavior: RetryBehavior<S>, shouldOnlyRetryIf: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
         return retry(1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
     /**
-       Retries the failed upstream publisher using the given retry behavior.
-       - parameter behavior: The retry behavior that will be used in case of an error.
-       - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
-       if the publisher should retry.
-       - parameter tolerance: The allowed tolerance in firing delayed events.
-       - parameter scheduler: The scheduler that will be used for delaying the retry.
-       - parameter options: Options relevant to the scheduler’s behavior.
-       - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
-       */
+     Retries the failed upstream publisher using the given retry behavior.
+     - parameter behavior: The retry behavior that will be used in case of an error.
+     - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
+     if the publisher should retry.
+     - parameter tolerance: The allowed tolerance in firing delayed events.
+     - parameter scheduler: The scheduler that will be used for delaying the retry.
+     - parameter options: Options relevant to the scheduler’s behavior.
+     - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
+     */
     public func retry<S: Combine.Scheduler>(_ resolver: @escaping (Failure) -> RetryBehavior<S>?,
                                             tolerance: S.SchedulerTimeType.Stride? = nil,
                                             scheduler: S,
                                             options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
-        
+
         return retry(1, resolver: resolver, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
@@ -181,21 +181,21 @@ extension RetryBehavior {
 
     public func calculateConditions(_ currentRetry: UInt) -> (maxRetries: UInt, delay: S.SchedulerTimeType.Stride) {
         switch self {
-        case let .immediate(retries):
+        case .immediate(let retries):
             // If immediate, returns 0.0 for delay
             return (maxRetries: retries, delay: .zero)
-        case let .delayed(retries, time):
+        case .delayed(let retries, let time):
             // Returns the fixed delay specified by the user
             return (maxRetries: retries, delay: .seconds(time))
-        case let .exponentialDelayed(retries, initial, multiplier):
+        case .exponentialDelayed(let retries, let initial, let multiplier):
             // If it is the first retry the initial delay is used, otherwise it is calculated
             let delay = currentRetry == 1 ? initial : initial * pow(1 + multiplier, Double(currentRetry - 1))
             return (maxRetries: retries, delay: .seconds(delay))
-        case let .custom(retries, delayCalculator):
+        case .custom(let retries, let delayCalculator):
             // Calculates the delay with the custom calculator
             return (maxRetries: retries, delay: .seconds(delayCalculator(currentRetry)))
-        case let .randomDelayed(retries, delayBeforeRetry, delayUpperRangeValueFrom0To):
-            let jitter = Int.random(in: 0 ..< Int(delayUpperRangeValueFrom0To))
+        case .randomDelayed(let retries, let delayBeforeRetry, let delayUpperRangeValueFrom0To):
+            let jitter = Int.random(in: 0..<Int(delayUpperRangeValueFrom0To))
             let delay = delayBeforeRetry + Double(jitter)
 
             return (maxRetries: retries, delay: .seconds(delay))

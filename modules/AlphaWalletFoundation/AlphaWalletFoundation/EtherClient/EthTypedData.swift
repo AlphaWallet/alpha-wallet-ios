@@ -4,8 +4,8 @@ import BigInt
 import Foundation
 
 /*
-This enum is only used to support decode solidity types (represented by json values) to swift primitive types.
- */
+ This enum is only used to support decode solidity types (represented by json values) to swift primitive types.
+  */
 public enum SolidityJSONValue: Decodable {
     case none
     case bool(value: Bool)

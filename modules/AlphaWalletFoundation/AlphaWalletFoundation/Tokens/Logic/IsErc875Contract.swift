@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public class IsErc875Contract {
     private let blockchainProvider: BlockchainProvider

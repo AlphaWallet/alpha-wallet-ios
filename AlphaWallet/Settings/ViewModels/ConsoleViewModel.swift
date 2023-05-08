@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import Foundation
+import UIKit
 
 struct ConsoleViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

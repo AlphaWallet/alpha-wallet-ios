@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 10.03.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 extension AmountTextField {
     enum AccessoryButtonTitle {

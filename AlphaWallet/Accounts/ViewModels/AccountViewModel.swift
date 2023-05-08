@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 struct AccountViewModel {
     private let displayBalanceApprecation: Bool
@@ -18,7 +18,7 @@ struct AccountViewModel {
             return .init(string: accountRowViewModel.balance.changePercentageString, attributes: [
                 .font: Fonts.regular(size: 20),
                 .foregroundColor: accountRowViewModel.balance.valuePercentageChangeColor,
-                .paragraphStyle: style
+                .paragraphStyle: style,
             ])
         } else {
             return .init()
@@ -39,7 +39,7 @@ struct AccountViewModel {
     var addressOrEnsName: NSAttributedString {
         return .init(string: accountRowViewModel.addressOrEnsName, attributes: [
             .font: Fonts.regular(size: 12),
-            .foregroundColor: Configuration.Color.Semantic.defaultAttributedString
+            .foregroundColor: Configuration.Color.Semantic.defaultAttributedString,
         ])
     }
 
@@ -70,4 +70,4 @@ extension WalletBalance {
     }
 }
 
-extension AccountViewModel: Hashable { }
+extension AccountViewModel: Hashable {}

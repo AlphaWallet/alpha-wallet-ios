@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 08.11.2022.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public struct Erc875Trade: ContractMethod {
     let contractAddress: AlphaWallet.Address
@@ -31,7 +31,7 @@ public struct Erc875Trade: ContractMethod {
             indices.map({ BigUInt($0) }),
             BigUInt(v),
             Data(_hex: r),
-            Data(_hex: s)
+            Data(_hex: s),
         ]
 
         let arrayType: ABIType
@@ -46,7 +46,7 @@ public struct Erc875Trade: ContractMethod {
             .dynamicArray(arrayType),
             .uint(bits: 8),
             .bytes(32),
-            .bytes(32)
+            .bytes(32),
         ])
         let encoder = ABIEncoder()
         try encoder.encode(function: functionEncoder, arguments: parameters)

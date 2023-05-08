@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.07.2022.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import Combine
+import UIKit
 
 struct ChangeCurrencyViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import Foundation
-import Combine
-import AlphaWalletFoundation
-import PromiseKit
 import AlphaWalletCore
+import AlphaWalletFoundation
+import Combine
+import Foundation
+import PromiseKit
 
 enum WalletConnectError: LocalizedError {
     case onlyForWatchWallet(address: AlphaWallet.Address)
@@ -76,7 +76,7 @@ protocol WalletConnectServer: WalletConnectResponder {
 }
 
 protocol WalletConnectServerDelegate: AnyObject {
-    
+
     func server(_ server: WalletConnectServer,
                 didConnect session: AlphaWallet.WalletConnect.Session)
 

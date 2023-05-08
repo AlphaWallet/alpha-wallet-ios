@@ -7,8 +7,8 @@
 
 @testable import AlphaWallet
 import AlphaWalletAddress
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 class CachedERC1155ContractDictionaryTestCase: XCTestCase {
 

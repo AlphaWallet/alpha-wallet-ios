@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 31.01.2022.
 //
 
-import Foundation
 import AlphaWalletAddress
 import BigInt
+import Foundation
 import SwiftyJSON
 
 struct NftAssetsFilter {
@@ -47,7 +47,7 @@ public struct NftAssetsPageDecoder {
         return dateFormatter
     }()
     let assets: [AlphaWallet.Address: [NftAsset]]
-    
+
     func decode(json: JSON) -> NftAssetsPage {
         var assets = assets
         let results = (json["assets"].array ?? json["results"].array ?? [])
@@ -116,7 +116,7 @@ extension NftAsset {
         let traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
         let collectionId = collectionJson["slug"].stringValue
         let collectionCreatedDate = assetContractJson["created_date"].string
-                .flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
+            .flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
         let collectionDescription = assetContractJson["description"].string
         let creator = try? AssetCreator(json: json["creator"])
 

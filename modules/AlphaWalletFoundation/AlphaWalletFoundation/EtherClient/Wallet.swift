@@ -67,4 +67,4 @@ public struct Wallet: Equatable, CustomStringConvertible {
     }
 }
 
-extension Wallet: Hashable { }
+extension Wallet: Hashable {}

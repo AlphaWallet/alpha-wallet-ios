@@ -1,9 +1,9 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
 import AlphaWalletHardwareWallet
+import Foundation
 
 final class FakeEtherKeystore: EtherKeystore {
     convenience init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) {

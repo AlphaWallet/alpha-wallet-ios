@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
+import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
-import AlphaWalletCore
+import Foundation
 
 struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     private let viewModel: ImportMagicTokenViewModel

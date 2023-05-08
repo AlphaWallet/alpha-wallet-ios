@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import AlphaWalletFoundation
 import Foundation
 import UIKit
-import AlphaWalletFoundation
 
 protocol GenerateTransferMagicLinkViewControllerDelegate: AnyObject {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView)
@@ -11,7 +11,7 @@ protocol GenerateTransferMagicLinkViewControllerDelegate: AnyObject {
 
 class GenerateTransferMagicLinkViewController: UIViewController {
     private let background = UIView()
-	private let header = TokensCardViewControllerTitleHeader()
+    private let header = TokensCardViewControllerTitleHeader()
     private let detailsBackground = UIView()
     private let subtitleLabel = UILabel()
     private let tokenCountLabel = UILabel()
@@ -54,7 +54,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             actionButton,
             .spacer(height: 10),
             cancelButton,
-            .spacer(height: 1)
+            .spacer(height: 1),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
@@ -79,7 +79,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
 
             background.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 42),
             background.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -42),
-            background.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            background.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
     }
 

@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 29/11/21.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 protocol WhatsNewListingCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: WhatsNewListingCoordinator)
@@ -30,7 +30,7 @@ class WhatsNewListingCoordinator: NSObject, Coordinator {
         panel.set(contentViewController: rootViewController)
         panel.shouldDismissOnBackdrop = true
         panel.delegate = self
-        
+
         navigationController.present(panel, animated: true)
     }
 }

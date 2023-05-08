@@ -5,11 +5,11 @@
 //  Created by Hwee-Boon Yar on Apr/29/22.
 //
 
+import Alamofire
 import AlphaWalletAddress
 import AlphaWalletCore
-import SwiftyJSON
-import Alamofire
 import Combine
+import SwiftyJSON
 
 public typealias ChainId = Int
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [NftAsset]]
@@ -51,7 +51,7 @@ final class OpenSeaRetryPolicy: RetryPolicy {
     init() {
         super.init(retryableHTTPStatusCodes: Set([429, 408, 500, 502, 503, 504]))
     }
-    
+
     override func retry(_ request: Alamofire.Request,
                         for session: Session,
                         dueTo error: Error,
@@ -148,7 +148,7 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background)
 
     public static let shared = BaseOpenSeaNetworkingFactory()
-    private init() { }
+    private init() {}
 
     public func networking(for chainId: ChainId) -> Networking {
         var networking: Networking!
@@ -173,7 +173,7 @@ public class OpenSea {
     private let networking: OpenSeaNetworkingFactory
     private let apiKeys: [ChainId: String]
 
-    weak public var delegate: OpenSeaDelegate?
+    public weak var delegate: OpenSeaDelegate?
 
     public init(apiKeys: [ChainId: String], networking: OpenSeaNetworkingFactory = BaseOpenSeaNetworkingFactory.shared) {
         self.apiKeys = apiKeys
@@ -232,7 +232,7 @@ public class OpenSea {
 
     public func fetchAsset(asset: String,
                            chainId: ChainId) -> AnyPublisher<NftAsset, PromiseError> {
-        
+
         let request = AssetRequest(
             baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
             apiKey: openSeaKey(forChainId: chainId) ?? "",
@@ -501,7 +501,7 @@ extension OpenSea {
             return try URLEncoding().encode(request, with: [
                 "asset_owner": owner.eip55String,
                 "limit": String(limit),
-                "offset": String(offset)
+                "offset": String(offset),
             ])
         }
     }
@@ -562,7 +562,7 @@ extension OpenSea {
                 ownerParamKey(chainId: chainId): owner.eip55String,
                 "order_by": orderBy,
                 "order_direction": orderDirection,
-                "limit": String(limit)
+                "limit": String(limit),
             ])
         }
     }
