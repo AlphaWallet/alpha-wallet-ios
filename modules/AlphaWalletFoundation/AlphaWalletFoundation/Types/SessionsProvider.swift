@@ -134,7 +134,7 @@ open class BaseSessionsProvider: SessionsProvider {
         let transporter = apiTransporterFactory.transporter(server: server)
 
         switch server.transactionsSource {
-        case .etherscan:
+        case .etherscan(let apiKey, let url):
             let transactionBuilder = TransactionBuilder(
                 tokensDataStore: tokensDataStore,
                 server: server,
@@ -143,8 +143,21 @@ open class BaseSessionsProvider: SessionsProvider {
             return EtherscanCompatibleApiNetworking(
                 server: server,
                 transporter: transporter,
-                transactionBuilder: transactionBuilder)
+                transactionBuilder: transactionBuilder,
+                baseUrl: url,
+                apiKey: apiKey)
+        case .blockscout(let apiKey, let url):
+            let transactionBuilder = TransactionBuilder(
+                tokensDataStore: tokensDataStore,
+                server: server,
+                ercTokenProvider: ercTokenProvider)
 
+            return BlockscoutApiNetworking(
+                server: server,
+                transporter: transporter,
+                transactionBuilder: transactionBuilder,
+                apiKey: apiKey,
+                baseUrl: url)
         case .covalent(let apiKey):
             return CovalentApiNetworking(
                 server: server,
@@ -163,6 +176,8 @@ open class BaseSessionsProvider: SessionsProvider {
                 transporter: transporter,
                 ercTokenProvider: ercTokenProvider,
                 transactionBuilder: transactionBuilder)
+        case .unknown:
+            return FallbackApiNetworking()
         }
     }
 }

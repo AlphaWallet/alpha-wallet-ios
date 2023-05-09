@@ -3,9 +3,11 @@
 import Foundation
 
 enum TransactionsSource {
-    case etherscan
+    case etherscan(apiKey: String?, url: URL)
+    case blockscout(apiKey: String?, url: URL)
     case covalent(apiKey: String?)
     case oklink(apiKey: String?)
+    case unknown
 }
 
 public protocol SingleChainTransactionProvider: AnyObject {

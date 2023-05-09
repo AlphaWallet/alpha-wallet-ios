@@ -101,7 +101,7 @@ public class TransactionsService {
             assetDefinitionStore: assetDefinitionStore)
 
         switch session.server.transactionsSource {
-        case .etherscan:
+        case .blockscout, .etherscan:
             let transporter = BaseApiTransporter()
             let provider = EtherscanSingleChainTransactionProvider(
                 session: session,
@@ -115,7 +115,7 @@ public class TransactionsService {
             provider.start()
 
             return provider
-        case .covalent(let apiKey):
+        case .covalent(let apiKey), .oklink(let apiKey):
             let provider = TransactionProvider(
                 session: session,
                 analytics: analytics,
@@ -127,7 +127,7 @@ public class TransactionsService {
             provider.start()
 
             return provider
-        case .oklink(let apiKey):
+        case .unknown:
             let provider = TransactionProvider(
                 session: session,
                 analytics: analytics,
@@ -180,7 +180,7 @@ public class TransactionsService {
 extension RPCServer {
     var defaultTransactionsPagination: TransactionsPagination {
         switch transactionsSource {
-        case .etherscan:
+        case .etherscan, .blockscout, .unknown:
             return .init(page: 0, lastFetched: [], limit: 200)
         case .covalent:
             return .init(page: 0, lastFetched: [], limit: 500)

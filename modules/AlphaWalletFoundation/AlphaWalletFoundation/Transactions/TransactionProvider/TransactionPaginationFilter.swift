@@ -77,12 +77,4 @@ public struct TransactionsPagination: Codable {
         self.lastFetched = lastFetched
         self.limit = limit
     }
-
-    public func next(initial: Bool = false) -> TransactionsPagination {
-        if lastFetched.isEmpty {
-            return TransactionsPagination(page: initial ? page : page + 1, lastFetched: [], limit: limit)
-        } else {
-            return TransactionsPagination(page: page, lastFetched: lastFetched, limit: limit)
-        }
-    }
 }
