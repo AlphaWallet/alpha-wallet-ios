@@ -113,11 +113,11 @@ open class TransactionDataStore {
         return transactions
     }
 
-    public func lastTransaction(forServer server: RPCServer, withTransactionState transactionState: TransactionState) -> Transaction? {
+    public func lastTransaction(forServer server: RPCServer) -> Transaction? {
         var transaction: Transaction?
         store.performSync { realm in
             transaction = realm.objects(TransactionObject.self)
-                .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
+                .filter(TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: server))
                 .sorted(byKeyPath: "date", ascending: false)
                 .map { Transaction(transaction: $0) }
                 .last
