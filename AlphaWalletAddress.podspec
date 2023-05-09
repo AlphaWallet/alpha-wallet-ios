@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Vladyslav Shepitko' => 'vladyslav.shepitko@gmail.com' }
   s.ios.deployment_target = '13.0'
-  s.swift_version    = '4.2'
+  s.swift_version    = '5.0'
   s.platform         = :ios, "13.0"
   s.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
   s.source_files     = 'modules/AlphaWalletAddress/AlphaWalletAddress/**/*.{h,m,swift}'

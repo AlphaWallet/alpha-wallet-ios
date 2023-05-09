@@ -361,18 +361,18 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
-  AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
-  AlphaWalletCore: ad96bd240255db44aaeaecc10928e82a24ef54c3
-  AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: 2dd6c8680e552ef51943237f1304cc4285a41063
-  AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
-  AlphaWalletHardwareWallet: 033da65fb8488c3a77b3438ac642618227c17d48
-  AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
-  AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
+  AlphaWalletAddress: e9f10243983ac7f51671671b7964eb49d14854ab
+  AlphaWalletCore: 6f67a6ce7b25614a4cad4ca7330afeaea1b9ad03
+  AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
+  AlphaWalletFoundation: 7cf355ef9b4aff7acd54621290a533dd2659ed69
+  AlphaWalletGoBack: 665101a1185145ef0a4a92943dcb11ae1fe697ca
+  AlphaWalletHardwareWallet: 01e02d59b25853134c823063e27a9e05fbfde0a7
+  AlphaWalletLogger: 54208bad850ec92a32fa4f969d0026305b6ce028
+  AlphaWalletOpenSea: f2711af0cbce462bcd569cff276a9a17fe16e6b8
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
-  AlphaWalletTrackAPICalls: 1e5d1f0a1858bd4d383aa412677a642be7d21e17
-  AlphaWalletTrustWalletCoreExtensions: 32d1e66e008bf65f053752d89de9f7c645f25d4e
-  AlphaWalletWeb3: 86d0be33c612d75685a5797ef4492e42c295f1a5
+  AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
+  AlphaWalletTrustWalletCoreExtensions: 290b1c05cada7715c29b52622688da01ab88ffa7
+  AlphaWalletWeb3: 1603f0e60dd63598c5c939f9c46ef8178cd28bb9
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02

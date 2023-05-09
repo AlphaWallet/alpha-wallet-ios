@@ -120,16 +120,16 @@ extension CoinTicker: Codable {
 
 extension KeyedDecodingContainer where Key: Hashable {
     public func decode<T>(_ type: T.Type, forKey key: Key, defaultValue: T) -> T where T: Decodable {
-        if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key), let typedValue = typedValueOptional {
-            return typedValue
+        if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key) {
+            return typedValueOptional
         } else {
             return defaultValue
         }
     }
 
     public func decode<T>(_ type: T.Type, forKey key: Key, defaultValue: T?) -> T? where T: Decodable {
-        if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key), let typedValue = typedValueOptional {
-            return typedValue
+        if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key) {
+            return typedValueOptional
         } else {
             return defaultValue
         }

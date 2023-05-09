@@ -20,7 +20,7 @@ s.license      = { :type => "MIT", :file => "LICENSE" }
 s.author       = { "Vladyslav Shepitko" => "vladyslav.shepitko@gmail.com" }
 s.source       = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
 
-s.swift_version = '4.2'
+s.swift_version = '5.0'
 s.module_name = 'AlphaWalletWeb3'
 s.ios.deployment_target = "10.0"
 s.osx.deployment_target = "10.11"
