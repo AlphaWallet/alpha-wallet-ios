@@ -192,7 +192,7 @@ class BlockscoutApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTransactions(json: JSON($0.data), server: server) }
+            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -209,7 +209,7 @@ class BlockscoutApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTransactions(json: JSON($0.data), server: server) }
+            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }

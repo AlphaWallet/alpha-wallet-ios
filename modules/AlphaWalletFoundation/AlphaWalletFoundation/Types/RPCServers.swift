@@ -258,7 +258,7 @@ public enum RPCServer: Hashable, CaseIterable {
             return .blockscout(apiKey: etherscanApiKey, url: url)
         case .fantom_testnet:
             guard let url = etherscanApiRoot else { return .unknown }
-            return .blockscout(apiKey: etherscanApiKey, url: url)
+            return .etherscan(apiKey: etherscanApiKey, url: url)
         case .klaytnCypress, .klaytnBaobabTestnet:
             guard let url = etherscanApiRoot else { return .unknown }
             return .blockscout(apiKey: etherscanApiKey, url: url)
