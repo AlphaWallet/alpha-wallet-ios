@@ -142,7 +142,6 @@ open class BaseSessionsProvider: SessionsProvider {
             
             return EtherscanCompatibleApiNetworking(
                 server: server,
-                wallet: wallet,
                 transporter: transporter,
                 transactionBuilder: transactionBuilder)
 
