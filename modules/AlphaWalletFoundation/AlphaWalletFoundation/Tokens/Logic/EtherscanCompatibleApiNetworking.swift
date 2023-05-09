@@ -12,17 +12,14 @@ import AlphaWalletLogger
 
 /// Etherscan and Blockout api networking
 class EtherscanCompatibleApiNetworking: ApiNetworking {
-    private let walletAddress: AlphaWallet.Address
     private let server: RPCServer
     private let transporter: ApiTransporter
     private let transactionBuilder: TransactionBuilder
 
     init(server: RPCServer,
-         wallet: Wallet,
          transporter: ApiTransporter,
          transactionBuilder: TransactionBuilder) {
 
-        self.walletAddress = wallet.address
         self.transactionBuilder = transactionBuilder
         self.transporter = transporter
         self.server = server
@@ -64,27 +61,27 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    func erc20TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
             .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
                 let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
-                return self.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                return self.backFillTransactionGroup(walletAddress: walletAddress, result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map { ($0, maxBlockNumber) }
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    func erc721TokenTransferTransactions(startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
             .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
                 let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
-                return self.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                return self.backFillTransactionGroup(walletAddress: walletAddress, result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map { ($0, maxBlockNumber) }
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    func normalTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
+    func normalTransactions(walletAddress: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
         return transporter
             .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
@@ -109,7 +106,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
-    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
+    func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
         return .empty()
     }
 
@@ -152,10 +149,10 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    private func backFillTransactionGroup(_ transactions: [Transaction], startBlock: Int, endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
+    private func backFillTransactionGroup(walletAddress: AlphaWallet.Address, _ transactions: [Transaction], startBlock: Int, endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
         guard !transactions.isEmpty else { return .just([]) }
 
-        return normalTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
+        return normalTransactions(walletAddress: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
             .map { filledTransactions -> [Transaction] in
                 var results: [Transaction] = .init()
                 for each in transactions {

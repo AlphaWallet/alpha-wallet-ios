@@ -99,7 +99,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
 
         autoDetectErc20TransactionsOperation = apiNetworking
-            .erc20TokenTransferTransactions(startBlock: startBlock)
+            .erc20TokenTransferTransactions(walletAddress: wallet, startBlock: startBlock)
             .sink(receiveCompletion: { [weak self] result in
                 if case .failure(let e) = result {
                     logError(e, function: #function, rpcServer: server, address: wallet)
@@ -123,7 +123,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
 
         autoDetectErc721TransactionsOperation = apiNetworking
-            .erc721TokenTransferTransactions(startBlock: startBlock)
+            .erc721TokenTransferTransactions(walletAddress: wallet, startBlock: startBlock)
             .sink(receiveCompletion: { [weak self] result in
                 if case .failure(let e) = result {
                     logError(e, function: #function, rpcServer: server, address: wallet)
@@ -169,8 +169,9 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private func fetchOlderTransactions() {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
+        let wallet = session.account.address
         apiNetworking
-            .normalTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
+            .normalTransactions(walletAddress: wallet, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
             .sinkAsync(receiveCompletion: { [transactionsTracker] result in
                 guard case .failure = result else { return }
 
@@ -230,7 +231,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             guard let provider = self.provider else { return }
 
             cancellable = provider.apiNetworking
-                .normalTransactions(startBlock: startBlock, endBlock: 999_999_999, sortOrder: sortOrder)
+                .normalTransactions(walletAddress: provider.session.account.address, startBlock: startBlock, endBlock: 999_999_999, sortOrder: sortOrder)
                 .sink(receiveCompletion: { [weak self] _ in
                     guard let strongSelf = self else { return }
 

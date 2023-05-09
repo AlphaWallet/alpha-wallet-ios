@@ -70,21 +70,25 @@ class FakeApiNetworking: ApiNetworking {
         return .empty()
     }
 
-    func normalTransactions(startBlock: Int,
+    func normalTransactions(walletAddress: AlphaWallet.Address,
+                            startBlock: Int,
                             endBlock: Int,
                             sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
         return .empty()
     }
 
-    func erc20TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                        startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    func erc721TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                         startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 
-    func erc1155TokenTransferTransactions(startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                          startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
         return .empty()
     }
 }
