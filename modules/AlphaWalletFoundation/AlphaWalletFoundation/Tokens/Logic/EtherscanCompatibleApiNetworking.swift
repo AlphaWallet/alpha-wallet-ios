@@ -97,7 +97,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
                     return Publishers.MergeMany(promises)
                         .collect()
-                        .map { $0.compactMap { $0 } }
+                        .map { EtherscanCompatibleApiNetworking.functional.filter(transactions: $0.compactMap { $0 }, startBlock: startBlock, endBlock: endBlock) }
                         .setFailureType(to: PromiseError.self)
                         .eraseToAnyPublisher()
                 } catch {
@@ -232,6 +232,15 @@ extension EtherscanCompatibleApiNetworking {
 }
 
 extension EtherscanCompatibleApiNetworking.functional {
+
+    //NOTE: some apis like https://api.hecoinfo.com/api? don't filter response to fit startBlock, endBlock, do it manually
+    static func filter(transactions: [Transaction], startBlock: Int?, endBlock: Int?) -> [Transaction] {
+        guard let startBlock = startBlock, let endBlock = endBlock else { return transactions }
+
+        let range = min(startBlock, endBlock)...max(startBlock, endBlock)
+
+        return transactions.filter { range.contains($0.blockNumber) }
+    }
 
     static func extractBoundingBlockNumbers(fromTransactions transactions: [Transaction]) -> (transactions: [Transaction], min: Int, max: Int) {
         let blockNumbers = transactions.map(\.blockNumber)
