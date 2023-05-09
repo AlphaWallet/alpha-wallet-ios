@@ -167,7 +167,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     private func fetchOlderTransactions() {
-        guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
+        guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server) else { return }
 
         let wallet = session.account.address
         apiNetworking
