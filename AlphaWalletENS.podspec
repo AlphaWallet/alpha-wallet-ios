@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   spec.social_media_url   = "https://twitter.com/hboon"
   spec.homepage     = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletENS"
   spec.ios.deployment_target = '13.0'
-  spec.swift_version    = '4.0'
+  spec.swift_version    = '5.0'
   spec.platform         = :ios, "13.0"
   spec.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{spec.version}" }
   spec.source_files     = 'modules/AlphaWalletENS/AlphaWalletENS/**/*.{h,m,swift}'

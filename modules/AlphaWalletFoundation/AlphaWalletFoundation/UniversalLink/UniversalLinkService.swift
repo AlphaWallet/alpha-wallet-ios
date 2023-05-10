@@ -50,7 +50,7 @@ public enum ApplicationNavigation {
 }
 
 public protocol UniversalLinkService: AnyObject {
-    weak var navigation: UniversalLinkNavigatable? { get set }
+    var navigation: UniversalLinkNavigatable? { get set }
 
     func handleUniversalLink(url: URL, source: UrlSource) -> Bool
 }

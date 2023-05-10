@@ -160,9 +160,9 @@ extension NumberFormatter {
 fileprivate extension String {
     func leftPadding(to: Int, pad: String = " ") -> String {
 
-        guard to > self.characters.count else { return self }
+        guard to > self.count else { return self }
 
-        let padding = String(repeating: pad, count: to - self.characters.count)
+        let padding = String(repeating: pad, count: to - self.count)
         return padding + self
     }
 }
