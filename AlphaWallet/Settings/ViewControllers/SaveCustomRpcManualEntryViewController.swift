@@ -19,7 +19,6 @@ protocol SaveCustomRpcHandleUrlFailure: AnyObject {
 
 class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHandleUrlFailure {
 
-    private lazy var keyboardChecker: KeyboardChecker = KeyboardChecker(self)
     private let viewModel: SaveCustomRpcManualEntryViewModel
 
     weak var dataDelegate: SaveCustomRpcEntryViewControllerDataDelegate?
@@ -45,22 +44,6 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        IQKeyboardManager.shared().isEnabled = false
-        keyboardChecker.viewWillAppear()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        IQKeyboardManager.shared().isEnabled = true
-        keyboardChecker.viewWillDisappear()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
     }
 
     func handleRpcUrlFailure() {
@@ -89,9 +72,6 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapSelected))
         editView.addBackgroundGestureRecognizer(tap)
         editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
-        if viewModel.isEditOperation {
-            editView.configureKeyboard(keyboardChecker: keyboardChecker)
-        }
         editView.addSaveButtonTarget(self, action: #selector(handleSaveCustomRPC))
     }
 

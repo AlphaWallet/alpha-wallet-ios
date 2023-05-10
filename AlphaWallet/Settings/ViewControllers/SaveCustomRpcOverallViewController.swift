@@ -100,16 +100,6 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
         configureViewController()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        registerNotifications()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        deregisterNotifications()
-    }
-
     override func loadView() {
         view = SaveCustomRpcOverallView(titles: [SaveCustomRpcOverallTab.browse.title, SaveCustomRpcOverallTab.manual.title])
     }
@@ -156,20 +146,6 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
         hideSearchBar()
     }
 
-    // MARK: - Notifications
-
-    private func registerNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow(_:)), name: UIWindow.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIWindow.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillChangeFrame(_:)), name: UIWindow.keyboardWillChangeFrameNotification, object: nil)
-    }
-
-    private func deregisterNotifications() {
-        NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillChangeFrameNotification, object: nil)
-    }
-
     // MARK: Child View Controllers
 
     private func add(childViewController: UIViewController) {
@@ -182,41 +158,6 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
             childViewController.view.bottomAnchor.constraint(equalTo: overallView.containerView.bottomAnchor)
         ])
         childViewController.didMove(toParent: self)
-    }
-
-    // MARK: - Objc handlers
-
-    @objc private func handleKeyboardWillShow(_ notification: Notification) {
-        guard let frame = getCGRectFromNotification(notification) else { return }
-        animateKeyboardChange(frame.height)
-    }
-
-    @objc private func handleKeyboardWillHide(_ notification: Notification) {
-        animateKeyboardChange(0)
-    }
-
-    @objc private func handleKeyboardWillChangeFrame(_ notification: Notification) {
-        guard let frame = getCGRectFromNotification(notification) else { return }
-        animateKeyboardChange(frame.height)
-    }
-
-    private func animateKeyboardChange(_ frameHeight: CGFloat) {
-        // TODO: - Maybe use UIEdgeInsets instead of a constraint?
-        guard let bottomConstraint = overallView.bottomConstraint else { return }
-        let animation = UIViewPropertyAnimator(duration: Style.Animation.duration, curve: Style.Animation.curve) {
-            bottomConstraint.constant = -frameHeight
-            self.view.layoutIfNeeded()
-        }
-        animation.startAnimation()
-    }
-
-    // MARK: - Public functions
-
-    // MARK: - Utility
-
-    private func getCGRectFromNotification(_ notification: Notification) -> CGRect? {
-        guard let userInfo = notification.userInfo, let value = userInfo[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return nil }
-        return value.cgRectValue
     }
 
     // MARK: - Search Bar

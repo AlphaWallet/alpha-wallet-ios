@@ -29,7 +29,8 @@ class SaveCustomRpcBrowseViewController: UIViewController {
     private let dataController: SaveCustomRpcBrowseDataController
     private var tableViewTopToTopLayout: NSLayoutConstraint?
     private var tableViewTopToSearchBarLayout: NSLayoutConstraint?
-
+    private lazy var footerView = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+    
     // MARK: Public
 
     weak var dataDelegate: SaveCustomRpcBrowseViewControllerDataDelegate?
@@ -97,10 +98,10 @@ class SaveCustomRpcBrowseViewController: UIViewController {
     // MARK: - Configuration
 
     private func configureViewController() {
+        configureAddNetworkButton()
         configureSearchBar()
         configureTableViewController()
         configureEmptyView()
-        configureAddNetworkButton()
         tableViewTopToTopLayout = tableViewController.tableView.topAnchor.constraint(equalTo: browseView.topAnchor)
         tableViewTopToSearchBarLayout = tableViewController.tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
         showSearchBar()
@@ -113,6 +114,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableViewController.tableView.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
             tableViewController.tableView.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
+            tableViewController.tableView.bottomAnchor.constraint(equalTo: footerView.topAnchor)
         ])
         tableViewController.didMove(toParent: self)
     }
@@ -141,12 +143,11 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         buttonsBar.buttons[0].setTitle(R.string.localizable.addrpcServerSaveButtonTitle(preferredLanguages: nil), for: .normal)
         addSaveButtonTarget(self, action: #selector(handleAddButtonAction(_:)))
         enableAddFunction(false)
-        browseView.addSubview(buttonsBar)
+
+        view.addSubview(footerView)
+
         NSLayoutConstraint.activate([
-            buttonsBar.bottomAnchor.constraint(equalTo: browseView.safeAreaLayoutGuide.bottomAnchor, constant: -4.0),
-            buttonsBar.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: tableViewController.tableView.bottomAnchor, constant: 4.0)
+            footerView.anchorsConstraint(to: view)
         ])
     }
 
