@@ -1,6 +1,8 @@
 //
-// Created by James Sangalli on 6/6/18.
-// Copyright © 2018 Stormbird PTE. LTD.
+//  BlockscoutApiNetworking.swift
+//  AlphaWalletFoundation
+//
+//  Created by Vladyslav Shepitko on 09.05.2023.
 //
 
 import Foundation
@@ -11,22 +13,21 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
-/// Etherscan and Blockout api networking
-class EtherscanCompatibleApiNetworking: ApiNetworking {
+class BlockscoutApiNetworking: ApiNetworking {
     private let server: RPCServer
     private let transporter: ApiTransporter
     private let transactionBuilder: TransactionBuilder
-    private let baseUrl: URL
     private let apiKey: String?
+    private let baseUrl: URL
 
     init(server: RPCServer,
          transporter: ApiTransporter,
          transactionBuilder: TransactionBuilder,
-         baseUrl: URL,
-         apiKey: String?) {
+         apiKey: String?,
+         baseUrl: URL) {
 
-        self.apiKey = apiKey
         self.baseUrl = baseUrl
+        self.apiKey = apiKey
         self.transactionBuilder = transactionBuilder
         self.transporter = transporter
         self.server = server
@@ -146,7 +147,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
                     return Publishers.MergeMany(promises)
                         .collect()
-                        .map { EtherscanCompatibleApiNetworking.functional.filter(transactions: $0.compactMap { $0 }, startBlock: startBlock, endBlock: endBlock) }
+                        .map { $0.compactMap { $0 } }
                         .setFailureType(to: PromiseError.self)
                         .eraseToAnyPublisher()
                 } catch {
@@ -203,7 +204,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             startBlock: startBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
-            action: .tokennfttx)
+            action: .tokentx)
 
         return transporter
             .dataTaskPublisher(request)
@@ -235,15 +236,14 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
     }
 }
 
-extension EtherscanCompatibleApiNetworking {
+extension BlockscoutApiNetworking {
 
-    enum Action: String {
+    private enum Action: String {
         case txlist
         case tokentx
-        case tokennfttx
     }
 
-    struct Request: URLRequestConvertible {
+    private struct Request: URLRequestConvertible {
         let baseUrl: URL
         let startBlock: Int?
         let endBlock: Int?
@@ -262,27 +262,27 @@ extension EtherscanCompatibleApiNetworking {
 
             self.action = action
             self.baseUrl = baseUrl
-            self.sortOrder = sortOrder
             self.startBlock = startBlock
             self.endBlock = endBlock
             self.apiKey = apiKey
             self.walletAddress = walletAddress
+            self.sortOrder = sortOrder
         }
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            var request = try URLRequest(url: baseUrl, method: .get)
+            let request = try URLRequest(url: baseUrl, method: .get)
             var params: Parameters = [
                 "module": "account",
                 "action": action.rawValue,
                 "address": walletAddress.eip55String
             ]
             if let startBlock = startBlock {
-                params["startblock"] = String(startBlock)
+                params["start_block"] = String(startBlock)
             }
 
             if let endBlock = endBlock {
-                params["endblock"] = String(endBlock)
+                params["end_block"] = String(endBlock)
             }
 
             if let apiKey = apiKey {
@@ -293,118 +293,7 @@ extension EtherscanCompatibleApiNetworking {
                 params["sort"] = sortOrder.rawValue
             }
 
-            request.allHTTPHeaderFields = [
-                "Content-type": "application/json",
-                "client": Bundle.main.bundleIdentifier ?? "",
-                "client-build": Bundle.main.buildNumber ?? "",
-            ]
-
             return try URLEncoding().encode(request, with: params)
         }
-    }
-}
-
-extension EtherscanCompatibleApiNetworking {
-    enum functional {}
-}
-
-extension EtherscanCompatibleApiNetworking.functional {
-
-    //NOTE: some apis like https://api.hecoinfo.com/api? don't filter response to fit startBlock, endBlock, do it manually
-    static func filter(transactions: [Transaction], startBlock: Int?, endBlock: Int?) -> [Transaction] {
-        guard let startBlock = startBlock, let endBlock = endBlock else { return transactions }
-
-        let range = min(startBlock, endBlock)...max(startBlock, endBlock)
-
-        return transactions.filter { range.contains($0.blockNumber) }
-    }
-
-    static func extractBoundingBlockNumbers(fromTransactions transactions: [Transaction]) -> (transactions: [Transaction], min: Int, max: Int) {
-        let blockNumbers = transactions.map(\.blockNumber)
-        if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
-            return (transactions: transactions, min: minBlockNumber, max: maxBlockNumber)
-        } else {
-            return (transactions: [], min: 0, max: 0)
-        }
-    }
-
-    static func decodeTransactions(json: JSON, server: RPCServer) -> [Transaction] {
-        let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
-
-        let transactions: [Transaction] = filteredResult.map { result in
-            let transactionJson = result.1
-            //Blockscout (and compatible like Polygon's) includes ERC721 transfers
-            let operationType: OperationType
-            //TODO check have tokenID + no "value", cos those might be ERC1155?
-            if let tokenId = transactionJson["tokenID"].string, !tokenId.isEmpty {
-                operationType = .erc721TokenTransfer
-            } else {
-                operationType = .erc20TokenTransfer
-            }
-
-            let localizedTokenObj = LocalizedOperation(
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                    type: operationType.rawValue,
-                    value: transactionJson["value"].stringValue,
-                    tokenId: transactionJson["tokenID"].stringValue,
-                    symbol: transactionJson["tokenSymbol"].stringValue,
-                    name: transactionJson["tokenName"].stringValue,
-                    decimals: transactionJson["tokenDecimal"].intValue)
-
-            let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
-
-            return Transaction(
-                    id: transactionJson["hash"].stringValue,
-                    server: server,
-                    blockNumber: transactionJson["blockNumber"].intValue,
-                    transactionIndex: transactionJson["transactionIndex"].intValue,
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                    value: "0",
-                    gas: transactionJson["gas"].stringValue,
-                    gasPrice: gasPrice,
-                    gasUsed: transactionJson["gasUsed"].stringValue,
-                    nonce: transactionJson["nonce"].stringValue,
-                    date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                    localizedOperations: [localizedTokenObj],
-                    //The API only returns successful transactions
-                    state: .completed,
-                    isErc20Interaction: true)
-        }
-        return mergeTransactionOperationsIntoSingleTransaction(transactions)
-    }
-
-    static func mergeTransactionOperationsForNormalTransactions(transactions: [Transaction], normalTransactions: [Transaction]) -> [Transaction] {
-        var results: [Transaction] = .init()
-        for each in transactions {
-            //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
-            guard !each.localizedOperations.isEmpty else { continue }
-            if var transaction = normalTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
-                transaction.isERC20Interaction = true
-                transaction.localizedOperations = each.localizedOperations
-                results.append(transaction)
-            } else {
-                results.append(each)
-            }
-        }
-        
-        return results
-    }
-
-    static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [Transaction]) -> [Transaction] {
-        var results: [Transaction] = .init()
-        for each in transactions {
-            if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
-                var found = results[index]
-                found.localizedOperations.append(contentsOf: each.localizedOperations)
-                results[index] = found
-            } else {
-                results.append(each)
-            }
-        }
-        return results
     }
 }

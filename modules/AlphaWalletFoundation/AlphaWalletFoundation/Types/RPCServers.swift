@@ -166,30 +166,6 @@ public enum RPCServer: Hashable, CaseIterable {
         customRpc != nil
     }
 
-    private var etherscanURLForGeneralTransactionHistory: URL? {
-        switch self {
-        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
-            return etherscanApiRoot?.appendingQueryString("module=account&action=txlist")
-        case .heco: return nil
-        case .heco_testnet: return nil
-        case .fantom: return nil
-        case .fantom_testnet: return nil
-        case .mumbai_testnet: return nil
-        case .klaytnCypress, .klaytnBaobabTestnet: return nil
-        case .ioTeX, .ioTeXTestnet: return nil
-        case .okx: return nil
-        }
-    }
-
-    ///etherscan-compatible erc20 transaction event APIs
-    ///The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we should check the token type rather than assume that they are all ERC20
-    private var etherscanURLForTokenTransactionHistory: URL? {
-        switch etherscanCompatibleType {
-        case .etherscan, .blockscout: return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
-        case .unknown: return nil
-        }
-    }
-
     var etherscanWebpageRoot: URL? {
         let urlString: String? = {
             switch self {
@@ -269,30 +245,38 @@ public enum RPCServer: Hashable, CaseIterable {
         return urlString.flatMap { URL(string: $0) }
     }
 
-    //If Etherscan, action=tokentx for ERC20 and action=tokennfttx for ERC721. If Blockscout-compatible, action=tokentx includes both ERC20 and ERC721. tokennfttx is not supported.
-    private var etherscanURLForERC721TransactionHistory: URL? {
-        switch etherscanCompatibleType {
-        case .etherscan: return etherscanApiRoot?.appendingQueryString("module=account&action=tokennfttx")
-        case .blockscout: return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
-        case .unknown: return nil
-        }
-    }
-
-    private var etherscanCompatibleType: EtherscanCompatibleType {
+    var transactionsSource: TransactionsSource {
         switch self {
         case .main, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet, .arbitrum, .cronosMainnet, .avalanche, .avalanche_testnet, .sepolia:
-            return .etherscan
+            guard let url = etherscanApiRoot else { return .unknown }
+            return .etherscan(apiKey: etherscanApiKey, url: url)
         case .arbitrumGoerli, .optimismGoerli:
-            return .blockscout
+            guard let url = etherscanApiRoot else { return .unknown }
+            return .blockscout(apiKey: etherscanApiKey, url: url)
         case .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet:
-            return .blockscout
+            guard let url = etherscanApiRoot else { return .unknown }
+            return .blockscout(apiKey: etherscanApiKey, url: url)
         case .fantom_testnet:
-            return .blockscout
-        case .klaytnCypress, .klaytnBaobabTestnet: return .blockscout
+            guard let url = etherscanApiRoot else { return .unknown }
+            return .blockscout(apiKey: etherscanApiKey, url: url)
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            guard let url = etherscanApiRoot else { return .unknown }
+            return .blockscout(apiKey: etherscanApiKey, url: url)
         case .custom(let custom):
-            return custom.etherscanCompatibleType
-        case .ioTeX, .ioTeXTestnet: return .etherscan
-        case .okx: return .unknown
+            guard let url = etherscanApiRoot else { return .unknown }
+
+            switch custom.etherscanCompatibleType {
+            case .blockscout:
+                return .blockscout(apiKey: etherscanApiKey, url: url)
+            case .etherscan:
+                return .etherscan(apiKey: etherscanApiKey, url: url)
+            case .unknown:
+                return .unknown
+            }
+        case .ioTeX, .ioTeXTestnet:
+            return .covalent(apiKey: Constants.Credentials.covalentApiKey)
+        case .okx:
+            return .oklink(apiKey: Constants.Credentials.oklinkKey)
         }
     }
 
@@ -342,69 +326,18 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
-        etherscanURLForGeneralTransactionHistory.flatMap {
-            let apiKeyParameter: String
-            if let apiKey = etherscanApiKey {
-                apiKeyParameter = "&apikey=\(apiKey)"
-            } else {
-                apiKeyParameter = ""
-            }
-            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
-            if let startBlock = startBlock {
-                return url?.appendingQueryString("startblock=\(startBlock)")
-            } else {
-                return url
-            }
-        }
-    }
-
-    func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
-        etherscanURLForTokenTransactionHistory.flatMap {
-            let apiKeyParameter: String
-            if let apiKey = etherscanApiKey {
-                apiKeyParameter = "&apikey=\(apiKey)"
-            } else {
-                apiKeyParameter = ""
-            }
-            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
-            if let startBlock = startBlock {
-                return url?.appendingQueryString("startblock=\(startBlock)")
-            } else {
-                return url
-            }
-        }
-    }
-
-    func getEtherscanURLForERC721TransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
-        etherscanURLForERC721TransactionHistory.flatMap {
-            let apiKeyParameter: String
-            if let apiKey = etherscanApiKey {
-                apiKeyParameter = "&apikey=\(apiKey)"
-            } else {
-                apiKeyParameter = ""
-            }
-            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
-            if let startBlock = startBlock {
-                return url?.appendingQueryString("startblock=\(startBlock)")
-            } else {
-                return url
-            }
-        }
-    }
-
     //Can't use https://blockscout.com/poa/dai/address/ even though it ultimately redirects there because blockscout (tested on 20190620), blockscout.com is only able to show that URL after the address has been searched (with the ?q= URL)
     public func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL? {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .sepolia:
             return etherscanWebpageRoot?.appendingPathComponent("account").appendingPathComponent(address.eip55String)
         case .main, .xDai, .goerli, .classic, .callisto, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
-            switch etherscanCompatibleType {
-            case .etherscan:
-                return etherscanWebpageRoot?.appendingPathComponent("address").appendingPathComponent(address.eip55String)
-            case .blockscout:
-                return etherscanWebpageRoot?.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
-            case .unknown:
+            switch transactionsSource {
+            case .etherscan(_, let url):
+                return url.appendingPathComponent("address").appendingPathComponent(address.eip55String)
+            case .blockscout(_, let url):
+                return url.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
+            case .covalent, .oklink, .unknown:
                 return nil
             }
         case .okx:
@@ -585,32 +518,10 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var transactionInfoEndpoints: URL? {
-        switch self {
-        case .main, .goerli, .classic, .xDai, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .mumbai_testnet, .heco, .heco_testnet, .callisto, .optimistic, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .optimismGoerli, .arbitrumGoerli, .cronosMainnet, .avalanche, .avalanche_testnet, .sepolia:
-            return etherscanApiRoot
-        case .fantom_testnet: return URL(string: "https://explorer.testnet.fantom.network/tx/")
-        case .okx: return nil
-        }
-    }
-
     var networkRequestsQueuePriority: Operation.QueuePriority {
         switch self {
         case .main, .polygon, .klaytnCypress, .klaytnBaobabTestnet: return .normal
         case .xDai, .classic, .callisto, .goerli, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet, .okx, .sepolia: return .low
-        }
-    }
-
-    var transactionsSource: TransactionsSource {
-        switch self {
-        case .main, .classic, .callisto, .custom, .goerli, .xDai, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet, .sepolia:
-            return .etherscan
-        case .klaytnCypress, .klaytnBaobabTestnet:
-            return .etherscan
-        case .ioTeX, .ioTeXTestnet:
-            return .covalent(apiKey: Constants.Credentials.covalentApiKey)
-        case .okx:
-            return .oklink(apiKey: Constants.Credentials.oklinkKey)
         }
     }
 
