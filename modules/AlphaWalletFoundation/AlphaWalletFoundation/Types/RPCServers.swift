@@ -209,7 +209,7 @@ public enum RPCServer: Hashable, CaseIterable {
             case .cronosMainnet: return "https://cronoscan.com"
             case .cronosTestnet: return "https://cronos-explorer.crypto.org"
             case .custom: return nil
-            case .fantom_testnet: return nil
+            case .fantom_testnet: return "https://testnet.ftmscan.com"
             case .avalanche: return "https://snowtrace.io"
             case .avalanche_testnet: return "https://testnet.snowtrace.io"
             case .arbitrum: return "https://arbiscan.io"
@@ -245,15 +245,14 @@ public enum RPCServer: Hashable, CaseIterable {
                     .flatMap { URL(string: $0) }
                     .flatMap { $0.appendingPathComponent("api").absoluteString }
             case .fantom: return "https://api.ftmscan.com/api"
-            //TODO fix etherscan-compatible API endpoint
-            case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/api"
+            case .fantom_testnet: return "https://testnet.ftmscan.com/api"
             case .avalanche: return "https://api.snowtrace.io/api"
             case .avalanche_testnet: return "https://api-testnet.snowtrace.io/api"
             case .polygon: return "https://api.polygonscan.com/api"
             case .mumbai_testnet: return "https://api-testnet.polygonscan.com/api"
             case .optimistic: return "https://api-optimistic.etherscan.io/api"
             case .cronosMainnet: return "https://api.cronoscan.com/api"
-            case .cronosTestnet: return "https://cronos-explorer.crypto.org/api"
+            case .cronosTestnet: return "https://explorer.cronos.org/testnet/api"
             case .arbitrum: return "https://api.arbiscan.io/api"
             case .palm: return "https://explorer.palm.io/api"
             case .palmTestnet: return "https://explorer.palm-uat.xyz/api"
@@ -288,7 +287,7 @@ public enum RPCServer: Hashable, CaseIterable {
         case .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet:
             return .blockscout
         case .fantom_testnet:
-            return .unknown
+            return .blockscout
         case .klaytnCypress, .klaytnBaobabTestnet: return .blockscout
         case .custom(let custom):
             return custom.etherscanCompatibleType
@@ -543,8 +542,8 @@ public enum RPCServer: Hashable, CaseIterable {
             case .polygon: return "https://polygon-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .mumbai_testnet: return "https://polygon-mumbai.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .optimistic: return "https://optimism-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .cronosMainnet: return "https://evm.cronos.org"
-            case .cronosTestnet: return "https://cronos-testnet.crypto.org:8545"
+            case .cronosMainnet: return "https://cronos-evm.publicnode.com"
+            case .cronosTestnet: return "https://evm-t3.cronos.org"
             case .arbitrum: return "https://arbitrum-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palm: return "https://palm-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palmTestnet: return "https://palm-testnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
