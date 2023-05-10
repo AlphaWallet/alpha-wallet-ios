@@ -70,7 +70,7 @@ public enum DecodeError: Error {
 }
 
 public struct JSONRPCresponse: Decodable {
-    public var id: Int
+    public var id: Int?
     public var jsonrpc = "2.0"
     public var result: Any?
     public var error: ErrorMessage?
@@ -83,7 +83,7 @@ public struct JSONRPCresponse: Decodable {
         case error
     }
     
-    public init(id: Int, jsonrpc: String, result: Any?, error: ErrorMessage?) {
+    public init(id: Int?, jsonrpc: String, result: Any?, error: ErrorMessage?) {
         self.id = id
         self.jsonrpc = jsonrpc
         self.result = result
@@ -116,7 +116,7 @@ public struct JSONRPCresponse: Decodable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: JSONRPCresponseKeys.self)
-        let id: Int = try container.decode(Int.self, forKey: .id)
+        let id = try container.decodeIfPresent(Int.self, forKey: .id)
         let jsonrpc: String = try container.decode(String.self, forKey: .jsonrpc)
 
         if let errorMessage = try? container.decode(ErrorMessage.self, forKey: .error) {
@@ -233,9 +233,11 @@ public struct JSONRPCresponse: Decodable {
     }
 }
 
-public struct JSONRPCresponseBatch: Decodable {
+public struct JSONRPCresponseBatch {
     var responses: [JSONRPCresponse]
-    
+}
+
+extension JSONRPCresponseBatch: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let responses = try container.decode([JSONRPCresponse].self)

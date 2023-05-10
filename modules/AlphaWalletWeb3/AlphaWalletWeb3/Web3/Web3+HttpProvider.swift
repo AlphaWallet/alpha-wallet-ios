@@ -116,9 +116,21 @@ public class Web3HttpProvider: Web3RequestProvider {
                 switch result {
                 case .success(let data):
                     do {
-                        return try JSONDecoder().decode(JSONRPCresponseBatch.self, from: data)
+                        let response = try JSONDecoder().decode(JSONRPCresponseBatch.self, from: data)
+                        if let error = response.responses.last?.error, response.responses.count == 1 {
+                            throw Web3Error.nodeError(error.message)
+                        }
+                        return response
                     } catch {
-                        throw Web3Error.responseError(error)
+                        do {
+                            let parsedResponse = try JSONDecoder().decode(JSONRPCresponse.self, from: data)
+                            if let message = parsedResponse.error {
+                                throw Web3Error.nodeError(message.message)
+                            }
+                            return JSONRPCresponseBatch(responses: [parsedResponse])
+                        } catch {
+                            throw Web3Error.responseError(error)
+                        }
                     }
                 case .failure(let error):
                     throw error
