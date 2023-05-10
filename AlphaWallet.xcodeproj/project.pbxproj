@@ -56,6 +56,7 @@
 		02F4E8BE27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */; };
 		02F4E8C027717A5200D89C19 /* SaveCustomRpcBrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */; };
 		02F4E8C42771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */; };
+		02FB110029FA0585006538DC /* RPCServerComparableTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02FB10FF29FA0585006538DC /* RPCServerComparableTest.swift */; };
 		02FEA8EF280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02FEA8EE280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift */; };
 		0DF46B4002E13613F768E7AE /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
@@ -966,6 +967,7 @@
 		02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseViewController.swift; sourceTree = "<group>"; };
 		02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseView.swift; sourceTree = "<group>"; };
 		02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseDataController.swift; sourceTree = "<group>"; };
+		02FB10FF29FA0585006538DC /* RPCServerComparableTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPCServerComparableTest.swift; sourceTree = "<group>"; };
 		02FEA8EE280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintExtension.swift; sourceTree = "<group>"; };
 		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		11EA2601C4D0D445D99E4B33 /* Pods_AlphaWalletShare.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletShare.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3193,6 +3195,7 @@
 		5E7C78E79A2C45A2124F259D /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
+				02FB10FF29FA0585006538DC /* RPCServerComparableTest.swift */,
 				02D255772807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift */,
 				0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */,
 				5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */,
@@ -5834,6 +5837,7 @@
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
 				877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */,
 				29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */,
+				02FB110029FA0585006538DC /* RPCServerComparableTest.swift in Sources */,
 				2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */,
 				29F1C865200384FE003780D8 /* Wallet.swift in Sources */,
 				29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */,
