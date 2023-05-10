@@ -17,8 +17,7 @@ class SaveCustomRpcManualEntryView: UIView {
 
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var scrollViewBottomConstraint: NSLayoutConstraint!
-    private let roundedBackground = RoundedBackground()
-    private let scrollView = UIScrollView()
+    private let scrollView = ScrollableStackView()
 
     var chainNameTextField: TextField = {
         let textField = TextField.buildTextField(
@@ -81,11 +80,7 @@ class SaveCustomRpcManualEntryView: UIView {
     }
 
     func addBackgroundGestureRecognizer(_ gestureRecognizer: UIGestureRecognizer) {
-        roundedBackground.addGestureRecognizer(gestureRecognizer)
-    }
-
-    func configureKeyboard(keyboardChecker: KeyboardChecker) {
-        keyboardChecker.constraints = [scrollViewBottomConstraint]
+        addGestureRecognizer(gestureRecognizer)
     }
 
     func addSaveButtonTarget(_ target: Any?, action: Selector) {
@@ -96,12 +91,9 @@ class SaveCustomRpcManualEntryView: UIView {
 
     private func configure(isEmbedded: Bool) {
         translatesAutoresizingMaskIntoConstraints = !isEmbedded
-        scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        if !isEmbedded {
-            scrollViewBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
-        }
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        let stackView = [
+        scrollView.stackView.addArrangedSubviews([
             chainNameTextField.defaultLayout(),
             rpcEndPointTextField.defaultLayout(),
             chainIDTextField.defaultLayout(),
@@ -109,36 +101,21 @@ class SaveCustomRpcManualEntryView: UIView {
             explorerEndpointTextField.defaultLayout(),
             isTestNetworkView,
             .spacer(height: 40)
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(roundedBackground)
+        ])
+        addSubview(scrollView)
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(scrollView)
 
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: .zero, separatorHeight: 0.0)
-        scrollView.addSubview(footerBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
+        addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            stackView.leadingAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
-            scrollViewBottomConstraint,
-
-            footerBar.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            footerBar.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            footerBar.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: self))
+            scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
+            scrollView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            scrollView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            footerBar.anchorsConstraint(to: self)
+        ])
     }
 
     func configureView() {

@@ -77,10 +77,6 @@ public struct SaveCustomRpcManualEntryViewModel {
         }
     }
 
-    public var isEditOperation: Bool {
-        !isAddOperation
-    }
-
     public init(operation: SaveOperationType) {
         self.operation = operation
     }
