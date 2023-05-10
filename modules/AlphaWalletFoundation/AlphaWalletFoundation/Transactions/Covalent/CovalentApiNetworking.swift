@@ -24,6 +24,10 @@ public class CovalentApiNetworking: ApiNetworking {
         self.apiKey = apiKey
         self.transporter = transporter
     }
+    
+    public func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+    }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
                                    pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {

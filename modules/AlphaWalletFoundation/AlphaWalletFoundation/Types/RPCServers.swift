@@ -204,72 +204,97 @@ public enum RPCServer: Hashable, CaseIterable {
         return urlString.flatMap { URL(string: $0) }
     }
 
-    var etherscanApiRoot: URL? {
-        let urlString: String? = {
-            switch self {
-            case .main: return "https://api-cn.etherscan.com/api"
-            case .goerli: return "https://api-goerli.etherscan.io/api"
-            case .classic: return "https://blockscout.com/etc/mainnet/api"
-            case .callisto: return "https://explorer.callisto.network/api"
-            case .xDai: return "https://blockscout.com/poa/xdai/api"
-            case .binance_smart_chain: return "https://api.bscscan.com/api"
-            case .binance_smart_chain_testnet: return "https://api-testnet.bscscan.com/api"
-            case .heco_testnet: return "https://api-testnet.hecoinfo.com/api"
-            case .heco: return "https://api.hecoinfo.com/api"
-            case .custom(let custom):
-                return custom.explorerEndpoint
-                    .flatMap { URL(string: $0) }
-                    .flatMap { $0.appendingPathComponent("api").absoluteString }
-            case .fantom: return "https://api.ftmscan.com/api"
-            case .fantom_testnet: return "https://testnet.ftmscan.com/api"
-            case .avalanche: return "https://api.snowtrace.io/api"
-            case .avalanche_testnet: return "https://api-testnet.snowtrace.io/api"
-            case .polygon: return "https://api.polygonscan.com/api"
-            case .mumbai_testnet: return "https://api-testnet.polygonscan.com/api"
-            case .optimistic: return "https://api-optimistic.etherscan.io/api"
-            case .cronosMainnet: return "https://api.cronoscan.com/api"
-            case .cronosTestnet: return "https://explorer.cronos.org/testnet/api"
-            case .arbitrum: return "https://api.arbiscan.io/api"
-            case .palm: return "https://explorer.palm.io/api"
-            case .palmTestnet: return "https://explorer.palm-uat.xyz/api"
-            case .klaytnCypress: return "https://klaytn-mainnet.blockscout.com/api"
-            case .klaytnBaobabTestnet: return "https://klaytn-testnet.blockscout.com/api"
-            case .ioTeX: return nil
-            case .ioTeXTestnet: return nil
-            case .optimismGoerli: return "https://blockscout.com/optimism/goerli/api"
-            case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io/api"
-            case .okx: return nil
-            case .sepolia: return "https://api-sepolia.etherscan.io/api"
-            }
-        }()
-        return urlString.flatMap { URL(string: $0) }
-    }
-
     var transactionsSource: TransactionsSource {
         switch self {
-        case .main, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet, .arbitrum, .cronosMainnet, .avalanche, .avalanche_testnet, .sepolia:
-            guard let url = etherscanApiRoot else { return .unknown }
-            return .etherscan(apiKey: etherscanApiKey, url: url)
-        case .arbitrumGoerli, .optimismGoerli:
-            guard let url = etherscanApiRoot else { return .unknown }
-            return .blockscout(apiKey: etherscanApiKey, url: url)
-        case .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet:
-            guard let url = etherscanApiRoot else { return .unknown }
-            return .blockscout(apiKey: etherscanApiKey, url: url)
+        case .main:
+            guard let url = URL(string: "https://api-cn.etherscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+        case .goerli:
+            guard let url = URL(string: "https://api-goerli.etherscan.io/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+        case .fantom:
+            guard let url = URL(string: "https://api.ftmscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .heco:
+            guard let url = URL(string: "https://api.hecoinfo.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .heco_testnet:
+            guard let url = URL(string: "https://api-testnet.hecoinfo.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .optimistic:
+            guard let url = URL(string: "https://api-optimistic.etherscan.io/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+        case .binance_smart_chain:
+            guard let url = URL(string: "https://api.bscscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.binanceSmartChainExplorerApiKey, apiUrl: url)
+        case .binance_smart_chain_testnet:
+            guard let url = URL(string: "https://api-testnet.bscscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .polygon:
+            guard let url = URL(string: "https://api.polygonscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.polygonScanExplorerApiKey, apiUrl: url)
+        case .mumbai_testnet:
+            guard let url = URL(string: "https://api-testnet.polygonscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.polygonScanExplorerApiKey, apiUrl: url)
+        case .arbitrum:
+            guard let url = URL(string: "https://api.arbiscan.io/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.arbiscanExplorerApiKey, apiUrl: url)
+        case .cronosMainnet:
+            guard let url = URL(string: "https://api.cronoscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .avalanche:
+            guard let url = URL(string: "https://api.snowtrace.io/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.avalancheExplorerApiKey, apiUrl: url)
+        case .avalanche_testnet:
+            guard let url = URL(string: "https://api-testnet.snowtrace.io/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .sepolia:
+            guard let url = URL(string: "https://api-sepolia.etherscan.io/api") else { return .unknown }
+            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+        case .arbitrumGoerli:
+            guard let url = URL(string: "https://goerli-rollup-explorer.arbitrum.io/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .optimismGoerli:
+            guard let url = URL(string: "https://blockscout.com/optimism/goerli/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .classic:
+            guard let url = URL(string: "https://blockscout.com/etc/mainnet/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .xDai:
+            guard let url = URL(string: "https://blockscout.com/poa/xdai/api") else { return .unknown }
+            return .blockscout(apiKey: Constants.Credentials.xDaiExplorerKey, apiUrl: url)
+        case .callisto:
+            guard let url = URL(string: "https://explorer.callisto.network/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .cronosTestnet:
+            guard let url = URL(string: "https://cronos-explorer.crypto.org/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .palm:
+            guard let url = URL(string: "https://explorer.palm.io/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .palmTestnet:
+            guard let url = URL(string: "https://explorer.palm-uat.xyz/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
         case .fantom_testnet:
-            guard let url = etherscanApiRoot else { return .unknown }
-            return .etherscan(apiKey: etherscanApiKey, url: url)
-        case .klaytnCypress, .klaytnBaobabTestnet:
-            guard let url = etherscanApiRoot else { return .unknown }
-            return .blockscout(apiKey: etherscanApiKey, url: url)
+            guard let url = URL(string: "https://testnet.ftmscan.com/api") else { return .unknown }
+            return .etherscan(apiKey: nil, apiUrl: url)
+        case .klaytnCypress:
+            guard let url = URL(string: "https://klaytn-mainnet.blockscout.com/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
+        case .klaytnBaobabTestnet:
+            guard let url = URL(string: "https://klaytn-testnet.blockscout.com/api") else { return .unknown }
+            return .blockscout(apiKey: nil, apiUrl: url)
         case .custom(let custom):
-            guard let url = etherscanApiRoot else { return .unknown }
+            guard let url = (custom.explorerEndpoint
+                .flatMap { URL(string: $0) }
+                .flatMap { $0.appendingPathComponent("api").absoluteString }
+                .flatMap { URL(string: $0) }) else { return .unknown }
 
             switch custom.etherscanCompatibleType {
             case .blockscout:
-                return .blockscout(apiKey: etherscanApiKey, url: url)
+                return .blockscout(apiKey: nil, apiUrl: url)
             case .etherscan:
-                return .etherscan(apiKey: etherscanApiKey, url: url)
+                return .etherscan(apiKey: nil, apiUrl: url)
             case .unknown:
                 return .unknown
             }
@@ -277,24 +302,6 @@ public enum RPCServer: Hashable, CaseIterable {
             return .covalent(apiKey: Constants.Credentials.covalentApiKey)
         case .okx:
             return .oklink(apiKey: Constants.Credentials.oklinkKey)
-        }
-    }
-
-    var etherscanApiKey: String? {
-        switch self {
-        case .main, .goerli, .optimistic, .sepolia: return Constants.Credentials.etherscanKey
-        case .arbitrum: return Constants.Credentials.arbiscanExplorerApiKey
-        case .binance_smart_chain: return Constants.Credentials.binanceSmartChainExplorerApiKey //Key not needed for testnet (empirically)
-        case .polygon, .mumbai_testnet: return Constants.Credentials.polygonScanExplorerApiKey
-        case .avalanche: return Constants.Credentials.avalancheExplorerApiKey
-        case .xDai: return Constants.Credentials.xDaiExplorerKey
-        case .fantom, .heco, .heco_testnet, .binance_smart_chain_testnet: return nil
-        case .klaytnCypress, .klaytnBaobabTestnet: return nil
-        case .classic, .callisto, .fantom_testnet, .avalanche_testnet, .cronosTestnet, .palm, .palmTestnet, .custom, .cronosMainnet: return nil
-        case .ioTeX, .ioTeXTestnet: return nil
-        case .optimismGoerli, .arbitrumGoerli: return nil
-        case .optimismGoerli: return nil
-        case .okx: return nil
         }
     }
 

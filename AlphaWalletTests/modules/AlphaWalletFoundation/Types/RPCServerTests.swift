@@ -34,14 +34,4 @@ class RPCServerTests: XCTestCase {
         let all = Constants.defaultEnabledServers
         XCTAssertTrue(all.contains(.main))
     }
-
-    func testHeuristicUsingEtherscanKeyForWrongBlockchainExplorerApi() {
-        for each in RPCServer.allCases where each.etherscanApiKey == RPCServer.main.etherscanApiKey {
-            if let contains = each.etherscanApiRoot?.absoluteString.contains("etherscan"), !contains {
-                XCTFail("\(each) should not use the Etherscan API key as its API root is: \(String(describing: each.etherscanApiRoot?.absoluteString))")
-            } else {
-                //OK
-            }
-        }
-    }
 }

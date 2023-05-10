@@ -35,6 +35,11 @@ extension WalletSession {
 }
 
 class FakeApiNetworking: ApiNetworking {
+    
+    func gasPriceEstimates() -> AnyPublisher<AlphaWalletFoundation.LegacyGasEstimates, AlphaWalletCore.PromiseError> {
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+    }
+
     func normalTransactions(walletAddress: AlphaWallet.Address,
                             pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()

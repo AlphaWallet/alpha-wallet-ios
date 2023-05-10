@@ -224,6 +224,24 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
+    func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
+        let request = GasOracleRequest(baseUrl: baseUrl, apiKey: apiKey)
+
+        return transporter
+            .dataTaskPublisher(request)
+            .tryMap { try JSONDecoder().decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }
+            .compactMap { EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: $0.result) }
+            .map { estimates in
+                LegacyGasEstimates(standard: BigUInt(estimates.standard), others: [
+                    GasSpeed.slow: BigUInt(estimates.slow),
+                    GasSpeed.fast: BigUInt(estimates.fast),
+                    GasSpeed.rapid: BigUInt(estimates.rapid)
+                ])
+            }.mapError { PromiseError.some(error: $0) }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
+
     static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
@@ -237,10 +255,47 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
 extension EtherscanCompatibleApiNetworking {
 
+    struct EtherscanPriceEstimatesResponse: Decodable {
+        let result: EtherscanPriceEstimates
+    }
+
     enum Action: String {
         case txlist
         case tokentx
         case tokennfttx
+    }
+
+    struct GasOracleRequest: URLRequestConvertible {
+        let baseUrl: URL
+        let apiKey: String?
+
+        init(baseUrl: URL,
+             apiKey: String? = nil) {
+
+            self.baseUrl = baseUrl
+            self.apiKey = apiKey
+        }
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            var request = try URLRequest(url: baseUrl, method: .get)
+            var params: Parameters = [
+                "module": "gastracker",
+                "action": "gasoracle"
+            ]
+
+            if let apiKey = apiKey {
+                params["apikey"] = apiKey
+            }
+
+            request.allHTTPHeaderFields = [
+                "Content-type": "application/json",
+                "client": Bundle.main.bundleIdentifier ?? "",
+                "client-build": Bundle.main.buildNumber ?? "",
+            ]
+
+            return try URLEncoding().encode(request, with: params)
+        }
     }
 
     struct Request: URLRequestConvertible {
