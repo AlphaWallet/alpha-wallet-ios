@@ -191,7 +191,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTransactions(json: JSON($0.data), server: server) }
+            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -208,7 +208,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTransactions(json: JSON($0.data), server: server) }
+            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -328,52 +328,60 @@ extension EtherscanCompatibleApiNetworking.functional {
         }
     }
 
-    static func decodeTransactions(json: JSON, server: RPCServer) -> [Transaction] {
+    static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: Eip20TokenType) -> [Transaction] {
         let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
 
-        let transactions: [Transaction] = filteredResult.map { result in
+        let transactions: [Transaction] = filteredResult.compactMap { result -> Transaction? in
             let transactionJson = result.1
-            //Blockscout (and compatible like Polygon's) includes ERC721 transfers
+                //Blockscout (and compatible like Polygon's) includes ERC721 transfers
             let operationType: OperationType
-            //TODO check have tokenID + no "value", cos those might be ERC1155?
-            if let tokenId = transactionJson["tokenID"].string, !tokenId.isEmpty {
-                operationType = .erc721TokenTransfer
-            } else {
+
+            switch tokenType {
+            case .erc20:
+                guard json["tokenID"].stringValue.isEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
                 operationType = .erc20TokenTransfer
+            case .erc721:
+                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
+                operationType = .erc721TokenTransfer
+            case .erc1155:
+                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.nonEmpty else { return nil }
+                operationType = .erc1155TokenTransfer
             }
 
+            //TODO: implement saving tokenValue
             let localizedTokenObj = LocalizedOperation(
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                    type: operationType.rawValue,
-                    value: transactionJson["value"].stringValue,
-                    tokenId: transactionJson["tokenID"].stringValue,
-                    symbol: transactionJson["tokenSymbol"].stringValue,
-                    name: transactionJson["tokenName"].stringValue,
-                    decimals: transactionJson["tokenDecimal"].intValue)
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                type: operationType.rawValue,
+                value: transactionJson["value"].stringValue,
+                tokenId: transactionJson["tokenID"].stringValue,
+                symbol: transactionJson["tokenSymbol"].stringValue,
+                name: transactionJson["tokenName"].stringValue,
+                decimals: transactionJson["tokenDecimal"].intValue)
 
             let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
 
             return Transaction(
-                    id: transactionJson["hash"].stringValue,
-                    server: server,
-                    blockNumber: transactionJson["blockNumber"].intValue,
-                    transactionIndex: transactionJson["transactionIndex"].intValue,
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                    value: "0",
-                    gas: transactionJson["gas"].stringValue,
-                    gasPrice: gasPrice,
-                    gasUsed: transactionJson["gasUsed"].stringValue,
-                    nonce: transactionJson["nonce"].stringValue,
-                    date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                    localizedOperations: [localizedTokenObj],
-                    //The API only returns successful transactions
-                    state: .completed,
-                    isErc20Interaction: true)
+                id: transactionJson["hash"].stringValue,
+                server: server,
+                blockNumber: transactionJson["blockNumber"].intValue,
+                transactionIndex: transactionJson["transactionIndex"].intValue,
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                value: "0",
+                gas: transactionJson["gas"].stringValue,
+                gasPrice: gasPrice,
+                gasUsed: transactionJson["gasUsed"].stringValue,
+                nonce: transactionJson["nonce"].stringValue,
+                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                localizedOperations: [localizedTokenObj],
+                //The API only returns successful transactions
+                state: .completed,
+                isErc20Interaction: true)
         }
+        
         return mergeTransactionOperationsIntoSingleTransaction(transactions)
     }
 

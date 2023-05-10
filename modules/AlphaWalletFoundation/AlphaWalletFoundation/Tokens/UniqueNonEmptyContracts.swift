@@ -45,9 +45,9 @@ extension UniqueNonEmptyContracts {
             //NOTE: safe check to avoid incompatible contract matching with token type, blockout api returns erc20 and erc721 for same url, so we need to filter retults
             switch tokenType {
             case .erc20:
-                guard json["tokenID"].string == nil else { return nil }
+                guard json["tokenID"].stringValue.isEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
             case .erc721:
-                guard json["tokenID"].stringValue.nonEmpty else { return nil }
+                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
             case .erc1155:
                 guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.nonEmpty else { return nil }
             }
