@@ -48,7 +48,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
     }
 
     public init(blockchainProvider: BlockchainProvider,
-                networkService: NetworkService,
+                networking: ApiNetworking,
                 initialGasPrice: BigUInt?) {
 
         self.server = blockchainProvider.server
@@ -57,7 +57,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
         self.estimatesProvider = LegacyEstimatesSchedulerProvider(
             interval: 15,
             blockchainProvider: blockchainProvider,
-            networkService: networkService)
+            networking: networking)
 
         let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: initialGasPrice)
         let estimates = LegacyGasEstimates(standard: gasPrice)
@@ -186,8 +186,7 @@ extension LegacyGasPriceEstimator {
 
     private class LegacyEstimatesSchedulerProvider: SchedulerProvider {
         private let blockchainProvider: BlockchainProvider
-        private let networkService: NetworkService
-        private lazy var etherscanGasPriceEstimator = EtherscanGasPriceEstimator(networkService: networkService)
+        private let networking: ApiNetworking
 
         let name: String = ""
         let interval: TimeInterval
@@ -207,9 +206,9 @@ extension LegacyGasPriceEstimator {
 
         init(interval: TimeInterval,
              blockchainProvider: BlockchainProvider,
-             networkService: NetworkService) {
+             networking: ApiNetworking) {
 
-            self.networkService = networkService
+            self.networking = networking
             self.interval = interval
             self.blockchainProvider = blockchainProvider
         }
@@ -221,8 +220,7 @@ extension LegacyGasPriceEstimator {
         }
 
         private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-            return etherscanGasPriceEstimator
-                .gasPriceEstimates(server: server)
+            return networking.gasPriceEstimates()
                 .handleEvents(receiveOutput: { estimates in
                     infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
                 }).eraseToAnyPublisher()

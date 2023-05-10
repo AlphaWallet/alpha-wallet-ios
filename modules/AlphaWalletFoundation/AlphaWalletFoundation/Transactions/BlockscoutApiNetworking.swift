@@ -214,6 +214,10 @@ class BlockscoutApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
+    func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+    }
+
     private func backFillTransactionGroup(walletAddress: AlphaWallet.Address, _ transactions: [Transaction], startBlock: Int, endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
         guard !transactions.isEmpty else { return .just([]) }
 

@@ -15,6 +15,10 @@ import Alamofire
 
 class FallbackApiNetworking: ApiNetworking {
 
+    func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+    }
+
     func normalTransactions(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
         return .empty()
     }

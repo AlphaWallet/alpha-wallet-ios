@@ -3,8 +3,8 @@
 import Foundation
 
 enum TransactionsSource {
-    case etherscan(apiKey: String?, url: URL)
-    case blockscout(apiKey: String?, url: URL)
+    case etherscan(apiKey: String?, apiUrl: URL)
+    case blockscout(apiKey: String?, apiUrl: URL)
     case covalent(apiKey: String?)
     case oklink(apiKey: String?)
     case unknown

@@ -21,6 +21,10 @@ public struct TransactionsResponse<T> {
     }
 }
 
+public enum ApiNetworkingError: Error {
+    case methodNotSupported
+}
+
 public protocol ApiNetworking {
     func normalTransactions(walletAddress: AlphaWallet.Address,
                             pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
@@ -56,5 +60,7 @@ public protocol ApiNetworking {
 
     func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                           startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError>
+
+    func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError>
 }
 
