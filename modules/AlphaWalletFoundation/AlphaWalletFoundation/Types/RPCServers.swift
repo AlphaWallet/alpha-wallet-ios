@@ -655,7 +655,7 @@ public enum RPCServer: Hashable, CaseIterable {
             .binance_smart_chain_testnet,
             .binance_smart_chain,
             .heco,
-            .heco_testnet,
+            //.heco_testnet, TODO: Enable if find another working rpc url
             .fantom,
             .fantom_testnet,
             .avalanche,
