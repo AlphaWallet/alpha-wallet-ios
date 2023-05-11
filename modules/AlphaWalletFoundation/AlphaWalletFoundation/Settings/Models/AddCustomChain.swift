@@ -1,4 +1,4 @@
-// Copyright © 2021 Stormbird PTE. LTD.
+    // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
 import Combine
@@ -117,7 +117,9 @@ public class AddCustomChain {
             }, receiveValue: { _ in })
     }
 
-    private func requestToUseFailedExplorerHostname(customChain: WalletAddEthereumChainObject, chainId: Int) -> AnyPublisher<CustomChainWithChainIdAndRPC, AddCustomChainError> {
+    private func requestToUseFailedExplorerHostname(customChain: WalletAddEthereumChainObject,
+                                                    chainId: Int) -> AnyPublisher<CustomChainWithChainIdAndRPC, AddCustomChainError> {
+
         guard let delegate = self.delegate else {
             return .fail(AddCustomChainError.missingBlockchainExplorerUrl)
         }
@@ -137,18 +139,33 @@ public class AddCustomChain {
             .eraseToAnyPublisher()
     }
 
-    private func handleOperation(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
-            switch operation {
-            case .add:
-                return self.queueAddCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType)
-            case .edit(let originalRpc):
-                return self.queueEditCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, originalRpc: originalRpc)
-             }
+    private func handleOperation(_ customChain: WalletAddEthereumChainObject,
+                                 chainId: Int,
+                                 rpcUrl: String,
+                                 etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
+
+        switch operation {
+        case .add:
+            return self.queueAddCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType)
+        case .edit(let originalRpc):
+            return self.queueEditCustomChain(customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, originalRpc: originalRpc)
+        }
     }
 
-    private func queueAddCustomChain(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
+    private func queueAddCustomChain(_ customChain: WalletAddEthereumChainObject,
+                                     chainId: Int,
+                                     rpcUrl: String,
+                                     etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> AnyPublisher<Void, AddCustomChainError> {
+
         AnyPublisher<Void, AddCustomChainError>.create { [url, isTestnet, restartHandler, chainNameFallback] seal in
-            let customRpc = CustomRPC(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet, chainNameFallback: chainNameFallback)
+            let customRpc = CustomRPC(
+                customChain: customChain,
+                chainId: chainId,
+                rpcUrl: rpcUrl,
+                etherscanCompatibleType: etherscanCompatibleType,
+                isTestnet: isTestnet,
+                chainNameFallback: chainNameFallback)
+
             let server = RPCServer.custom(customRpc)
             restartHandler.add(.addServer(customRpc))
             restartHandler.add(.enableServer(server))
@@ -163,9 +180,21 @@ public class AddCustomChain {
         }
     }
 
-    private func queueEditCustomChain(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType, originalRpc: CustomRPC) -> AnyPublisher<Void, AddCustomChainError> {
+    private func queueEditCustomChain(_ customChain: WalletAddEthereumChainObject,
+                                      chainId: Int,
+                                      rpcUrl: String,
+                                      etherscanCompatibleType: RPCServer.EtherscanCompatibleType,
+                                      originalRpc: CustomRPC) -> AnyPublisher<Void, AddCustomChainError> {
+
         AnyPublisher<Void, AddCustomChainError>.create { [url, isTestnet, restartHandler, chainNameFallback] seal in
-            let newCustomRpc = CustomRPC(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet, chainNameFallback: chainNameFallback)
+            let newCustomRpc = CustomRPC(
+                customChain: customChain,
+                chainId: chainId,
+                rpcUrl: rpcUrl,
+                etherscanCompatibleType: etherscanCompatibleType,
+                isTestnet: isTestnet,
+                chainNameFallback: chainNameFallback)
+
             let server = RPCServer.custom(newCustomRpc)
             restartHandler.add(.editServer(original: originalRpc, edited: newCustomRpc))
             restartHandler.add(.switchDappServer(server: server))
@@ -180,7 +209,10 @@ public class AddCustomChain {
         }
     }
 
-    private func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, chainNameFallback: String) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String), AddCustomChainError> {
+    private func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject,
+                                    chainId: Int,
+                                    chainNameFallback: String) -> CheckBlockchainExplorerApiHostnamePublisher {
+
         //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
         guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
@@ -192,7 +224,11 @@ public class AddCustomChain {
             .eraseToAnyPublisher()
     }
 
-    private func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
+    private func checkRpcServer(customChain: WalletAddEthereumChainObject,
+                                chainId: Int,
+                                rpcUrl: String,
+                                chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
+
         guard let url = URL(string: rpcUrl) else { return .fail(AddCustomChainError.noRpcNodeUrl) }
 
         //Whether the explorer API endpoint is Etherscan or blockscout or testnet or not doesn't matter here
@@ -222,7 +258,10 @@ public class AddCustomChain {
             .eraseToAnyPublisher()
     }
 
-    private func checkBlockchainExplorerApiHostname(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String) -> CheckBlockchainExplorerApiHostnamePublisher {
+    private func checkBlockchainExplorerApiHostname(customChain: WalletAddEthereumChainObject,
+                                                    chainId: Int,
+                                                    rpcUrl: String) -> CheckBlockchainExplorerApiHostnamePublisher {
+
         guard let urlString = customChain.blockExplorerUrls?.first else {
             return .fail(AddCustomChainError.missingBlockchainExplorerUrl)
         }
