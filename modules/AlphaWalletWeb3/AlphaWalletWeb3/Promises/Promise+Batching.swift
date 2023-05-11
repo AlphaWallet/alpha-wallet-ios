@@ -57,6 +57,10 @@ public class JSONRPCrequestDispatcher {
         case .NoBatching:
             return provider.sendAsync(request, queue: queue)
         case .Batch:
+            guard request.id != nil else {
+                return provider.sendAsync(request, queue: queue)
+            }
+            
             do {
                 let batch = try getBatch()
                 return try batch.add(request, maxWaitTime: MAX_WAIT_TIME)
@@ -136,8 +140,8 @@ extension JSONRPCrequestDispatcher: BatchDelegate {
             .sendAsync(requestsBatch, queue: queue)
             .done(on: queue, { [weak batches] batchResponse in
                 for response in batchResponse.responses {
-                    let id = UInt64(response.id)
-                    guard let value = batch.promises[id] else {
+                    guard let id = response.id else { continue }
+                    guard let value = batch.promises[UInt64(id)] else {
                         guard let keys = batch.promises.keys() else { return }
                         for key in keys {
                             guard let value = batch.promises[key] else { continue }
