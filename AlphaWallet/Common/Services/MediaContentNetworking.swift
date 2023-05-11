@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import AlphaWalletFoundation
 import Combine
+import AlphaWalletOpenSea
 
 protocol MediaContentNetworking {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>

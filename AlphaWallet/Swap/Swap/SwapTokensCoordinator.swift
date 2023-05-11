@@ -350,7 +350,7 @@ extension SwapTokensCoordinator: BuyCryptoDelegate {
         delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
-
+import AlphaWalletAddress
 public extension UnconfirmedTransaction {
     static func buildApproveTransaction(contract: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt) throws -> (UnconfirmedTransaction, TransactionType.Configuration) {
         let configuration: TransactionType.Configuration = .approve
