@@ -20,6 +20,7 @@ class AddCustomChainNetworking {
         guard let urlString = customChain.blockExplorerUrls?.first else {
             return .just(.unknown)
         }
+
         guard let url = EtherscanURLBuilder(host: urlString.url).buildWithTokennfttx() else {
             return .just(.unknown)
         }
