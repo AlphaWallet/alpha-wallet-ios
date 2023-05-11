@@ -44,9 +44,7 @@ public final class MigrateToSupportEip1559Transactions: Service {
         Config.setLastFetchedErc20InteractionBlockNumber(0, server: server, wallet: wallet.address)
         Config.setLastFetchedErc721InteractionBlockNumber(0, server: server, wallet: wallet.address)
 
-        let sessionId = WalletSession.functional.sessionID(account: wallet, server: server)
-        let tracker = TransactionsTracker(sessionID: sessionId)
-        tracker.fetchingState = .initial
+        PersistantSchedulerStateProvider.resetFetchingState(account: wallet, servers: [server])
     }
 }
 

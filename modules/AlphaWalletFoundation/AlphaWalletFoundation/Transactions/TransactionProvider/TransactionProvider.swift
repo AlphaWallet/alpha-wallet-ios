@@ -21,10 +21,9 @@ public class TransactionProvider: SingleChainTransactionProvider {
             transactionDataStore: transactionDataStore,
             ercTokenDetector: ercTokenDetector)
     }()
-    private let defaultPagination: TransactionsPagination
-    private let schedulers: [Scheduler]
-    private let latestTransactionSchedulerProviders: [TransactionProvider.TransactionSchedulerProvider]
+    private let schedulerProviders: [TransactionSchedulerProviderData]
     private var cancellable = Set<AnyCancellable>()
+    private let queue = DispatchQueue(label: "com.transactionProvider.updateQueue")
 
     public private (set) var state: TransactionProviderState = .pending
 
@@ -36,14 +35,13 @@ public class TransactionProvider: SingleChainTransactionProvider {
                 defaultPagination: TransactionsPagination,
                 fetchTypes: [TransactionFetchType] = TransactionProvider.TransactionFetchType.allCases) {
 
-        self.defaultPagination = defaultPagination
         self.session = session
         self.networking = networking
         self.analytics = analytics
         self.transactionDataStore = transactionDataStore
         self.ercTokenDetector = ercTokenDetector
-        self.latestTransactionSchedulerProviders = fetchTypes.map { fetchType in
-            TransactionSchedulerProvider(
+        self.schedulerProviders = fetchTypes.map { fetchType in
+            let schedulerProvider = TransactionSchedulerProvider(
                 session: session,
                 networking: networking,
                 defaultPagination: defaultPagination,
@@ -51,15 +49,30 @@ public class TransactionProvider: SingleChainTransactionProvider {
                 paginationStorage: WalletConfig(address: session.account.address),
                 fetchType: fetchType,
                 stateProvider: PersistantSchedulerStateProvider(sessionID: session.sessionID, prefix: fetchType.rawValue))
+            let scheduler = Scheduler(provider: schedulerProvider)
+
+            return TransactionSchedulerProviderData(
+                scheduler: scheduler,
+                fetchType: fetchType,
+                schedulerProvider: schedulerProvider)
         }
 
-        schedulers = latestTransactionSchedulerProviders.map { Scheduler(provider: $0) }
-
-        latestTransactionSchedulerProviders.forEach { provider in
-            provider.publisher
-                .sink { [weak self] in self?.handle(response: $0, provider: provider) }
+        self.schedulerProviders.forEach { data in
+            data.schedulerProvider
+                .publisher
+                .sink { [weak self] in self?.handle(response: $0, provider: data.schedulerProvider) }
                 .store(in: &cancellable)
         }
+
+        pendingTransactionProvider.completeTransaction
+            .compactMap { try? $0.get() }
+            .sink { [weak self] in self?.forceFetchLatestTransactions(transaction: $0) }
+            .store(in: &cancellable)
+    }
+
+    deinit {
+        schedulerProviders.forEach { $0.cancel() }
+        pendingTransactionProvider.cancelScheduler()
     }
 
     private func handle(response: Result<[Transaction], PromiseError>, provider: SchedulerProvider) {
@@ -69,10 +82,36 @@ public class TransactionProvider: SingleChainTransactionProvider {
             ercTokenDetector.detect(from: newOrUpdatedTransactions)
         case .failure(let error):
             if case ApiNetworkingError.methodNotSupported = error.embedded {
-                if let scheduler = schedulers.first(where: { $0.provider === provider }) {
-                    scheduler.cancel()
+                if let data = schedulerProviders.first(where: { $0.schedulerProvider === provider }) {
+                    data.cancel()
                 }
             }
+        }
+    }
+
+    private func getSchedulerProvider(fetchType: TransactionFetchType) -> TransactionSchedulerProviderData? {
+        schedulerProviders.first(where: { $0.fetchType == fetchType })
+    }
+
+    private func forceFetchLatestTransactions(transaction: Transaction) {
+        if let operation = transaction.operation {
+            switch operation.operationType {
+            case .erc1155TokenTransfer:
+                guard let service = self.getSchedulerProvider(fetchType: .erc1155) else { return }
+                service.restart(force: true)
+            case .erc20TokenTransfer:
+                guard let service = self.getSchedulerProvider(fetchType: .erc20) else { return }
+                service.restart(force: true)
+            case .erc721TokenTransfer:
+                guard let service = self.getSchedulerProvider(fetchType: .erc721) else { return }
+                service.restart(force: true)
+            default:
+                guard let service = self.getSchedulerProvider(fetchType: .normal) else { return }
+                service.restart(force: true)
+            }
+        } else {
+            guard let service = self.getSchedulerProvider(fetchType: .normal) else { return }
+            service.restart(force: true)
         }
     }
 
@@ -80,8 +119,8 @@ public class TransactionProvider: SingleChainTransactionProvider {
         guard state == .pending else { return }
 
         pendingTransactionProvider.start()
-        schedulers.forEach { $0.start() }
-        DispatchQueue(label: "com.transactionProvider.updateQueue").async { [weak self] in self?.removeUnknownTransactions() }
+        schedulerProviders.forEach { $0.start() }
+        queue.async { [weak self] in self?.removeUnknownTransactions() }
         state = .running
     }
 
@@ -90,7 +129,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
 
         pendingTransactionProvider.resumeScheduler()
 
-        schedulers.forEach { $0.restart() }
+        schedulerProviders.forEach { $0.restart() }
         state = .running
     }
 
@@ -98,7 +137,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
         guard state == .running || state == .pending else { return }
 
         pendingTransactionProvider.cancelScheduler()
-        schedulers.forEach { $0.cancel() }
+        schedulerProviders.forEach { $0.cancel() }
         state = .stopped
     }
 
@@ -113,6 +152,33 @@ public class TransactionProvider: SingleChainTransactionProvider {
 }
 
 extension TransactionProvider {
+    private struct TransactionSchedulerProviderData {
+        private let scheduler: Scheduler
+
+        let fetchType: TransactionFetchType
+        let schedulerProvider: TransactionProvider.TransactionSchedulerProvider
+
+        init(scheduler: Scheduler,
+             fetchType: TransactionFetchType,
+             schedulerProvider: TransactionProvider.TransactionSchedulerProvider) {
+
+            self.scheduler = scheduler
+            self.fetchType = fetchType
+            self.schedulerProvider = schedulerProvider
+        }
+
+        func start() {
+            scheduler.start()
+        }
+
+        func cancel() {
+            scheduler.cancel()
+        }
+
+        func restart(force: Bool = false) {
+            scheduler.restart(force: force)
+        }
+    }
 
     public enum TransactionFetchType: String, CaseIterable {
         case normal

@@ -177,7 +177,7 @@ public class PersistantSchedulerStateProvider: SchedulerStateProvider {
     }
 
     public init(sessionID: String,
-                prefix: String = "transactions.fetchingState", // Migration from TransactionFetchingState, keep as it is
+                prefix: String,
                 defaults: UserDefaults = .standardOrForTests) {
 
         self.prefix = prefix
@@ -186,13 +186,25 @@ public class PersistantSchedulerStateProvider: SchedulerStateProvider {
     }
 
     public static func resetFetchingState(account: Wallet,
-                                          serversProvider: ServersProvidable,
-                                          fetchingState: TransactionFetchingState = .initial) {
+                                          servers: [RPCServer],
+                                          state: SchedulerProviderState = .initial) {
 
-        for each in serversProvider.enabledServers {
-            let sessionID = WalletSession.functional.sessionID(account: account, server: each)
-            TransactionsTracker(sessionID: sessionID).fetchingState = fetchingState
+        for server in servers {
+            let sessionID = WalletSession.functional.sessionID(account: account, server: server)
+            for prefix in EtherscanCompatibleSchedulerStatePrefix.allCases {
+                PersistantSchedulerStateProvider(sessionID: sessionID, prefix: prefix.rawValue).state = state
+            }
+
+            for prefix in TransactionProvider.TransactionFetchType.allCases {
+                PersistantSchedulerStateProvider(sessionID: sessionID, prefix: prefix.rawValue).state = state
+            }
         }
     }
 }
 
+enum EtherscanCompatibleSchedulerStatePrefix: String, CaseIterable {
+    case normalTransactions = "normalTransactions"
+    case oldestTransaction = "transactions.fetchingState" // Migration from TransactionFetchingState, keep as it is
+    case erc20LatestTransactions = "erc20LatestTransactions"
+    case erc721LatestTransactions = "erc721LatestTransactions"
+}

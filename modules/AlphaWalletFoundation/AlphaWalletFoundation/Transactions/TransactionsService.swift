@@ -10,13 +10,6 @@ public class TransactionsService {
     private let analytics: AnalyticsLogger
     private var providers: [RPCServer: SingleChainTransactionProvider] = [:]
     private let config: Config
-    private let fetchLatestTransactionsQueue: OperationQueue = {
-        let queue = OperationQueue()
-        queue.name = "Fetch Latest Transactions"
-            //A limit is important for many reasons. One of which is Etherscan has a rate limit of 5 calls/sec/IP address according to https://etherscan.io/apis
-        queue.maxConcurrentOperationCount = 3
-        return queue
-    }()
 
     public var transactionsChangeset: AnyPublisher<[Transaction], Never> {
         return sessionsProvider.sessions
@@ -89,10 +82,6 @@ public class TransactionsService {
         providersToStop.forEach { $0.pause() }
     }
 
-    deinit {
-        fetchLatestTransactionsQueue.cancelAllOperations()
-    }
-
     private func buildTransactionProvider(for session: WalletSession) -> SingleChainTransactionProvider {
         let ercTokenDetector = ErcTokenDetector(
             tokensService: tokensService,
@@ -107,8 +96,6 @@ public class TransactionsService {
                 session: session,
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
-                tokensService: tokensService,
-                fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
                 ercTokenDetector: ercTokenDetector,
                 apiNetworking: session.apiNetworking)
 
