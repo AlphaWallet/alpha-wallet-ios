@@ -41,22 +41,22 @@ class FakeApiNetworking: ApiNetworking {
     }
 
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 

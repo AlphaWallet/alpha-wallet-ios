@@ -44,7 +44,7 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
-                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -65,7 +65,7 @@ public class OklinkApiNetworking: ApiNetworking {
             .flatMap { response in
                 self.buildTransactions(transactions: response.transactions)
                     .map {
-                        return TransactionsResponse<Transaction>(
+                        return TransactionsResponse(
                             transactions: Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction($0),
                             pagination: response.pagination)
                     }
@@ -83,7 +83,7 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -101,20 +101,20 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<Transaction> in
+                    .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc20TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<Transaction>(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: mergedTransactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -132,20 +132,20 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<Transaction> in
+                    .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc721TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<Transaction>(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: mergedTransactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> {
+                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -163,14 +163,14 @@ public class OklinkApiNetworking: ApiNetworking {
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
-            .flatMap { response -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError> in
+            .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
                 let contracts = response.transactions.compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0.tokenContractAddress) }
                 return self.fetchMissingOperationData(contracts: Array(Set(contracts)))
                     .setFailureType(to: PromiseError.self)
-                    .map { operations -> TransactionsResponse<Transaction> in
+                    .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc1155TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse<Transaction>(transactions: transactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: transactions, pagination: response.pagination)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
@@ -360,11 +360,21 @@ fileprivate extension TransactionState {
 
 extension OklinkApiNetworking {
 
+    struct Response<T> {
+        let transactions: [T]
+        let pagination: TransactionsPagination
+
+        init(transactions: [T], pagination: TransactionsPagination) {
+            self.transactions = transactions
+            self.pagination = pagination
+        }
+    }
+
     struct TransactionListDecoder {
         let pagination: TransactionsPagination
         let paginationFilter: TransactionPaginationFilter
 
-        func decode(data: Data) throws -> TransactionsResponse<Oklink.Transaction> {
+        func decode(data: Data) throws -> Response<Oklink.Transaction> {
             guard
                 let json = try? JSON(data: data),
                 let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
@@ -382,7 +392,7 @@ extension OklinkApiNetworking {
         let pagination: TransactionsPagination
         let paginationFilter: TransactionPaginationFilter
 
-        func decode(data: Data) throws -> TransactionsResponse<NormalTransaction> {
+        func decode(data: Data) throws -> Response<NormalTransaction> {
             guard
                 let json = try? JSON(data: data),
                 let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
