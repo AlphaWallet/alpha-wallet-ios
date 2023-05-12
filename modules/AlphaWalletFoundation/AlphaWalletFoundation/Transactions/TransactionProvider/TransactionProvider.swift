@@ -88,7 +88,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
 
     public func runScheduledTimers() {
         pendingTransactionProvider.resumeScheduler()
-        schedulers.forEach { $0.resume() }
+        schedulers.forEach { $0.restart() }
     }
 
     public func stop() {

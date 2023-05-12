@@ -31,8 +31,14 @@ protocol SchedulerProvider: AnyObject {
 
 protocol SchedulerProtocol {
     func start()
-    func resume()
+    func restart(force: Bool)
     func cancel()
+}
+
+extension SchedulerProtocol {
+    func restart() {
+        restart(force: false)
+    }
 }
 
 enum SchedulerError: Error {
@@ -87,11 +93,11 @@ final class Scheduler: SchedulerProtocol {
         countdownTimer?.interval = 1
     }
 
-    func resume() {
+    func restart(force: Bool = false) {
         guard reachability.isReachable else { return }
 
         cancel()
-        schedulerCancelable = runNewSchedulerCycle()
+        schedulerCancelable = force ? runSchedulerCycleWithInitialCall() : runNewSchedulerCycle()
     }
 
     func cancel() {
