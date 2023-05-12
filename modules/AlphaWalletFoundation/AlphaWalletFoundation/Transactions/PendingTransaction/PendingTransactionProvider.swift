@@ -63,7 +63,7 @@ final class PendingTransactionProvider {
     func resumeScheduler() {
         queue.async {
             for each in self.store.values {
-                each.value.resume()
+                each.value.restart()
             }
         }
     }
