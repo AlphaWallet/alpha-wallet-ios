@@ -11,11 +11,11 @@ import AlphaWalletCore
 import AlphaWalletLogger
 import SwiftyJSON
 
-public struct TransactionsResponse<T> {
-    public let transactions: [T]
+public struct TransactionsResponse {
+    public let transactions: [Transaction]
     public let pagination: TransactionsPagination
 
-    public init(transactions: [T], pagination: TransactionsPagination) {
+    public init(transactions: [Transaction], pagination: TransactionsPagination) {
         self.transactions = transactions
         self.pagination = pagination
     }
@@ -27,16 +27,16 @@ public enum ApiNetworkingError: Error {
 
 public protocol ApiNetworking {
     func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
+                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
+                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse<Transaction>, PromiseError>
+                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError>
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                 startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>

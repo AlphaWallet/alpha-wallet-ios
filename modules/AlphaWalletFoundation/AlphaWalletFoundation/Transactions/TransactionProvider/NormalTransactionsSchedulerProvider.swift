@@ -59,7 +59,7 @@ final class NormalTransactionsSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response: TransactionsResponse<Transaction>) {
+    private func handle(response: TransactionsResponse) {
         storage.set(
             transactionsPagination: response.pagination,
             fetchType: .normal,

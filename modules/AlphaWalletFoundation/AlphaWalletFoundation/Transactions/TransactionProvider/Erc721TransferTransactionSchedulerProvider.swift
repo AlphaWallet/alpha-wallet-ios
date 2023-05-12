@@ -58,7 +58,7 @@ final class Erc721TransferTransactionSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response: TransactionsResponse<Transaction>) {
+    private func handle(response: TransactionsResponse) {
         storage.set(
             transactionsPagination: response.pagination,
             fetchType: .erc721,
