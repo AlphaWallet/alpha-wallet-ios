@@ -8,8 +8,8 @@
 import Foundation
 
 protocol TransactionsPaginationStorage {
-    func transactionsPagination(server: RPCServer, fetchType: TransactionFetchType) -> TransactionsPagination?
-    func set(transactionsPagination: TransactionsPagination?, fetchType: TransactionFetchType, server: RPCServer)
+    func transactionsPagination(server: RPCServer, fetchType: TransactionProvider.TransactionFetchType) -> TransactionsPagination?
+    func set(transactionsPagination: TransactionsPagination?, fetchType: TransactionProvider.TransactionFetchType, server: RPCServer)
 }
 
 //TODO: rename maybe with somthing else
@@ -28,17 +28,17 @@ public struct WalletConfig {
 
 extension WalletConfig: TransactionsPaginationStorage {
 
-    private static func transactionsPaginationKey(server: RPCServer, fetchType: TransactionFetchType) -> String {
+    private static func transactionsPaginationKey(server: RPCServer, fetchType: TransactionProvider.TransactionFetchType) -> String {
         return "transactionsPagination-\(server.chainID)-\(fetchType.rawValue)"
     }
 
-    func transactionsPagination(server: RPCServer, fetchType: TransactionFetchType) -> TransactionsPagination? {
+    func transactionsPagination(server: RPCServer, fetchType: TransactionProvider.TransactionFetchType) -> TransactionsPagination? {
         let key = WalletConfig.transactionsPaginationKey(server: server, fetchType: fetchType)
 
         return defaults.data(forKey: key).flatMap { return try? JSONDecoder().decode(TransactionsPagination.self, from: $0) }
     }
 
-    func set(transactionsPagination: TransactionsPagination?, fetchType: TransactionFetchType, server: RPCServer) {
+    func set(transactionsPagination: TransactionsPagination?, fetchType: TransactionProvider.TransactionFetchType, server: RPCServer) {
         let key = WalletConfig.transactionsPaginationKey(server: server, fetchType: fetchType)
         let value = transactionsPagination.flatMap { try? JSONEncoder().encode($0) }
         defaults.set(value, forKey: key)

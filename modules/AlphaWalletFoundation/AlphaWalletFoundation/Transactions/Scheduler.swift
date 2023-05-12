@@ -9,6 +9,20 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
+public enum SchedulerProviderState: Int {
+    case initial
+    case stopped
+    case failured
+
+    public init(int: Int) {
+        self = SchedulerProviderState(rawValue: int) ?? .initial
+    }
+}
+
+public protocol SchedulerStateProvider: AnyObject {
+    var state: SchedulerProviderState { get set }
+}
+
 protocol SchedulerProvider: AnyObject {
     var name: String { get }
     var operation: AnyPublisher<Void, PromiseError> { get }
@@ -21,11 +35,14 @@ protocol SchedulerProtocol {
     func cancel()
 }
 
+enum SchedulerError: Error {
+    case cancelled
+}
+
 final class Scheduler: SchedulerProtocol {
     private lazy var timer = CombineTimer(interval: provider.interval)
-    private let countdownTimer = CombineTimer(interval: 1)
+    private var countdownTimer: CombineTimer?
     private let reachability: ReachabilityManagerProtocol
-    private let provider: SchedulerProvider
     private lazy var queue = RunLoop.main
     private var cancelable = Set<AnyCancellable>()
     private var schedulerCancelable: AnyCancellable?
@@ -33,6 +50,7 @@ final class Scheduler: SchedulerProtocol {
     private var scheduledTaskCancelable: AnyCancellable?
 
     @Published var state: Scheduler.State = .idle
+    let provider: SchedulerProvider
 
     init(provider: SchedulerProvider,
          reachability: ReachabilityManagerProtocol = ReachabilityManager(),
@@ -42,7 +60,9 @@ final class Scheduler: SchedulerProtocol {
         self.provider = provider
 
         if useCountdownTimer {
-            countdownTimer.publisher
+            let timer = CombineTimer(interval: 1)
+            countdownTimer = timer
+            timer.publisher
                 .compactMap { _ -> Scheduler.State? in
                     guard case .tick(let value) = self.state, value - 1 >= 0 else { return nil }
                     return Scheduler.State.tick(value - 1)
@@ -61,10 +81,10 @@ final class Scheduler: SchedulerProtocol {
                 self?.schedulerCancelable = self?.runSchedulerCycleWithInitialCall()
             }.store(in: &cancelable)
     }
-    
+
     private func resetCountdownCounter() {
         self.state = .tick(Int(provider.interval))
-        countdownTimer.interval = 1
+        countdownTimer?.interval = 1
     }
 
     func resume() {
@@ -101,6 +121,10 @@ final class Scheduler: SchedulerProtocol {
                 self?.isRunning = false
                 switch result {
                 case .failure(let error):
+                    if case SchedulerError.cancelled = error.embedded {
+                        self?.cancel()
+                        return
+                    }
                     self?.state = .done(.failure(error))
                 case .finished:
                     self?.state = .done(.success(()))
@@ -131,3 +155,38 @@ extension Scheduler {
         case done(Result<Void, Error>)
     }
 }
+
+public class PersistantSchedulerStateProvider: SchedulerStateProvider {
+    private let defaults: UserDefaults
+    private let sessionID: String
+    private let prefix: String
+
+    public var state: SchedulerProviderState {
+        get { return SchedulerProviderState(int: defaults.integer(forKey: fetchingStateKey)) }
+        set { return defaults.set(newValue.rawValue, forKey: fetchingStateKey) }
+    }
+
+    private var fetchingStateKey: String {
+        return "\(prefix)-\(sessionID)"
+    }
+
+    public init(sessionID: String,
+                prefix: String = "transactions.fetchingState", // Migration from TransactionFetchingState, keep as it is
+                defaults: UserDefaults = .standardOrForTests) {
+
+        self.prefix = prefix
+        self.sessionID = sessionID
+        self.defaults = defaults
+    }
+
+    public static func resetFetchingState(account: Wallet,
+                                          serversProvider: ServersProvidable,
+                                          fetchingState: TransactionFetchingState = .initial) {
+
+        for each in serversProvider.enabledServers {
+            let sessionID = WalletSession.functional.sessionID(account: account, server: each)
+            TransactionsTracker(sessionID: sessionID).fetchingState = fetchingState
+        }
+    }
+}
+
