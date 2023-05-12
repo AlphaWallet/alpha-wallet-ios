@@ -211,7 +211,7 @@ public enum RPCServer: Hashable, CaseIterable {
             return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
         case .goerli:
             guard let url = URL(string: "https://api-goerli.etherscan.io/api") else { return .unknown }
-            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+            return .etherscan(apiKey: nil, apiUrl: url)
         case .fantom:
             guard let url = URL(string: "https://api.ftmscan.com/api") else { return .unknown }
             return .etherscan(apiKey: nil, apiUrl: url)
@@ -235,7 +235,7 @@ public enum RPCServer: Hashable, CaseIterable {
             return .etherscan(apiKey: Constants.Credentials.polygonScanExplorerApiKey, apiUrl: url)
         case .mumbai_testnet:
             guard let url = URL(string: "https://api-testnet.polygonscan.com/api") else { return .unknown }
-            return .etherscan(apiKey: Constants.Credentials.polygonScanExplorerApiKey, apiUrl: url)
+            return .etherscan(apiKey: nil, apiUrl: url)
         case .arbitrum:
             guard let url = URL(string: "https://api.arbiscan.io/api") else { return .unknown }
             return .etherscan(apiKey: Constants.Credentials.arbiscanExplorerApiKey, apiUrl: url)
