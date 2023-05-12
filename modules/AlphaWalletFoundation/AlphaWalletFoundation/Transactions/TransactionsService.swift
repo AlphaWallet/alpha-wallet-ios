@@ -58,9 +58,9 @@ public class TransactionsService {
             .sink { [weak self] state in
                 switch state {
                 case .didEnterBackground:
-                    self?.stopTimers()
+                    self?.pause()
                 case .willEnterForeground:
-                    self?.restartTimers()
+                    self?.resume()
                 }
             }.store(in: &cancelable)
 
@@ -79,14 +79,14 @@ public class TransactionsService {
                     }
                 }
                 return providers
-            }.handleEvents(receiveOutput: { [weak self] in self?.stopDeleted(except: $0) })
+            }.handleEvents(receiveOutput: { [weak self] in self?.pauseDeleted(except: $0) })
             .assign(to: \.providers, on: self)
             .store(in: &cancelable)
     }
 
-    private func stopDeleted(except providers: [RPCServer: SingleChainTransactionProvider]) {
+    private func pauseDeleted(except providers: [RPCServer: SingleChainTransactionProvider]) {
         let providersToStop = self.providers.keys.filter { !providers.keys.contains($0) }.compactMap { self.providers[$0] }
-        providersToStop.forEach { $0.stop() }
+        providersToStop.forEach { $0.pause() }
     }
 
     deinit {
@@ -115,19 +115,7 @@ public class TransactionsService {
             provider.start()
 
             return provider
-        case .covalent(let apiKey), .oklink(let apiKey):
-            let provider = TransactionProvider(
-                session: session,
-                analytics: analytics,
-                transactionDataStore: transactionDataStore,
-                ercTokenDetector: ercTokenDetector,
-                networking: session.apiNetworking,
-                defaultPagination: session.server.defaultTransactionsPagination)
-
-            provider.start()
-
-            return provider
-        case .unknown:
+        case .covalent, .oklink, .unknown:
             let provider = TransactionProvider(
                 session: session,
                 analytics: analytics,
@@ -142,17 +130,32 @@ public class TransactionsService {
         }
     }
 
-    @objc private func stopTimers() {
+    @objc private func pause() {
         for each in providers {
-            each.value.stopTimers()
+            each.value.pause()
         }
     }
 
-    @objc private func restartTimers() {
+    @objc private func resume() {
         guard !config.development.isAutoFetchingDisabled else { return }
 
         for each in providers {
-            each.value.runScheduledTimers()
+            each.value.resume()
+        }
+    }
+
+    //TODO: call when receive a push notification
+    public func forceResumeOrStart(server: RPCServer) {
+        guard let provider = providers[server] else { return }
+
+        switch provider.state {
+        case .pending:
+            provider.start()
+        case .running:
+            provider.pause()
+            provider.resume()
+        case .stopped:
+            provider.resume()
         }
     }
 

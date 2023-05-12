@@ -30,6 +30,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             ercTokenDetector: ercTokenDetector)
     }()
 
+    public private (set) var state: TransactionProviderState = .pending
+
     init(session: WalletSession,
          analytics: AnalyticsLogger,
          transactionDataStore: TransactionDataStore,
@@ -48,8 +50,9 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     func start() {
-        pendingTransactionProvider.start()
+        guard state == .pending else { return }
 
+        pendingTransactionProvider.start()
         fetchLatestTransactions()
         runScheduledTimers()
         if transactionsTracker.fetchingState != .done {
@@ -61,17 +64,26 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         queue.async { [weak self] in
             self?.removeUnknownTransactions()
         }
+        state = .running
     }
 
-    func stopTimers() {
+    func resume() {
+        runScheduledTimers()
+    }
+
+    func pause() {
+        guard state == .running || state == .pending else { return }
         pendingTransactionProvider.cancelScheduler()
 
         updateTransactionsTimer?.invalidate()
         updateTransactionsTimer = nil
+        state = .stopped
     }
 
-    func runScheduledTimers() {
+    private func runScheduledTimers() {
         pendingTransactionProvider.resumeScheduler()
+
+        state = .running
 
         guard updateTransactionsTimer == nil else { return }
 
@@ -84,6 +96,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 strongSelf.autoDetectErc721Transactions()
             }
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
+
     }
 
     private func removeUnknownTransactions() {
@@ -189,13 +202,6 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     }
                 }
             })
-    }
-
-    public func stop() {
-        pendingTransactionProvider.cancelScheduler()
-
-        updateTransactionsTimer?.invalidate()
-        updateTransactionsTimer = nil
     }
 
     public func isServer(_ server: RPCServer) -> Bool {
