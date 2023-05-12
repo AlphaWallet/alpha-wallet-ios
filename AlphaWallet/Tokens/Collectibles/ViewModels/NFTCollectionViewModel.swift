@@ -134,6 +134,8 @@ final class NFTCollectionViewModel {
     var rightBarButtonItem: NFTCollectionViewModel.RightBarButtonItem {
         switch token.type {
         case .erc1155:
+            guard Features.default.isAvailable(.isNftTransferEnabled) else { return .assetSelection(isEnabled: false) }
+
             switch wallet.type {
             case .real, .hardware:
                 return .assetSelection(isEnabled: true)
