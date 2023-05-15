@@ -139,6 +139,18 @@ extension JSONRPCrequestDispatcher: BatchDelegate {
         provider
             .sendAsync(requestsBatch, queue: queue)
             .done(on: queue, { [weak batches] batchResponse in
+                if let error = batchResponse.responses.last?.error, batchResponse.responses.count == 1 {
+                    guard let keys = batch.promises.keys() else { return }
+
+                    for key in keys {
+                        guard let value = batch.promises[key] else { continue }
+                        value.seal.reject(Web3Error.nodeError(error.message))
+                    }
+
+                    batches?.removeAll(batch)
+                    return
+                }
+                
                 for response in batchResponse.responses {
                     guard let id = response.id else { continue }
                     guard let value = batch.promises[UInt64(id)] else {
