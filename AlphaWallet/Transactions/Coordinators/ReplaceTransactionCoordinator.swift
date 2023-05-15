@@ -89,7 +89,7 @@ class ReplaceTransactionCoordinator: Coordinator {
           mode: Mode,
           tokensService: TokensProcessingPipeline,
           networkService: NetworkService) {
-        
+
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigUInt(transaction.nonce) else { return nil }
         self.networkService = networkService
@@ -112,7 +112,7 @@ class ReplaceTransactionCoordinator: Coordinator {
             recipient: recipient,
             contract: contract,
             data: transactionData,
-            gasPrice: computeGasPriceForReplacementTransaction(pendingTransactionInformation.gasPrice),
+            gasPrice: pendingTransactionInformation.gasPrice.computeGasPriceForReplacementTransaction(),
             nonce: nonce)
 
         let coordinator = TransactionConfirmationCoordinator(
@@ -134,15 +134,6 @@ class ReplaceTransactionCoordinator: Coordinator {
             coordinator.start(fromSource: .speedupTransaction)
         case .cancel:
             coordinator.start(fromSource: .cancelTransaction)
-        }
-    }
-
-    private func computeGasPriceForReplacementTransaction(_ gasPrice: GasPrice) -> GasPrice {
-        switch gasPrice {
-        case .legacy(let gasPrice):
-            return .legacy(gasPrice: gasPrice * 110 / 100)
-        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
-            return .eip1559(maxFeePerGas: maxFeePerGas * 110 / 100, maxPriorityFeePerGas: maxPriorityFeePerGas)
         }
     }
 }
@@ -217,5 +208,16 @@ extension ReplaceTransactionCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+extension GasPrice {
+    fileprivate func computeGasPriceForReplacementTransaction() -> GasPrice {
+        switch self {
+        case .legacy(let gasPrice):
+            return .legacy(gasPrice: gasPrice * 110 / 100)
+        case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
+            return .eip1559(maxFeePerGas: maxFeePerGas * 110 / 100, maxPriorityFeePerGas: maxPriorityFeePerGas)
+        }
     }
 }
