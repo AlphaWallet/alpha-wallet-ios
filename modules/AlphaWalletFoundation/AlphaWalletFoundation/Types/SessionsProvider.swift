@@ -193,7 +193,18 @@ public class ApiTransporterFactory {
         if let transporter = transportes[server] {
             return transporter
         } else {
-            let transporter = BaseApiTransporter()
+            let policy: RetryPolicy
+
+            switch server {
+            case .goerli, .mumbai_testnet:
+                //NOTE: goerli as well as mumbai_testnet retrun 403 error code
+                policy = ApiTransporterRetryPolicy(retryableHTTPStatusCodes: [429, 408, 500, 502, 503, 504, 403])
+            case .xDai, .classic, .main, .callisto, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon, .optimistic, .arbitrum, .palm, .klaytnCypress, .ioTeX, .cronosMainnet, .okx, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .cronosTestnet, .palmTestnet, .klaytnBaobabTestnet, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli, .sepolia, .custom:
+                policy = ApiTransporterRetryPolicy()
+            }
+
+            let transporter = BaseApiTransporter(policy: policy)
+
             transportes[server] = transporter
             return transporter
         }

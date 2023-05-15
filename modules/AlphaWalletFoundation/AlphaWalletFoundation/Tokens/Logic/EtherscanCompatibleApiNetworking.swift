@@ -349,7 +349,7 @@ extension EtherscanCompatibleApiNetworking {
             }
 
             request.allHTTPHeaderFields = [
-                "Content-type": "application/json",
+                "Content-Type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
