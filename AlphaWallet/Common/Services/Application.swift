@@ -249,7 +249,7 @@ class Application: WalletDependenciesProvidable {
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 promptBackup.deleteWallet(wallet: account)
                 //TODO: make same as WalletConfig
-                TransactionsTracker.resetFetchingState(account: account, serversProvider: serversProvider)
+                PersistantSchedulerStateProvider.resetFetchingState(account: account, servers: serversProvider.allServers)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
                 legacyFileBasedKeystore.delete(wallet: account)

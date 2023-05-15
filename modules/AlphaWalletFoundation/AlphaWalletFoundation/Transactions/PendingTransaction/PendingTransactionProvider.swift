@@ -75,32 +75,32 @@ final class PendingTransactionProvider {
     }
 
     private func runPendingTransactionWatchers(transactions: [Transaction]) {
-        for each in transactions {
-            guard store[each.id] == nil else { continue }
+        for transaction in transactions {
+            guard store[transaction.id] == nil else { continue }
 
             let provider = PendingTransactionSchedulerProvider(
                 blockchainProvider: session.blockchainProvider,
-                transaction: each,
+                transaction: transaction,
                 fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
 
             provider.responsePublisher
                 .receive(on: queue)
-                .sink { [weak self] in self?.handle(response: $0, provider: provider) }
+                .sink { [weak self] in self?.handle(response: $0, transaction: transaction) }
                 .store(in: &cancelable)
 
             let scheduler = Scheduler(provider: provider)
             scheduler.start()
 
-            store[each.id] = scheduler
+            store[transaction.id] = scheduler
         }
     }
 
-    private func handle(response: Result<EthereumTransaction, SessionTaskError>, provider: PendingTransactionSchedulerProvider) {
+    private func handle(response: Result<EthereumTransaction, SessionTaskError>, transaction: Transaction) {
         switch response {
         case .success(let pendingTransaction):
-            handle(transaction: provider.transaction, pendingTransaction: pendingTransaction)
+            handle(transaction: transaction, pendingTransaction: pendingTransaction)
         case .failure(let error):
-            handle(error: error, transaction: provider.transaction)
+            handle(error: error, transaction: transaction)
         }
     }
 
