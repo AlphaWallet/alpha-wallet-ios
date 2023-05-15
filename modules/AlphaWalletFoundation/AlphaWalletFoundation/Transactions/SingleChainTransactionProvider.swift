@@ -10,10 +10,17 @@ enum TransactionsSource {
     case unknown
 }
 
+public enum TransactionProviderState: Int {
+    case pending
+    case running
+    case stopped
+}
+
 public protocol SingleChainTransactionProvider: AnyObject {
+    var state: TransactionProviderState { get }
+    
     func start()
-    func stopTimers()
-    func runScheduledTimers()
-    func stop()
+    func resume()
+    func pause()
     func isServer(_ server: RPCServer) -> Bool
 }

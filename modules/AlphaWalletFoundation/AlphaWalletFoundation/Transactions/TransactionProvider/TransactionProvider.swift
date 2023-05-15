@@ -21,11 +21,12 @@ public class TransactionProvider: SingleChainTransactionProvider {
             transactionDataStore: transactionDataStore,
             ercTokenDetector: ercTokenDetector)
     }()
-
     private let defaultPagination: TransactionsPagination
     private let schedulers: [Scheduler]
     private let latestTransactionSchedulerProviders: [TransactionProvider.TransactionSchedulerProvider]
     private var cancellable = Set<AnyCancellable>()
+
+    public private (set) var state: TransactionProviderState = .pending
 
     public init(session: WalletSession,
                 analytics: AnalyticsLogger,
@@ -76,23 +77,29 @@ public class TransactionProvider: SingleChainTransactionProvider {
     }
 
     public func start() {
+        guard state == .pending else { return }
+
         pendingTransactionProvider.start()
         schedulers.forEach { $0.start() }
         DispatchQueue(label: "com.transactionProvider.updateQueue").async { [weak self] in self?.removeUnknownTransactions() }
+        state = .running
     }
 
-    public func stopTimers() {
+    public func resume() {
+        guard state == .stopped else { return }
+
+        pendingTransactionProvider.resumeScheduler()
+
+        schedulers.forEach { $0.restart() }
+        state = .running
+    }
+
+    public func pause() {
+        guard state == .running || state == .pending else { return }
+
         pendingTransactionProvider.cancelScheduler()
         schedulers.forEach { $0.cancel() }
-    }
-
-    public func runScheduledTimers() {
-        pendingTransactionProvider.resumeScheduler()
-        schedulers.forEach { $0.restart() }
-    }
-
-    public func stop() {
-        stopTimers()
+        state = .stopped
     }
 
     public func isServer(_ server: RPCServer) -> Bool {
