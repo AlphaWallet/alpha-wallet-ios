@@ -207,4 +207,5 @@ enum EtherscanCompatibleSchedulerStatePrefix: String, CaseIterable {
     case oldestTransaction = "transactions.fetchingState" // Migration from TransactionFetchingState, keep as it is
     case erc20LatestTransactions = "erc20LatestTransactions"
     case erc721LatestTransactions = "erc721LatestTransactions"
+    case erc1155LatestTransactions = "erc1155LatestTransactions"
 }

@@ -14,7 +14,8 @@ public class CovalentApiNetworking: ApiNetworking {
     private let baseUrl: URL = URL(string: "https://api.covalenthq.com")!
     private let apiKey: String?
     private let transporter: ApiTransporter
-    private let paginationFilter = TransactionPaginationFilter()
+    private let paginationFilter = TransactionPageBasedPaginationFilter()
+    private let defaultPagination = PageBasedTransactionsPagination(page: 0, lastFetched: [], limit: 500)
 
     public init(server: RPCServer,
                 apiKey: String?,
@@ -30,8 +31,13 @@ public class CovalentApiNetworking: ApiNetworking {
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
-                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+                                   sortOrder: GetTransactions.SortOrder,
+                                   pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
+        guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
+        
         let request = TransactionsRequest(
             baseUrl: baseUrl,
             walletAddress: walletAddress,
@@ -39,7 +45,7 @@ public class CovalentApiNetworking: ApiNetworking {
             page: pagination.page,
             pageSize: pagination.limit,
             apiKey: apiKey ?? "",
-            blockSignedAtAsc: true)
+            blockSignedAtAsc: sortOrder == .asc)
 
         return transporter.dataTaskPublisher(request)
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
@@ -51,57 +57,46 @@ public class CovalentApiNetworking: ApiNetworking {
                 let transactions = Covalent.ToNativeTransactionMapper.mapCovalentToNativeTransaction(transactions: data.transactions, server: server)
                 let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
 
-                return TransactionsResponse(transactions: mergedTransactions, pagination: data.pagination)
+                return TransactionsResponse(transactions: mergedTransactions, nextPage: data.nexPage)
             }.mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
+                                               pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
+                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+        
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
+                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
-                                       startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
+                                       pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
-                                        startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
+                                        pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
-                                         startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
-    }
-    
-    public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
-    }
+                                         pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-    public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
-
-    public func normalTransactions(walletAddress: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
-        return .empty()
-    }
-
-    public func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
-        return .empty()
-    }
-
 }
 
 extension CovalentApiNetworking {

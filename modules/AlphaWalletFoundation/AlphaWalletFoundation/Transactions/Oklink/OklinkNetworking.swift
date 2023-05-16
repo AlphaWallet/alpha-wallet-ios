@@ -22,9 +22,10 @@ public class OklinkApiNetworking: ApiNetworking {
     private let baseUrl: URL = URL(string: "https://www.oklink.com")!
     private let apiKey: String?
     private let transporter: ApiTransporter
-    private let paginationFilter = TransactionPaginationFilter()
+    private let paginationFilter = TransactionPageBasedPaginationFilter()
     private let ercTokenProvider: TokenProviderType
     private let transactionBuilder: TransactionBuilder
+    private let defaultPagination = PageBasedTransactionsPagination(page: 0, lastFetched: [], limit: 50)
 
     public init(server: RPCServer,
                 apiKey: String?,
@@ -44,7 +45,12 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
-                                   pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+                                   sortOrder: GetTransactions.SortOrder,
+                                   pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -67,7 +73,7 @@ public class OklinkApiNetworking: ApiNetworking {
                     .map {
                         return TransactionsResponse(
                             transactions: Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction($0),
-                            pagination: response.pagination)
+                            nextPage: response.nextPage)
                     }
             }.eraseToAnyPublisher()
     }
@@ -83,7 +89,11 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                               pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+                                               pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -108,13 +118,17 @@ public class OklinkApiNetworking: ApiNetworking {
                     .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc20TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: mergedTransactions, nextPage: response.nextPage)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -139,13 +153,17 @@ public class OklinkApiNetworking: ApiNetworking {
                     .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc721TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse(transactions: mergedTransactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: mergedTransactions, nextPage: response.nextPage)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                                pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = TransactionsRequest(
             baseUrl: baseUrl,
@@ -170,40 +188,27 @@ public class OklinkApiNetworking: ApiNetworking {
                     .map { operations -> TransactionsResponse in
                         let transactions = self.map(erc1155TokenTransferTransactions: response.transactions, operations: operations)
                         let mergedTransactions = Covalent.ToNativeTransactionMapper.mergeTransactionOperationsIntoSingleTransaction(transactions)
-                        return TransactionsResponse(transactions: transactions, pagination: response.pagination)
+                        return TransactionsResponse(transactions: transactions, nextPage: response.nextPage)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
-    }
-
-    public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
-    }
-
-    public func normalTransactions(walletAddress: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
-        return .empty()
-    }
-
-    public func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
-        return .empty()
-    }
-
     public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
-                                       startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
+                                       pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
-                                        startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
+                                        pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
-                                         startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
+                                         pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],
@@ -362,17 +367,17 @@ extension OklinkApiNetworking {
 
     struct Response<T> {
         let transactions: [T]
-        let pagination: TransactionsPagination
+        let nextPage: PageBasedTransactionsPagination
 
-        init(transactions: [T], pagination: TransactionsPagination) {
+        init(transactions: [T], nextPage: PageBasedTransactionsPagination) {
             self.transactions = transactions
-            self.pagination = pagination
+            self.nextPage = nextPage
         }
     }
 
     struct TransactionListDecoder {
-        let pagination: TransactionsPagination
-        let paginationFilter: TransactionPaginationFilter
+        let pagination: PageBasedTransactionsPagination
+        let paginationFilter: TransactionPageBasedPaginationFilter
 
         func decode(data: Data) throws -> Response<Oklink.Transaction> {
             guard
@@ -380,17 +385,17 @@ extension OklinkApiNetworking {
                 let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
             else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
-            guard let transactionsData = response.data.first else { return .init(transactions: [], pagination: pagination) }
+            guard let transactionsData = response.data.first else { return .init(transactions: [], nextPage: pagination) }
 
             let data = paginationFilter.process(transactions: transactionsData.transactionList, pagination: pagination)
 
-            return .init(transactions: data.transactions, pagination: data.pagination)
+            return .init(transactions: data.transactions, nextPage: data.nexPage)
         }
     }
 
     struct NormalTransactionListDecoder {
-        let pagination: TransactionsPagination
-        let paginationFilter: TransactionPaginationFilter
+        let pagination: PageBasedTransactionsPagination
+        let paginationFilter: TransactionPageBasedPaginationFilter
 
         func decode(data: Data) throws -> Response<NormalTransaction> {
             guard
@@ -398,12 +403,12 @@ extension OklinkApiNetworking {
                 let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
             else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
-            guard let transactionsData = response.data.first else { return .init(transactions: [], pagination: pagination) }
+            guard let transactionsData = response.data.first else { return .init(transactions: [], nextPage: pagination) }
 
             let transactions = transactionsData.transactionList.map { NormalTransaction(okLinkTransaction: $0) }
             let data = paginationFilter.process(transactions: transactions, pagination: pagination)
 
-            return .init(transactions: data.transactions, pagination: data.pagination)
+            return .init(transactions: data.transactions, nextPage: data.nexPage)
         }
     }
 

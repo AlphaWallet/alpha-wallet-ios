@@ -32,7 +32,6 @@ public class TransactionProvider: SingleChainTransactionProvider {
                 transactionDataStore: TransactionDataStore,
                 ercTokenDetector: ErcTokenDetector,
                 networking: ApiNetworking,
-                defaultPagination: TransactionsPagination,
                 fetchTypes: [TransactionFetchType] = TransactionProvider.TransactionFetchType.allCases) {
 
         self.session = session
@@ -44,7 +43,6 @@ public class TransactionProvider: SingleChainTransactionProvider {
             let schedulerProvider = TransactionSchedulerProvider(
                 session: session,
                 networking: networking,
-                defaultPagination: defaultPagination,
                 interval: Constants.Covalent.newlyAddedTransactionUpdateInterval,
                 paginationStorage: WalletConfig(address: session.account.address),
                 fetchType: fetchType,
@@ -180,6 +178,10 @@ extension TransactionProvider {
         }
     }
 
+    static func transactionsPaginationKey(server: RPCServer, fetchType: TransactionProvider.TransactionFetchType) -> String {
+        return "transactionsPagination-\(server.chainID)-\(fetchType.rawValue)"
+    }
+
     public enum TransactionFetchType: String, CaseIterable {
         case normal
         case erc20
@@ -190,14 +192,13 @@ extension TransactionProvider {
     final class TransactionSchedulerProvider: SchedulerProvider {
         private let session: WalletSession
         private let networking: ApiNetworking
-        private var paginationStorage: TransactionsPaginationStorage
-        private let defaultPagination: TransactionsPagination
+        private var paginationStorage: PaginationStorage
         private let fetchType: TransactionFetchType
         private let stateProvider: SchedulerStateProvider
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
 
         var interval: TimeInterval
-        var name: String { "TransactionSchedulerProvider.\(fetchType)" }
+        var name: String { "TransactionSchedulerProvider.\(session.sessionID).\(fetchType)" }
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
         }
@@ -208,16 +209,14 @@ extension TransactionProvider {
 
         init(session: WalletSession,
              networking: ApiNetworking,
-             defaultPagination: TransactionsPagination,
              interval: TimeInterval,
-             paginationStorage: TransactionsPaginationStorage,
+             paginationStorage: PaginationStorage,
              fetchType: TransactionFetchType,
              stateProvider: SchedulerStateProvider) {
 
             self.stateProvider = stateProvider
             self.fetchType = fetchType
             self.interval = interval
-            self.defaultPagination = defaultPagination
             self.paginationStorage = paginationStorage
             self.session = session
             self.networking = networking
@@ -239,11 +238,11 @@ extension TransactionProvider {
         }
 
         private func buildFetchPublisher() -> AnyPublisher<TransactionsResponse, PromiseError> {
-            let pagination = paginationStorage.transactionsPagination(server: session.server, fetchType: fetchType) ?? defaultPagination
+            let pagination = paginationStorage.pagination(key: TransactionProvider.transactionsPaginationKey(server: session.server, fetchType: fetchType))
 
             switch fetchType {
             case .normal:
-                return networking.normalTransactions(walletAddress: session.account.address, pagination: pagination)
+                return networking.normalTransactions(walletAddress: session.account.address, sortOrder: .asc, pagination: pagination)
             case .erc20:
                 return networking.erc20TokenTransferTransactions(walletAddress: session.account.address, pagination: pagination)
             case .erc721:
@@ -252,12 +251,13 @@ extension TransactionProvider {
                 return networking.erc1155TokenTransferTransaction(walletAddress: session.account.address, pagination: pagination)
             }
         }
-        //NOTE: pay attention! response from networking returns pagination for next page
+
         private func handle(response: TransactionsResponse) {
-            paginationStorage.set(
-                transactionsPagination: response.pagination,
-                fetchType: fetchType,
-                server: session.server)
+            if let nextPage = response.nextPage {
+                paginationStorage.set(
+                    pagination: nextPage,
+                    key: TransactionProvider.transactionsPaginationKey(server: session.server, fetchType: fetchType))
+            }
 
             subject.send(.success(response.transactions))
         }

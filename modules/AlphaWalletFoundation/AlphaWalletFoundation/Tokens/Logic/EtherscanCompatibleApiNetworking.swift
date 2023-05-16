@@ -18,6 +18,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
     private let transactionBuilder: TransactionBuilder
     private let baseUrl: URL
     private let apiKey: String?
+    private let defaultPagination = BlockBasedPagination(startBlock: nil, endBlock: nil)
 
     init(server: RPCServer,
          transporter: ApiTransporter,
@@ -33,11 +34,16 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
     }
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
-                                startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+                                pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = Request(
             baseUrl: baseUrl,
-            startBlock: startBlock,
+            startBlock: pagination.startBlock,
+            endBlock: pagination.endBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .tokentx)
@@ -51,7 +57,11 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
     }
 
     func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
-                                 startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+                                 pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         switch server {
         case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
@@ -62,7 +72,8 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         let request = Request(
             baseUrl: baseUrl,
-            startBlock: startBlock,
+            startBlock: pagination.startBlock,
+            endBlock: pagination.endBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .txlist)
@@ -76,7 +87,11 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
     }
 
     func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
-                                  startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+                                  pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         switch server {
         case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
@@ -87,10 +102,11 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         let request = Request(
             baseUrl: baseUrl,
-            startBlock: startBlock,
+            startBlock: pagination.startBlock,
+            endBlock: pagination.endBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
-            action: .txlist)
+            action: .token1155tx)
 
         return transporter
             .dataTaskPublisher(request)
@@ -100,32 +116,62 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
-            .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
-                let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
-                return self.backFillTransactionGroup(walletAddress: walletAddress, result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
-                    .map { ($0, maxBlockNumber) }
-                    .eraseToAnyPublisher()
+    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                        pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
+
+        return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
+            .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                    .map {
+                        if maxBlockNumber > 0 {
+                            let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
+                            return TransactionsResponse(transactions: $0, nextPage: nextPage)
+                        } else {
+                            return TransactionsResponse(transactions: $0, nextPage: nil)
+                        }
+                    }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int? = nil) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: startBlock)
-            .flatMap { transactions -> AnyPublisher<([Transaction], Int), PromiseError> in
-                let (result, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
-                return self.backFillTransactionGroup(walletAddress: walletAddress, result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
-                    .map { ($0, maxBlockNumber) }
-                    .eraseToAnyPublisher()
+    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
+
+        return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
+            .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                    .map {
+                        if maxBlockNumber > 0 {
+                            let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
+                            return TransactionsResponse(transactions: $0, nextPage: nextPage)
+                        } else {
+                            return TransactionsResponse(transactions: $0, nextPage: nil)
+                        }
+                    }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
 
-    func normalTransactions(walletAddress: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
+    public func normalTransactions(walletAddress: AlphaWallet.Address,
+                                   sortOrder: GetTransactions.SortOrder,
+                                   pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
 
         let request = Request(
             baseUrl: baseUrl,
-            startBlock: startBlock,
-            endBlock: endBlock,
+            startBlock: pagination.startBlock,
+            endBlock: pagination.endBlock,
             sortOrder: sortOrder,
             apiKey: apiKey,
             walletAddress: walletAddress,
@@ -135,7 +181,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
             .mapError { PromiseError(error: $0) }
-            .flatMap { [transactionBuilder] result -> AnyPublisher<[Transaction], PromiseError> in
+            .flatMap { [transactionBuilder] result -> AnyPublisher<TransactionsResponse, PromiseError> in
                 if result.response.statusCode == 404 {
                     return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
                 }
@@ -146,40 +192,59 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
                     return Publishers.MergeMany(promises)
                         .collect()
-                        .map { EtherscanCompatibleApiNetworking.functional.filter(transactions: $0.compactMap { $0 }, startBlock: startBlock, endBlock: endBlock) }
-                        .setFailureType(to: PromiseError.self)
+                        .map {
+                            let transactions = EtherscanCompatibleApiNetworking.functional.filter(
+                                transactions: $0.compactMap { $0 },
+                                startBlock: pagination.startBlock,
+                                endBlock: pagination.endBlock)
+
+                            let (_, _, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                            if maxBlockNumber > 0 {
+                                let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
+                                return TransactionsResponse(transactions: transactions, nextPage: nextPage)
+                            } else {
+                                return TransactionsResponse(transactions: transactions, nextPage: nil)
+                            }
+                        }.setFailureType(to: PromiseError.self)
                         .eraseToAnyPublisher()
                 } catch {
                     return .fail(.some(error: error))
                 }
             }.eraseToAnyPublisher()
     }
-
-    func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), AlphaWalletCore.PromiseError> {
-        return .empty()
-    }
-
-    func normalTransactions(walletAddress: AlphaWallet.Address,
-                            pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
-    }
-
-    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                        pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
-    }
-
-    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
-    }
-
+    
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
-                                         pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        return .empty()
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
+
+        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
+            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+        }
+
+        switch server {
+        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
+            break
+        case .heco, .heco_testnet:
+            return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        }
+
+        return getErc1155Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
+            .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                    .map {
+                        if maxBlockNumber > 0 {
+                            let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
+                            return TransactionsResponse(transactions: $0, nextPage: nextPage)
+                        } else {
+                            return TransactionsResponse(transactions: $0, nextPage: nil)
+                        }
+                    }.eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
-    private func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+    private func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                                server: RPCServer,
+                                                startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
 
         let request = Request(
             baseUrl: baseUrl,
@@ -196,7 +261,9 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+    private func getErc721Transactions(walletAddress: AlphaWallet.Address,
+                                       server: RPCServer,
+                                       startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
 
         let request = Request(
             baseUrl: baseUrl,
@@ -213,14 +280,37 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    private func backFillTransactionGroup(walletAddress: AlphaWallet.Address, _ transactions: [Transaction], startBlock: Int, endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
-        guard !transactions.isEmpty else { return .just([]) }
+    private func getErc1155Transactions(walletAddress: AlphaWallet.Address,
+                                        server: RPCServer,
+                                        startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+        let request = Request(
+            baseUrl: baseUrl,
+            startBlock: startBlock,
+            apiKey: apiKey,
+            walletAddress: walletAddress,
+            action: .token1155tx)
 
-        return normalTransactions(walletAddress: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
+        return transporter
+            .dataTaskPublisher(request)
+            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
+    }
+
+    private func backFillTransactionGroup(walletAddress: AlphaWallet.Address,
+                                          transactions: [Transaction],
+                                          startBlock: Int,
+                                          endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
+
+        guard !transactions.isEmpty else { return .just([]) }
+        let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: endBlock)
+
+        return normalTransactions(walletAddress: walletAddress, sortOrder: .asc, pagination: pagination)
             .map {
                 EtherscanCompatibleApiNetworking.functional.mergeTransactionOperationsForNormalTransactions(
                     transactions: transactions,
-                    normalTransactions: $0)
+                    normalTransactions: $0.transactions)
             }.eraseToAnyPublisher()
     }
 
@@ -263,6 +353,7 @@ extension EtherscanCompatibleApiNetworking {
         case txlist
         case tokentx
         case tokennfttx
+        case token1155tx
     }
 
     struct GasOracleRequest: URLRequestConvertible {

@@ -95,6 +95,8 @@ public class BaseApiTransporter: ApiTransporter {
                     .tryMap { respose in
                         if let data = respose.data, let httpResponse = respose.response {
                             return (data: data, response: httpResponse)
+                        } else if let error = respose.error {
+                            throw SessionTaskError(error: error)
                         } else {
                             throw SessionTaskError(error: NonHttpUrlResponseError(request: request))
                         }

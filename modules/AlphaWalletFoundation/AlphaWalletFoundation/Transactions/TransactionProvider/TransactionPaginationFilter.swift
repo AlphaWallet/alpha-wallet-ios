@@ -1,5 +1,5 @@
 //
-//  TransactionPaginationFilter.swift
+//  TransactionPageBasedPaginationFilter.swift
 //  AlphaWalletFoundation
 //
 //  Created by Vladyslav Shepitko on 08.03.2023.
@@ -24,16 +24,17 @@ extension Oklink.Transaction: TransactionPaginationSupportable {
     var hash: String { txId }
 }
 
-struct TransactionPaginationFilter {
+//TODO: specify that its only for page based
+struct TransactionPageBasedPaginationFilter {
 
-    func process<T: TransactionPaginationSupportable>(transactions: [T], pagination: TransactionsPagination) -> (transactions: [T], pagination: TransactionsPagination) {
-        let newPagination: TransactionsPagination
+    func process<T: TransactionPaginationSupportable>(transactions: [T], pagination: PageBasedTransactionsPagination) -> (transactions: [T], nexPage: PageBasedTransactionsPagination) {
+        let nexPage: PageBasedTransactionsPagination
         let txs: [T]
         
         if transactions.count == pagination.limit {
             txs = transactions.filter { tx in !pagination.lastFetched.contains(where: { $0 == tx.hash }) }
 
-            newPagination = TransactionsPagination(
+            nexPage = PageBasedTransactionsPagination(
                 page: pagination.page + 1,
                 lastFetched: [],
                 limit: pagination.limit)
@@ -41,7 +42,7 @@ struct TransactionPaginationFilter {
             if pagination.lastFetched.isEmpty {
                 txs = transactions
 
-                newPagination = TransactionsPagination(
+                nexPage = PageBasedTransactionsPagination(
                     page: pagination.page,
                     lastFetched: txs.map { $0.hash },
                     limit: pagination.limit)
@@ -50,12 +51,12 @@ struct TransactionPaginationFilter {
                 let lastFetched = Array(Set(pagination.lastFetched + txs.map { $0.hash }))
 
                 if lastFetched.count >= pagination.limit {
-                    newPagination = TransactionsPagination(
+                    nexPage = PageBasedTransactionsPagination(
                         page: pagination.page + 1,
                         lastFetched: [],
                         limit: pagination.limit)
                 } else {
-                    newPagination = TransactionsPagination(
+                    nexPage = PageBasedTransactionsPagination(
                         page: pagination.page,
                         lastFetched: lastFetched,
                         limit: pagination.limit)
@@ -63,11 +64,11 @@ struct TransactionPaginationFilter {
             }
         }
         
-        return (transactions: txs, pagination: newPagination)
+        return (transactions: txs, nexPage: nexPage)
     }
 }
 
-public struct TransactionsPagination: Codable {
+public struct PageBasedTransactionsPagination: Codable, TransactionsPagination {
     public let page: Int
     public let lastFetched: [String]
     public let limit: Int

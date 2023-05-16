@@ -19,47 +19,39 @@ class FallbackApiNetworking: ApiNetworking {
         return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
-    func normalTransactions(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+    func normalTransactions(walletAddress: AlphaWallet.Address,
+                            sortOrder: GetTransactions.SortOrder,
+                            pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
-    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                        pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
-    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
-    func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination) -> AnyPublisher<TransactionsResponse, PromiseError> {
+    func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
+                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
         return .empty()
     }
 
-    func erc20TokenInteractions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+    func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
+                                pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
         return .empty()
     }
 
-    func erc721TokenInteractions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+    func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
+                                 pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
         return .empty()
     }
 
-    func erc1155TokenInteractions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-        return .empty()
-    }
-
-    func normalTransactions(walletAddress: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[Transaction], PromiseError> {
-        return .empty()
-    }
-
-    func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
-    }
-
-    func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
-        return .empty()
-    }
-
-    func erc1155TokenTransferTransactions(walletAddress: AlphaWallet.Address, startBlock: Int?) -> AnyPublisher<([Transaction], Int), PromiseError> {
+    func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
+                                  pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
         return .empty()
     }
 }
