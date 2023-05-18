@@ -215,9 +215,15 @@ extension GasPrice {
     fileprivate func computeGasPriceForReplacementTransaction() -> GasPrice {
         switch self {
         case .legacy(let gasPrice):
-            return .legacy(gasPrice: gasPrice * 110 / 100)
+            let gasPrice = GasPriceBuffer.percentage(10).bufferedGasPrice(estimatedGasPrice: gasPrice).value
+
+            return .legacy(gasPrice: gasPrice)
         case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
-            return .eip1559(maxFeePerGas: maxFeePerGas * 110 / 100, maxPriorityFeePerGas: maxPriorityFeePerGas)
+            //e.g https://support.metamask.io/hc/en-us/articles/360015489251-How-to-Speed-Up-or-Cancel-a-Pending-Transaction
+            let maxFeePerGas = GasPriceBuffer.percentage(10).bufferedGasPrice(estimatedGasPrice: maxFeePerGas).value
+            let maxPriorityFeePerGas = GasPriceBuffer.percentage(30).bufferedGasPrice(estimatedGasPrice: maxPriorityFeePerGas).value
+
+            return .eip1559(maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas: maxPriorityFeePerGas)
         }
     }
 }
