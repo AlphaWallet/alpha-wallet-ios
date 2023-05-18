@@ -166,7 +166,6 @@ final class JsonFromTokenUri {
                                 address: AlphaWallet.Address) -> Publisher {
         
         let uri = originalUri.rewrittenIfIpfs
-        //TODO check this doesn't print duplicates, including unnecessary fetches
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
 
         return transporter
@@ -177,12 +176,9 @@ final class JsonFromTokenUri {
                     do {
                         return .just(try self.fulfill(json: json, tokenId: tokenId, tokenType: tokenType, uri: uri, address: address))
                     } catch {
-                        verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
                         return .fail(.responseError(error))
                     }
                 } else {
-                    //TODO lots of this so not using `warnLog()`. Check
-                    verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
                     return .fail(.responseError(JsonFromTokenUriError(message: "Decode json failure for: \(tokenId) \(address) \(originalUri)")))
                 }
             }.handleEvents(receiveCompletion: { result in
