@@ -538,7 +538,7 @@ extension EtherscanCompatibleApiNetworking.functional {
             guard !each.localizedOperations.isEmpty else { continue }
             if var transaction = normalTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
                 transaction.isERC20Interaction = true
-                transaction.localizedOperations = each.localizedOperations
+                transaction.localizedOperations = Array(Set(each.localizedOperations))
                 results.append(transaction)
             } else {
                 results.append(each)
@@ -553,7 +553,7 @@ extension EtherscanCompatibleApiNetworking.functional {
         for each in transactions {
             if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
                 var found = results[index]
-                found.localizedOperations.append(contentsOf: each.localizedOperations)
+                found.localizedOperations = Array(Set(found.localizedOperations + each.localizedOperations))
                 results[index] = found
             } else {
                 results.append(each)
