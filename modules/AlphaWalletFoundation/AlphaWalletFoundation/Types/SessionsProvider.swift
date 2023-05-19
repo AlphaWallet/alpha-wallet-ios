@@ -72,12 +72,20 @@ open class BaseSessionsProvider: SessionsProvider {
                     }
                 }
 
-                let sessionsToDelete = sessionsSubject.value.filter { session in !sessions.contains(where: { $0.key == session.key }) }
-                sessionsToDelete.forEach { $0.value.stop() }
-
                 return sessions
             }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
             .store(in: &cancelable)
+
+        NotificationCenter.default.applicationState
+            .receive(on: RunLoop.main)
+            .sink { [sessionsSubject] state in
+                switch state {
+                case .didEnterBackground:
+                    sessionsSubject.value.forEach { $0.value.blockNumberProvider.cancel() }
+                case .willEnterForeground:
+                    sessionsSubject.value.forEach { $0.value.blockNumberProvider.restart() }
+                }
+            }.store(in: &cancelable)
     }
 
     private func buildSession(blockchain: BlockchainProvider) -> WalletSession {

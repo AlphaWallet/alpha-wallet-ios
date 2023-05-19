@@ -12,12 +12,9 @@ import CombineExt
 
 public typealias BlockNumber = Int
 
-public protocol BlockNumberSchedulerProviderDelegate: AnyObject {
-    func didReceive(result: Result<BlockNumber, PromiseError>)
-}
-
 public final class BlockNumberSchedulerProvider: SchedulerProvider {
     private let blockchainProvider: BlockchainProvider
+    private let subject = PassthroughSubject<Result<BlockNumber, PromiseError>, Never>()
 
     var interval: TimeInterval { return Constants.BlockNumberProvider.getChainStateInterval }
     var name: String { "BlockNumberSchedulerProvider.\(blockchainProvider.server)" }
@@ -25,26 +22,21 @@ public final class BlockNumberSchedulerProvider: SchedulerProvider {
     var operation: AnyPublisher<Void, PromiseError> {
         blockchainProvider.blockNumber()
             .receive(on: RunLoop.main)
-            .handleEvents(receiveOutput: { [weak self] response in
-                self?.didReceiveValue(response: response)
-            }, receiveCompletion: { [weak self] result in
+            .handleEvents(receiveOutput: { [subject] response in
+                subject.send(.success(response))
+            }, receiveCompletion: { [subject] result in
                 guard case .failure(let e) = result else { return }
-                self?.didReceiveError(error: PromiseError(error: e))
+                subject.send(.failure(PromiseError(error: e)))
             }).mapToVoid()
             .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
-    public weak var delegate: BlockNumberSchedulerProviderDelegate?
+
+    var publisher: AnyPublisher<Result<BlockNumber, PromiseError>, Never> {
+        subject.eraseToAnyPublisher()
+    }
 
     public init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
-    }
-
-    private func didReceiveValue(response blockNumber: BlockNumber) {
-        delegate?.didReceive(result: .success(blockNumber))
-    }
-
-    private func didReceiveError(error: PromiseError) {
-        delegate?.didReceive(result: .failure(error))
     }
 }
