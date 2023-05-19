@@ -118,7 +118,9 @@ extension TransactionsViewModel.functional {
                     items.append(.standalone(each))
                 } else {
                     items.append(.group(each))
-                    items.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
+                    //NOTE: already stored localized operations might be dublicated, that could cause crash when building datasource snapshot, catched few times
+                    //apply .uniqued() to remove dublicates, updated code to filter operations when creating transaction object.
+                    items.append(contentsOf: each.localizedOperations.uniqued().map { .item(transaction: each, operation: $0) })
                 }
             }
 
