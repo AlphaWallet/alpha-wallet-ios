@@ -12,6 +12,7 @@ public protocol TokensService {
     var tokens: [Token] { get }
     var tokensPublisher: AnyPublisher<[Token], Never> { get }
     var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
+    var providersHasChanged: AnyPublisher<Void, Never> { get }
 
     func token(for contract: AlphaWallet.Address) -> Token?
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?

@@ -45,6 +45,13 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }()
 
+    /// Fires each time we recreate token source, e.g when servers are chenging
+    public lazy var providersHasChanged: AnyPublisher<Void, Never> = {
+        providers.filter { !$0.isEmpty }
+            .mapToVoid()
+            .eraseToAnyPublisher()
+    }()
+
     public init(sessionsProvider: SessionsProvider,
                 tokensDataStore: TokensDataStore,
                 analytics: AnalyticsLogger,
