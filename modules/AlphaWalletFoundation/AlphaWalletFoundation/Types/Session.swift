@@ -54,8 +54,8 @@ public final class WalletSession: Equatable {
         }
     }
 
-    public func stop() {
-        blockNumberProvider.stop()
+    deinit {
+        blockNumberProvider.cancel()
     }
 }
 
