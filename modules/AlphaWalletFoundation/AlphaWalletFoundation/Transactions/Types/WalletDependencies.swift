@@ -21,7 +21,7 @@ public struct WalletDependencies {
     public let sessionsProvider: SessionsProvider
     public let eventsDataStore: NonActivityEventsDataStore
     public let transactionsService: TransactionsService
-
+    
     public init(activitiesPipeLine: ActivitiesPipeLine,
                 transactionsDataStore: TransactionDataStore,
                 tokensDataStore: TokensDataStore,

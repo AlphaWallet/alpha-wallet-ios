@@ -28,7 +28,7 @@ class TransactionsViewModel {
         let pullToRefreshState = reloadTransactions(input: input.pullToRefresh)
 
         let snapshot = transactionsService
-            .transactionsChangeset
+            .transactions(filter: .all)
             .map { TransactionsViewModel.functional.buildSectionViewModels(for: $0) }
             .receive(on: DispatchQueue.main)
             .prepend([])

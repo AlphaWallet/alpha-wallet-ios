@@ -60,6 +60,7 @@ extension Constants {
         static let covalentApiKey = env("COVALENTAPIKEY") ?? "ckey_7ee61be7f8364ba784f697510bd"
         static let klaytnRpcNodeCypressKey = env("KLAYTNRPCNODECYPRESSKEY") ?? ""
         static let klaytnRpcNodeBaobabKey = env("KLAYTNRPCNODEBAOBABKEY") ?? ""
+        public static let notificationsApiKey = env("NOTIFICATIONSAPIKEY")
     }
 }
 

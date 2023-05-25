@@ -32,6 +32,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletWeb3', :path => '.'
   pod 'AlphaWalletShareExtensionCore', :path => '.'
   pod 'AlphaWalletTrustWalletCoreExtensions', :path => '.'
+  pod 'AlphaWalletNotifications', :path => '.'
   pod 'MailchimpSDK'
   pod 'xcbeautify'
   pod 'FloatingPanel'
@@ -39,8 +40,7 @@ target 'AlphaWallet' do
 
   pod 'SwiftLint', '0.50.3', :configuration => 'Debug'
   pod 'SwiftFormat/CLI', '~> 0.49', :configuration => 'Debug'
-
-  pod 'FirebaseCrashlytics', '8.10.0'
+  pod 'Firebase/Crashlytics'
   pod 'WalletConnectSwift', :git => 'https://github.com/AlphaWallet/WalletConnectSwift.git', :branch => 'alphaWallet'
   pod 'Starscream', '3.1.1'
   

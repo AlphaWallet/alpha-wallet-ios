@@ -36,6 +36,21 @@ class LaunchOptionsService {
     }
 }
 
+import AlphaWalletNotifications
+
+class PushNotificationLaunchOptionsHandler: LaunchOptionsHandler {
+    private let pushNotificationsService: PushNotificationsService
+
+    init(pushNotificationsService: PushNotificationsService) {
+        self.pushNotificationsService = pushNotificationsService
+    }
+
+    func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]) async -> Bool {
+        await pushNotificationsService.handle(launchOptions: launchOptions)
+        return false
+    }
+}
+
 class ShortcutHandler: LaunchOptionsHandler {
 
     weak var navigation: ShortcutNavigatable?

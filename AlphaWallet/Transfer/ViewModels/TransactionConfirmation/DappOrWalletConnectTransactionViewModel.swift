@@ -100,7 +100,7 @@ extension TransactionConfirmationViewModel {
         }
 
         private func buildTransactionBalance(_ data: Loadable<SendFungiblesTransactionViewModel.TransactedToken, Error>) -> Loadable<SendFungiblesTransactionViewModel.TransactionBalance, Error> {
-            return data.mapValue { token in
+            return data.map { token in
                 let balance: Double
                 let newBalance: Double
 
@@ -115,8 +115,9 @@ extension TransactionConfirmationViewModel {
                 }
 
                 let rate = token.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
-
-                return SendFungiblesTransactionViewModel.TransactionBalance(balance: balance, newBalance: newBalance, rate: rate)
+                let value = SendFungiblesTransactionViewModel.TransactionBalance(balance: balance, newBalance: newBalance, rate: rate)
+                
+                return .done(value)
             }
         }
 

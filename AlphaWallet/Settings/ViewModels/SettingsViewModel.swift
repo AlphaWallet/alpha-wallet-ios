@@ -4,10 +4,12 @@ import Foundation
 import UIKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletNotifications
 
 struct SettingsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
     let appProtectionSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
+    let pushNotificationsSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
     let blockscanChatUnreadCount: AnyPublisher<Int?, Never>
 }
 
@@ -19,9 +21,9 @@ struct SettingsViewModelOutput {
 final class SettingsViewModel {
     private let account: Wallet
     private var assignedNameOrEns: String?
-    private var config: Config
     private let analytics: AnalyticsLogger
     private let getWalletName: GetWalletName
+    private let pushNotificationsService: PushNotificationsService
     private var passcodeTitle: String {
         switch BiometryAuthenticationType.current {
         case .faceID, .touchID:
@@ -33,17 +35,18 @@ final class SettingsViewModel {
     private let lock: Lock
     private let promptBackup: PromptBackup
     private (set) var sections: [SettingsSection] = []
+    private var cancellable = Set<AnyCancellable>()
 
     init(account: Wallet,
          lock: Lock,
-         config: Config,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         promptBackup: PromptBackup) {
+         promptBackup: PromptBackup,
+         pushNotificationsService: PushNotificationsService) {
 
+        self.pushNotificationsService = pushNotificationsService
         self.promptBackup = promptBackup
         self.account = account
-        self.config = config
         self.analytics = analytics
         self.lock = lock
         self.getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
@@ -65,12 +68,13 @@ final class SettingsViewModel {
     }
 
     func transform(input: SettingsViewModelInput) -> SettingsViewModelOutput {
-        let askToSetPasscode = self.askToSetPasscodeOrDeleteExisted(trigger: input.appProtectionSelection)
+        let askToSetPasscode = askToSetPasscodeOrDeleteExisted(trigger: input.appProtectionSelection)
+        let askToEnableOrDisableNotifications = askToEnableOrDisableNotifications(trigger: input.pushNotificationsSelection)
 
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
-        let assignedNameOrEns = self.assignedNameOrEns(appear: input.willAppear)
+        let assignedNameOrEns = assignedNameOrEns(appear: input.willAppear)
         let blockscanChatUnreadCount = Publishers.Merge(Just<Int?>(nil), input.blockscanChatUnreadCount)
-        let reload = Publishers.Merge3(Just<Void>(()), input.willAppear, assignedNameOrEns)
+        let reload = Publishers.Merge3(input.willAppear, assignedNameOrEns, askToEnableOrDisableNotifications)
 
         let sections = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
             .map { [account] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
@@ -83,7 +87,7 @@ final class SettingsViewModel {
 
                     for rowIndex in 0 ..< sections[sectionIndex].numberOfRows {
                         let indexPath = IndexPath(item: rowIndex, section: sectionIndex)
-                        let view = self.view(for: indexPath, sections: sections)
+                        let view = self.buildViewType(for: indexPath, sections: sections)
 
                         views.append(view)
                     }
@@ -107,29 +111,35 @@ final class SettingsViewModel {
                 return SettingsViewModel.ViewState(snapshot: snapshot, badge: badge)
             }.eraseToAnyPublisher()
 
-        return .init(viewState: viewState, askToSetPasscode: askToSetPasscode)
+        return .init(
+            viewState: viewState,
+            askToSetPasscode: askToSetPasscode)
     }
 
     /// Delates existed passcode if false received, sends void event when need to set a new passcode
     private func askToSetPasscodeOrDeleteExisted(trigger: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>) -> AnyPublisher<Void, Never> {
-        return trigger.compactMap { event -> Bool? in
-            switch self.sections[event.indexPath.section] {
-            case .system(let rows):
-                switch rows[event.indexPath.row] {
-                case .passcode: return event.isOn
-                case .notifications, .selectActiveNetworks, .advanced: return nil
-                }
-            case .help, .tokenStandard, .version, .wallet: return nil
-            }
-        }.compactMap { [lock, analytics] isOn -> Void? in
-            analytics.setUser(property: Analytics.UserProperties.isAppPasscodeOrBiometricProtectionEnabled, value: isOn)
-            if isOn {
+        return trigger.compactMap { [lock, analytics] event -> Void? in
+            analytics.setUser(property: Analytics.UserProperties.isAppPasscodeOrBiometricProtectionEnabled, value: event.isOn)
+            if event.isOn {
                 return ()
             } else {
                 lock.deletePasscode()
                 return nil
             }
         }.eraseToAnyPublisher()
+    }
+
+    /// Delates existed passcode if false received, sends void event when need to set a new passcode
+    private func askToEnableOrDisableNotifications(trigger: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>) -> AnyPublisher<Void, Never> {
+        return trigger
+            .flatMap { [pushNotificationsService, account] event in
+                if event.isOn {
+                    return pushNotificationsService.subscribe(wallet: account)
+                } else {
+                    return pushNotificationsService.unsubscribe(wallet: account)
+                }
+            }.mapToVoid()
+            .eraseToAnyPublisher()
     }
 
     private func assignedNameOrEns(appear: AnyPublisher<Void, Never>) -> AnyPublisher<Void, Never> {
@@ -161,14 +171,17 @@ final class SettingsViewModel {
         }
     }
 
-    private func view(for indexPath: IndexPath, sections: [SettingsViewModel.SettingsSection]) -> ViewType {
+    private func buildViewType(for indexPath: IndexPath, sections: [SettingsViewModel.SettingsSection]) -> ViewType {
         switch sections[indexPath.section] {
         case .system(let rows):
             let row = rows[indexPath.row]
             switch row {
             case .passcode:
-                return .passcode(.init(titleText: passcodeTitle, icon: R.image.biometrics()!, value: lock.isPasscodeSet))
-            case .notifications, .selectActiveNetworks, .advanced:
+                return .`switch`(.init(titleText: passcodeTitle, icon: R.image.biometrics()!, value: .just(.done(lock.isPasscodeSet))))
+            case .notifications:
+                let value = pushNotificationsService.isSubscribedForNotifiation(wallet: account)
+                return .`switch`(.init(titleText: row.title, icon: row.icon, value: value))
+            case .selectActiveNetworks, .advanced:
                 return .cell(.init(settingsSystemRow: row))
             }
         case .help:
@@ -203,7 +216,7 @@ extension SettingsViewModel {
     }
 
     enum ViewType {
-        case passcode(SwitchTableViewCellViewModel)
+        case `switch`(SwitchTableViewCellViewModel)
         case cell(SettingTableViewCellViewModel)
         case undefined
     }
@@ -252,11 +265,11 @@ extension SettingsViewModel.ViewType: Hashable {
         switch (lhs, rhs) {
         case (.undefined, .undefined):
             return true
-        case (.passcode(let vm1), .passcode(let vm2)):
+        case (.`switch`(let vm1), .`switch`(let vm2)):
             return vm1 == vm2
         case (.cell(let vm1), .cell(let vm2)):
             return vm1 == vm2
-        case (.undefined, .cell), (.undefined, .passcode), (.passcode, .undefined), (.cell, .passcode), (.cell, .undefined), (.passcode, .cell):
+        case (.undefined, .cell), (.undefined, .`switch`), (.`switch`, .undefined), (.cell, .`switch`), (.cell, .undefined), (.`switch`, .cell):
             return false
         }
     }
@@ -274,7 +287,14 @@ extension SettingsViewModel.functional {
         } else {
             walletRows = [.showMyWallet, .changeWallet, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
         }
-        let systemRows: [SettingsViewModel.SettingsSystemRow] = [.passcode, .selectActiveNetworks, .advanced]
+
+        var systemRows: [SettingsViewModel.SettingsSystemRow] = []
+        if Features.default.isAvailable(.areNotificationsEnabled) {
+            systemRows += [.notifications, .passcode, .selectActiveNetworks, .advanced]
+        } else {
+            systemRows += [.passcode, .selectActiveNetworks, .advanced]
+        }
+
         return [
             .wallet(rows: walletRows),
             .system(rows: systemRows),

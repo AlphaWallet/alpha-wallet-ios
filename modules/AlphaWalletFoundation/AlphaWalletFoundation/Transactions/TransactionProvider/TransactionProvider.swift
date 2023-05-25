@@ -25,6 +25,9 @@ public class TransactionProvider: SingleChainTransactionProvider {
     private var cancellable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.transactionProvider.updateQueue")
 
+    public var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProvider.PendingTransactionProviderError>, Never> {
+        pendingTransactionProvider.completeTransaction
+    }
     public private (set) var state: TransactionProviderState = .pending
 
     public init(session: WalletSession,
@@ -32,7 +35,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
                 transactionDataStore: TransactionDataStore,
                 ercTokenDetector: ErcTokenDetector,
                 networking: ApiNetworking,
-                fetchTypes: [TransactionFetchType] = TransactionProvider.TransactionFetchType.allCases) {
+                fetchTypes: [TransactionFetchType] = TransactionFetchType.allCases) {
 
         self.session = session
         self.networking = networking
@@ -66,6 +69,18 @@ public class TransactionProvider: SingleChainTransactionProvider {
             .compactMap { try? $0.get() }
             .sink { [weak self] in self?.forceFetchLatestTransactions(transaction: $0) }
             .store(in: &cancellable)
+
+        /*
+        pendingTransactionProvider.completeTransaction
+            .compactMap { try? self.transactionFetchType(transaction: $0.get()) }
+            .setFailureType(to: PromiseError.self)
+            .flatMap { self.fetchLatestTransactions(fetchTypes: [$0]) }
+            .sink(receiveCompletion: { result in
+
+            }, receiveValue: { transactions in
+
+            }).store(in: &cancellable)
+         */
     }
 
     deinit {
@@ -91,6 +106,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
         schedulerProviders.first(where: { $0.fetchType == fetchType })
     }
 
+    //TODO: replace later with `fetchLatestTransactions(fetchTypes:)`
     private func forceFetchLatestTransactions(transaction: Transaction) {
         if let operation = transaction.operation {
             switch operation.operationType {
@@ -113,10 +129,12 @@ public class TransactionProvider: SingleChainTransactionProvider {
         }
     }
 
+    //Don't worry about start method and pending state once object created we first call method `start`
     public func start() {
         guard state == .pending else { return }
 
         pendingTransactionProvider.start()
+
         schedulerProviders.forEach { $0.start() }
         queue.async { [weak self] in self?.removeUnknownTransactions() }
         state = .running
@@ -135,8 +153,60 @@ public class TransactionProvider: SingleChainTransactionProvider {
         guard state == .running || state == .pending else { return }
 
         pendingTransactionProvider.cancelScheduler()
+
         schedulerProviders.forEach { $0.cancel() }
         state = .stopped
+    }
+
+    private func transactionFetchType(transaction: Transaction) -> TransactionFetchType {
+        if let operation = transaction.operation {
+            switch operation.operationType {
+            case .erc1155TokenTransfer: return .erc1155
+            case .erc20TokenTransfer: return .erc20
+            case .erc721TokenTransfer: return .erc721
+            default: return .normal
+            }
+        } else {
+            return .normal
+        }
+    }
+    //TODO: this method doesn't work right for now
+    public func fetchLatestTransactions(fetchTypes: [TransactionFetchType]) -> AnyPublisher<[Transaction], PromiseError> {
+
+        func fetchLatestTransactions(transactions: [Transaction] = [],
+                                     schedulerProvider: TransactionSchedulerProviderData) -> AnyPublisher<[Transaction], PromiseError> {
+
+            var transactions = transactions
+            return schedulerProvider.schedulerProvider.fetchPublisher()
+                .handleEvents(receiveSubscription: { _ in schedulerProvider.cancel() })
+                .flatMap { response -> AnyPublisher<[Transaction], PromiseError> in
+                    if response.transactions.isEmpty {
+                        return .just(transactions)
+                    } else {
+                        let newTransactions = Array(Set(transactions).union(response.transactions))
+                        if transactions.count == newTransactions.count {
+                            return .just(newTransactions)
+                        } else {
+                            return fetchLatestTransactions(transactions: transactions, schedulerProvider: schedulerProvider)
+                        }
+                    }
+                }.handleEvents(receiveCompletion: { _ in schedulerProvider.restart() })
+                .eraseToAnyPublisher()
+        }
+
+        let publishers = schedulerProviders.map {
+            fetchLatestTransactions(schedulerProvider: $0)
+                .replaceError(with: [])
+                .eraseToAnyPublisher()
+        }
+
+        guard !publishers.isEmpty else { return .empty() }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { $0.flatMap { $0 } }
+            .setFailureType(to: PromiseError.self)
+            .eraseToAnyPublisher()
     }
 
     public func isServer(_ server: RPCServer) -> Bool {
@@ -178,15 +248,8 @@ extension TransactionProvider {
         }
     }
 
-    static func transactionsPaginationKey(server: RPCServer, fetchType: TransactionProvider.TransactionFetchType) -> String {
+    static func transactionsPaginationKey(server: RPCServer, fetchType: TransactionFetchType) -> String {
         return "transactionsPagination-\(server.chainID)-\(fetchType.rawValue)"
-    }
-
-    public enum TransactionFetchType: String, CaseIterable {
-        case normal
-        case erc20
-        case erc721
-        case erc1155
     }
 
     final class TransactionSchedulerProvider: SchedulerProvider {
@@ -201,6 +264,8 @@ extension TransactionProvider {
         var name: String { "TransactionSchedulerProvider.\(session.sessionID).\(fetchType)" }
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
+                .mapToVoid()
+                .eraseToAnyPublisher()
         }
 
         var publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never> {
@@ -222,7 +287,7 @@ extension TransactionProvider {
             self.networking = networking
         }
 
-        private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
+        func fetchPublisher() -> AnyPublisher<TransactionsResponse, PromiseError> {
             guard stateProvider.state != .stopped else {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
@@ -233,8 +298,7 @@ extension TransactionProvider {
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)
-                }).mapToVoid()
-                .eraseToAnyPublisher()
+                }).eraseToAnyPublisher()
         }
 
         private func buildFetchPublisher() -> AnyPublisher<TransactionsResponse, PromiseError> {

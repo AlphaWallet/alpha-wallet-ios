@@ -6,18 +6,20 @@
 //
 
 import UIKit
+import Combine
+import AlphaWalletFoundation
 
 struct SwitchTableViewCellViewModel {
     let titleText: String
     let icon: UIImage
-    let value: Bool
+    let value: AnyPublisher<Loadable<Bool, Error>, Never>
 
     var titleFont: UIFont = Fonts.regular(size: 17)
     var titleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
 }
 
 extension SwitchTableViewCellViewModel: Hashable {
-    static func == (lhs: SwitchTableViewCellViewModel, rhs: SwitchTableViewCellViewModel) -> Bool {
+   static func == (lhs: SwitchTableViewCellViewModel, rhs: SwitchTableViewCellViewModel) -> Bool {
         return lhs.titleText == rhs.titleText && lhs.icon == rhs.icon && lhs.value == rhs.value
     }
 }

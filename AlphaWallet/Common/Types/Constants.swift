@@ -11,6 +11,7 @@ import AlphaWalletFoundation
 extension Constants {
     //Misc
     static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
+    static let tokenReceivedNotificationIdentifier = "tokenReceivedNotificationIdentifier"
 
     static let keychainKeyPrefix = "alphawallet"
     static let xdaiDropPrefix = Data([0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]).hex()

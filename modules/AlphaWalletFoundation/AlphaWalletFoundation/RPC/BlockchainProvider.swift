@@ -195,7 +195,7 @@ public typealias SessionTaskError = APIKit.SessionTaskError
 public typealias JSONRPCError = JSONRPCKit.JSONRPCError
 
 extension SessionTaskError {
-    init(error: Error) {
+    public init(error: Error) {
         if let e = error as? SessionTaskError {
             self = e
         } else {

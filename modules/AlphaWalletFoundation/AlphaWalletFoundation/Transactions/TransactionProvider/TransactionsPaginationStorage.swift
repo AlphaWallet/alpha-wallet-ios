@@ -7,9 +7,8 @@
 
 import Foundation
 
-//TODO: rename maybe with something else
 public struct WalletConfig {
-    let defaults: UserDefaults
+    public let defaults: UserDefaults
 
     public init(address: AlphaWallet.Address) {
         self.defaults = UserDefaults(suiteName: address.eip55String)!

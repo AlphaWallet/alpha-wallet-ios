@@ -20,53 +20,47 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let oldestTransferTransactionsScheduler: Scheduler
     private let queue = DispatchQueue(label: "com.transactionProvider.updateQueue")
 
+    public var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProvider.PendingTransactionProviderError>, Never> {
+        pendingTransactionProvider.completeTransaction
+    }
     public private (set) var state: TransactionProviderState = .pending
-
+    
     init(session: WalletSession,
          analytics: AnalyticsLogger,
          transactionDataStore: TransactionDataStore,
          ercTokenDetector: ErcTokenDetector,
-         apiNetworking: ApiNetworking) {
+         apiNetworking: ApiNetworking,
+         fetchTypes: [TransactionFetchType] = TransactionFetchType.allCases) {
 
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.ercTokenDetector = ercTokenDetector
 
-        let latestTransactionsProvider = LatestTransactionsSchedulerProvider(
-            session: session,
-            apiNetworking: session.apiNetworking,
-            transactionDataStore: transactionDataStore,
-            interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(
-                sessionID: session.sessionID,
-                prefix: EtherscanCompatibleSchedulerStatePrefix.normalTransactions.rawValue))
+        schedulerProviders = .init(fetchTypes.map { fetchType in
+            let schedulerProvider: SchedulerProvider & LatestTransactionProvidable
+            switch fetchType {
+            case .normal:
+                schedulerProvider = LatestTransactionsSchedulerProvider(
+                    session: session,
+                    apiNetworking: session.apiNetworking,
+                    transactionDataStore: transactionDataStore,
+                    interval: 15,
+                    stateProvider: PersistantSchedulerStateProvider(
+                        sessionID: session.sessionID,
+                        prefix: EtherscanCompatibleSchedulerStatePrefix.normalTransactions.rawValue))
+            case .erc20, .erc721, .erc1155:
+                schedulerProvider = LatestTransferTransactionsSchedulerProvider(
+                    session: session,
+                    apiNetworking: session.apiNetworking,
+                    transferType: fetchType,
+                    interval: 15,
+                    stateProvider: PersistantSchedulerStateProvider(
+                        sessionID: session.sessionID,
+                        prefix: EtherscanCompatibleSchedulerStatePrefix.erc721LatestTransactions.rawValue))
+            }
 
-        let erc20LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
-            session: session,
-            apiNetworking: session.apiNetworking,
-            transferType: .erc20TokenTransfer,
-            interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(
-                sessionID: session.sessionID,
-                prefix: EtherscanCompatibleSchedulerStatePrefix.erc20LatestTransactions.rawValue))
-
-        let erc721LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
-            session: session,
-            apiNetworking: session.apiNetworking,
-            transferType: .erc721TokenTransfer,
-            interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(
-                sessionID: session.sessionID,
-                prefix: EtherscanCompatibleSchedulerStatePrefix.erc721LatestTransactions.rawValue))
-
-        let erc1155LatestTransactionsProvider = LatestTransferTransactionsSchedulerProvider(
-            session: session,
-            apiNetworking: session.apiNetworking,
-            transferType: .erc1155TokenTransfer,
-            interval: 15,
-            stateProvider: PersistantSchedulerStateProvider(
-                sessionID: session.sessionID,
-                prefix: EtherscanCompatibleSchedulerStatePrefix.erc1155LatestTransactions.rawValue))
+            return SchedulerProviderData(fetchType: fetchType, schedulerProvider: schedulerProvider)
+        })
 
         let oldestTransactionsStateProvider = PersistantSchedulerStateProvider(
             sessionID: session.sessionID,
@@ -78,29 +72,11 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             transactionDataStore: transactionDataStore,
             stateProvider: oldestTransactionsStateProvider)
 
-        schedulerProviders = .init([
-            .init(
-                fetchType: .normal,
-                schedulerProvider: latestTransactionsProvider,
-                publisher: latestTransactionsProvider.publisher),
-            .init(
-                fetchType: .erc20Transfer,
-                schedulerProvider: erc20LatestTransactionsProvider,
-                publisher: erc20LatestTransactionsProvider.publisher),
-            .init(
-                fetchType: .erc721Transfer,
-                schedulerProvider: erc721LatestTransactionsProvider,
-                publisher: erc721LatestTransactionsProvider.publisher),
-            .init(
-                fetchType: .erc1155Transfer,
-                schedulerProvider: erc1155LatestTransactionsProvider,
-                publisher: erc1155LatestTransactionsProvider.publisher)
-        ])
-
         oldestTransferTransactionsScheduler = Scheduler(provider: oldestTransactionsProvider)
 
         schedulerProviders.forEach { data in
-            data.publisher
+            data.schedulerProvider
+                .publisher
                 .sink { [weak self] in self?.handle(response: $0, provider: data.schedulerProvider) }
                 .store(in: &cancellable)
         }
@@ -109,6 +85,18 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             .sink { [weak self] in self?.handle(response: $0, provider: oldestTransactionsProvider) }
             .store(in: &cancellable)
 
+        /*
+        pendingTransactionProvider.completeTransaction
+            .compactMap { try? self.transactionFetchType(transaction: $0.get()) }
+            .setFailureType(to: PromiseError.self)
+            .flatMap { self.fetchLatestTransactions(fetchTypes: [$0]) }
+            .sink(receiveCompletion: { result in
+
+            }, receiveValue: { transactions in
+
+            }).store(in: &cancellable)
+        */
+        
         pendingTransactionProvider.completeTransaction
             .compactMap { try? $0.get() }
             .sink { [weak self] in self?.forceFetchLatestTransactions(transaction: $0) }
@@ -161,6 +149,43 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     public func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
     }
+    //TODO: this method doesn't work right for now
+    public func fetchLatestTransactions(fetchTypes: [TransactionFetchType]) -> AnyPublisher<[Transaction], PromiseError> {
+
+        func fetchLatestTransactions(transactions: [Transaction] = [],
+                                     schedulerProvider: SchedulerProvider & LatestTransactionProvidable) -> AnyPublisher<[Transaction], PromiseError> {
+
+            var transactions = transactions
+            return schedulerProvider.fetchPublisher()
+                .flatMap { response -> AnyPublisher<[Transaction], PromiseError> in
+                    if response.isEmpty {
+                        return .just(transactions)
+                    } else {
+                        let newTransactions = Array(Set(transactions).union(response))
+                        if transactions.count == newTransactions.count {
+                            return .just(newTransactions)
+                        } else {
+                            return fetchLatestTransactions(transactions: transactions, schedulerProvider: schedulerProvider)
+                        }
+                    }
+                }.eraseToAnyPublisher()
+        }
+
+        let publishers = fetchTypes.compactMap { getSchedulerProvider(fetchType: $0) }
+            .map {
+                fetchLatestTransactions(schedulerProvider: $0.schedulerProvider)
+                    .replaceError(with: [])
+                    .eraseToAnyPublisher()
+            }
+
+        guard !publishers.isEmpty else { return .empty() }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { $0.flatMap { $0 } }
+            .setFailureType(to: PromiseError.self)
+            .eraseToAnyPublisher()
+    }
 
     private func removeUnknownTransactions() {
         //TODO: why do we remove such transactions? especially `.failed` and `.unknown`?
@@ -187,21 +212,34 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         ercTokenDetector.detect(from: transactions)
     }
 
-    private func getSchedulerProvider(fetchType: FetchType) -> SchedulerProviderData? {
+    private func getSchedulerProvider(fetchType: TransactionFetchType) -> SchedulerProviderData? {
         schedulerProviders.first(where: { $0.fetchType == fetchType })
+    }
+
+    private func transactionFetchType(transaction: Transaction) -> TransactionFetchType {
+        if let operation = transaction.operation {
+            switch operation.operationType {
+            case .erc1155TokenTransfer: return .erc1155
+            case .erc20TokenTransfer: return .erc20
+            case .erc721TokenTransfer: return .erc721
+            default: return .normal
+            }
+        } else {
+            return .normal
+        }
     }
 
     private func forceFetchLatestTransactions(transaction: Transaction) {
         if let operation = transaction.operation {
             switch operation.operationType {
             case .erc1155TokenTransfer:
-                guard let service = self.getSchedulerProvider(fetchType: .erc1155Transfer) else { return }
+                guard let service = self.getSchedulerProvider(fetchType: .erc1155) else { return }
                 service.restart(force: true)
             case .erc20TokenTransfer:
-                guard let service = self.getSchedulerProvider(fetchType: .erc20Transfer) else { return }
+                guard let service = self.getSchedulerProvider(fetchType: .erc20) else { return }
                 service.restart(force: true)
             case .erc721TokenTransfer:
-                guard let service = self.getSchedulerProvider(fetchType: .erc721Transfer) else { return }
+                guard let service = self.getSchedulerProvider(fetchType: .erc721) else { return }
                 service.restart(force: true)
             default:
                 guard let service = self.getSchedulerProvider(fetchType: .normal) else { return }
@@ -214,23 +252,26 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 }
 
+private protocol LatestTransactionProvidable {
+    var publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never> { get }
+
+    func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError>
+}
+
 extension EtherscanSingleChainTransactionProvider {
 
     private struct SchedulerProviderData {
         private let scheduler: Scheduler
 
-        let fetchType: FetchType
-        let schedulerProvider: SchedulerProvider
-        let publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never>
+        let fetchType: TransactionFetchType
+        let schedulerProvider: SchedulerProvider & LatestTransactionProvidable
 
-        init(fetchType: FetchType,
-             schedulerProvider: SchedulerProvider,
-             publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never>) {
+        init(fetchType: TransactionFetchType,
+             schedulerProvider: SchedulerProvider & LatestTransactionProvidable) {
 
             self.fetchType = fetchType
             self.scheduler = Scheduler(provider: schedulerProvider)
             self.schedulerProvider = schedulerProvider
-            self.publisher = publisher
         }
 
         func start() {
@@ -246,30 +287,19 @@ extension EtherscanSingleChainTransactionProvider {
         }
     }
 
-    private enum FetchType {
-        case normal
-        case erc20Transfer
-        case erc721Transfer
-        case erc1155Transfer
-    }
-
-    enum TransferType {
-        case erc20TokenTransfer
-        case erc721TokenTransfer
-        case erc1155TokenTransfer
-    }
-
-    final class LatestTransferTransactionsSchedulerProvider: SchedulerProvider {
+    final class LatestTransferTransactionsSchedulerProvider: SchedulerProvider, LatestTransactionProvidable {
         private let session: WalletSession
         private let apiNetworking: ApiNetworking
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
         private let stateProvider: SchedulerStateProvider
-        private let transferType: TransferType
+        private let transferType: TransactionFetchType
 
         let interval: TimeInterval
         var name: String = ""
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
+                .mapToVoid()
+                .eraseToAnyPublisher()
         }
 
         var publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never> {
@@ -278,7 +308,7 @@ extension EtherscanSingleChainTransactionProvider {
 
         init(session: WalletSession,
              apiNetworking: ApiNetworking,
-             transferType: TransferType,
+             transferType: TransactionFetchType,
              interval: TimeInterval = 0,
              stateProvider: SchedulerStateProvider,
              name: String = "") {
@@ -291,7 +321,7 @@ extension EtherscanSingleChainTransactionProvider {
             self.apiNetworking = apiNetworking
         }
 
-        private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
+        func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError> {
             guard stateProvider.state != .stopped else {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
@@ -302,7 +332,7 @@ extension EtherscanSingleChainTransactionProvider {
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)
-                }).mapToVoid()
+                }).map { $0.transactions }
                 .eraseToAnyPublisher()
         }
 
@@ -312,7 +342,7 @@ extension EtherscanSingleChainTransactionProvider {
             let wallet = session.account.address
 
             switch transferType {
-            case .erc20TokenTransfer:
+            case .erc20:
                 let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
 
@@ -323,7 +353,7 @@ extension EtherscanSingleChainTransactionProvider {
                             Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
                         }
                     }).eraseToAnyPublisher()
-            case .erc721TokenTransfer:
+            case .erc721:
                 let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
                 return apiNetworking.erc721TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
@@ -333,7 +363,7 @@ extension EtherscanSingleChainTransactionProvider {
                             Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
                         }
                     }).eraseToAnyPublisher()
-            case .erc1155TokenTransfer:
+            case .erc1155:
                 let startBlock = Config.getLastFetchedErc1155InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
 
@@ -344,6 +374,8 @@ extension EtherscanSingleChainTransactionProvider {
                             Config.setLastFetchedErc1155InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
                         }
                     }).eraseToAnyPublisher()
+            case .normal:
+                return .empty()
             }
         }
 
@@ -362,7 +394,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
     }
 
-    final class LatestTransactionsSchedulerProvider: SchedulerProvider {
+    final class LatestTransactionsSchedulerProvider: SchedulerProvider, LatestTransactionProvidable {
         private let session: WalletSession
         private let apiNetworking: ApiNetworking
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
@@ -373,6 +405,8 @@ extension EtherscanSingleChainTransactionProvider {
         let name: String
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
+                .mapToVoid()
+                .eraseToAnyPublisher()
         }
 
         var publisher: AnyPublisher<Result<[Transaction], PromiseError>, Never> {
@@ -395,7 +429,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times
-        private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
+        func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError> {
             guard stateProvider.state != .stopped else {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
@@ -420,7 +454,7 @@ extension EtherscanSingleChainTransactionProvider {
                 }, receiveCompletion: { [weak self] result in
                     guard case .failure(let e) = result else { return }
                     self?.handle(error: e)
-                }).mapToVoid()
+                }).map { $0.transactions }
                 .eraseToAnyPublisher()
         }
 

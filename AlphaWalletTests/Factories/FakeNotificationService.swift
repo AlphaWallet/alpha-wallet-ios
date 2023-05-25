@@ -8,10 +8,11 @@
 import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import AlphaWalletNotifications
 
-extension NotificationService {
-    static func fake() -> NotificationService {
-        let notificationService = LocalNotificationService()
-        return NotificationService(sources: [], walletBalanceService: FakeMultiWalletBalanceService(), notificationService: notificationService, pushNotificationsService: UNUserNotificationsService())
+extension LocalNotificationService {
+    static func fake() -> LocalNotificationService {
+        let deliveryService = DefaultLocalNotificationDeliveryService(notificationCenter: .current())
+        return LocalNotificationService(sources: [], deliveryService: deliveryService)
     }
 }

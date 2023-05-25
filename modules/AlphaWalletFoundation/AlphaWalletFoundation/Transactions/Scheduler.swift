@@ -195,7 +195,7 @@ public class PersistantSchedulerStateProvider: SchedulerStateProvider {
                 PersistantSchedulerStateProvider(sessionID: sessionID, prefix: prefix.rawValue).state = state
             }
 
-            for prefix in TransactionProvider.TransactionFetchType.allCases {
+            for prefix in TransactionFetchType.allCases {
                 PersistantSchedulerStateProvider(sessionID: sessionID, prefix: prefix.rawValue).state = state
             }
         }

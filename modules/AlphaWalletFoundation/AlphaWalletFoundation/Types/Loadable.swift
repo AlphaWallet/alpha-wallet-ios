@@ -18,15 +18,22 @@ extension Loadable {
         }
     }
 
-    public func mapValue<T2>(_ block: (T) -> T2) -> Loadable<T2, F> {
-        switch self {
-        case .loading:
-            return .loading
-        case .done(let t):
-            return .done(block(t))
-        case .failure(let f):
-            return .failure(f)
+    public func zip<T2, F2>(_ other: Loadable<T2, F2>) -> Loadable<(T, T2), F> where F == F2 {
+        if let selfData = value, let otherData = other.value {
+            return Loadable<(T, T2), F>.done((selfData, otherData))
         }
+
+        switch self {
+        case .failure(let error): return .failure(error)
+        default: ()
+        }
+
+        switch other {
+        case .failure(let error): return .failure(error)
+        default: ()
+        }
+
+        return .loading
     }
 
     public func map<T2>(_ block: (T) -> Loadable<T2, F>) -> Loadable<T2, F> {

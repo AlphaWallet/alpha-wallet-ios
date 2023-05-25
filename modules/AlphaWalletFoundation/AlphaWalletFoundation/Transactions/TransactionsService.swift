@@ -2,6 +2,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 public class TransactionsService {
     private let transactionDataStore: TransactionDataStore
@@ -11,21 +12,23 @@ public class TransactionsService {
     private var providers: [RPCServer: SingleChainTransactionProvider] = [:]
     private let config: Config
 
-    public var transactionsChangeset: AnyPublisher<[Transaction], Never> {
+    public func transactions(filter: TransactionsFilterStrategy) -> AnyPublisher<[Transaction], Never> {
         return sessionsProvider.sessions
             .flatMapLatest { [transactionDataStore] sessions -> AnyPublisher<[Transaction], Never> in
                 let servers = sessions.values.map { $0.server }
                 return transactionDataStore
-                    .transactionsChangeset(filter: .all, servers: servers)
-                    .map { change -> [Transaction] in
-                        switch change {
+                    .transactionsChangeset(filter: filter, servers: servers)
+                    .map { changeset -> [Transaction] in
+                        switch changeset {
                         case .initial(let transactions): return transactions
-                        case .update(let transactions, _, _, _): return transactions
-                        case .error: return []
+                        case .error: return .init()
+                        case .update(let transactions, let deletions, let insertions, let modifications):
+                            return insertions.map { transactions[$0] } + modifications.map { transactions[$0] } - deletions.map { transactions[$0] }
                         }
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
+
     private var cancelable = Set<AnyCancellable>()
     private let networkService: NetworkService
     private let assetDefinitionStore: AssetDefinitionStore
@@ -60,8 +63,6 @@ public class TransactionsService {
         sessionsProvider.sessions
             .map { [weak self] sessions -> [RPCServer: SingleChainTransactionProvider] in
                 guard let strongSelf = self else { return [:] }
-
-                let servers = sessions.map { $0.key }
 
                 var providers: [RPCServer: SingleChainTransactionProvider] = [:]
                 for session in sessions {
@@ -130,7 +131,13 @@ public class TransactionsService {
         }
     }
 
-    //TODO: call when receive a push notification
+    // when we receive a push notification in background we want to fetch latest transactions,
+    public func fetchLatestTransactions(server: RPCServer) -> AnyPublisher<[Transaction], PromiseError> {
+        guard let provider = providers[server] else { return .empty() }
+
+        return provider.fetchLatestTransactions(fetchTypes: TransactionFetchType.allCases)
+    }
+
     public func forceResumeOrStart(server: RPCServer) {
         guard let provider = providers[server] else { return }
 

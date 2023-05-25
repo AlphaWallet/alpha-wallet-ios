@@ -30,8 +30,8 @@ class ChooseSendPrivateTransactionsProviderViewModel {
             .map { _ in self.providers }
 
         let viewState = Publishers.CombineLatest(providers, selection)
-            .map { providers, selection -> [SwitchTableViewCellViewModel] in
-                return providers.map { .init(titleText: $0.title, icon: $0.icon, value: selection == $0) }
+            .map { providers, selection -> [SelectionTableViewCellModel] in
+                return providers.map { .init(titleText: $0.title, icon: $0.icon, value: .just(selection == $0)) }
             }.map { self.buildSnapshot(for: $0) }
             .map { ChooseSendPrivateTransactionsProviderViewModel.ViewState(snapshot: $0) }
             .eraseToAnyPublisher()
@@ -39,7 +39,7 @@ class ChooseSendPrivateTransactionsProviderViewModel {
         return .init(viewState: viewState)
     }
 
-    private func buildSnapshot(for viewModels: [SwitchTableViewCellViewModel]) -> Snapshot {
+    private func buildSnapshot(for viewModels: [SelectionTableViewCellModel]) -> Snapshot {
         var snapshot = Snapshot()
         snapshot.appendSections(ChooseSendPrivateTransactionsProviderViewModel.Section.allCases)
         snapshot.appendItems(viewModels)
@@ -63,8 +63,8 @@ class ChooseSendPrivateTransactionsProviderViewModel {
 }
 
 extension ChooseSendPrivateTransactionsProviderViewModel {
-    class DataSource: UITableViewDiffableDataSource<ChooseSendPrivateTransactionsProviderViewModel.Section, SwitchTableViewCellViewModel> {}
-    typealias Snapshot = NSDiffableDataSourceSnapshot<ChooseSendPrivateTransactionsProviderViewModel.Section, SwitchTableViewCellViewModel>
+    class DataSource: UITableViewDiffableDataSource<ChooseSendPrivateTransactionsProviderViewModel.Section, SelectionTableViewCellModel> {}
+    typealias Snapshot = NSDiffableDataSourceSnapshot<ChooseSendPrivateTransactionsProviderViewModel.Section, SelectionTableViewCellModel>
 
     enum Section: Int, Hashable, CaseIterable {
         case providers
