@@ -575,5 +575,9 @@ extension BasePushNotificationsService {
         func process(userInfo: RemoteNotificationUserInfo, appStartedFromPush: Bool) async -> UIBackgroundFetchResult {
             return .failed
         }
+
+        func willPresentNotification(userInfo: RemoteNotificationUserInfo) async {
+
+        }
     }
 }
