@@ -29,7 +29,6 @@ public protocol TokensService {
     func addOrUpdateTokenTestsOnly(token: Token)
     func deleteTokenTestsOnly(token: Token)
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
-    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
     @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
     func update(token: TokenIdentifiable, value: TokenFieldUpdate)
     @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?

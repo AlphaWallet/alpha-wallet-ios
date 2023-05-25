@@ -40,7 +40,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private let balanceFetcher: TokenBalanceFetcherType
 
     public private (set) lazy var addedTokensPublisher: AnyPublisher<[Token], Never> = {
-        return tokensDataStore.tokensChangesetPublisher(for: [session.server])
+        return tokensDataStore.tokensChangesetPublisher(for: [session.server], predicate: nil)
             .map { changeset -> [Token] in
                 switch changeset {
                 case .initial, .error: return []
@@ -86,10 +86,12 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private func startTokenAutodetection() {
         tokensAutodetector
             .detectedTokensOrContracts
-            .sink { [tokensDataStore] in tokensDataStore.addOrUpdate(tokensOrContracts: $0) }
+            .map { $0.map { AddOrUpdateTokenAction($0) } }
+            .sink { [tokensDataStore] in tokensDataStore.addOrUpdate(with: $0) }
             .store(in: &cancelable)
 
-        tokensAutodetector.start()
+        //NOTE: disabled as delating instances from db caused crash
+        //tokensAutodetector.start()
     }
 
     public func refresh() {

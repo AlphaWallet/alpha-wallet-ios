@@ -105,6 +105,8 @@ extension AlphaWallet {
                     if result == nil && hasLargeFileSize {
                         result = hasLargeFileSize
                     }
+                case .deleteDeletedContracts, .addOrUpdateDeletedContracts, .addOrUpdateDelegateContracts:
+                    break
                 }
             }
 

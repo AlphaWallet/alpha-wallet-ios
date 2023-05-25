@@ -19,7 +19,8 @@ public class AlphaWalletTokensService: TokensService {
     private let assetDefinitionStore: AssetDefinitionStore
     private let transporter: ApiTransporter
     private let fetchTokenScriptFiles: FetchTokenScriptFiles
-    
+    private lazy var tokenRepairService = TokenRepairService(tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
+
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
@@ -32,7 +33,7 @@ public class AlphaWalletTokensService: TokensService {
     }()
 
     public func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
-        tokensDataStore.tokensChangesetPublisher(for: servers)
+        tokensDataStore.tokensChangesetPublisher(for: servers, predicate: nil)
     }
 
     public var tokens: [Token] {
@@ -118,6 +119,7 @@ public class AlphaWalletTokensService: TokensService {
             .store(in: &cancelable)
 
         fetchTokenScriptFiles.start()
+        tokenRepairService.start()
     }
 
     private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
@@ -139,10 +141,6 @@ public class AlphaWalletTokensService: TokensService {
 
     deinit {
         stop()
-    }
-
-    public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
-        tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
     }
 
     public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token] {
