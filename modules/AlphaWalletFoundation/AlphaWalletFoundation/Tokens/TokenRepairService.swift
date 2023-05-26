@@ -45,13 +45,12 @@ final class TokenRepairService {
                 case .error(let e):
                     return .error(e)
                 }
-            }.print("xxx.spuriousTokens")
+            }
 
         let delegateContracts = sessionsProvider.sessions
             .map { Array($0.keys) }
             .flatMapLatest { [tokensDataStore] in tokensDataStore.delegateContractsChangeset(for: $0) }
             .receive(on: queue)
-            .print("xxx.delegateContracts")
 
         Publishers.Merge(delegateContracts, spuriousTokens)
             .sink(receiveValue: { [weak self] changeset in
@@ -74,7 +73,6 @@ final class TokenRepairService {
                 .flatMap { _ -> AnyPublisher<TokenOrContract, RepairTokenError> in
                     return fetcher.fetchTokenOrContract(for: contract)
                         .mapError { RepairTokenError.inner($0) }
-                        .print("xxx.fetchTokenOrContract")
                         .flatMap { tokenOrContract -> AnyPublisher<TokenOrContract, RepairTokenError> in
                             switch tokenOrContract {
                             case .ercToken(let token): return .just(tokenOrContract)

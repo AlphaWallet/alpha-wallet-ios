@@ -54,7 +54,6 @@ public class BasePushNotificationsNetworking: PushNotificationsNetworking {
             apiKey: apiKey)
 
         return transporter.responseTaskPublisher(request)
-            .print("xxx.subscribe")
             .map { $0.statusCode == 201 }
             .replaceError(with: false)
             .eraseToAnyPublisher()
@@ -72,7 +71,6 @@ public class BasePushNotificationsNetworking: PushNotificationsNetworking {
             apiKey: apiKey)
 
         return transporter.responseTaskPublisher(request)
-            .print("xxx.unsubscribe")
             .map { $0.statusCode == 201 }
             .replaceError(with: false)
             .eraseToAnyPublisher()
