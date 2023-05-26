@@ -119,7 +119,7 @@ public class AlphaWalletTokensService: TokensService {
             .store(in: &cancelable)
 
         fetchTokenScriptFiles.start()
-        tokenRepairService.start()
+        //tokenRepairService.start()
     }
 
     private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
