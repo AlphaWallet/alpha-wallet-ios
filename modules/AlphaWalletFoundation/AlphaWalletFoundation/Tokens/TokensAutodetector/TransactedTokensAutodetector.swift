@@ -12,9 +12,7 @@ import Combine
 class TransactedTokensAutodetector: NSObject, TokensAutodetector {
     private let subject = PassthroughSubject<[TokenOrContract], Never>()
     private let tokensDataStore: TokensDataStore
-    private let importToken: TokenImportable & TokenOrContractFetchable
     private var cancellable = Set<AnyCancellable>()
-    private let apiNetworking: ApiNetworking
     private let session: WalletSession
     private var schedulers: [Scheduler]
 
@@ -29,8 +27,6 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
          tokenTypes: [Eip20TokenType]) {
 
         self.session = session
-        self.apiNetworking = apiNetworking
-        self.importToken = importToken
         self.tokensDataStore = tokensDataStore
 
         let providers = tokenTypes.map { tokenType in
@@ -60,6 +56,10 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
             .multicast(subject: subject)
             .connect()
             .store(in: &cancellable)
+    }
+
+    deinit {
+        cancellable.cancellAll()
     }
 
     func start() {
