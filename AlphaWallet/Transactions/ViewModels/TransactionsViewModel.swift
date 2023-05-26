@@ -124,7 +124,7 @@ extension TransactionsViewModel.functional {
                 }
             }
 
-            return (date: date, transactionRows: items)
+            return (date: date, transactionRows: items.uniqued())
         }
     }
 
