@@ -77,6 +77,11 @@ extension APIKitSession {
             RemoteLogger.instance.logRpcOrOtherWebError("Request Error | \(e.localizedDescription)", url: baseUrl.absoluteString)
             return nil
         case .responseError(let e):
+            if let nsError = e as? NSError, nsError.code == 3840 {
+                //handle when json decode error
+                return SendTransactionNotRetryableError(type: .unknown(code: nsError.code, message: "Something went wrong"), server: server)
+            }
+
             if let jsonRpcError = e as? JSONRPCError {
                 switch jsonRpcError {
                 case .responseError(let code, let message, _):
