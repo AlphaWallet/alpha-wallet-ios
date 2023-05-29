@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import BigInt
 
-public protocol TokenImportable {
+public protocol TokenImportable: AnyObject {
     func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool) -> Token
     func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> AnyPublisher<Token, ImportToken.ImportTokenError>
 }
@@ -35,8 +35,7 @@ extension TokenOrContractFetchable {
     }
 }
 
-//NOTE: actually its internal, public for tests
-public protocol ContractDataFetchable {
+public protocol ContractDataFetchable: AnyObject {
     func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never>
 }
 
@@ -99,7 +98,6 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
     private let contractDataFetcher: ContractDataFetchable
     private let tokensDataStore: TokensDataStore
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
-
     private var inFlightPublishers: [String: AnyPublisher<TokenOrContract, ImportTokenError>] = [:]
     private let reachability: ReachabilityManagerProtocol
     private let server: RPCServer
@@ -113,6 +111,10 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
         self.server = server
         self.tokensDataStore = tokensDataStore
         self.contractDataFetcher = contractDataFetcher
+    }
+
+    func stop() {
+        inFlightPublishers.removeAll()
     }
 
     public func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<Token, ImportTokenError> {

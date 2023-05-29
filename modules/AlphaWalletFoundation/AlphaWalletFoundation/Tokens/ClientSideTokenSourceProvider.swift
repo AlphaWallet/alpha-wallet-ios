@@ -79,11 +79,6 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     public func start() {
         tokensDataStore.addEthToken(forServer: session.server)
 
-        startTokenAutodetection()
-        balanceFetcher.delegate = self
-    }
-
-    private func startTokenAutodetection() {
         tokensAutodetector
             .detectedTokensOrContracts
             .map { $0.map { AddOrUpdateTokenAction($0) } }
@@ -92,6 +87,17 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
         //NOTE: disabled as delating instances from db caused crash
         //tokensAutodetector.start()
+
+        balanceFetcher.delegate = self
+    }
+
+    public func stop() {
+        cancelable.cancellAll()
+        tokensAutodetector.stop()
+    }
+
+    deinit {
+        stop()
     }
 
     public func refresh() {
