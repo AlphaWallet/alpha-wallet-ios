@@ -12,7 +12,7 @@ import AlphaWalletCore
 
 public final class Enjin {
     private let server: RPCServer
-    private let networking: EnjinNetworking
+    private var networking: EnjinNetworking?
     private let storage: EnjinStorage
     private static var sharedNetworking: EnjinNetworking?
     
@@ -25,13 +25,17 @@ public final class Enjin {
         self.server = server
 
         if let networking = Enjin.sharedNetworking {
-            self.networking = networking
+            if Enjin.isServerSupported(server) {
+                self.networking = networking
+            }
         } else {
-            self.networking = EnjinNetworking(
+            Enjin.sharedNetworking = EnjinNetworking(
                 accessTokenStore: accessTokenStore,
                 credentials: credentials)
 
-            Enjin.sharedNetworking = networking
+            if Enjin.isServerSupported(server) {
+                self.networking = Enjin.sharedNetworking
+            }
         }
     }
 
@@ -40,10 +44,10 @@ public final class Enjin {
     }
 
     public func fetchTokens(wallet: Wallet) -> AnyPublisher<[EnjinToken], PromiseError> {
-        guard Enjin.isServerSupported(server) else { return .just([]) }
+        guard let networking = networking else { return .just([]) }
 
         return networking.getEnjinBalances(owner: wallet.address, offset: 1)
-            .flatMap { [networking] balances in
+            .flatMap { balances in
                 let balances = balances.compactMap { EnjinBalance(balance: $0) }
                 return networking.getEnjinTokens(balances: balances, owner: wallet.address)
             }.handleEvents(receiveOutput: { [storage, server] response in
