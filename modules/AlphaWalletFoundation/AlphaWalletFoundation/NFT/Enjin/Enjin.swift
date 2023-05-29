@@ -14,7 +14,8 @@ public final class Enjin {
     private let server: RPCServer
     private let networking: EnjinNetworking
     private let storage: EnjinStorage
-
+    private static var sharedNetworking: EnjinNetworking?
+    
     public init(server: RPCServer,
                 storage: EnjinStorage,
                 accessTokenStore: EnjinAccessTokenStore,
@@ -22,9 +23,16 @@ public final class Enjin {
         
         self.storage = storage
         self.server = server
-        self.networking = EnjinNetworking(
-            accessTokenStore: accessTokenStore,
-            credentials: credentials)
+
+        if let networking = Enjin.sharedNetworking {
+            self.networking = networking
+        } else {
+            self.networking = EnjinNetworking(
+                accessTokenStore: accessTokenStore,
+                credentials: credentials)
+
+            Enjin.sharedNetworking = networking
+        }
     }
 
     func token(tokenId: TokenId) -> EnjinToken? {
