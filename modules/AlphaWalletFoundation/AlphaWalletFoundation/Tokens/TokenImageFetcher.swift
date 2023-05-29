@@ -73,6 +73,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     private let tokenGroupsIdentifier: TokenGroupIdentifierProtocol
     private let spamImage: UIImage
     private let subscribables: AtomicDictionary<String, CurrentValueSubject<TokenImage?, Never>> = .init()
+    private let inFlightTasks: AtomicDictionary<String, Task<Void, Never>> = .init()
 
     enum ImageAvailabilityError: LocalizedError {
         case notAvailable
@@ -213,23 +214,28 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             return subject.eraseToAnyPublisher()
         }
 
-        Task { @MainActor in
-            if let image = try? await self.fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress) {
-                let tokenImage = TokenImage(image: .image(.loaded(image: image)), isFinal: true, overlayServerIcon: staticOverlayIcon)
-                subject.send(tokenImage)
-                return
+        if inFlightTasks[key] == nil {
+            inFlightTasks[key] = Task { @MainActor in
+                if let image = try? await self.fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress) {
+                    let tokenImage = TokenImage(image: .image(.loaded(image: image)), isFinal: true, overlayServerIcon: staticOverlayIcon)
+                    subject.send(tokenImage)
+                    return
+                }
+                if let url = try? TokenImageFetcherImpl.nftCollectionImageUrl(type, balance: balance, size: size) {
+                    let tokenImage = TokenImage(image: url, isFinal: true, overlayServerIcon: staticOverlayIcon)
+                    subject.send(tokenImage)
+                    return
+                }
+                if let image = try? await self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress) {
+                    let tokenImage = TokenImage(image: .image(.loaded(image: image)), isFinal: false, overlayServerIcon: staticOverlayIcon)
+                    subject.send(tokenImage)
+                    return
+                }
+
+                subject.send(generatedImage)
+                
+                self.inFlightTasks[key] = nil
             }
-            if let url = try? TokenImageFetcherImpl.nftCollectionImageUrl(type, balance: balance, size: size) {
-                let tokenImage = TokenImage(image: url, isFinal: true, overlayServerIcon: staticOverlayIcon)
-                subject.send(tokenImage)
-                return
-            }
-            if let image = try? await self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress) {
-                let tokenImage = TokenImage(image: .image(.loaded(image: image)), isFinal: false, overlayServerIcon: staticOverlayIcon)
-                subject.send(tokenImage)
-                return
-            }
-            subject.send(generatedImage)
         }
 
         return subject.eraseToAnyPublisher()
