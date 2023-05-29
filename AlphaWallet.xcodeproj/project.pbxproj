@@ -597,7 +597,6 @@
 		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
 		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91824EE66D700E19DFF /* GasSpeedView.swift */; };
-		875178552892BAA400D809B0 /* TokensPipeLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875178542892BAA400D809B0 /* TokensPipeLineTests.swift */; };
 		8757E5DC25DD162E00812392 /* SignatureConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */; };
 		8757E5DE25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DD25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift */; };
 		8757E5E025DE5A9D00812392 /* AcceptProposalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DF25DE5A9D00812392 /* AcceptProposalViewController.swift */; };
@@ -1516,7 +1515,6 @@
 		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
 		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91824EE66D700E19DFF /* GasSpeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedView.swift; sourceTree = "<group>"; };
-		875178542892BAA400D809B0 /* TokensPipeLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TokensPipeLineTests.swift; path = AlphaWalletTests/Transfer/ViewControllers/TokensPipeLineTests.swift; sourceTree = SOURCE_ROOT; };
 		8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationViewController.swift; sourceTree = "<group>"; };
 		8757E5DD25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationConfirmationViewModel.swift; sourceTree = "<group>"; };
 		8757E5DF25DE5A9D00812392 /* AcceptProposalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptProposalViewController.swift; sourceTree = "<group>"; };
@@ -2666,7 +2664,6 @@
 		29F1C85420036879003780D8 /* Types */ = {
 			isa = PBXGroup;
 			children = (
-				875178542892BAA400D809B0 /* TokensPipeLineTests.swift */,
 				8747FD6028A22E350076C7B5 /* RetryPublisherTests.swift */,
 				29F1C85520036887003780D8 /* AppTrackerTests.swift */,
 				5E7C75DE215F0AAEF284948F /* HDWalletTest.swift */,
@@ -5895,7 +5892,6 @@
 				73958DC720263525000A40EB /* SplashCoordinatorTests.swift in Sources */,
 				02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */,
 				29F114FA1FA817A800114A29 /* RequestCoordinatorTests.swift in Sources */,
-				875178552892BAA400D809B0 /* TokensPipeLineTests.swift in Sources */,
 				2977CAE01F7DEEB0009682A0 /* FakeEtherKeystore.swift in Sources */,
 				29DBF2A51F9EB75E00327C60 /* BackupCoordinatorTests.swift in Sources */,
 				29E14FD51F7F470C00185568 /* TransactionsStorageTests.swift in Sources */,
