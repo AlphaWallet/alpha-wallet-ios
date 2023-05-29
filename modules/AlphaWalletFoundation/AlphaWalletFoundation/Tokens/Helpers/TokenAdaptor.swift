@@ -13,6 +13,16 @@ import Combine
 
 extension TokenHolder: ObservableObject { }
 
+private var subjectCancellableKey: Void?
+extension TokenHolder {
+
+    fileprivate var cancellable: Cancellable? {
+      get { objc_getAssociatedObject(self, &subjectCancellableKey) as? Cancellable }
+      set { objc_setAssociatedObject(self, &subjectCancellableKey, newValue, .OBJC_ASSOCIATION_RETAIN) }
+    }
+}
+
+
 public struct TokenAdaptor {
     let nftProvider: NFTProvider
     let assetDefinitionStore: AssetDefinitionStore
@@ -69,9 +79,6 @@ public struct TokenAdaptor {
             account: wallet,
             assetDefinitionStore: assetDefinitionStore)
 
-        let subscribablesForAttributeValues = values.values
-        let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
-
         let tokenScriptToken = TokenScript.Token(
             tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
             tokenType: token.type,
@@ -83,16 +90,13 @@ public struct TokenAdaptor {
 
         let tokenHolder = TokenHolder(tokens: [tokenScriptToken], contractAddress: token.contractAddress, hasAssetDefinition: true)
 
-        if allResolved {
-            //no-op
-        } else {
-            for each in subscribablesForAttributeValues {
-                guard let subscribable = each.subscribableValue else { continue }
-                subscribable.sinkAsync { [weak tokenHolder] _ in
-                    tokenHolder?.objectWillChange.send()
-                }
+        //NOTE: resolve all attibutest at once and notify token holder
+        let assetAttributeValues = AssetAttributeValues(attributeValues: values)
+        tokenHolder.cancellable = assetAttributeValues.resolveAllAttributes()
+            .sink { [weak tokenHolder] _ in
+                tokenHolder?.objectWillChange.send()
+                tokenHolder?.cancellable = nil
             }
-        }
 
         return tokenHolder
     }

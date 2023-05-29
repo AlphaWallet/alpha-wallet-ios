@@ -58,22 +58,12 @@ extension TokenScript {
     }
 
     private static func resolveActionAttributeValues(action: TokenInstanceAction, withUserEntryValues userEntryValues: [AttributeId: String], tokenLevelTokenIdOriginAttributeValues: [AttributeId: AssetAttributeSyntaxValue], tokenHolder: TokenHolder, server: RPCServer, session: WalletSession, localRefsSource: TokenScriptLocalRefsSource, assetDefinitionStore: AssetDefinitionStore) -> Promise<[AttributeId: AssetInternalValue]> {
-        return Promise { seal in
-            //TODO Not reading/writing from/to cache here because we haven't worked out volatility of attributes yet. So we assume all attributes used by an action as volatile, have to fetch the latest
-            //Careful to only resolve (and wait on) attributes that the smart contract function invocation is dependent on. Some action-level attributes might only be used for display
-            let attributeNameValues = assetDefinitionStore.assetAttributeResolver.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues, localRefs: localRefsSource.localRefs, attributes: action.attributesDependencies).mapValues { $0.value }
-            var allResolved = false
-            let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
-            let resolvedAttributeNameValues = attributes.resolve { updatedValues in
-                guard !allResolved && attributes.isAllResolved else { return }
-                allResolved = true
-                seal.fulfill(updatedValues)
-            }
-            allResolved = attributes.isAllResolved
-            if allResolved {
-                seal.fulfill(resolvedAttributeNameValues)
-            }
-        }
+        //TODO Not reading/writing from/to cache here because we haven't worked out volatility of attributes yet. So we assume all attributes used by an action as volatile, have to fetch the latest
+        //Careful to only resolve (and wait on) attributes that the smart contract function invocation is dependent on. Some action-level attributes might only be used for display
+        let attributeNameValues = assetDefinitionStore.assetAttributeResolver.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues, localRefs: localRefsSource.localRefs, attributes: action.attributesDependencies).mapValues { $0.value }
+
+        let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
+        return attributes.resolveAllAttributes().promise()
     }
 }
 

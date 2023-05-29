@@ -121,7 +121,8 @@ class NFTAssetViewModel {
         let tokenHolderPublisher = tokenHolderPublisher()
 
         let viewTypes = Publishers.Merge3(input.appear, tokenHolderPublisher, collectionStats)
-            .map { _ in self.buildViewTypes(nftAssetDisplayHelper: self.assetDisplayHelper) }
+            .flatMap { [assetDisplayHelper] _ in assetDisplayHelper.attributes }
+            .map { [assetDisplayHelper] attributes in self.buildViewTypes(nftAssetDisplayHelper: assetDisplayHelper, attributes: attributes) }
             .handleEvents(receiveOutput: { self.viewTypes = $0 })
 
         let actionButtons = buildActionButtons(trigger: tokenHolderPublisher)
@@ -233,7 +234,7 @@ class NFTAssetViewModel {
         }
     }
 
-    private func buildViewTypes(nftAssetDisplayHelper: NftAssetDisplayHelper) -> [NFTAssetViewModel.ViewType] {
+    private func buildViewTypes(nftAssetDisplayHelper: NftAssetDisplayHelper, attributes: [NonFungibleTraitViewModel]) -> [NFTAssetViewModel.ViewType] {
         var configurations: [NFTAssetViewModel.ViewType] = []
 
         configurations += [
@@ -286,10 +287,10 @@ class NFTAssetViewModel {
             ]
         }
 
-        if !nftAssetDisplayHelper.attributes.isEmpty {
+        if !attributes.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.attributes))
+                .attributeCollection(viewModel: .init(traits: attributes))
             ]
         }
 

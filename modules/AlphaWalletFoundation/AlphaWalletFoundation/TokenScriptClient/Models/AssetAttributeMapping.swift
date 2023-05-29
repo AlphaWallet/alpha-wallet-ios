@@ -20,13 +20,13 @@ public struct AssetAttributeMapping {
         }
     }
 
-    private func map(fromSubscribableKey subscribableKey: Subscribable<AssetInternalValue>) -> AssetInternalValue {
-        let mappedSubscribable = Subscribable<AssetInternalValue>(nil)
-        subscribableKey.sinkAsync { value in
-            guard let value = value else { return }
-            guard let keyString = self.convertKeyToString(value) else { return }
-            mappedSubscribable.send(XMLHandler.getMappingOptionValue(fromMappingElement: self.mapping, xmlContext: self.xmlContext, withKey: keyString).flatMap { .string($0) })
+    private func map(fromSubscribableKey subscribable: Subscribable<AssetInternalValue>) -> AssetInternalValue {
+        let mappedSubscribable: Subscribable<AssetInternalValue> = subscribable.mapFirst { value in
+            guard let value = value else { return nil }
+            guard let keyString = self.convertKeyToString(value) else { return nil }
+            return XMLHandler.getMappingOptionValue(fromMappingElement: self.mapping, xmlContext: self.xmlContext, withKey: keyString).flatMap { .string($0) }
         }
+
         return .subscribable(mappedSubscribable)
     }
 
