@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.06.2022.
 //
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 final class FakeEnsRecordsStorage: RealmStore {
     init() {

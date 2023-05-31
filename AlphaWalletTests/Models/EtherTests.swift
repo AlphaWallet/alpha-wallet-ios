@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 @testable import AlphaWallet
-import XCTest
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Foundation
+import XCTest
 
 class EtherTests: XCTestCase {
     func testEtherRepresentationEnglishLocale() {

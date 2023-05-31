@@ -7,11 +7,10 @@
 
 @testable import AlphaWallet
 import AlphaWalletAddress
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 class CachedERC1155ContractDictionaryTestCase: XCTestCase {
-
     private enum FileNames: String, CaseIterable {
         case hit = "testCacheHit.json"
         case miss = "testCacheMiss.json"

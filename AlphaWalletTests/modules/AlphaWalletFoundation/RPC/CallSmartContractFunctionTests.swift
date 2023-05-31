@@ -1,8 +1,8 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import XCTest
-import AlphaWalletWeb3
 @testable import AlphaWalletFoundation
+import AlphaWalletWeb3
+import XCTest
 
 class CallSmartContractFunctionTests: XCTestCase {
     //This is important to assert that the caching key is different event whe the event is the same, because we use the same ERC1155 transfer event for both checking send and receive events

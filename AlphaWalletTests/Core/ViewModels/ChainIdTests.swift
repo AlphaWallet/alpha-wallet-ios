@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 @testable import AlphaWalletFoundation
+import XCTest
 
 class ChainIdTests: XCTestCase {
     func testLargeChainIdDisplay() {

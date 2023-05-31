@@ -2,14 +2,13 @@
 // Created by James Sangalli on 8/3/18.
 //
 
-import Foundation
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
 import BigInt
+import Foundation
+import XCTest
 
 class ClaimOrderCoordinatorTests: XCTestCase {
-
     var expectations = [XCTestExpectation]()
 
     func testClaimOrder() {
@@ -32,7 +31,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
             isDisabled: false,
             type: .erc875
         )
-        
+
         let order = Order(price: BigUInt(0),
                           indices: indices,
                           expiry: expiry,
@@ -43,10 +42,10 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                           spawnable: false,
                           nativeCurrencyDrop: false
         )
-        
+
         let _ = SignedOrder(order: order, message: [UInt8](), signature: "")
         expectation.fulfill()
         wait(for: expectations, timeout: 10)
     }
-    
+
 }

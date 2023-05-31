@@ -5,18 +5,17 @@
 //  Created by Vladyslav Shepitko on 04.04.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
-import EthereumAddress
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import EthereumAddress
+import XCTest
 
 class FunctionCallArgumentTests: XCTestCase {
-
     func testTupleValue() throws {
         let data = [
             EthereumAddress(Constants.nativeCryptoAddressInDatabase.eip55String, type: .normal) as AnyObject,
-            EthereumAddress(Constants.nativeCryptoAddressInDatabase.eip55String, type: .normal) as AnyObject
+            EthereumAddress(Constants.nativeCryptoAddressInDatabase.eip55String, type: .normal) as AnyObject,
         ] as AnyObject
         let value = FunctionCall.Argument(type: .tuple([.address, .address]), value: data)
         XCTAssertEqual(value.description, "[0x0000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000000]")
@@ -41,7 +40,7 @@ class FunctionCallArgumentTests: XCTestCase {
     func testArrayValue() throws {
         let data = [
             BigUInt("0") as AnyObject,
-            BigUInt("0") as AnyObject
+            BigUInt("0") as AnyObject,
         ] as AnyObject
         let value = FunctionCall.Argument(type: .dynamicArray(.uint(bits: 256)), value: data)
         XCTAssertEqual(value.description, "[0, 0]")

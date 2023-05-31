@@ -5,11 +5,10 @@
 //  Created by Vladyslav Shepitko on 02.03.2022.
 //
 
-import XCTest
 import AlphaWalletCore
+import XCTest
 
 class WebImageUrlTests: XCTestCase {
-
     func testWebImageUrls() {
         let u1 = WebImageURL(string: "https://lh3.googleusercontent.com/g-NFUWjS4IGgym8PHBxyhg5-G_B4x-IHgPKRkxo00JQFE3LOd-95yU2uhrokITVmV7KHEav6OMfAhfJ4roC5hwP-0tI9dMRd9wQLdw=s120")
         XCTAssertNotNil(u1?.googleContentSizeIfAvailable)

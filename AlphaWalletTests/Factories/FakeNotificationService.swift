@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 26.07.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
 import AlphaWalletNotifications
+import XCTest
 
 extension LocalNotificationService {
     static func fake() -> LocalNotificationService {

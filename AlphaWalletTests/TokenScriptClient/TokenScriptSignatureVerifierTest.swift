@@ -2,13 +2,12 @@
 // Created by James Sangalli on 2019-07-17.
 //
 
-import Foundation
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
+import XCTest
 
 class TokenScriptSignatureVerifierTest: XCTestCase {
-
     func testValidatorAPIPassed() {
         if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
             return

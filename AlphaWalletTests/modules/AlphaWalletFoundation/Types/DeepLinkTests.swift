@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 class DeepLinkTests: XCTestCase {
     func testHasWalletConnectPathFromSafariExtensionRewriting() {
@@ -28,7 +28,7 @@ class DeepLinkTests: XCTestCase {
         }
 
         switch api {
-        case let .connect(redirectUrl, version, _):
+        case .connect(let redirectUrl, let version, _):
             XCTAssertEqual(redirectUrl.absoluteString, "https://myapp.com")
             XCTAssertEqual(version, "v1")
         case .signPersonalMessage:

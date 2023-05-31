@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class ErrorTests: XCTestCase {
     func testMakeSureErrorMessageDefinedInExtensionAvailableCorrectlyAcrossFrameworks() {

@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
-import Combine
 @testable import AlphaWalletFoundation
+import Combine
+import XCTest
 
 class FileTokenEntriesProviderTests: XCTestCase {
     func testLoadLocalJsonFile() {

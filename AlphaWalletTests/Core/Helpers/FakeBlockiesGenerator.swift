@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 @testable import AlphaWallet
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 extension BlockiesGenerator {
     //TODO do we need to make a fake one instead?

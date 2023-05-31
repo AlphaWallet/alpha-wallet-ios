@@ -1,8 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
-class FakeClaimOrderCoordinator: ClaimPaidOrderCoordinator {
-}
+class FakeClaimOrderCoordinator: ClaimPaidOrderCoordinator {}

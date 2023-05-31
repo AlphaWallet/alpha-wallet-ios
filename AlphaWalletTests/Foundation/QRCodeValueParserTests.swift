@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class QRCodeValueParserTests: XCTestCase {
     func testEmptyString() {
@@ -111,7 +111,7 @@ class QRCodeValueParserTests: XCTestCase {
             XCTAssertEqual("0x123", params["data"])
         }
     }
-    
+
     func testParseMultipleValues() {
         guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123&amount=1.0") else { return XCTFail("Can't parse EIP 681") }
         switch result {

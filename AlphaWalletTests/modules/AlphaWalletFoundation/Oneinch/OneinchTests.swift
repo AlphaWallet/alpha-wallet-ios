@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 19.09.2022.
 //
 
-import XCTest
+import AlphaWalletCore
 @testable import AlphaWalletFoundation
+import AlphaWalletLogger
 import Combine
 import CombineExt
-import AlphaWalletCore
-import AlphaWalletLogger
+import XCTest
 
 final class OneinchTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
@@ -48,7 +48,7 @@ final class OneinchTests: XCTestCase {
         var futureClosureHandlerCount = 0
 
         private func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, PromiseError?) -> Void)) {
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1 ... 3))) {
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1...3))) {
                 self.asyncAPICallCount += 1
                 infoLog("[Oneinch] " + self.msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {

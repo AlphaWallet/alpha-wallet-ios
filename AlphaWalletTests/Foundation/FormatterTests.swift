@@ -6,11 +6,10 @@
 //
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 class FormattersTestCase: XCTestCase {
-
     func testCurrency() {
         XCTAssertEqual(NumberFormatter.fiatShort(currency: .USD).string(double: 0.0)!, "$0.00")
         XCTAssertEqual(NumberFormatter.fiatShort(currency: .USD).string(double: 10.100)!, "$10.10")

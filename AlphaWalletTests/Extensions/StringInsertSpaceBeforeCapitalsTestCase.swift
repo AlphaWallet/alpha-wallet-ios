@@ -5,11 +5,10 @@
 //  Created by Jerome Chan on 25/4/22.
 //
 
-import XCTest
 @testable import AlphaWallet
+import XCTest
 
 class StringInsertSpaceBeforeCapitalsTestCase: XCTestCase {
-
     func testEmpty() throws {
         let baseString = ""
         let result = baseString.insertSpaceBeforeCapitals()

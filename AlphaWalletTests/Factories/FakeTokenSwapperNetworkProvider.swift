@@ -6,10 +6,10 @@
 //
 
 @testable import AlphaWallet
-import Combine
-import BigInt
 import AlphaWalletCore
 import AlphaWalletFoundation
+import BigInt
+import Combine
 
 final class FakeTokenSwapperNetworking: TokenSwapperNetworking {
     func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {

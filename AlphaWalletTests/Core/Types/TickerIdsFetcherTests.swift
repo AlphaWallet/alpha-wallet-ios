@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 19.07.2022.
 //
 
-import XCTest
-import Foundation
-import Combine
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import XCTest
 
 class FakeTickerIdsFetcher: TickerIdsFetcher {
     private let subject: AnyPublisher<TickerIdString?, Never>

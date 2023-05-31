@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+@testable import AlphaWallet
 import Foundation
 import XCTest
-@testable import AlphaWallet
 
 class StringExtensionTests: XCTestCase {
     func testAdd0x() {

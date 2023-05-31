@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class TransactionsStorageTests: XCTestCase {
-
     func testInit() {
         let storage = FakeTransactionsStorage()
 
@@ -27,7 +26,7 @@ class TransactionsStorageTests: XCTestCase {
 
         storage.add(transactions: [
             .make(id: "0x1"),
-            .make(id: "0x2")
+            .make(id: "0x2"),
         ])
 
         XCTAssertEqual(2, storage.transactionCount(forServer: .main))
@@ -39,7 +38,7 @@ class TransactionsStorageTests: XCTestCase {
         storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x1"),
-            .make(id: "0x2")
+            .make(id: "0x2"),
         ])
 
         XCTAssertEqual(2, storage.transactionCount(forServer: .main))
@@ -69,7 +68,7 @@ class TransactionsStorageTests: XCTestCase {
 
         storage.add(transactions: [
             .make(id: "0x1"),
-            .make(id: "0x2")
+            .make(id: "0x2"),
         ])
 
         XCTAssertEqual(2, storage.transactionCount(forServer: .main))

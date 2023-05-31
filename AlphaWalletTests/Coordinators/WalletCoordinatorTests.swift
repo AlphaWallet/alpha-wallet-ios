@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class WalletCoordinatorTests: XCTestCase {
-
     func testImportWallet() {
         let coordinator = WalletCoordinator(
             config: .make(),

@@ -5,12 +5,11 @@
 //  Created by Jerome Chan on 25/4/22.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class FeaturesTestCase: XCTestCase {
-
     let fileName = "FeaturesTestCase.json"
 
     override func setUpWithError() throws {

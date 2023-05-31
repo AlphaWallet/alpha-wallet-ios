@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 class StringFormatterTest: XCTestCase {
     let stringFormatter = StringFormatter()

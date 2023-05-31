@@ -1,12 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
-import Foundation
 import AlphaWalletWeb3
+import Foundation
+import XCTest
 
 class SmartContractHelperTests: XCTestCase {
-
     //TODO. Renable again. This was commented out because it fails most of the time on Travis, making the test suite too unpredictable
     //func testEventLogs() {
     //    let expectation = self.expectation(description: "get NameRegistered Event")

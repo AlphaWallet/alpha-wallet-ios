@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 extension Wallet {
     static func make(address: AlphaWallet.Address = .make(), origin: WalletOrigin = .hd) -> Wallet {

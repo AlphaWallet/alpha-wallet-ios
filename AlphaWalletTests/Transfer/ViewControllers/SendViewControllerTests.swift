@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 05.03.2021.
 //
 
-import UIKit
 @testable import AlphaWallet
-import XCTest
+import AlphaWalletFoundation
 import BigInt
 import Combine
-import AlphaWalletFoundation
+import UIKit
+import XCTest
 
 class SendViewControllerTests: XCTestCase {
     private let token = Token(contract: Constants.nullAddress, server: .main, decimals: 18, value: "0", type: .nativeCryptocurrency)
@@ -241,7 +241,7 @@ class SendViewControllerTests: XCTestCase {
 
         let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: tokenAreGoingToBeResolved)
-        
+
         vc.didScanQRCode("aw.app/ethereum:0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72@1/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1.004e18")
 
         let expectation = self.expectation(description: "did update token balance expectation")
@@ -293,7 +293,7 @@ class TokenBalanceTests: XCTestCase {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
             }.store(in: &cancelable)
-        
+
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")!), for: token)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
@@ -304,7 +304,7 @@ class TokenBalanceTests: XCTestCase {
         coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 666), for: tokenToTicker)
 
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("4000000020224719101120")!), for: token)
-        
+
         waitForExpectations(timeout: 50)
     }
 
@@ -389,7 +389,7 @@ class TokenBalanceTests: XCTestCase {
         coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
 
         let group = DispatchGroup()
-        for each in 0 ..< 10 {
+        for each in 0..<10 {
             group.enter()
             if each % 2 == 0 {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
@@ -486,7 +486,7 @@ class TokenBalanceTests: XCTestCase {
                 }
             }.store(in: &cancelable)
 
-        for each in 1 ... 10 {
+        for each in 1...10 {
             if each % 2 == 0 {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
                     tokensService.setNftBalanceTestsOnly(.balance(["0x0\(each)"]), for: token)
@@ -525,7 +525,7 @@ class TokenBalanceTests: XCTestCase {
                 }
             }.store(in: &cancelable)
 
-        for each in 1 ... 10 {
+        for each in 1...10 {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(each)) {
                 guard let testValue1 = BigUInt("10000000000000000000\(each)") else { return }
                 tokensService.setBalanceTestsOnly(balance: .init(value: testValue1), for: token)

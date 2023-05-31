@@ -5,13 +5,12 @@
 //  Created by Vladyslav Shepitko on 12.01.2021.
 //
 
-import XCTest
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import XCTest
 
 class TransactionConfiguratorTransactionsTests: XCTestCase {
-
     func testDAppRecipientAddress() throws {
         let address = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!
         let walletConnectTransaction = WalletConnectTransaction(contract: address)

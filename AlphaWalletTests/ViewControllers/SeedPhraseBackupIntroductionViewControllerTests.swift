@@ -5,12 +5,11 @@
 //  Created by Vladyslav Shepitko on 10.08.2020.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class SeedPhraseBackupIntroductionViewControllerTests: XCTestCase {
-
     func testContentHeightFits() throws {
         let controller = SeedPhraseBackupIntroductionViewController(account: .make())
         controller.configure()

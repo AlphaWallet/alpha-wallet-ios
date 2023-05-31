@@ -1,8 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class DecodedFunctionCallTest: XCTestCase {
     func testDecode() {

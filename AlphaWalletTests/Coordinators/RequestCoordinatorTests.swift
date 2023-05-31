@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class RequestCoordinatorTests: XCTestCase {
     func testRootViewController() {
@@ -11,4 +11,3 @@ class RequestCoordinatorTests: XCTestCase {
         XCTAssertTrue(coordinator.navigationController.viewControllers.first is RequestViewController)
     }
 }
-

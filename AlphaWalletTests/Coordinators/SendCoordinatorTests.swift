@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class SendCoordinatorTests: XCTestCase {
-
     func testRootViewController() {
         let dep = WalletDataProcessingPipeline.make()
         let coordinator = SendCoordinator(

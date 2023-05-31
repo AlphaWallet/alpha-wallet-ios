@@ -5,12 +5,11 @@
 //  Created by Jerome Chan on 25/3/22.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class TokenGroupIdentifierTest: XCTestCase {
-
     func testReadingExistingFile() throws {
         let reader: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)
         XCTAssertNotNil(reader)

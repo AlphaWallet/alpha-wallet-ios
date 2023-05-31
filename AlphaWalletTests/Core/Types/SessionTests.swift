@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 09.05.2022.
 //
 
-import XCTest
-import Foundation
-import Combine
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import XCTest
 
 extension APIKitSession {
     typealias SendPublisherExampleClosure = (_ callback: @escaping(SessionTaskError?) -> Void) -> Void

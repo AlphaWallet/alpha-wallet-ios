@@ -1,13 +1,13 @@
 //
 // Created by James Sangalli on 2/3/18.
 //
-import Foundation
 @testable import AlphaWallet
-import XCTest
-import BigInt
-import AlphaWalletLogger
 import AlphaWalletFoundation
+import AlphaWalletLogger
+import BigInt
 import Combine
+import Foundation
+import XCTest
 
 class CreateRedeemTests: XCTestCase {
     let keyStore = FakeEtherKeystore()

@@ -9,7 +9,6 @@
 import XCTest
 
 final class ScheduledToDoTest: XCTestCase {
-
     func testReminderToRemoveSpamTokenIconFilesFromIconAssetsRepo() throws {
         let expirationDate = ISO8601DateFormatter().date(from: "2023-07-06T00:00:00Z")! // 6th July 2023
         XCTAssertFalse(dueDateElapsed(expirationDate: expirationDate), "TODO:- Spam Token Icon Removal task: https://github.com/AlphaWallet/iconassets/issues/30")

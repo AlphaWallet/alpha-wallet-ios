@@ -1,12 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 @testable import AlphaWallet
-import XCTest
-import Combine
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
 import AlphaWalletWeb3
+import Combine
+import Foundation
+import XCTest
 
 class EnsResolverTests: XCTestCase {
     func testNameHash() {

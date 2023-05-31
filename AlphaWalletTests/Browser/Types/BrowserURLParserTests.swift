@@ -1,11 +1,10 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class BrowserURLParserTests: XCTestCase {
-
     func testQueryReturnsSearchEngineURL() {
         let parser = BrowserURLParser()
         let query = "1"

@@ -1,7 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWalletFoundation
+import XCTest
 
 class Erc1155TokenIdsFetcherTests: XCTestCase {
     func testCombinedBlockNumbersProcessed() {

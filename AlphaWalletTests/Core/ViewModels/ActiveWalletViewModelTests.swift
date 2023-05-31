@@ -1,10 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
+import XCTest
 
 class ActiveWalletViewModelTests: XCTestCase {
-    
     func testInitialTab() {
         let viewModel = ActiveWalletViewModel()
         XCTAssertEqual(.tokens, viewModel.initialTab)

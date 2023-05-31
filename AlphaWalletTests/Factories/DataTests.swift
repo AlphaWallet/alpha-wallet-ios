@@ -5,12 +5,11 @@
 //  Created by Vladyslav Shepitko on 28.12.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 final class DataTests: XCTestCase {
-
     func testInit() throws {
         XCTAssertThrowsError(try Data(json: NSNull.init()))
 

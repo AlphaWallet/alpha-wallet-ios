@@ -2,14 +2,13 @@
 // Created by James Sangalli on 24/3/18.
 //
 
-import Foundation
 @testable import AlphaWallet
-import XCTest
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Foundation
+import XCTest
 
 class UniversalLinkHandlerTests: XCTestCase {
-    
     func testUniversalLinkParser() {
         let server: RPCServer = .main
         let testUrl = "https://aw.app/AQAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
@@ -21,7 +20,7 @@ class UniversalLinkHandlerTests: XCTestCase {
         let url = UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrder, tokenType: TokenType.erc875)
         XCTAssertEqual(testUrl, url)
     }
-    
+
     func testCreateUniversalLink() {
         var indices = [UInt16]()
         indices.append(1)
@@ -36,7 +35,7 @@ class UniversalLinkHandlerTests: XCTestCase {
                                spawnable: false,
                                nativeCurrencyDrop: false
         )
-        
+
         var testOrders = [Order]()
         testOrders.append(testOrder1)
 //        let account = FakeEtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)

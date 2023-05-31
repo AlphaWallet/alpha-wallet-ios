@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
+import XCTest
 
 extension ServerDictionary {
     static func make(server: RPCServer = .main) -> ServerDictionary<WalletSession> {

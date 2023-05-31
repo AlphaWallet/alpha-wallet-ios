@@ -1,7 +1,7 @@
 //Copyright © 2018 Stormbird PTE. LTD.
 
-import FBSnapshotTestCase
 @testable import AlphaWallet
+import FBSnapshotTestCase
 import UIKit
 
 class TransferTokensCardQuantitySelectionViewControllerTests: FBSnapshotTestCase {

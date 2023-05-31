@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 @testable import AlphaWallet
 @testable import AlphaWalletFoundation
+import BigInt
 import XCTest
 
 class TransactionSigningTests: XCTestCase {

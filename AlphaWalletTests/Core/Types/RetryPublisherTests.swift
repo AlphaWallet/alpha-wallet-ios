@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 09.05.2022.
 //
 
-import Combine
-import XCTest
+@testable import AlphaWallet
 import AlphaWalletAddress
 import AlphaWalletCore
-@testable import AlphaWallet
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import XCTest
 
 class RetryPublisherTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
@@ -100,7 +100,7 @@ class RetryPublisherTests: XCTestCase {
 
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
             DispatchQueue.global(qos: .background).async {
-                let delay = Int.random(in: 1 ... 3)
+                let delay = Int.random(in: 1...3)
                 infoLog(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
                 asyncAPICallCount += 1
                 sleep(UInt32(delay))
@@ -160,7 +160,7 @@ class RetryPublisherTests: XCTestCase {
         msTimeFormatter.dateFormat = "[HH:mm:ss.SSSS] "
 
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1 ... 3))) {
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1...3))) {
                 asyncAPICallCount += 1
                 infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
@@ -209,7 +209,7 @@ class RetryPublisherTests: XCTestCase {
         msTimeFormatter.dateFormat = "[HH:mm:ss.SSSS] "
 
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1 ... 3))) {
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1...3))) {
                 asyncAPICallCount += 1
                 infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
@@ -233,7 +233,7 @@ class RetryPublisherTests: XCTestCase {
         }
 
         let resultPublisher = upstreamPublisher.retry(.custom(retries: 2, delayCalculator: { _ in
-            return TimeInterval(Int.random(in: 5 ... 8))
+            return TimeInterval(Int.random(in: 5...8))
         }), scheduler: DispatchQueue.global(qos: .userInitiated))
 
         XCTAssertEqual(asyncAPICallCount, 0)
@@ -261,7 +261,7 @@ class RetryPublisherTests: XCTestCase {
         msTimeFormatter.dateFormat = "[HH:mm:ss.SSSS] "
 
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1 ... 3))) {
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1...3))) {
                 asyncAPICallCount += 1
                 infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {

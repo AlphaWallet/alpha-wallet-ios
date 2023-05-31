@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class TransactionViewModelTests: XCTestCase {
-
     func testErrorState() {
         let _ = TransactionViewModel(transactionRow: .standalone(.make(state: .error)), blockNumberProvider: .make(), wallet: .make())
     }

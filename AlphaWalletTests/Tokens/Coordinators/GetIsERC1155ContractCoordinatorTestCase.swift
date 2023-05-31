@@ -7,8 +7,8 @@
 
 @testable import AlphaWallet
 import AlphaWalletAddress
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 //class IsErc1155ContractTestCase: XCTestCase {
 //

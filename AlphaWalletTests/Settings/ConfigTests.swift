@@ -1,16 +1,15 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import Combine
 import AlphaWalletFoundation
+import Combine
+import XCTest
 
 extension WalletConnectCoordinator {
-
     static func fake() -> WalletConnectCoordinator {
         let keystore = FakeEtherKeystore(wallets: [.make()])
         let dependencies = AtomicDictionary<Wallet, WalletDependencies>(value: [
-            .make(): WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
+            .make(): WalletDataProcessingPipeline.make(wallet: .make(), server: .main),
         ])
 
         let provider = WalletConnectProvider(keystore: keystore, config: .make(), dependencies: dependencies)
@@ -31,8 +30,7 @@ extension WalletConnectCoordinator {
 }
 
 class ConfigTests: XCTestCase {
-
-        //This is still used by Dapp browser
+    //This is still used by Dapp browser
     func testChangeChainID() {
         let testDefaults = UserDefaults.test
         XCTAssertEqual(1, Config.getChainId(defaults: testDefaults))

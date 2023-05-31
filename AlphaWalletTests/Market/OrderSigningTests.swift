@@ -1,8 +1,8 @@
-import XCTest
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
+import BigInt
 import Combine
+import XCTest
 
 class OrderSigningTests: XCTestCase {
     private var cancellable = Set<AnyCancellable>()
@@ -55,4 +55,3 @@ class OrderSigningTests: XCTestCase {
         wait(for: [expectation], timeout: 20)
     }
 }
-

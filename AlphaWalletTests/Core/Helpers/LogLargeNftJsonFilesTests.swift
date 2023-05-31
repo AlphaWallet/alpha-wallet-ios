@@ -6,12 +6,11 @@
 //
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 // swiftlint:disable all
 class LogLargeNftJsonFilesTests: XCTestCase {
-
     func testLogLargeNftJsonFiles() throws {
         let token = Token()
         guard let bundlePath = Bundle(for: AddressStorageTests.self).path(forResource: "base64_image_example", ofType: "txt") else { XCTFail(); return }

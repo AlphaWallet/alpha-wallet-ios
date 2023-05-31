@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 extension AlphaWallet.Address {
     static func make(address: String = "0x1000000000000000000000000000000000000000") -> AlphaWallet.Address {

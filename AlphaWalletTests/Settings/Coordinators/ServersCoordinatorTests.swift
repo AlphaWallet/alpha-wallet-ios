@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class ServersCoordinatorTests: XCTestCase {
     func testServerListIsComplete() {

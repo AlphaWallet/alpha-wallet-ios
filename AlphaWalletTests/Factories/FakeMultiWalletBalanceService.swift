@@ -4,8 +4,8 @@
 //
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
-import AlphaWalletFoundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 func fakeWalletAddressesStore(wallets: [Wallet] = [.make()]) -> WalletAddressesStore {
     var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
@@ -26,5 +26,5 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         super.init(currencyService: .make())
 
         start(fetchers: [:])
-    } 
+    }
 }

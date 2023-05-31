@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 08.12.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
 import AlphaWalletWeb3
+import BigInt
 import Combine
+import XCTest
 
 class ImportTokenTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
@@ -102,7 +102,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         let sessions = FakeSessionsProvider(servers: [.main])
         sessions.importToken[.main] = fakeFakeImportToken
         sessions.start()
-        
+
         let provider = TransactionTypeFromQrCode(sessionsProvider: sessions, session: sessions.session(for: .main)!)
         provider.transactionTypeProvider = transactionTypeSupportable
 
@@ -116,7 +116,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         let etherToken = Token(contract: Constants.nativeCryptoAddressInDatabase, server: .main, name: "Ether", symbol: "eth", decimals: 18, type: .nativeCryptocurrency)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
         tokensDataStore.addOrUpdate(with: [
-            .init(etherToken)
+            .init(etherToken),
         ])
 
         provider.buildTransactionType(qrCode: qrCode)
@@ -216,7 +216,6 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
 }
 
 class DecimalParserTests: XCTestCase {
-
     func testParseBigIntFromAnyString() throws {
         let parser = DecimalParser()
 

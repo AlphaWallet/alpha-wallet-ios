@@ -5,8 +5,8 @@
 //  Created by Jerome Chan on 4/6/22.
 //
 
-import XCTest
 @testable import AlphaWallet
+import XCTest
 
 class UIColorExtensionTests: XCTestCase {
     func testHexParsing() throws {
@@ -26,9 +26,9 @@ class UIColorExtensionTests: XCTestCase {
         XCTAssert(blue == 0.0, "\(blue)")
         let c3 = UIColor(hex: "123456")
         c3.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        XCTAssert(red*0xff == 0x12, "\(red)")
-        XCTAssert(green*0xff == 0x34, "\(green)")
-        XCTAssert(blue*0xff == 0x56, "\(blue)")
+        XCTAssert(red * 0xff == 0x12, "\(red)")
+        XCTAssert(green * 0xff == 0x34, "\(green)")
+        XCTAssert(blue * 0xff == 0x56, "\(blue)")
     }
 
     func testLightDarkColorMode() throws {

@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
-import BigInt
 import AlphaWalletFoundation
+import BigInt
+import Foundation
 
 extension UnconfirmedTransaction {
     static func make(transactionType: TransactionType = .nativeCryptocurrency(Token(), destination: .none, amount: .notSet),
@@ -14,7 +14,6 @@ extension UnconfirmedTransaction {
                      gasLimit: BigUInt? = BigUInt(100000),
                      gasPrice: GasPrice? = .legacy(gasPrice: BigUInt(1000)),
                      nonce: BigUInt? = BigUInt(1)) -> UnconfirmedTransaction {
-
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,

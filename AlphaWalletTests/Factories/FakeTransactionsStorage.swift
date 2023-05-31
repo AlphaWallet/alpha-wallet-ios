@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Foundation
 
 class FakeTransactionsStorage: TransactionDataStore {
     convenience init(wallet: Wallet = .init(address: Constants.nativeCryptoAddressInDatabase, origin: .hd)) {

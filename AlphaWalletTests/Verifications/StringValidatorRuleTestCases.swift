@@ -5,9 +5,9 @@
 //  Created by Jerome Chan on 2/12/21.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class StringValidatorRuleTestCases: XCTestCase {
     func testLess() throws {

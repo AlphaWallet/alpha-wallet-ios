@@ -5,12 +5,11 @@
 //  Created by Vladyslav Shepitko on 20.01.2022.
 //
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class ValidatorsTests: XCTestCase {
-
     func testEthereumAddressValidator() throws {
         let e1 = EthereumAddressValidator(msg: "").isValid(value: "0x007bee82bdD9e866B2bD114780A47F2261C6840")
         XCTAssertNotNil(e1)

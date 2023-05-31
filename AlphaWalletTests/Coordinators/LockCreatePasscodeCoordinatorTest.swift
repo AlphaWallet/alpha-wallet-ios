@@ -1,8 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import XCTest
 
 class LockCreatePasscodeCoordinatorTest: XCTestCase {
     func testStart() {
@@ -11,7 +11,7 @@ class LockCreatePasscodeCoordinatorTest: XCTestCase {
         coordinator.start()
         XCTAssertTrue(navigationController.viewControllers.first is LockCreatePasscodeViewController)
     }
-    
+
     func testStop() {
         let navigationController = NavigationController()
         let coordinator = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: FakeLock())
