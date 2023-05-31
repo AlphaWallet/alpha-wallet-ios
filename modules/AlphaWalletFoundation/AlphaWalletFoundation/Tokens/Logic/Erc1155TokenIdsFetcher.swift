@@ -104,6 +104,7 @@ public class Erc1155TokenIdsFetcher {
 
         //don't use strong ref here as publisher stores as variable, causes ref cycle
         let promise = blockNumberProvider.latestBlockPublisher
+            .first()
             .receive(on: DispatchQueue.main)
             .setFailureType(to: Erc1155TokenIdsFetcherError.self)
             .compactMap { [weak self] blockNumber -> (Erc1155TokenIds, Int)? in

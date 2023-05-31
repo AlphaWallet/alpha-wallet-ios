@@ -47,6 +47,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
         server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
     }
+    private let cacheableSmartContractCall: CallSmartContract
 
     public let server: RPCServer
 
@@ -57,7 +58,13 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         self.params = params
         self.analytics = analytics
         self.server = server
-        self.getEventLogs = GetEventLogs()
+        self.getEventLogs = GetEventLogs(server: server)
+        self.cacheableSmartContractCall = CallSmartContract(server: server)
+    }
+
+    deinit {
+        getEventLogs.clean()
+        cacheableSmartContractCall.clean()
     }
 
     public func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError> {
@@ -94,10 +101,10 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     }
 
     public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
-        callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
-            .map { try method.response(from: $0) }
-            .publisher()
-            .mapError { SessionTaskError.responseError($0.embedded) }
+        return cacheableSmartContractCall
+            .call(contractAddress: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters, shouldDelayIfCached: method.shouldDelayIfCached)
+            .tryMap { try method.response(from: $0) }
+            .mapError { SessionTaskError(error: $0) }
             .eraseToAnyPublisher()
     }
 
@@ -134,9 +141,6 @@ public final class RpcBlockchainProvider: BlockchainProvider {
 
     public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
         getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
-            .publisher()
-            .mapError { SessionTaskError.responseError($0.embedded) }
-            .eraseToAnyPublisher()
     }
 
     public func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
