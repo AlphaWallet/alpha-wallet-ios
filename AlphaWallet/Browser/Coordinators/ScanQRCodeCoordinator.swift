@@ -157,6 +157,8 @@ extension ScanQRCodeCoordinator {
             return .privateKey
         case .seedPhase:
             return .seedPhrase
+        case .attestation:
+            return .attestation
         }
     }
 

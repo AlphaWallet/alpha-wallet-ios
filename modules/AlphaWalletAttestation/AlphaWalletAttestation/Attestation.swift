@@ -176,8 +176,9 @@ public struct Attestation: Codable {
     public var data: [TypeValuePair]
     private let easAttestation: EasAttestation
 
-    public var time: Int { easAttestation.time }
-    public var expirationTime: Int { easAttestation.expirationTime }
+    public var time: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.time)) }
+    public var expirationTime: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.expirationTime)) }
+
     public var verifyingContract: AlphaWallet.Address? { AlphaWallet.Address(string: easAttestation.verifyingContract) }
     public var chainId: Int { easAttestation.chainId }
     //TODO not hardcode

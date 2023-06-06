@@ -172,6 +172,7 @@ public enum Analytics {
 
     public enum ScanQRCodeResultType: String {
         case addressOrEip681
+        case attestation
         case walletConnect
         case string
         case url
