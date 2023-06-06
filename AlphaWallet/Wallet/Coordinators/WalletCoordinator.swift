@@ -174,7 +174,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
             coordinator: scanQRCodeCoordinator,
             usage: .importWalletOnly,
             supportedResolutions: QRCodeResolutionCoordinator.SupportedQrCodeResolution.jsonOrSeedPhraseResolution)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .importWalletScreen)

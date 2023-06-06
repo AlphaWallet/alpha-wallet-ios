@@ -136,7 +136,7 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
             navigationController: navigationController,
             account: session.account,
             domainResolutionService: domainResolutionService)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)

@@ -51,7 +51,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
          navigationController: UINavigationController,
          account: Wallet?,
          domainResolutionService: DomainResolutionServiceType) {
-        
+
         self.analytics = analytics
         self.account = account
         self.domainResolutionService = domainResolutionService
