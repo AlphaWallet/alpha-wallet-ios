@@ -93,71 +93,75 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
     private func resolveScanResult(_ string: String) {
         guard let delegate = delegate else { return }
-        let qrCodeValue = QrCodeValue(string: string)
-        infoLog("[QR Code] resolved: \(qrCodeValue)")
 
-        switch qrCodeValue {
-        case .addressOrEip681(let value):
-            switch value {
-            case .address(let contract):
-                guard supportedResolutions.contains(.address) else { return }
-                let actions = availableActions(forContract: contract)
-                if actions.count == 1 {
-                    delegate.coordinator(self, didResolve: .address(address: contract, action: actions[0]))
-                } else {
-                    showDidScanWalletAddress(for: actions, completion: { action in
-                        delegate.coordinator(self, didResolve: .address(address: contract, action: action))
-                    }, cancelCompletion: {
-                        self.skipResolvedCodes = false
-                    })
-                }
-            case .eip681(let protocolName, let address, let functionName, let params):
-                guard supportedResolutions.contains(.transactionType) else { return }
-                switch usage {
-                case .all(_, let sessionsProvider):
-                    let resolver = Eip681UrlResolver(
-                        sessionsProvider: sessionsProvider,
-                        missingRPCServerStrategy: .fallbackToFirstMatching)
+        Task { @MainActor in
+            let qrCodeValue = await QrCodeValue(string: string)
+            infoLog("[QR Code] resolved: \(qrCodeValue)")
 
-                    resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
-                        .sink(receiveCompletion: { result in
-                            guard case .failure(let error) = result else { return }
-                            verboseLog("[Eip681UrlResolver] failure to resolve value from: \(qrCodeValue) with error: \(error)")
-                        }, receiveValue: { result in
-                            switch result {
-                            case .transaction(let transactionType, let token):
-                                delegate.coordinator(self, didResolve: .transactionType(transactionType: transactionType, token: token))
-                            case .address:
-                                break // Not possible here
-                            }
-                        }).store(in: &cancellable)
-                case .importWalletOnly:
-                    break
+            switch qrCodeValue {
+            case .addressOrEip681(let value):
+                switch value {
+                case .address(let contract):
+                    guard supportedResolutions.contains(.address) else { return }
+                    let actions = availableActions(forContract: contract)
+                    if actions.count == 1 {
+                        delegate.coordinator(self, didResolve: .address(address: contract, action: actions[0]))
+                    } else {
+                        showDidScanWalletAddress(for: actions, completion: { action in
+                            delegate.coordinator(self, didResolve: .address(address: contract, action: action))
+                        }, cancelCompletion: {
+                            self.skipResolvedCodes = false
+                        })
+                    }
+                case .eip681(let protocolName, let address, let functionName, let params):
+                    guard supportedResolutions.contains(.transactionType) else { return }
+                    switch usage {
+                    case .all(_, let sessionsProvider):
+                        let resolver = Eip681UrlResolver(
+                            sessionsProvider: sessionsProvider,
+                            missingRPCServerStrategy: .fallbackToFirstMatching)
+
+                        resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
+                            .sink(receiveCompletion: { result in
+                                guard case .failure(let error) = result else { return }
+                                verboseLog("[Eip681UrlResolver] failure to resolve value from: \(qrCodeValue) with error: \(error)")
+                            }, receiveValue: { result in
+                                switch result {
+                                case .transaction(let transactionType, let token):
+                                    delegate.coordinator(self, didResolve: .transactionType(transactionType: transactionType, token: token))
+                                case .address:
+                                    break // Not possible here
+                                }
+                            })
+                            .store(in: &cancellable)
+                    case .importWalletOnly:
+                        break
+                    }
                 }
+            case .string(let value):
+                guard supportedResolutions.contains(.string) else { return }
+                delegate.coordinator(self, didResolve: .string(value: value))
+            case .walletConnect(let url):
+                guard supportedResolutions.contains(.walletConnectUrl) else { return }
+                delegate.coordinator(self, didResolve: .walletConnectUrl(url: url))
+            case .url(let url):
+                guard supportedResolutions.contains(.url) else { return }
+                showOpenURL(completion: {
+                    delegate.coordinator(self, didResolve: .url(url: url))
+                }, cancelCompletion: {
+                    //NOTE: we need to reset flag to false to make sure that next detected QR code will be handled
+                    self.skipResolvedCodes = false
+                })
+            case .json(let value):
+                guard supportedResolutions.contains(.json) else { return }
+                delegate.coordinator(self, didResolve: .json(json: value))
+            case .privateKey(let value):
+                guard supportedResolutions.contains(.privateKey) else { return }
+                delegate.coordinator(self, didResolve: .privateKey(privateKey: value))
+            case .seedPhase(let value):
+                guard supportedResolutions.contains(.seedPhase) else { return }
+                delegate.coordinator(self, didResolve: .seedPhase(seedPhase: value))
             }
-        case .string(let value):
-            guard supportedResolutions.contains(.string) else { return }
-            delegate.coordinator(self, didResolve: .string(value: value))
-        case .walletConnect(let url):
-            guard supportedResolutions.contains(.walletConnectUrl) else { return }
-            delegate.coordinator(self, didResolve: .walletConnectUrl(url: url))
-        case .url(let url):
-            guard supportedResolutions.contains(.url) else { return }
-            showOpenURL(completion: {
-                delegate.coordinator(self, didResolve: .url(url: url))
-            }, cancelCompletion: {
-                //NOTE: we need to reset flag to false to make sure that next detected QR code will be handled
-                self.skipResolvedCodes = false
-            })
-        case .json(let value):
-            guard supportedResolutions.contains(.json) else { return }
-            delegate.coordinator(self, didResolve: .json(json: value))
-        case .privateKey(let value):
-            guard supportedResolutions.contains(.privateKey) else { return }
-            delegate.coordinator(self, didResolve: .privateKey(privateKey: value))
-        case .seedPhase(let value):
-            guard supportedResolutions.contains(.seedPhase) else { return }
-            delegate.coordinator(self, didResolve: .seedPhase(seedPhase: value))
         }
     }
 

@@ -23,7 +23,7 @@ public enum QrCodeValue {
     case seedPhase([String])
     case json(String)
 
-    public init(string: String) {
+    public init(string: String) async {
         let trimmedValue = string.trimmed
 
         if let value = AddressOrEip681Parser.from(string: trimmedValue) {

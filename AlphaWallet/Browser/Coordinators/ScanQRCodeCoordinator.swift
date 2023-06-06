@@ -124,11 +124,13 @@ extension ScanQRCodeCoordinator: RequestCoordinatorDelegate {
 // MARK: Analytics
 extension ScanQRCodeCoordinator {
     private func logCompleteScan(result: String) {
-        let resultType = convertToAnalyticsResultType(value: result)
-        analytics.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
+        Task { @MainActor in
+            let resultType = await convertToAnalyticsResultType(value: result)
+            analytics.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
+        }
     }
 
-    private func convertToAnalyticsResultType(value: String!) -> Analytics.ScanQRCodeResultType {
+    private func convertToAnalyticsResultType(value: String!) async -> Analytics.ScanQRCodeResultType {
         if let resultType = AddressOrEip681Parser.from(string: value) {
             switch resultType {
             case .address:
@@ -138,7 +140,8 @@ extension ScanQRCodeCoordinator {
             }
         }
 
-        switch QrCodeValue(string: value) {
+        //TODO not sure it's desirable to parse and interpret the attestation again (if it's one) just for logging. Involves smart contract calls. It should be done elsewhere already
+        switch await QrCodeValue(string: value) {
         case .addressOrEip681:
             return .addressOrEip681
         case .string:
