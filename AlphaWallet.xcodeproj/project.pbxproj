@@ -238,6 +238,7 @@
 		5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */; };
 		5E7C7507CC97BDE973FD4F0E /* EnsResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E9A5E7D36AA3BC108A4 /* EnsResolverTests.swift */; };
 		5E7C7521CA17E5C2A4506A20 /* BrowserHomeHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE5EEC96A7CDF62213F /* BrowserHomeHeaderView.swift */; };
+		5E7C755E0C4AF15A8F696D9D /* ScanQRCodeResolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7713E54A894EDF102F4D /* ScanQRCodeResolution.swift */; };
 		5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70088832B2D161EB4AAB /* SendViewController.swift */; };
 		5E7C75704F09D3ECEBE2A3AA /* TransactionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */; };
 		5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */; };
@@ -1181,6 +1182,7 @@
 		5E7C76C895E7BFA47233068C /* LocalesCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalesCoordinator.swift; sourceTree = "<group>"; };
 		5E7C76D132F4BEA5CE4FFD0A /* StringExtensionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensionTests.swift; sourceTree = "<group>"; };
 		5E7C7709286B5D5A37D0156B /* WhatsNewExperimentCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewExperimentCoordinator.swift; sourceTree = "<group>"; };
+		5E7C7713E54A894EDF102F4D /* ScanQRCodeResolution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanQRCodeResolution.swift; sourceTree = "<group>"; };
 		5E7C7721E0E4D4EFDD35E196 /* ScanQRCodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanQRCodeCoordinator.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C775FD95FE80B0F1CEA33 /* TokenAdaptorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenAdaptorTest.swift; sourceTree = "<group>"; };
@@ -2618,6 +2620,7 @@
 				29E6E06A1FE897CD0079265A /* ViewControllers */,
 				29E6E0691FE897C70079265A /* Coordinators */,
 				8721CBA529A3822E00EE89B8 /* DappRequesterDelegate.swift */,
+				5E7C7713E54A894EDF102F4D /* ScanQRCodeResolution.swift */,
 			);
 			path = Browser;
 			sourceTree = "<group>";
@@ -5825,6 +5828,7 @@
 				5E7C72C38C700EACD9AD9C96 /* CameraDonation.swift in Sources */,
 				5E7C7282CB016A92582D4394 /* ErrorLocalizations.swift in Sources */,
 				5E7C7CD0269EBEF049E1E980 /* BCHardwareWallet.swift in Sources */,
+				5E7C755E0C4AF15A8F696D9D /* ScanQRCodeResolution.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
