@@ -789,7 +789,7 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
+    func didScan(result: String, decodedValue: QrCodeValue, in coordinator: ScanQRCodeCoordinator) {
         removeCoordinator(coordinator)
 
         guard let url = URL(string: result) else { return }

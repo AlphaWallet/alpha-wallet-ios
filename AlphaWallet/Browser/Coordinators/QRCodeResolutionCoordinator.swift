@@ -70,11 +70,11 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         delegate?.didCancel(in: self)
     }
 
-    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
+    func didScan(result: String, decodedValue: QrCodeValue, in coordinator: ScanQRCodeCoordinator) {
         guard !skipResolvedCodes else { return }
 
         skipResolvedCodes = true
-        resolveScanResult(result)
+        resolveScanResult(result, decodedValue: decodedValue)
     }
 
     private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
@@ -91,14 +91,13 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         }
     }
 
-    private func resolveScanResult(_ string: String) {
+    private func resolveScanResult(_ string: String, decodedValue: QrCodeValue) {
         guard let delegate = delegate else { return }
 
         Task { @MainActor in
-            let qrCodeValue = await QrCodeValue(string: string)
-            infoLog("[QR Code] resolved: \(qrCodeValue)")
+            infoLog("[QR Code] resolved: \(decodedValue)")
 
-            switch qrCodeValue {
+            switch decodedValue {
             case .addressOrEip681(let value):
                 switch value {
                 case .address(let contract):
@@ -124,7 +123,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                         resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
                             .sink(receiveCompletion: { result in
                                 guard case .failure(let error) = result else { return }
-                                verboseLog("[Eip681UrlResolver] failure to resolve value from: \(qrCodeValue) with error: \(error)")
+                                verboseLog("[Eip681UrlResolver] failure to resolve value from: \(decodedValue) with error: \(error)")
                             }, receiveValue: { result in
                                 switch result {
                                 case .transaction(let transactionType, let token):

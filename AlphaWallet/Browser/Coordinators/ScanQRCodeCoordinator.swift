@@ -8,7 +8,7 @@ import AlphaWalletLogger
 
 protocol ScanQRCodeCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ScanQRCodeCoordinator)
-    func didScan(result: String, in coordinator: ScanQRCodeCoordinator)
+    func didScan(result: String, decodedValue: QrCodeValue, in coordinator: ScanQRCodeCoordinator)
 }
 
 final class ScanQRCodeCoordinator: NSObject, Coordinator {
@@ -97,8 +97,11 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
         stopScannerAndDismiss {
             let result = result.trimmed
             infoLog("[QR Code] Scanned value: \(String(describing: result))")
-            self.logCompleteScan(result: result)
-            self.delegate?.didScan(result: result, in: self)
+            Task { @MainActor in
+                let decodedValue = await QrCodeValue(string: result)
+                self.logCompleteScan(result: result, decodedValue: decodedValue)
+                self.delegate?.didScan(result: result, decodedValue: decodedValue, in: self)
+            }
         }
     }
 
@@ -123,14 +126,12 @@ extension ScanQRCodeCoordinator: RequestCoordinatorDelegate {
 
 // MARK: Analytics
 extension ScanQRCodeCoordinator {
-    private func logCompleteScan(result: String) {
-        Task { @MainActor in
-            let resultType = await convertToAnalyticsResultType(value: result)
-            analytics.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
-        }
+    private func logCompleteScan(result: String, decodedValue: QrCodeValue) {
+        let resultType = convertToAnalyticsResultType(value: result, decodedValue: decodedValue)
+        analytics.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
     }
 
-    private func convertToAnalyticsResultType(value: String!) async -> Analytics.ScanQRCodeResultType {
+    private func convertToAnalyticsResultType(value: String!, decodedValue: QrCodeValue) -> Analytics.ScanQRCodeResultType {
         if let resultType = AddressOrEip681Parser.from(string: value) {
             switch resultType {
             case .address:
@@ -141,7 +142,7 @@ extension ScanQRCodeCoordinator {
         }
 
         //TODO not sure it's desirable to parse and interpret the attestation again (if it's one) just for logging. Involves smart contract calls. It should be done elsewhere already
-        switch await QrCodeValue(string: value) {
+        switch decodedValue {
         case .addressOrEip681:
             return .addressOrEip681
         case .string:
