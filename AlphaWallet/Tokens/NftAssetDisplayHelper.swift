@@ -8,6 +8,7 @@
 import Foundation
 import AlphaWalletOpenSea
 import AlphaWalletFoundation
+import Combine
 
 final class NftAssetDisplayHelper {
     private (set) var tokenId: TokenId
@@ -155,43 +156,43 @@ final class NftAssetDisplayHelper {
         return tokenHolder.values.collectionValue?.stats?.itemsCount ?? overridenItemsCount
     }
 
-    var attributes: [NonFungibleTraitViewModel] {
+    var attributes: AnyPublisher<[NonFungibleTraitViewModel], Never> {
         let openSeaTraits: [OpenSeaNonFungibleTrait] = tokenHolder.openSeaNonFungibleTraits ?? []
-        let tokenScriptAttributes: [OpenSeaNonFungibleTrait] = functional.extractTokenScriptTokenLevelAttributesWithLabels(tokenHolder: tokenHolder, tokenAttributeValues: tokenAttributeValues, assetDefinitionStore: assetDefinitionStore)
+        return functional.extractTokenScriptTokenLevelAttributesWithLabels(tokenHolder: tokenHolder, tokenAttributeValues: tokenAttributeValues, assetDefinitionStore: assetDefinitionStore).map { tokenScriptAttributes in
+            let tokenScriptAttributeIds: [String] = tokenScriptAttributes.map(\.type)
+            let openSeaTraitsNotOverriddenByTokenScript: [OpenSeaNonFungibleTrait] = openSeaTraits.filter { !tokenScriptAttributeIds.contains($0.type) }
+            let traits: [OpenSeaNonFungibleTrait] = openSeaTraitsNotOverriddenByTokenScript + tokenScriptAttributes
 
-        let tokenScriptAttributeIds: [String] = tokenScriptAttributes.map(\.type)
-        let openSeaTraitsNotOverriddenByTokenScript: [OpenSeaNonFungibleTrait] = openSeaTraits.filter { !tokenScriptAttributeIds.contains($0.type) }
-        let traits: [OpenSeaNonFungibleTrait] = openSeaTraitsNotOverriddenByTokenScript + tokenScriptAttributes
+            let traitsToDisplay = traits.filter { self.displayHelper.shouldDisplayAttribute(name: $0.type) }
+            return traitsToDisplay.map { trait in
+                let rarity: Int? = self.itemsCountRawValue
+                    .flatMap { (Double(trait.count) / $0 * 100.0).rounded(to: 0) }
+                    .flatMap { Int($0) }
 
-        let traitsToDisplay = traits.filter { displayHelper.shouldDisplayAttribute(name: $0.type) }
-        return traitsToDisplay.map { trait in
-            let rarity: Int? = itemsCountRawValue
-                .flatMap { (Double(trait.count) / $0 * 100.0).rounded(to: 0) }
-                .flatMap { Int($0) }
+                if let rarity = rarity {
+                    let displayName = self.displayHelper.mapTraitsToDisplayName(name: trait.type)
+                    let attribute = TokenAttributeViewModel.boldValueAttributedString("\(trait.value)".titleCasedWords(), alignment: .center)
+                    var rarityValue: String
+                    if rarity == 0 {
+                        rarityValue = R.string.localizable.nonfungiblesValueRarityUnique()
+                    } else {
+                        rarityValue = R.string.localizable.nonfungiblesValueRarity(rarity, "%")
+                    }
+                    let rarity = TokenAttributeViewModel.defaultValueAttributedString(rarityValue, alignment: .center)
 
-            if let rarity = rarity {
-                let displayName = displayHelper.mapTraitsToDisplayName(name: trait.type)
-                let attribute = TokenAttributeViewModel.boldValueAttributedString("\(trait.value)".titleCasedWords(), alignment: .center)
-                var rarityValue: String
-                if rarity == 0 {
-                    rarityValue = R.string.localizable.nonfungiblesValueRarityUnique()
+                    return .init(title: displayName, attributedValue: attribute, attributedCountValue: rarity)
                 } else {
-                    rarityValue = R.string.localizable.nonfungiblesValueRarity(rarity, "%")
-                }
-                let rarity = TokenAttributeViewModel.defaultValueAttributedString(rarityValue, alignment: .center)
-
-                return .init(title: displayName, attributedValue: attribute, attributedCountValue: rarity)
-            } else {
-                // swiftlint:disable empty_count
-                if trait.count == 0 {
-                // swiftlint:enable empty_count
-                    //Especially for TokenScript attributes
-                    return mapTraitsToProperName(name: trait.type, value: trait.value, count: nil)
-                } else {
-                    return mapTraitsToProperName(name: trait.type, value: trait.value, count: String(trait.count))
+                    // swiftlint:disable empty_count
+                    if trait.count == 0 {
+                    // swiftlint:enable empty_count
+                        //Especially for TokenScript attributes
+                        return self.mapTraitsToProperName(name: trait.type, value: trait.value, count: nil)
+                    } else {
+                        return self.mapTraitsToProperName(name: trait.type, value: trait.value, count: String(trait.count))
+                    }
                 }
             }
-        }
+        }.eraseToAnyPublisher()
     }
 
     var rankings: [NonFungibleTraitViewModel] {
@@ -313,20 +314,25 @@ extension NftAssetDisplayHelper {
 }
 
 extension NftAssetDisplayHelper.functional {
-    static func extractTokenScriptTokenLevelAttributesWithLabels(tokenHolder: TokenHolder, tokenAttributeValues: AssetAttributeValues, assetDefinitionStore: AssetDefinitionStore) -> [OpenSeaNonFungibleTrait] {
+    static func extractTokenScriptTokenLevelAttributesWithLabels(tokenHolder: TokenHolder,
+                                                                 tokenAttributeValues: AssetAttributeValues,
+                                                                 assetDefinitionStore: AssetDefinitionStore) -> AnyPublisher<[OpenSeaNonFungibleTrait], Never> {
+
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokens[0].tokenType, assetDefinitionStore: assetDefinitionStore)
-        let resolvedTokenAttributeNameValues = tokenAttributeValues.resolve { _ in }
-        let tokenLevelAttributeIdsAndNames = xmlHandler.fieldIdsAndNamesExcludingBase
-        let tokenLevelAttributeIds = tokenLevelAttributeIdsAndNames.keys
-        let toDisplay = resolvedTokenAttributeNameValues.filter { attributeId, _ in !tokenLevelAttributeIdsAndNames[attributeId].isEmpty && tokenLevelAttributeIds.contains(attributeId) }
-        var results: [OpenSeaNonFungibleTrait] = []
-        for (attributeId, value) in toDisplay {
-            let convertor = AssetAttributeToUserInterfaceConvertor()
-            if let value = convertor.formatAsTokenScriptString(value: value), let name = tokenLevelAttributeIdsAndNames[attributeId]?.trimmed {
-                results.append(OpenSeaNonFungibleTrait(count: 0, type: name, value: value))
-            }
-        }
-        return results
+        return tokenAttributeValues.resolveAllAttributes()
+            .map { resolvedTokenAttributeNameValues in
+                let tokenLevelAttributeIdsAndNames = xmlHandler.fieldIdsAndNamesExcludingBase
+                let tokenLevelAttributeIds = tokenLevelAttributeIdsAndNames.keys
+                let toDisplay = resolvedTokenAttributeNameValues.filter { attributeId, _ in !tokenLevelAttributeIdsAndNames[attributeId].isEmpty && tokenLevelAttributeIds.contains(attributeId) }
+                var results: [OpenSeaNonFungibleTrait] = []
+                for (attributeId, value) in toDisplay {
+                    let convertor = AssetAttributeToUserInterfaceConvertor()
+                    if let value = convertor.formatAsTokenScriptString(value: value), let name = tokenLevelAttributeIdsAndNames[attributeId]?.trimmed {
+                        results.append(OpenSeaNonFungibleTrait(count: 0, type: name, value: value))
+                    }
+                }
+                return results
+            }.eraseToAnyPublisher()
     }
 }
 

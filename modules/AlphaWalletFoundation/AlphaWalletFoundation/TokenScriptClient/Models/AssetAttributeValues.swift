@@ -2,46 +2,49 @@
 
 import Foundation
 import AlphaWalletAddress
+import Combine
 
-//This class makes it easier to listen to when all the attribute values are available (specifically values from smart contract function calls are available asynchronously)
-
-public class AssetAttributeValues {
-    private let attributeValues: AtomicDictionary<AttributeId, AssetInternalValue>
-    private let resolvedAttributeValues: AtomicDictionary<AttributeId, AssetInternalValue> = .init()
-
-    public var isAllResolved: Bool {
-        return resolvedAttributeValues.count == attributeValues.count
-    }
-
+//This struct makes it easier to listen to when all the attribute values are available (specifically values from smart contract function calls are available asynchronously)
+public struct AssetAttributeValues {
+    private let attributeValues: [AttributeId: AssetInternalValue]
     public init(attributeValues: [AttributeId: AssetInternalValue]) {
-        self.attributeValues = .init(value: attributeValues)
+        self.attributeValues = attributeValues
     }
 
-    public convenience init(attributeValues: [AttributeId: AssetAttributeSyntaxValue]) {
+    public init(attributeValues: [AttributeId: AssetAttributeSyntaxValue]) {
         self.init(attributeValues: attributeValues.mapValues { $0.value })
     }
 
-    public func resolve(withUpdatedBlock block: @escaping ([AttributeId: AssetInternalValue]) -> Void) -> [AttributeId: AssetInternalValue] {
-        var subscribedAttributes = [Subscribable<AssetInternalValue>]()
-        for (name, value) in attributeValues.values {
-            if case .subscribable(let subscribable) = value {
-                if let subscribedValue = subscribable.value {
-                    resolvedAttributeValues[name] = subscribedValue
+    public func resolveAllAttributes() -> AnyPublisher<[AttributeId: AssetInternalValue], Never> {
+        let publishers = attributeValues
+            .compactMap { value -> AnyPublisher<(AttributeId, AssetInternalValue?), Never>? in
+                if case .subscribable(let subscribable) = value.value {
+                    if let subscribedValue = subscribable.value {
+                        return .just((value.key, subscribedValue))
+                    } else {
+                        return subscribable.publisher
+                            .map { (value.key, $0) }
+                            .first()
+                            .eraseToAnyPublisher()
+                    }
                 } else {
-                    if !subscribedAttributes.contains(where: { $0 == subscribable }) {
-                        subscribedAttributes.append(subscribable)
-                        //TODO fix objects being retained. Cannot only make [weak self] because TokenScript values wouldn't be resolved
-                        subscribable.sinkAsync { value in
-                            guard let value = value else { return }
-                            self.resolvedAttributeValues[name] = value
-                            block(self.resolvedAttributeValues.values)
-                        }
+                    return .just((value.key, value.value))
+                }
+            }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { values -> [AttributeId: AssetInternalValue] in
+                var result: [AttributeId: AssetInternalValue] = [:]
+                for each in values {
+                    if result[each.0] != nil {
+                        //no-op
+                    } else {
+                        result[each.0] = each.1
                     }
                 }
-            } else {
-                resolvedAttributeValues[name] = value
-            }
-        }
-        return resolvedAttributeValues.values
+
+                return result
+            }.eraseToAnyPublisher()
     }
 }

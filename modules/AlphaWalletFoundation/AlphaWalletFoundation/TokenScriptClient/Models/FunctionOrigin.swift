@@ -163,15 +163,17 @@ public struct FunctionOrigin {
                 functionName: functionName,
                 output: functionType.output,
                 assetAttributeProvider: assetAttributeProvider) else { return nil }
-        let resultSubscribable = Subscribable<AssetInternalValue>(nil)
-        subscribable.sinkAsync { value in
-            guard let value = value else { return }
+        //NOTE: updated with storing cancellable in chinld subscribable to avoid ref cycles, looks like syncAsync might cause it.
+        //be carefull with cancellables
+        let resultSubscribable: Subscribable<AssetInternalValue> = subscribable.mapFirst { value in
+            guard let value = value else { return nil }
             if let bitmask = self.bitmask {
-                resultSubscribable.send(self.castReturnValue(value: value, bitmask: bitmask))
+                return self.castReturnValue(value: value, bitmask: bitmask)
             } else {
-                resultSubscribable.send(value)
+                return value
             }
         }
+        
         return .subscribable(resultSubscribable)
     }
 
@@ -349,7 +351,7 @@ public struct FunctionOrigin {
 
         //ENS token is treated as ERC721 because it is picked up from OpenSea. But it doesn't respond to `name` and `symbol`. Calling them is harmless but causes node errors that can be confusing "execution reverted" when looking at logs
         if ["name", "symbol"].contains(functionCall.functionName) && functionCall.contract == Constants.ensContractOnMainnet {
-            return Subscribable<AssetInternalValue>(nil)
+            return Subscribable<AssetInternalValue>(value: nil)
         }
 
         return assetAttributeProvider.getValue(functionCall: functionCall)

@@ -30,6 +30,7 @@ public class ActivitiesService: ActivitiesServiceType {
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
+    private var cancellableSet: AtomicDictionary<AddressAndRPCServer, AnyCancellable> = .init()
     private var activities: AtomicArray<Activity> = .init()
     private let didUpdateActivitySubject: PassthroughSubject<Activity, Never> = .init()
     private let activitiesSubject: CurrentValueSubject<[ActivityCollection.MappedToDateActivityOrTransaction], Never> = .init([])
@@ -128,7 +129,7 @@ public class ActivitiesService: ActivitiesServiceType {
     public func reinject(activity: Activity) {
         guard let tokenHolders = activitiesGenerator.tokensAndTokenHolders[activity.token.addressAndRPCServer] else { return }
 
-        refreshActivity(token: activity.token, tokenHolder: tokenHolders[0], activity: activity, isFirstUpdate: true)
+        refreshActivity(token: activity.token, tokenHolder: tokenHolders[0], activity: activity)
     }
 
     private func combineActivitiesWithTransactions() {
@@ -227,26 +228,26 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
-    private func refreshActivity(token: Token, tokenHolder: TokenHolder, activity: Activity, isFirstUpdate: Bool = true) {
+    private func refreshActivity(token: Token, tokenHolder: TokenHolder, activity: Activity) {
         let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
-        let resolvedAttributeNameValues = attributeValues.resolve { [weak self, weak tokenHolder] _ in
-            guard let tokenHolder = tokenHolder, isFirstUpdate else { return }
-            self?.refreshActivity(token: token, tokenHolder: tokenHolder, activity: activity, isFirstUpdate: false)
-        }
+        cancellableSet[token.addressAndRPCServer] = attributeValues.resolveAllAttributes()
+            .sink(receiveValue: { [weak self] resolvedAttributeNameValues in
+                guard let stronSelf = self else { return }
+                
+                //NOTE: Fix crush when element with index out of range
+                if let (index, oldActivity) = stronSelf.activitiesIndexLookup[activity.id] {
+                    let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
+                    let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
-        //NOTE: Fix crush when element with index out of range
-        if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
-            let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-            let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
+                    if stronSelf.activities.contains(index: index) {
+                        stronSelf.activities[index] = updatedActivity
 
-            if activities.contains(index: index) {
-                activities[index] = updatedActivity
-
-                didUpdateActivitySubject.send(updatedActivity)
-            }
-        } else {
-            //no-op. We should be able to find it unless the list of activities has changed
-        }
+                        stronSelf.didUpdateActivitySubject.send(updatedActivity)
+                    }
+                } else {
+                    //no-op. We should be able to find it unless the list of activities has changed
+                }
+            })
     }
 
     //We can't run this in `activities` didSet {} because this will then be run unnecessarily, when we refresh each activity (we only want this to update when we refresh the entire activity list)

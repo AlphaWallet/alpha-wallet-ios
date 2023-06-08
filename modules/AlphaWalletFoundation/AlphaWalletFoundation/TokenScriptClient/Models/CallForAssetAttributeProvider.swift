@@ -15,7 +15,7 @@ public class CallForAssetAttributeProvider {
     }
 
     public func getValue(functionCall: AssetFunctionCall) -> Subscribable<AssetInternalValue> {
-        let subscribable = Subscribable<AssetInternalValue>(nil)
+        let subscribable = Subscribable<AssetInternalValue>()
         if let promise = inflightPromises[functionCall] {
             promise.done { result in
                 subscribable.send(result)

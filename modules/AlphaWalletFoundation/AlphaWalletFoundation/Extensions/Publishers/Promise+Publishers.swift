@@ -11,22 +11,23 @@ import AlphaWalletCore
 
 extension Promise {
     public func publisher(queue: DispatchQueue = .main) -> AnyPublisher<T, PromiseError> {
-        var isCanceled: Bool = false
+        var strongSelf: Promise? = self
+
         let publisher = Deferred {
             Future<T, PromiseError> { seal in
-                guard !isCanceled else { return }
-                self.done(on: queue, { value in
+                strongSelf?.done(on: queue, { value in
                     seal(.success((value)))
                 }).catch(on: queue, { error in
                     seal(.failure(.some(error: error)))
+                }).finally(on: queue, {
+                    strongSelf = nil
                 })
             }
         }.handleEvents(receiveCancel: {
-            isCanceled = true
+            strongSelf = nil
         })
 
-        return publisher
-            .eraseToAnyPublisher()
+        return publisher.eraseToAnyPublisher()
     }
 }
 
