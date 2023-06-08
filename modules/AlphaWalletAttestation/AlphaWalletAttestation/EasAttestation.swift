@@ -152,7 +152,12 @@ struct EasAttestationFromArrayString: Decodable {
         }()
         uid = try container.decode(String.self)
         schema = try container.decode(String.self)
-        recipient = try container.decode(String.self)
+        let _recipient = try container.decode(String.self)
+        if _recipient == "0" {
+            recipient = "0x0000000000000000000000000000000000000000"
+        } else {
+            recipient = _recipient
+        }
         time = try container.decode(Int.self)
         expirationTime = try container.decode(Int.self)
         let _refUID = try container.decode(String.self)
