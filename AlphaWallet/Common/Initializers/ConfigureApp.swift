@@ -1,14 +1,10 @@
-//
-//  ConfigureApp.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 09.05.2022.
-//
+// Copyright © 2022 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletENS
+import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletOpenSea
-import AlphaWalletENS
 
 public class ConfigureApp: Initializer {
     public init() {}
