@@ -5,6 +5,11 @@ PODS:
     - AlphaWalletWeb3
     - EthereumAddress
     - TrustKeystore
+  - AlphaWalletAttestation (0.0.1):
+    - AlphaWalletFoundation
+    - AlphaWalletWeb3
+    - BigInt
+    - GzipSwift
   - AlphaWalletCore (1.0.2):
     - Alamofire (= 5.6.4)
     - PromiseKit
@@ -153,6 +158,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.11.0):
     - GoogleUtilities/Logger
+  - GzipSwift (5.1.1)
   - iOSSnapshotTestCase (6.2.0):
     - iOSSnapshotTestCase/SwiftSupport (= 6.2.0)
   - iOSSnapshotTestCase/Core (6.2.0)
@@ -227,6 +233,7 @@ PODS:
 
 DEPENDENCIES:
   - AlphaWalletAddress (from `.`)
+  - AlphaWalletAttestation (from `.`)
   - AlphaWalletCore (from `.`)
   - AlphaWalletENS (from `.`)
   - AlphaWalletFoundation (from `.`)
@@ -288,6 +295,7 @@ SPEC REPOS:
     - FloatingPanel
     - GoogleDataTransport
     - GoogleUtilities
+    - GzipSwift
     - iOSSnapshotTestCase
     - IQKeyboardManager
     - JSONRPCKit
@@ -319,6 +327,8 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AlphaWalletAddress:
+    :path: "."
+  AlphaWalletAttestation:
     :path: "."
   AlphaWalletCore:
     :path: "."
@@ -398,6 +408,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   AlphaWalletAddress: e9f10243983ac7f51671671b7964eb49d14854ab
+  AlphaWalletAttestation: 64970455862b55785a04d7f3da556e781e1ae9a5
   AlphaWalletCore: 6f67a6ce7b25614a4cad4ca7330afeaea1b9ad03
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
   AlphaWalletFoundation: 7cf355ef9b4aff7acd54621290a533dd2659ed69
@@ -431,6 +442,7 @@ SPEC CHECKSUMS:
   FloatingPanel: 935712d7a8076630135fbbd47f717700913efef9
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
+  GzipSwift: 893f3e48e597a1a4f62fafcb6514220fcf8287fa
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   IQKeyboardManager: 45a1fa55c1a5b02c61ac0fd7fd5b62bb4ad20d97
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -466,6 +478,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 6e1b35032ac3cc092b978925e4dffac80d160a1e
+PODFILE CHECKSUM: 33a87f051e9a4960aea2e639beb2cb787b24b55b
 
 COCOAPODS: 1.11.3

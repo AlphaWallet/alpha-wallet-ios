@@ -258,7 +258,7 @@ extension Web3.Utils {
         return SECP256K1.UnmarshaledSignature(v: bytes[64], r: r, s: s)
     }
 
-    static func marshalSignature(v: UInt8, r: [UInt8], s: [UInt8]) -> Data? {
+    public static func marshalSignature(v: UInt8, r: [UInt8], s: [UInt8]) -> Data? {
         guard r.count == 32, s.count == 32 else { return nil }
         var completeSignature = Data(bytes: r)
         completeSignature.append(Data(bytes: s))

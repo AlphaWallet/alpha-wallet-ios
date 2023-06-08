@@ -190,7 +190,7 @@ extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolve qrCodeResolution: QrCodeResolution) {
         switch qrCodeResolution {
-        case .walletConnectUrl, .transactionType, .url, .string:
+        case .walletConnectUrl, .transactionType, .url, .string, .attestation:
             break
         case .address(let address, _):
             importWalletViewController?.set(tabSelection: .watch)

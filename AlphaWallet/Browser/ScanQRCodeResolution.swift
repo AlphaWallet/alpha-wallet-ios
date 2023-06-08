@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletFoundation
+import AlphaWalletAttestation
 
 public enum ScanQRCodeAction: CaseIterable {
     case sendToAddress
@@ -12,6 +13,7 @@ public enum ScanQRCodeAction: CaseIterable {
 
 public enum QrCodeValue {
     case addressOrEip681(value: AddressOrEip681)
+    case attestation(Attestation)
     case walletConnect(AlphaWallet.WalletConnect.ConnectionUrl)
     case string(String)
     case url(URL)
@@ -27,19 +29,28 @@ public enum QrCodeValue {
         } else if let url = AlphaWallet.WalletConnect.ConnectionUrl(string) {
             self = .walletConnect(url)
         } else if let url = URL(string: trimmedValue), trimmedValue.isValidURL {
-            self = .url(url)
+            if let attestation = try? await Attestation.extract(fromUrlString: url.absoluteString) {
+                self = .attestation(attestation)
+            } else {
+                self = .url(url)
+            }
         } else {
             if trimmedValue.isValidJSON {
                 self = .json(trimmedValue)
             } else if trimmedValue.isPrivateKey {
                 self = .privateKey(trimmedValue)
             } else {
-                let components = trimmedValue.components(separatedBy: " ")
-                if components.isEmpty || components.count == 1 {
-                    self = .string(trimmedValue)
+                if let attestation = try? await Attestation.extract(fromEncodedValue: trimmedValue) {
+                    self = .attestation(attestation)
                 } else {
-                    self = .seedPhase(components)
+                    let components = trimmedValue.components(separatedBy: " ")
+                    if components.isEmpty || components.count == 1 {
+                        self = .string(trimmedValue)
+                    } else {
+                        self = .seedPhase(components)
+                    }
                 }
+
             }
         }
     }

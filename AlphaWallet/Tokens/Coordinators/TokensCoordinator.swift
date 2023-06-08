@@ -1,7 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletAttestation
 import AlphaWalletAddress
+import AlphaWalletLogger
 import Combine
 import AlphaWalletFoundation
 
@@ -234,6 +236,12 @@ class TokensCoordinator: Coordinator {
 
         coordinator.start(fromSource: source, clipboardString: UIPasteboard.general.stringForQRCode)
     }
+
+    private func displayAttestation(_ attestation: Attestation) {
+        let vc = AttestationViewController(attestation: attestation)
+        let nc = UINavigationController(rootViewController: vc)
+        navigationController.present(nc, animated: true)
+    }
 }
 
 extension UIPasteboard {
@@ -403,6 +411,9 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             handleImportOrWatchWallet(.importWallet(params: .seedPhase(seedPhase: seedPhase)))
         case .privateKey(let privateKey):
             handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
+        case .attestation(let attestation):
+            infoLog("Imported attestation: \(attestation)")
+            displayAttestation(attestation)
         }
 
         removeCoordinator(coordinator)

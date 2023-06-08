@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletAttestation
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
@@ -20,6 +21,7 @@ enum QrCodeResolution {
     case json(json: String)
     case seedPhase(seedPhase: [String])
     case privateKey(privateKey: String)
+    case attestation(attestation: Attestation)
 }
 
 protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
@@ -160,6 +162,9 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             case .seedPhase(let value):
                 guard supportedResolutions.contains(.seedPhase) else { return }
                 delegate.coordinator(self, didResolve: .seedPhase(seedPhase: value))
+            case .attestation(let attestation):
+                guard supportedResolutions.contains(.attestation) else { return }
+                delegate.coordinator(self, didResolve: .attestation(attestation: attestation))
             }
         }
     }
@@ -232,6 +237,7 @@ extension QRCodeResolutionCoordinator {
         case json
         case seedPhase
         case privateKey
+        case attestation
 
         static var jsonOrSeedPhraseResolution: Set<SupportedQrCodeResolution> {
             return [.address, .json, .seedPhase, .privateKey]
