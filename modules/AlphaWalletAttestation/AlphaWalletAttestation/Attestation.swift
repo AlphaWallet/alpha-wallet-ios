@@ -395,6 +395,7 @@ fileprivate extension Attestation.functional {
             .components(separatedBy: ",")
             .map { $0.components(separatedBy: " ") }
         let result: [ABIv2.Element.InOut] = rawList.compactMap { each in
+            guard each.count == 2 else { return nil }
             let typeString = {
                 //See https://github.com/AlphaWallet/alpha-wallet-android/blob/86692639f2bef2acb890524645d80b3910141148/app/src/main/java/com/alphawallet/app/service/AssetDefinitionService.java#L3051
                 if each[0].hasPrefix("uint") || each[0].hasPrefix("int") {
