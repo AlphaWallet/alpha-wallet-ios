@@ -22,7 +22,6 @@ extension TokenHolder {
     }
 }
 
-
 public struct TokenAdaptor {
     let nftProvider: NFTProvider
     let assetDefinitionStore: AssetDefinitionStore
