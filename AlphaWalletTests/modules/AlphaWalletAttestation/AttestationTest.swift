@@ -2,6 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
+@testable import AlphaWalletAttestation
 import AlphaWalletWeb3
 
 class AttestationTest: XCTestCase {
