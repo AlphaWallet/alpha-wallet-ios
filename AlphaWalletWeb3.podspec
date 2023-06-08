@@ -15,7 +15,7 @@ s.description      = <<-DESC
 Web3 implementation in vanilla Swift, intended for mobile developers of wallets, Dapps and Web3.0
 DESC
 
-s.homepage     = "https://github.com/AlphaWallet/AlphaWalletWeb3"
+s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletWeb3"
 s.license      = { :type => "MIT", :file => "LICENSE" }
 s.author       = { "Vladyslav Shepitko" => "vladyslav.shepitko@gmail.com" }
 s.source       = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
