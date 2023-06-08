@@ -97,7 +97,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
                 keystore: keystore,
                 tokensService: tokensService,
                 networkService: networkService)
-            
+
             addCoordinator(coordinator)
             coordinator.delegate = self
 
@@ -133,7 +133,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
             navigationController: navigationController,
             account: session.account,
             domainResolutionService: domainResolutionService)
-        
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)

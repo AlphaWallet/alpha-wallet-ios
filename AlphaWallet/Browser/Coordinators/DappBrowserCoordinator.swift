@@ -120,7 +120,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             wallet: wallet,
             server: server,
             browserOnly: browserOnly)
-        
+
         let browserViewController = BrowserViewController(viewModel: viewModel)
         browserViewController.delegate = self
         browserViewController.webView.uiDelegate = self
