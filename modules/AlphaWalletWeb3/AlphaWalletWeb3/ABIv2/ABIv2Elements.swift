@@ -47,9 +47,14 @@ extension ABIv2 {
         case fallback(Fallback)
         case event(Event)
 
-        public struct InOut {
-            let name: String
-            let type: ParameterType
+        public struct InOut: Equatable, Codable {
+            public let name: String
+            public let type: ParameterType
+
+            public init(name: String, type: ParameterType) {
+                self.name = name
+                self.type = type
+            }
         }
 
         public struct Function {

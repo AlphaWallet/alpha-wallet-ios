@@ -70,7 +70,7 @@ public struct EIP712TypedData: Codable {
 
 extension EIP712TypedData {
     /// Sign-able hash for an `EIP712TypedData`
-    var digest: Data {
+    public var digest: Data {
         let data = Data(bytes: [0x19, 0x01]) + hashStruct(domain, type: "EIP712Domain") + hashStruct(message, type: primaryType)
         return Crypto.hash(data)
     }
