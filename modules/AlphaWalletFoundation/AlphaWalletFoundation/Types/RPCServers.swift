@@ -768,8 +768,8 @@ public enum RPCServer: Hashable, CaseIterable {
         case .callisto: return .batch(1000)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .batch(100)
         case .heco, .heco_testnet: return .batch(1000)
-        case .fantom: return .batch(1000)
-        case .fantom_testnet: return .batch(1000)
+        case .fantom: return .batch(10)
+        case .fantom_testnet: return .batch(10)
         case .ioTeX, .ioTeXTestnet: return .batch(200)
         case .cronosTestnet, .avalanche, .avalanche_testnet, .custom, .sepolia: return .batch(32)
         }
