@@ -212,7 +212,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
                 }
             }.eraseToAnyPublisher()
     }
-    
+
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
@@ -527,7 +527,7 @@ extension EtherscanCompatibleApiNetworking.functional {
                 state: .completed,
                 isErc20Interaction: true)
         }
-        
+
         return mergeTransactionOperationsIntoSingleTransaction(transactions)
     }
 
@@ -544,7 +544,7 @@ extension EtherscanCompatibleApiNetworking.functional {
                 results.append(each)
             }
         }
-        
+
         return results
     }
 

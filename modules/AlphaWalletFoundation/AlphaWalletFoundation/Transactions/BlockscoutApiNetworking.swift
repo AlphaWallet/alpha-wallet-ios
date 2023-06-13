@@ -20,7 +20,7 @@ class BlockscoutApiNetworking: ApiNetworking {
     private let apiKey: String?
     private let baseUrl: URL
     private let defaultPagination = BlockBasedPagination(startBlock: nil, endBlock: nil)
-    
+
     init(server: RPCServer,
          transporter: ApiTransporter,
          transactionBuilder: TransactionBuilder,
