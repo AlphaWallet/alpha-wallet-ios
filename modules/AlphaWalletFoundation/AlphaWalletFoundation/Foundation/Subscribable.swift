@@ -48,7 +48,6 @@ public struct Subscribable<T>: Equatable {
             .first()
             .map(closure)
             .map { Loadable<V?, Never>.done($0) }
-            .print("xxx.\(uuid).bind")
             .sink(receiveCompletion: { result in
                 subject?.send(completion: result)
 
