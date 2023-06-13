@@ -197,8 +197,6 @@ public class PromptBackup {
     public func remindLater(wallet: Wallet) {
         defer { showHideCurrentPrompt(wallet: wallet) }
         guard canBackupWallet(wallet: wallet) else { return }
-        guard !isBackedUp(wallet: wallet) else { return }
-        guard !isImported(wallet: wallet) else { return }
         updateState { state in
             state.prompt[wallet.address] = nil
             state.backupState[wallet.address]?.timeToShowIntervalPassedPrompt = Date(timeIntervalSinceNow: PromptBackup.secondsInAMonth)
