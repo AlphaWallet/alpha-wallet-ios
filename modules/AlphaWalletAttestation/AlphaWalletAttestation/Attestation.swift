@@ -197,6 +197,13 @@ public struct Attestation: Codable {
             let encodedAttestation = components[1]
             let attestation = try await Attestation.extract(fromEncodedValue: String(encodedAttestation))
             return attestation
+        } else if let url = URL(string: urlString),
+                  let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                  let queryItems = urlComponents.queryItems,
+                  let ticketItem = queryItems.first(where: { $0.name == "ticket" }), let encodedAttestation = ticketItem.value {
+            let replacedAttestationValue = encodedAttestation.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+")
+            let attestation = try await Attestation.extract(fromEncodedValue: String(replacedAttestationValue))
+            return attestation
         } else {
             throw AttestationError.parseAttestationUrlFailed(urlString)
         }
