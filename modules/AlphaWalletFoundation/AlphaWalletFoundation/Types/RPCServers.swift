@@ -506,7 +506,7 @@ public enum RPCServer: Hashable, CaseIterable {
             case .optimismGoerli: return "https://optimism-goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .arbitrumGoerli: return "https://arbitrum-goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .okx: return "https://exchainrpc.okex.org/"
-            case .sepolia: return "https://rpc-sepolia.rockx.com/"
+            case .sepolia: return "https://rpc.sepolia.org"
             }
         }()
         return URL(string: urlString)!
