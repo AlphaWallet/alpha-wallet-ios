@@ -172,7 +172,8 @@ public struct Attestation: Codable {
         case easContractNotFound(chainId: ChainId)
     }
 
-    public var data: [TypeValuePair]
+    public let data: [TypeValuePair]
+    public let source: String
     private let easAttestation: EasAttestation
 
     public var time: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.time)) }
@@ -183,9 +184,10 @@ public struct Attestation: Codable {
     //TODO not hardcode
     public var name: String { "EAS Attestation" }
 
-    private init(data: [TypeValuePair], easAttestation: EasAttestation) {
+    private init(data: [TypeValuePair], easAttestation: EasAttestation, source: String) {
         self.data = data
         self.easAttestation = easAttestation
+        self.source = source
     }
 
     public static func extract(fromUrlString urlString: String) async throws -> Attestation {
@@ -194,23 +196,23 @@ public struct Attestation: Codable {
            let components = Optional(fragment.split(separator: "=", maxSplits: 1)),
            components.first == "attestation" {
             let encodedAttestation = components[1]
-            let attestation = try await Attestation.extract(fromEncodedValue: String(encodedAttestation))
+            let attestation = try await Attestation.extract(fromEncodedValue: String(encodedAttestation), source: urlString)
             return attestation
         } else if let url = URL(string: urlString),
                   let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
                   let queryItems = urlComponents.queryItems,
                   let ticketItem = queryItems.first(where: { $0.name == "ticket" }), let encodedAttestation = ticketItem.value {
             let replacedAttestationValue = encodedAttestation.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+")
-            let attestation = try await Attestation.extract(fromEncodedValue: String(replacedAttestationValue))
+            let attestation = try await Attestation.extract(fromEncodedValue: String(replacedAttestationValue), source: urlString)
             return attestation
         } else {
             throw AttestationError.parseAttestationUrlFailed(urlString)
         }
     }
 
-    public static func extract(fromEncodedValue value: String) async throws -> Attestation {
+    public static func extract(fromEncodedValue value: String, source: String) async throws -> Attestation {
         do {
-            return try await _extractFromEncoded(value)
+            return try await _extractFromEncoded(value, source: source)
         } catch let error as AttestationInternalError {
             //Wraps with public errors
             switch error {
@@ -231,7 +233,7 @@ public struct Attestation: Codable {
     }
 
     //Throws internal errors
-    private static func _extractFromEncoded(_ scannedValue: String) async throws -> Attestation {
+    private static func _extractFromEncoded(_ scannedValue: String, source: String) async throws -> Attestation {
         let encodedAttestationData = try functional.unzipAttestation(scannedValue)
 
         guard let attestationArrayString = String(data: encodedAttestationData, encoding: .utf8) else {
@@ -259,7 +261,7 @@ public struct Attestation: Codable {
         let results: [TypeValuePair] = try await functional.extractAttestationData(attestation: attestation)
         verboseLog("[Attestation] decoded attestation data: \(results)")
 
-        return Attestation(data: results, easAttestation: attestation)
+        return Attestation(data: results, easAttestation: attestation, source: source)
     }
 
     enum functional {}
