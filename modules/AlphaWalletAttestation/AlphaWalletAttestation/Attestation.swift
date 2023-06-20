@@ -138,8 +138,7 @@ public struct Attestation: Codable {
                 //TODO support?
                 return .bool(false)
             case .dynamicBytes:
-                //TODO support?
-                return .bool(false)
+                return .bytes(value as? Data ?? Data())
             case .tuple:
                 //TODO support?
                 return .bool(false)
