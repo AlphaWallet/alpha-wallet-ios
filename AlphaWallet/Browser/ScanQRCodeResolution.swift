@@ -30,6 +30,28 @@ public enum QrCodeValue {
             self = .walletConnect(url)
         } else if let url = URL(string: trimmedValue), trimmedValue.isValidURL {
             if let attestation = try? await Attestation.extract(fromUrlString: url.absoluteString) {
+                //hhh remove
+                var attestations: [Attestation]
+                do {
+                    let data = try Data(contentsOf: URL(fileURLWithPath: "/Users/hboon/Desktop/attestations.json"))
+                    let decoder = JSONDecoder()
+                    let _attestations = try decoder.decode([Attestation].self, from: data)
+                    attestations = _attestations
+                    NSLog("xxx decoded previous attestations count: \(attestations.count)")
+                } catch {
+                    NSLog("xxx failed to decode attestations: \(error)")
+                    attestations = []
+                }
+                let encoder = JSONEncoder()
+                do {
+                    attestations.append(attestation)
+                    let data = try encoder.encode(attestations)
+                    try data.write(to: URL(fileURLWithPath: "/Users/hboon/Desktop/attestations.json"))
+                    NSLog("xxx wrote attestations to file. Total: \(attestations.count)")
+                } catch {
+                    NSLog("xxx failed to encode attestations: \(error)")
+                }
+
                 self = .attestation(attestation)
             } else {
                 self = .url(url)
@@ -40,7 +62,7 @@ public enum QrCodeValue {
             } else if trimmedValue.isPrivateKey {
                 self = .privateKey(trimmedValue)
             } else {
-                if let attestation = try? await Attestation.extract(fromEncodedValue: trimmedValue) {
+                if let attestation = try? await Attestation.extract(fromEncodedValue: trimmedValue, source: trimmedValue) {
                     self = .attestation(attestation)
                 } else {
                     let components = trimmedValue.components(separatedBy: " ")
