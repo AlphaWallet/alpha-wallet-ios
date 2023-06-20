@@ -305,6 +305,7 @@ final class NftAssetDisplayHelper {
             } else {
                 return creator.contractAddress.truncateMiddle
             }
+        //TODO localize
         }.flatMap { .init(title: "Created By", attributedValue: TokenAttributeViewModel.urlValueAttributedString($0), value: value) }
     }
 }
