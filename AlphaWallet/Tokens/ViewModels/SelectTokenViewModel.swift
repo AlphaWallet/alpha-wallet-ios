@@ -42,7 +42,7 @@ final class SelectTokenViewModel {
         switch filter {
         case .filter(let extendedFilter):
             whenFilterHasChanged = extendedFilter.objectWillChange
-        case .all, .defi, .governance, .assets, .collectiblesOnly, .keyword:
+        case .all, .attestations, .defi, .governance, .assets, .collectiblesOnly, .keyword:
             whenFilterHasChanged = Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
         }
     }
@@ -77,7 +77,7 @@ final class SelectTokenViewModel {
             }).removeDuplicates()
             .map { self.buildSnapshot(for: $0) }
             .eraseToAnyPublisher()
-        
+
         let viewState = Publishers.CombineLatest(snapshot, loadingState.removeDuplicates())
             .map { SelectTokenViewModel.ViewState(snapshot: $0.0, loadingState: $0.1) }
             .eraseToAnyPublisher()

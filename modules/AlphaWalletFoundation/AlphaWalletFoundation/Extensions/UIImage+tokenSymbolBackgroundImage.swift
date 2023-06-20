@@ -25,7 +25,7 @@ extension UIImage {
         return image
     }
 
-    static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
+    public static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
             return cachedValue
         }

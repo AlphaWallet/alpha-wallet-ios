@@ -107,6 +107,8 @@ public class TokensFilter {
         switch filter {
         case .all:
             filteredTokens = tokens
+        case .attestations:
+            filteredTokens = []
         case .filter(let filter):
             filteredTokens = tokens.filter { filter.filter(token: $0) }
         case .defi:
@@ -163,7 +165,7 @@ public class TokensFilter {
         switch filter {
         case .all:
             break //no-op
-        case .filter, .defi, .governance, .assets, .collectiblesOnly:
+        case .filter, .defi, .governance, .assets, .collectiblesOnly, .attestations:
             filteredTokens = []
         case .keyword(let keyword):
             let lowercasedKeyword = keyword.trimmed.lowercased()

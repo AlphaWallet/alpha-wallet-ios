@@ -92,7 +92,7 @@ class EthTokenViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 

@@ -5,6 +5,7 @@ import Combine
 
 public enum WalletFilter: Equatable {
 	case all
+    case attestations
     case filter(TokenFilterProtocol)
     case defi
     case governance
@@ -15,13 +16,15 @@ public enum WalletFilter: Equatable {
 
 public protocol TokenFilterProtocol {
     var objectWillChange: AnyPublisher<Void, Never> { get }
-    
+
     func filter(token: TokenFilterable) -> Bool
 }
 
 public func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
     switch (lhs, rhs) {
     case (.all, .all):
+        return true
+    case (.attestations, .attestations):
         return true
     case (.defi, .defi):
         return true

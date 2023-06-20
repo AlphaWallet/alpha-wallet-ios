@@ -899,3 +899,8 @@
 "eip1559.error.zeroPriorityFee" = "Priority Fee should be greater than zero";
 "eip1559.error.invalidPriorityFee" = "Priority Fee invalid";
 "eip1559.error.invalidMaxFee" = "Max Fee invalid";
+"attestations.attestations" = "Attestations";
+"attestations.eas" = "EAS Attestation";
+"attestations.attributes" = "Attributes";
+"attestations.validFrom" = "Valid From";
+"attestations.validUntil" = "Valid Until";

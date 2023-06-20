@@ -2,11 +2,13 @@
 
 import UIKit
 import Combine
+import AlphaWalletAttestation
 import AlphaWalletFoundation
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
     func didSelect(token: Token, in viewController: UIViewController)
+    func didSelect(attestation: Attestation, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
     func buyCryptoSelected(in viewController: UIViewController)
@@ -42,6 +44,7 @@ final class TokensViewController: UIViewController {
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.register(ServerTableViewCell.self)
         tableView.register(OpenSeaNonFungibleTokenPairTableCell.self)
+        tableView.register(AttestationViewCell.self)
 
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<ScrollableSegmentedControl>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
@@ -168,7 +171,6 @@ final class TokensViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-
     }
 
     override func viewDidLoad() {
@@ -282,9 +284,14 @@ final class TokensViewController: UIViewController {
             }.store(in: &cancellable)
 
         output.selection
-            .sink { [weak self] token in
+            .sink { [weak self] tokenOrAttestation in
                 guard let strongSelf = self else { return }
-                strongSelf.delegate?.didSelect(token: token, in: strongSelf)
+                switch tokenOrAttestation {
+                case .token(let token):
+                    strongSelf.delegate?.didSelect(token: token, in: strongSelf)
+                case .attestation(let attestation):
+                    strongSelf.delegate?.didSelect(attestation: attestation, in: strongSelf)
+                }
             }.store(in: &cancellable)
 
         output.applyTableInset
@@ -466,6 +473,10 @@ fileprivate extension TokensViewController {
                 cell.configure(viewModel: viewModel)
 
                 return cell
+            case .attestation(let viewModel):
+                let cell: AttestationViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: viewModel)
+                return cell
             }
         })
     }
@@ -504,7 +515,7 @@ extension TokensViewController {
             //do nothing
         } else {
             switch filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter, .attestations:
                 searchController.isActive = false
             case .keyword:
                 break
@@ -537,7 +548,7 @@ extension TokensViewController: UISearchResultsUpdating {
         shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = searchController.isActive
         guard searchController.isActive else {
             switch viewModel.filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter, .attestations:
                 break
             case .keyword:
                 //Handle when user taps Cancel button to stop search
