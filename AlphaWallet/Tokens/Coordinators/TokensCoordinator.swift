@@ -49,7 +49,8 @@ class TokensCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher,
             serversProvider: serversProvider,
-            tokensService: tokensService)
+            tokensService: tokensService,
+            attestationsStore: attestationsStore)
 
         let controller = TokensViewController(viewModel: viewModel)
 
@@ -77,6 +78,7 @@ class TokensCoordinator: Coordinator {
     private var cancellable = Set<AnyCancellable>()
     private let serversProvider: ServersProvidable
     private let tokensService: TokensService
+    private lazy var attestationsStore: AttestationsStore = AttestationsStore(wallet: wallet.address)
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -239,8 +241,14 @@ class TokensCoordinator: Coordinator {
 
     private func displayAttestation(_ attestation: Attestation) {
         let vc = AttestationViewController(attestation: attestation)
-        let nc = UINavigationController(rootViewController: vc)
-        navigationController.present(nc, animated: true)
+        vc.delegate = self
+        vc.hidesBottomBarWhenPushed = true
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(vc, animated: true)
+    }
+
+    private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) {
+        attestationsStore.addAttestation(attestation, forWallet: address)
     }
 }
 
@@ -367,6 +375,10 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         showSingleChainToken(token: token, in: navigationController)
     }
 
+    func didSelect(attestation: Attestation, in viewController: UIViewController) {
+        displayAttestation(attestation)
+    }
+
     func didTapOpenConsole(in viewController: UIViewController) {
         delegate?.openConsole(inCoordinator: self)
     }
@@ -412,8 +424,20 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         case .privateKey(let privateKey):
             handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
         case .attestation(let attestation):
-            infoLog("Imported attestation: \(attestation)")
-            displayAttestation(attestation)
+            infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient))")
+            //TODO prompt user to import the attestation?
+            if let recipient = attestation.recipient {
+                if recipient.isNull {
+                    importAttestation(attestation, intoWallet: wallet.address)
+                } else if recipient == wallet.address {
+                    importAttestation(attestation, intoWallet: wallet.address)
+                } else if keystore.wallets.contains(where: { $0.address == recipient }) {
+                    //TODO have a better UX, show user that it's imported, but to another wallet?
+                    importAttestation(attestation, intoWallet: wallet.address)
+                }
+            } else {
+                importAttestation(attestation, intoWallet: wallet.address)
+            }
         }
 
         removeCoordinator(coordinator)
@@ -583,5 +607,14 @@ extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
 extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
     func didClose(in coordinator: AddHideTokensCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension TokensCoordinator: AttestationViewControllerDelegate {
+}
+
+extension TokensCoordinator: AttestationsViewControllerDelegate {
+    func openAttestation(_ attestation: Attestation, fromViewController: AttestationsViewController) {
+        displayAttestation(attestation)
     }
 }

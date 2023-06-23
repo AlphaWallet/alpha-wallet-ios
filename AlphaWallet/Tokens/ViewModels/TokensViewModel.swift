@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import Combine
+import AlphaWalletAttestation
 import AlphaWalletFoundation
 
 struct TokensViewModelInput {
@@ -14,7 +15,7 @@ struct TokensViewModelInput {
 
 struct TokensViewModelOutput {
     let viewState: AnyPublisher<TokensViewModel.ViewState, Never>
-    let selection: AnyPublisher<Token, Never>
+    let selection: AnyPublisher<TokenOrAttestation, Never>
     let pullToRefreshState: AnyPublisher<TokensViewModel.RefreshControlState, Never>
     let deletion: AnyPublisher<[IndexPath], Never>
     let applyTableInset: AnyPublisher<TokensViewModel.KeyboardInset, Never>
@@ -39,6 +40,12 @@ final class TokensViewModel {
     private var tokenListSection: Section = .tokens
         //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
+    private let attestationsStore: AttestationsStore
+    lazy private var _attestations: [Attestation] = attestationsStore.attestations
+    private var attestations: [Attestation] {
+        _attestations.filter { serversProvider.enabledServers.contains($0.server) }
+    }
+
     private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
@@ -83,6 +90,8 @@ final class TokensViewModel {
             return R.string.localizable.emptyTableViewSearchTitle()
         case .all:
             return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.emptyTableViewAllTitle())
+        case .attestations:
+            return R.string.localizable.attestationsAttestations()
         case .filter:
             return R.string.localizable.emptyTableViewSearchTitle()
         }
@@ -109,7 +118,7 @@ final class TokensViewModel {
         switch filter {
         case .all, .keyword:
             return true
-        case .assets, .collectiblesOnly, .filter, .defi, .governance:
+        case .assets, .collectiblesOnly, .filter, .defi, .governance, .attestations:
             return false
         }
     }
@@ -139,7 +148,7 @@ final class TokensViewModel {
             return 0
         case .tokens, .collectiblePairs:
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .filter:
+            case .all, .defi, .governance, .keyword, .assets, .filter, .attestations:
                 return filteredTokens.count
             case .collectiblesOnly:
                 return collectiblePairs.count
@@ -158,9 +167,10 @@ final class TokensViewModel {
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher,
          serversProvider: ServersProvidable,
-         tokensService: TokensService) {
-
+         tokensService: TokensService,
+         attestationsStore: AttestationsStore) {
         self.tokensService = tokensService
+        self.attestationsStore = attestationsStore
         self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
         self.tokensPipeline = tokensPipeline
@@ -219,6 +229,13 @@ final class TokensViewModel {
 
         let applyTableInset = applyTableInset(keyboard: input.keyboard)
 
+        attestationsStore.$attestations
+            .sink {
+                self._attestations = $0
+                self.reloadData()
+            }
+            .store(in: &cancellable)
+
         reloadData()
 
         return .init(
@@ -276,8 +293,8 @@ final class TokensViewModel {
             .eraseToAnyPublisher()
     }
 
-    private func selection(trigger: AnyPublisher<TokensViewModel.SelectionSource, Never>) -> AnyPublisher<Token, Never> {
-        trigger.compactMap { [unowned self, tokensService] source -> Token? in
+    private func selection(trigger: AnyPublisher<TokensViewModel.SelectionSource, Never>) -> AnyPublisher<TokenOrAttestation, Never> {
+        trigger.compactMap { [unowned self, tokensService] source -> TokenOrAttestation? in
             switch source {
             case .gridItem(let indexPath, let isLeftCardSelected):
                 switch self.sections[indexPath.section] {
@@ -285,7 +302,7 @@ final class TokensViewModel {
                     let pair = collectiblePairs[indexPath.row]
                     guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
 
-                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server)
+                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server).flatMap { TokenOrAttestation.token($0) }
                 case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
                     return nil
                 }
@@ -293,7 +310,9 @@ final class TokensViewModel {
                 let tokenOrServer = self.tokenOrServer(at: indexPath)
                 switch (self.sections[indexPath.section], tokenOrServer) {
                 case (.tokens, .token(let viewModel)):
-                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server)!
+                    return .token(tokensService.token(for: viewModel.contractAddress, server: viewModel.server)!)
+                case (.tokens, .attestation(let attestation)):
+                    return .attestation(attestation)
                 case (_, _):
                     return nil
                 }
@@ -348,6 +367,26 @@ final class TokensViewModel {
                 configuration.performsFirstActionWithFullSwipe = true
 
                 return configuration
+            case .attestation(let attestation):
+                let title = R.string.localizable.delete()
+                let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
+                    guard let strongSelf = self else { return }
+
+                    let deletedIndexPathArray = strongSelf.indexPathArrayForDeletingAt(indexPath: indexPath)
+                    strongSelf.removeAttestation(attestation)
+
+                    guard !deletedIndexPathArray.isEmpty else { return }
+                    strongSelf.deletionSubject.send(deletedIndexPathArray)
+
+                    completion(true)
+                }
+
+                hideAction.backgroundColor = Configuration.Color.Semantic.dangerBackground
+                hideAction.image = R.image.hideToken()
+                let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+                configuration.performsFirstActionWithFullSwipe = true
+
+                return configuration
             }
         }
 
@@ -384,6 +423,8 @@ final class TokensViewModel {
 
                     return .nonFungible(viewModel)
                 }
+            case .attestation(let attestation):
+                return .attestation(AttestationViewCellViewModel(attestation: attestation))
             }
         case .collectiblePairs:
             let pair = collectiblePairs[indexPath.row]
@@ -404,6 +445,8 @@ final class TokensViewModel {
                 return DataEntry.Metric.Tokens.headerHeight
             case .token:
                 return DataEntry.Metric.Tokens.cellHeight
+            case .attestation:
+                return DataEntry.Metric.Tokens.cellHeight
             }
         case .search, .walletSummary, .filters, .activeWalletSession:
             return DataEntry.Metric.Tokens.cellHeight
@@ -423,6 +466,10 @@ final class TokensViewModel {
         }
 
         return false
+    }
+
+    private func removeAttestation(_ attestation: Attestation) {
+        attestationsStore.removeAttestation(attestation, forWallet: wallet.address)
     }
 
     func convertSegmentedControlSelectionToFilter(_ selection: ControlSelection) -> WalletFilter? {
@@ -496,8 +543,12 @@ final class TokensViewModel {
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
-        case .all, .filter, .defi, .governance, .assets, .keyword:
-            return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
+        case .all:
+            return TokensViewModel.functional.groupTokensByServers(tokens: tokens, attestations: attestations)
+        case .filter, .defi, .governance, .assets, .keyword:
+            return TokensViewModel.functional.groupTokensByServers(tokens: tokens, attestations: [])
+        case .attestations:
+            return TokensViewModel.functional.groupTokensByServers(tokens: [], attestations: attestations)
         case .collectiblesOnly:
             return tokens.map { .token($0) }
         }
@@ -506,7 +557,7 @@ final class TokensViewModel {
     private func refreshSections(walletConnectSessions count: Int) {
         let varyTokenOrCollectiblePeirsSection: Section = {
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .filter:
+            case .all, .defi, .governance, .keyword, .assets, .filter, .attestations:
                 return .tokens
             case .collectiblesOnly:
                 return .collectiblePairs
@@ -539,6 +590,7 @@ extension TokensViewModel {
     enum TokenOrRpcServer {
         case token(TokenViewModel)
         case rpcServer(RPCServer)
+        case attestation(Attestation)
 
         var token: TokenViewModel? {
             switch self {
@@ -546,6 +598,8 @@ extension TokensViewModel {
                 return nil
             case .token(let token):
                 return token
+            case .attestation:
+                return nil
             }
         }
 
@@ -558,6 +612,8 @@ extension TokensViewModel {
                     return false
                 }
                 return true
+            case .attestation:
+                return true
             }
         }
 
@@ -566,6 +622,8 @@ extension TokensViewModel {
             case .rpcServer:
                 return false
             case .token:
+                return true
+            case .attestation:
                 return true
             }
         }
@@ -591,6 +649,7 @@ extension TokensViewModel {
         case fungibleToken(FungibleTokenViewCellViewModel)
         case nativeCryptocurrency(EthTokenViewCellViewModel)
         case rpcServer(TokenListServerTableViewCellViewModel)
+        case attestation(AttestationViewCellViewModel)
         case undefined
     }
 
@@ -643,6 +702,7 @@ extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
+            .attestations,
             .assets,
             .collectiblesOnly,
             .defi,
@@ -675,6 +735,8 @@ fileprivate extension WalletFilter {
             return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
         case .keyword, .filter:
             return ""
+        case .attestations:
+            return R.string.localizable.attestationsAttestations()
         }
     }
 }
@@ -684,7 +746,7 @@ extension TokensViewModel {
 }
 
 extension TokensViewModel.functional {
-    static func groupTokensByServers(tokens: [TokenViewModel]) -> [TokensViewModel.TokenOrRpcServer] {
+    static func groupTokensByServers(tokens: [TokenViewModel], attestations: [Attestation]) -> [TokensViewModel.TokenOrRpcServer] {
         var servers: [RPCServer] = []
         var results: [TokensViewModel.TokenOrRpcServer] = []
 
@@ -692,13 +754,19 @@ extension TokensViewModel.functional {
             guard !servers.contains(each.server) else { continue }
             servers.append(each.server)
         }
+        for each in attestations {
+            guard !servers.contains(each.server) else { continue }
+            servers.append(each.server)
+        }
 
         for each in servers {
             let tokens = tokens.filter { $0.server == each }.map { TokensViewModel.TokenOrRpcServer.token($0) }
-            guard !tokens.isEmpty else { continue }
+            let attestations = attestations.filter { $0.server == each }.map { TokensViewModel.TokenOrRpcServer.attestation($0) }
+            guard !tokens.isEmpty || !attestations.isEmpty else { continue }
 
             results.append(.rpcServer(each))
             results.append(contentsOf: tokens)
+            results.append(contentsOf: attestations)
         }
 
         return results
@@ -713,4 +781,9 @@ fileprivate extension IndexPath {
     var next: IndexPath {
         IndexPath(row: row - 1, section: section)
     }
+}
+
+enum TokenOrAttestation {
+    case token(Token)
+    case attestation(Attestation)
 }

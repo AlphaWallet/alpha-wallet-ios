@@ -3,7 +3,7 @@
 import Foundation
 import AlphaWalletAddress
 
-struct EasAttestation: Codable {
+struct EasAttestation: Codable, Hashable {
     let version: String
     let chainId: Int
     let verifyingContract: String

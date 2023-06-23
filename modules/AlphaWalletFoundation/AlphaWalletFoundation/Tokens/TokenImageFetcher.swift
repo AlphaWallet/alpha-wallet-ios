@@ -233,7 +233,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
                 }
 
                 subject.send(generatedImage)
-                
+
                 self.inFlightTasks[key] = nil
             }
         }

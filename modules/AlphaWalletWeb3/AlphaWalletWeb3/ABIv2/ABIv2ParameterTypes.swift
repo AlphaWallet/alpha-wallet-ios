@@ -12,7 +12,7 @@ import BigInt
 extension ABIv2.Element {
 
     /// Specifies the type that parameters in a contract have.
-    public enum ParameterType: ABIv2ElementPropertiesProtocol, Codable {
+    public enum ParameterType: ABIv2ElementPropertiesProtocol, Codable, Hashable {
         case uint(bits: UInt64)
         case int(bits: UInt64)
         case address

@@ -7,7 +7,7 @@ import AlphaWalletFoundation
 import AlphaWalletWeb3
 import BigInt
 
-public enum AttestationPropertyValue: Codable {
+public enum AttestationPropertyValue: Codable, Hashable {
     case address(AlphaWallet.Address)
     case string(String)
     case bytes(Data)
@@ -95,7 +95,7 @@ public enum AttestationPropertyValue: Codable {
     }
 }
 
-public struct Attestation: Codable {
+public struct Attestation: Codable, Hashable {
     typealias SchemaUid = String
     public typealias ChainId = Int
 
@@ -105,7 +105,7 @@ public struct Attestation: Codable {
     public static var callSmartContract: ((ChainId, AlphaWallet.Address, String, String, [AnyObject]) async throws -> [String: Any])!
     public static var isLoggingEnabled = false
 
-    public struct TypeValuePair: Codable {
+    public struct TypeValuePair: Codable, Hashable {
         public let type: ABIv2.Element.InOut
         public let value: AttestationPropertyValue
 
@@ -176,6 +176,9 @@ public struct Attestation: Codable {
     public let source: String
     private let easAttestation: EasAttestation
 
+    public var recipient: AlphaWallet.Address? {
+        return AlphaWallet.Address(uncheckedAgainstNullAddress: easAttestation.recipient)
+    }
     public var time: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.time)) }
     public var expirationTime: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.expirationTime)) }
 
