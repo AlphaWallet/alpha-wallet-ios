@@ -37,7 +37,6 @@ final class TokensViewModel {
     private (set) var filter: WalletFilter = .all
     private (set) var walletConnectSessions: Int = 0
     private (set) var sections: [Section] = []
-    private var tokenListSection: Section = .tokens
         //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
     private let attestationsStore: AttestationsStore
@@ -555,7 +554,7 @@ final class TokensViewModel {
     }
 
     private func refreshSections(walletConnectSessions count: Int) {
-        let varyTokenOrCollectiblePeirsSection: Section = {
+        let tokenSection: Section = {
             switch filter {
             case .all, .defi, .governance, .keyword, .assets, .filter, .attestations:
                 return .tokens
@@ -565,7 +564,7 @@ final class TokensViewModel {
         }()
 
         if isSearchActive {
-            sections = [varyTokenOrCollectiblePeirsSection]
+            sections = [tokenSection]
         } else {
             let initialSections: [Section]
 
@@ -574,9 +573,8 @@ final class TokensViewModel {
             } else {
                 initialSections = [.walletSummary, .filters, .search, .activeWalletSession]
             }
-            sections = initialSections + [varyTokenOrCollectiblePeirsSection]
+            sections = initialSections + [tokenSection]
         }
-        tokenListSection = varyTokenOrCollectiblePeirsSection
     }
 }
 // swiftlint:enable type_body_length
