@@ -76,7 +76,7 @@ protocol WalletConnectServer: WalletConnectResponder {
 }
 
 protocol WalletConnectServerDelegate: AnyObject {
-    
+
     func server(_ server: WalletConnectServer,
                 didConnect session: AlphaWallet.WalletConnect.Session)
 
@@ -93,4 +93,6 @@ protocol WalletConnectServerDelegate: AnyObject {
 
     func server(_ server: WalletConnectServer,
                 tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
+
+    func server(_ server: WalletConnectServer, shouldAuthFor authRequest: AlphaWallet.WalletConnect.AuthRequest) -> AnyPublisher<AlphaWallet.WalletConnect.AuthRequestResponse, Never>
 }

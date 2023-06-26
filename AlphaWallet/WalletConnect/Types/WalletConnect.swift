@@ -100,6 +100,16 @@ extension AlphaWallet.WalletConnect {
 
     }
 
+    struct AuthRequest {
+        let authRequest: WalletConnectAuthRequest
+        var domain: String { authRequest.payload.domain }
+        var aud: String { authRequest.payload.aud }
+        var nonce: String { authRequest.payload.nonce }
+        var chainId: String { authRequest.payload.chainId }
+        var iat: String { authRequest.payload.iat }
+        var statement: String? { authRequest.payload.statement }
+    }
+
     enum TopicOrUrl: Codable, CustomStringConvertible {
         struct TopicOrUrlError: Error {}
 
@@ -193,6 +203,29 @@ extension AlphaWallet.WalletConnect {
     }
 
     enum ProposalResponse {
+        case connect(RPCServer)
+        case cancel
+
+        var shouldProceed: Bool {
+            switch self {
+            case .connect:
+                return true
+            case .cancel:
+                return false
+            }
+        }
+
+        var server: RPCServer? {
+            switch self {
+            case .connect(let server):
+                return server
+            case .cancel:
+                return nil
+            }
+        }
+    }
+
+    enum AuthRequestResponse {
         case connect(RPCServer)
         case cancel
 

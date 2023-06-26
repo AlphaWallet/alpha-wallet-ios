@@ -76,6 +76,8 @@ public enum Analytics {
         case walletConnectSwitchNetwork = "WalletConnect Switch Network"
         case walletConnectConnectionTimeout = "WalletConnect Connection Timeout"
         case walletConnectConnectionFailed = "WalletConnect Connection Failed"
+        case walletConnectAuthAccept = "WalletConnect Auth Accept"
+        case walletConnectAuthCancel = "WalletConnect Auth Cancel"
         case clearBrowserCache = "Clear Browser Cache"
         case pingInfura = "Ping Infura"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"

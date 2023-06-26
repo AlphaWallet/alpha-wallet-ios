@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Auth
 import WalletConnectSign
 import AlphaWalletFoundation
 
@@ -34,7 +35,7 @@ struct WalletConnectV2Session: Codable {
 
     mutating func update(namespaces _namespaces: [String: SessionNamespace]) {
         namespaces = _namespaces
-    } 
+    }
 }
 
 extension WalletSession {
@@ -68,3 +69,5 @@ typealias WalletConnectV2Request = WalletConnectSign.Request
 extension WalletConnectV2Request {
     var rpcServer: RPCServer? { Eip155UrlCoder.decodeRpc(from: chainId.absoluteString) }
 }
+
+typealias WalletConnectAuthRequest = AuthRequest

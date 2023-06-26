@@ -357,6 +357,30 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
             }).handleEvents(receiveCompletion: { _ in self.resetSessionsToRemoveLoadingIfNeeded() })
             .eraseToAnyPublisher()
     }
+
+    func provider(_ provider: WalletConnectProvider, shouldAccept authRequest: AlphaWallet.WalletConnect.AuthRequest) -> AnyPublisher<AlphaWallet.WalletConnect.AuthRequestResponse, Never> {
+        infoLog("[WalletConnect] shouldAccept authRequest: \(authRequest)")
+        return AcceptAuthRequestCoordinator.promise(navigationController, coordinator: self, authRequest: authRequest, analytics: analytics)
+            .publisher()
+            .map { choice -> AlphaWallet.WalletConnect.AuthRequestResponse in
+                switch choice {
+                case .accept(let server):
+                    return .connect(server)
+                case .cancel:
+                    return .cancel
+                }
+            }
+            .replaceError(with: .cancel)
+            .handleEvents(receiveOutput: { response in
+                switch response {
+                case .cancel:
+                    JumpBackToPreviousApp.goBackForWalletConnectSessionCancelled()
+                case .connect:
+                    JumpBackToPreviousApp.goBackForWalletConnectSessionApproved()
+                }
+            }).handleEvents(receiveCompletion: { _ in self.resetSessionsToRemoveLoadingIfNeeded() })
+            .eraseToAnyPublisher()
+    }
 }
 
 extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate {

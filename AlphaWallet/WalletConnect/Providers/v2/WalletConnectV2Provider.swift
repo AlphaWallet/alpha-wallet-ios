@@ -10,6 +10,7 @@ import Combine
 import WalletConnectSign
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Web3Wallet
 
 enum ProposalOrServer {
     case server(RPCServer)
@@ -20,6 +21,8 @@ final class WalletConnectV2Provider: WalletConnectServer {
 
     private var currentProposal: WalletConnectSign.Session.Proposal?
     private var pendingProposals: [WalletConnectSign.Session.Proposal] = []
+    private var currentAuthRequest: AuthRequest?
+    private var pendingAuthRequests: [AuthRequest] = []
     private let storage: WalletConnectV2Storage
     private let serversProvider: ServersProvidable
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
@@ -54,11 +57,15 @@ final class WalletConnectV2Provider: WalletConnectServer {
             .store(in: &cancelable)
 
         client.sessionProposalPublisher
-            .sink { self.didReceive(proposal: $0) }
+            .sink { self.didReceive(proposal: $0.proposal) }
+            .store(in: &cancelable)
+
+        client.authRequestPublisher
+            .sink { self.didReceive(authRequest: $0.request) }
             .store(in: &cancelable)
 
         client.sessionRequestPublisher
-            .sink { self.didReceive(request: $0) }
+            .sink { self.didReceive(request: $0.request) }
             .store(in: &cancelable)
 
         client.sessionDeletePublisher
@@ -143,6 +150,17 @@ final class WalletConnectV2Provider: WalletConnectServer {
         _didReceive(proposal: proposal, completion: { [weak self] in
             guard let strongSelf = self, let next = strongSelf.pendingProposals.popLast() else { return }
             strongSelf.didReceive(proposal: next)
+        })
+    }
+
+    private func didReceive(authRequest: AuthRequest) {
+        guard currentAuthRequest == nil else {
+            return pendingAuthRequests.append(authRequest)
+        }
+
+        _didReceive(authRequest: authRequest, completion: { [weak self] in
+            guard let strongSelf = self, let next = strongSelf.pendingAuthRequests.popLast() else { return }
+            strongSelf.didReceive(authRequest: next)
         })
     }
 
@@ -232,6 +250,37 @@ final class WalletConnectV2Provider: WalletConnectServer {
                     //NOTE: for now we dont throw any error, just rejecting connection proposal
                     reject(proposal: proposal, reason: .userRejected)
                 }
+            }.store(in: &cancelable)
+    }
+
+    private func _didReceive(authRequest: AuthRequest, completion: @escaping () -> Void) {
+        infoLog("[WalletConnect2] WC: Did receive auth request")
+
+        func reject(authRequest: AuthRequest) {
+            infoLog("[WalletConnect2] WC: Did reject auth request: \(authRequest)")
+            client.reject(authRequest: authRequest)
+            completion()
+        }
+
+        guard let delegate = delegate else {
+            reject(authRequest: authRequest)
+            return
+        }
+
+        let newAuthRequest = AlphaWallet.WalletConnect.AuthRequest(authRequest: authRequest)
+        delegate.server(self, shouldAuthFor: newAuthRequest)
+            .sink { [weak self] response in
+                guard let strongSelf = self else { return }
+
+                guard response.shouldProceed else {
+                    strongSelf.currentAuthRequest = nil
+                    reject(authRequest: authRequest)
+                    return
+                }
+
+                strongSelf.client.approve(authRequest: authRequest)
+                strongSelf.currentAuthRequest = nil
+                completion()
             }.store(in: &cancelable)
     }
 }
