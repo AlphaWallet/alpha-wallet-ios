@@ -216,7 +216,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 try? self?.respond(.init(data: nil), request: request)
                 try? self?.update(request.topicOrUrl, servers: [newServer])
 
-                return .empty()
+                return ResponsePublisher.just(.value(Data()))
             }.eraseToAnyPublisher()
     }
 
