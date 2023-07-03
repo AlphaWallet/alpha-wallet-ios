@@ -52,12 +52,30 @@ struct Web3Signer: WalletConnectSigner.EthereumSigner {
     }
 }
 
+struct MyCryptoProvider: WalletConnectSigner.CryptoProvider {
+    enum SignerError: Error {
+        case recoverPubKeyFailure
+    }
+
+    func recoverPubKey(signature: WalletConnectSigner.EthereumSignature, message: Data) throws -> Data {
+        guard let data = Web3.Utils.recoverPublicKey(message: message, v: signature.v, r: signature.r, s: signature.s) else {
+            throw SignerError.recoverPubKeyFailure
+        }
+        return data
+    }
+
+    func keccak256(_ data: Data) -> Data {
+        return data.sha3(.keccak256)
+    }
+}
+
 protocol WalletConnectV2Client: AnyObject {
-    var sessionProposalPublisher: AnyPublisher<Session.Proposal, Never> { get }
-    var sessionRequestPublisher: AnyPublisher<Request, Never> { get }
+    var sessionProposalPublisher: AnyPublisher<(proposal: Session.Proposal, context: VerifyContext?), Never> { get }
+    var sessionRequestPublisher: AnyPublisher<(request: Request, context: VerifyContext?), Never> { get }
     var sessionDeletePublisher: AnyPublisher<(String, Reason), Never> { get }
     var sessionSettlePublisher: AnyPublisher<Session, Never> { get }
     var sessionUpdatePublisher: AnyPublisher<(sessionTopic: String, namespaces: [String: SessionNamespace]), Never> { get }
+    var authRequestPublisher: AnyPublisher<(request: AuthRequest, context: VerifyContext?), Never> { get }
 
     func getSessions() -> [Session]
     func connect(uri: WalletConnectURI)
@@ -66,9 +84,12 @@ protocol WalletConnectV2Client: AnyObject {
     func respond(topic: String, requestId: RPCID, response: RPCResult)
     func reject(proposalId: String, reason: RejectionReason)
     func approve(proposalId: String, namespaces: [String: SessionNamespace])
+    func approve(authRequest request: AuthRequest)
+    func reject(authRequest: AuthRequest)
 }
 
 final class WalletConnectV2NativeClient: WalletConnectV2Client {
+    private let keystore: Keystore
     private let queue: DispatchQueue = .main
     private let metadata = AppMetadata(
         name: Constants.WalletConnect.server,
@@ -78,17 +99,27 @@ final class WalletConnectV2NativeClient: WalletConnectV2Client {
 
     private lazy var client: Web3WalletClient = {
         Networking.configure(projectId: Constants.Credentials.walletConnectProjectId, socketFactory: SocketFactory())
-        Web3Wallet.configure(metadata: metadata, signerFactory: DefaultEthereumSignerFactory())
+        Web3Wallet.configure(metadata: metadata, crypto: MyCryptoProvider())
         return Web3Wallet.instance
     }()
 
-    var sessionProposalPublisher: AnyPublisher<Session.Proposal, Never> {
+    init(keystore: Keystore) {
+        self.keystore = keystore
+    }
+
+    var sessionProposalPublisher: AnyPublisher<(proposal: Session.Proposal, context: VerifyContext?), Never> {
         client.sessionProposalPublisher
             .receive(on: queue)
             .eraseToAnyPublisher()
     }
 
-    var sessionRequestPublisher: AnyPublisher<Request, Never> {
+    var authRequestPublisher: AnyPublisher<(request: AuthRequest, context: VerifyContext?), Never> {
+        client.authRequestPublisher
+            .receive(on: queue)
+            .eraseToAnyPublisher()
+    }
+
+    var sessionRequestPublisher: AnyPublisher<(request: Request, context: VerifyContext?), Never> {
         client.sessionRequestPublisher
             .receive(on: queue)
             .eraseToAnyPublisher()
@@ -173,6 +204,54 @@ final class WalletConnectV2NativeClient: WalletConnectV2Client {
             } catch {
                 infoLog("[WalletConnect2] \(#function) failure with error: \(error)")
             }
+        }
+    }
+
+    func approve(authRequest request: AuthRequest) {
+        switch keystore.currentWallet?.type {
+        case .real(let address), .hardware(let address):
+            Task {
+                do {
+                    let (cacaoSignature, account) = try await functional.signForAuth(authRequest: request, address: address, keystore: keystore)
+                    try await Web3Wallet.instance.respond(requestId: request.id, signature: cacaoSignature, from: account)
+                } catch {
+                    //TODO show error to user
+                }
+            }
+        case .watch:
+            //TODO watch wallet. Should show an error message to user
+            break
+        case .none:
+            preconditionFailure("Should always have an active wallet")
+        }
+    }
+
+    func reject(authRequest request: AuthRequest) {
+        Task {
+            try? await Web3Wallet.instance.reject(requestId: request.id)
+        }
+    }
+
+    enum functional {}
+}
+
+fileprivate extension WalletConnectV2NativeClient.functional {
+    static func signForAuth(authRequest request: AuthRequest, address: AlphaWallet.Address, keystore: Keystore) async throws -> (CacaoSignature, Account) {
+        struct EncodingError: Error {
+            let errorDescription: String?
+        }
+        guard let blockchain = Blockchain("eip155:1") else { throw EncodingError(errorDescription: "Failed to encode blockchain") }
+        guard let account: Account = Account(blockchain: blockchain, address: address.eip55String) else { throw EncodingError(errorDescription: "Failed to encode account") }
+        let payload = try request.payload.cacaoPayload(address: account.address)
+        let messageFormatter = SIWECacaoFormatter()
+        let message: String = try messageFormatter.formatMessage(from: payload)
+        guard let messageData = message.data(using: .utf8) else { throw EncodingError(errorDescription: "Failed to encode message as `Data`") }
+        switch await keystore.signMessageData(messageData.prefixed, for: address, prompt: R.string.localizable.keystoreAccessKeySign()) {
+        case .success(let signature):
+            let cacaoSignature = CacaoSignature(t: .eip191, s: signature.hexEncoded)
+            return (cacaoSignature, account)
+        case .failure(let error):
+            throw error
         }
     }
 }

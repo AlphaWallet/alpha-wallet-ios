@@ -672,6 +672,13 @@
 "walletConnect.connection.methods.title" = "Methods";
 "walletConnect.connection.events.title" = "Events";
 "walletConnect.connection.url.title" = "Connected To";
+"walletConnect.auth.title" = "Sign in with your %@ account";
+"walletConnect.auth.domain.title" = "Domain";
+"walletConnect.auth.uri.title" = "URI";
+"walletConnect.auth.server.title" = "Server";
+"walletConnect.auth.issuedAt.title" = "Issued at";
+"walletConnect.auth.nonce.title" = "Nonce";
+"walletConnect.auth.statement.title" = "Statement";
 "send.allFunds" = "All Funds";
 "copiedToClipboard" = "Copied to clipboard";
 "signature.confirmation.message.title" = "Message";

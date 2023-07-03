@@ -120,7 +120,7 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
             let coordinator = ServersCoordinator(
                 viewModel: viewModel.serversViewModel,
                 navigationController: navigationController)
-            
+
             coordinator.serversViewController.navigationItem.rightBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
             coordinator.start(animated: false)
             coordinator.delegate = self

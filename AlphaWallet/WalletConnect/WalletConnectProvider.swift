@@ -24,6 +24,8 @@ protocol WalletConnectProviderDelegate: AnyObject, DappRequesterDelegate {
 
     func provider(_ provider: WalletConnectProvider,
                   tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
+
+    func provider(_ provider: WalletConnectProvider, shouldAccept authRequest: AlphaWallet.WalletConnect.AuthRequest) -> AnyPublisher<AlphaWallet.WalletConnect.AuthRequestResponse, Never>
 }
 
 final class WalletConnectProvider: NSObject {
@@ -165,6 +167,11 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         delegate?.provider(self, tookTooLongToConnectToUrl: url)
     }
 
+    func server(_ server: WalletConnectServer, shouldAuthFor authRequest: AlphaWallet.WalletConnect.AuthRequest) -> AnyPublisher<AlphaWallet.WalletConnect.AuthRequestResponse, Never> {
+        guard let delegate = delegate else { return .empty() }
+        return delegate.provider(self, shouldAccept: authRequest)
+    }
+
     //TODO: extract logic of performing actions in separate provider, dapp browser and wallet connect performing same actions
     /// Returns first available wallet matched in session, basically there always one address, but could support multiple in future
     private func wallet(session: AlphaWallet.WalletConnect.Session, action: AlphaWallet.WalletConnect.Action) throws -> Wallet {
@@ -209,7 +216,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 try? self?.respond(.init(data: nil), request: request)
                 try? self?.update(request.topicOrUrl, servers: [newServer])
 
-                return .empty()
+                return ResponsePublisher.just(.value(Data()))
             }.eraseToAnyPublisher()
     }
 
@@ -424,7 +431,7 @@ extension WalletConnectProvider {
             storage: WalletConnectV2Storage(),
             serversProvider: serversProvider,
             decoder: decoder,
-            client: WalletConnectV2NativeClient())
+            client: WalletConnectV2NativeClient(keystore: keystore))
 
         provider.register(service: v1Provider)
         provider.register(service: v2Provider)
