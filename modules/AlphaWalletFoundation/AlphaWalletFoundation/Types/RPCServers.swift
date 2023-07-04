@@ -340,10 +340,10 @@ public enum RPCServer: Hashable, CaseIterable {
             return etherscanWebpageRoot?.appendingPathComponent("account").appendingPathComponent(address.eip55String)
         case .main, .xDai, .goerli, .classic, .callisto, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
             switch transactionsSource {
-            case .etherscan(_, let url):
-                return url.appendingPathComponent("address").appendingPathComponent(address.eip55String)
-            case .blockscout(_, let url):
-                return url.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
+            case .etherscan:
+                return etherscanWebpageRoot?.appendingPathComponent("address").appendingPathComponent(address.eip55String)
+            case .blockscout:
+                return etherscanWebpageRoot?.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
             case .covalent, .oklink, .unknown:
                 return nil
             }
