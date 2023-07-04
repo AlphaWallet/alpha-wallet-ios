@@ -5,7 +5,7 @@ import BigInt
 
 public struct Constants {
     static let xdaiDropPrefix = Data(bytes: [0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]).hex()
-    
+
     static let mainnetMagicLinkHost = "aw.app"
     static let legacyMagicLinkHost = "app.awallet.io"
     static let classicMagicLinkHost = "classic.aw.app"
@@ -70,11 +70,13 @@ public struct Constants {
     static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
 
     static func buyWithRampUrl(asset: String, wallet: Wallet) -> String? {
+        guard Features.default.isAvailable(.buyCryptoEnabled) else { return nil }
         guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
         return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Flogo-horizontal-new.svg&hostAppName=AlphaWallet&swapAsset=\(asset)&userAddress=\(wallet.address.eip55String)"
     }
 
     static func buyWithCoinbaseUrl(blockchain: String, wallet: Wallet) -> String? {
+        guard Features.default.isAvailable(.buyCryptoEnabled) else { return nil }
         guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
         guard Constants.Credentials.coinbaseAppId.nonEmpty else { return nil }
         let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinbaseAppId)"
