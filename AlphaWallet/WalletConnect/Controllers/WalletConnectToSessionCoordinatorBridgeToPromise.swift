@@ -13,25 +13,10 @@ private class AcceptProposalCoordinatorBridgeToPromise {
     private let (promiseToReturn, seal) = Promise<ProposalResult>.pending()
     private var retainCycle: AcceptProposalCoordinatorBridgeToPromise?
 
-    init(navigationController: UINavigationController,
-         coordinator: Coordinator,
-         proposalType: ProposalType,
-         analytics: AnalyticsLogger,
-         config: Config,
-         restartHandler: RestartQueueHandler,
-         networkService: NetworkService,
-         serversProvider: ServersProvidable) {
-
+    init(navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analytics: AnalyticsLogger, restartHandler: RestartQueueHandler) {
         retainCycle = self
 
-        let newCoordinator = AcceptProposalCoordinator(
-            analytics: analytics,
-            proposalType: proposalType,
-            navigationController: navigationController,
-            config: config,
-            restartHandler: restartHandler,
-            networkService: networkService,
-            serversProvider: serversProvider)
+        let newCoordinator = AcceptProposalCoordinator(analytics: analytics, proposalType: proposalType, navigationController: navigationController, restartHandler: restartHandler)
 
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
@@ -57,25 +42,8 @@ extension AcceptProposalCoordinatorBridgeToPromise: AcceptProposalCoordinatorDel
 }
 
 extension AcceptProposalCoordinator {
-
-    static func promise(_ navigationController: UINavigationController,
-                        coordinator: Coordinator,
-                        proposalType: ProposalType,
-                        analytics: AnalyticsLogger,
-                        config: Config,
-                        restartHandler: RestartQueueHandler,
-                        networkService: NetworkService,
-                        serversProvider: ServersProvidable) -> Promise<ProposalResult> {
-
-        return AcceptProposalCoordinatorBridgeToPromise(
-            navigationController: navigationController,
-            coordinator: coordinator,
-            proposalType: proposalType,
-            analytics: analytics,
-            config: config,
-            restartHandler: restartHandler,
-            networkService: networkService,
-            serversProvider: serversProvider).promise
+    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analytics: AnalyticsLogger, restartHandler: RestartQueueHandler) -> Promise<ProposalResult> {
+        return AcceptProposalCoordinatorBridgeToPromise(navigationController: navigationController, coordinator: coordinator, proposalType: proposalType, analytics: analytics, restartHandler: restartHandler).promise
     }
 }
 

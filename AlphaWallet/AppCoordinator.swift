@@ -47,15 +47,9 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
 
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
         let coordinator = WalletConnectCoordinator(
-            keystore: keystore,
             navigationController: navigationController,
             analytics: application.analytics,
-            domainResolutionService: application.domainResolutionService,
-            config: application.config,
-            assetDefinitionStore: application.assetDefinitionStore,
-            networkService: application.networkService,
             walletConnectProvider: application.walletConnectProvider,
-            dependencies: application,
             restartHandler: application.restartHandler,
             serversProvider: application.serversProvider)
 
@@ -63,15 +57,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     }()
 
     private lazy var walletApiCoordinator: WalletApiCoordinator = {
-        let coordinator = WalletApiCoordinator(
-            keystore: keystore,
-            navigationController: navigationController,
-            analytics: application.analytics,
-            config: application.config,
-            restartHandler: application.restartHandler,
-            networkService: application.networkService,
-            serversProvider: application.serversProvider)
-
+        let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: application.analytics, restartHandler: application.restartHandler)
         return coordinator
     }()
 
@@ -269,7 +255,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
             title: nil,
             message: R.string.localizable.tokenscriptImportOk(filename),
             preferredStyle: .alert)
-        
+
         controller.popoverPresentationController?.sourceView = presenter.view
         controller.addAction(.init(title: R.string.localizable.oK(), style: .default))
 

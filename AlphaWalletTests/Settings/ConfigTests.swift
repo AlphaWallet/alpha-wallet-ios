@@ -16,15 +16,9 @@ extension WalletConnectCoordinator {
         let provider = WalletConnectProvider(keystore: keystore, config: .make(), dependencies: dependencies)
 
         return WalletConnectCoordinator(
-            keystore: keystore,
             navigationController: .init(),
             analytics: FakeAnalyticsService(),
-            domainResolutionService: FakeDomainResolutionService(),
-            config: .make(),
-            assetDefinitionStore: .make(),
-            networkService: FakeNetworkService(),
             walletConnectProvider: provider,
-            dependencies: dependencies,
             restartHandler: RestartQueueHandler(),
             serversProvider: BaseServersProvider())
     }

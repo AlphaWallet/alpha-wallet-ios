@@ -18,18 +18,11 @@ protocol WalletConnectCoordinatorDelegate: DappRequesterDelegate {
 }
 
 class WalletConnectCoordinator: NSObject, Coordinator {
-
     private let navigationController: UINavigationController
-    private let keystore: Keystore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
-    private let config: Config
     private weak var connectionTimeoutViewController: WalletConnectConnectionTimeoutViewController?
     private weak var notificationAlertController: UIViewController?
     private weak var sessionsViewController: WalletConnectSessionsViewController?
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let networkService: NetworkService
-    private let dependencies: WalletDependenciesProvidable
     private let restartHandler: RestartQueueHandler
     private let serversProvider: ServersProvidable
 
@@ -38,29 +31,12 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(keystore: Keystore,
-         navigationController: UINavigationController,
-         analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
-         config: Config,
-         assetDefinitionStore: AssetDefinitionStore,
-         networkService: NetworkService,
-         walletConnectProvider: WalletConnectProvider,
-         dependencies: WalletDependenciesProvidable,
-         restartHandler: RestartQueueHandler,
-         serversProvider: ServersProvidable) {
-
+    init(navigationController: UINavigationController, analytics: AnalyticsLogger, walletConnectProvider: WalletConnectProvider, restartHandler: RestartQueueHandler, serversProvider: ServersProvidable) {
         self.serversProvider = serversProvider
         self.restartHandler = restartHandler
-        self.dependencies = dependencies
         self.walletConnectProvider = walletConnectProvider
-        self.networkService = networkService
-        self.config = config
-        self.keystore = keystore
         self.navigationController = navigationController
         self.analytics = analytics
-        self.domainResolutionService = domainResolutionService
-        self.assetDefinitionStore = assetDefinitionStore
 
         super.init()
         walletConnectProvider.delegate = self
@@ -333,15 +309,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         infoLog("[WalletConnect] shouldConnectFor connection: \(proposal)")
         let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, serversProvider: serversProvider))
 
-        return AcceptProposalCoordinator.promise(
-            navigationController,
-            coordinator: self,
-            proposalType: proposalType,
-            analytics: analytics,
-            config: config,
-            restartHandler: restartHandler,
-            networkService: networkService,
-            serversProvider: serversProvider)
+        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics, restartHandler: restartHandler)
         .publisher()
         .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
             guard case .walletConnect(let server) = choise else { return .cancel }

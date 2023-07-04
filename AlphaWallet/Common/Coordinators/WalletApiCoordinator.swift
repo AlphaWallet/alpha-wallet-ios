@@ -19,26 +19,13 @@ class WalletApiCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
-    private let config: Config
     private let restartHandler: RestartQueueHandler
-    private let networkService: NetworkService
-    private let serversProvider: ServersProvidable
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletApiCoordinatorDelegate?
 
-    init(keystore: Keystore,
-         navigationController: UINavigationController,
-         analytics: AnalyticsLogger,
-         config: Config,
-         restartHandler: RestartQueueHandler,
-         networkService: NetworkService,
-         serversProvider: ServersProvidable) {
-
-        self.serversProvider = serversProvider
-        self.config = config
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, restartHandler: RestartQueueHandler) {
         self.restartHandler = restartHandler
-        self.networkService = networkService
         self.keystore = keystore
         self.navigationController = navigationController
         self.analytics = analytics
@@ -124,15 +111,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
 
     private func acceptProposal(proposalType: ProposalType) -> Promise<ProposalResult> {
         infoLog("[WalletApi] acceptProposal: \(proposalType)")
-        return AcceptProposalCoordinator.promise(
-            navigationController,
-            coordinator: self,
-            proposalType: proposalType,
-            analytics: analytics,
-            config: config,
-            restartHandler: restartHandler,
-            networkService: networkService,
-            serversProvider: serversProvider)
+        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics, restartHandler: restartHandler)
     }
 
     private func signPersonalMessage(with type: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel) -> Promise<Data> {
