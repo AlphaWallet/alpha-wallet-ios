@@ -629,7 +629,7 @@ open class EtherKeystore: NSObject, Keystore {
 
     private func getPrivateKeyFromHdWallet0thAddress(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool) -> WalletSeedOrKey {
         guard isHdWallet(account: account) else {
-            assertImpossibleCodePath()
+            preconditionFailure("Not expect to get a private key from HD wallet here")
             return .otherFailure
         }
         let seedResult = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)

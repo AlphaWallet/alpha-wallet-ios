@@ -2,14 +2,6 @@
 
 import Foundation
 
-public func assertImpossibleCodePath(message: String) {
-    assert(false, message)
-}
-
-public func assertImpossibleCodePath() {
-    assert(false)
-}
-
 public func isRunningTests() -> Bool {
     return ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil
 }

@@ -91,7 +91,7 @@ class TokenScriptCoordinator: Coordinator {
                 subscribeForEthereumEventChanges()
             }
         case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .bridge, .buy:
-            assertImpossibleCodePath(message: "Should only be TokenScript actions")
+            preconditionFailure("Should only be TokenScript actions")
         }
     }
 
@@ -199,7 +199,7 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
             let coordinator = TransactionInProgressCoordinator(
                 presentingViewController: strongSelf.navigationController,
                 server: strongSelf.session.server)
-            
+
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

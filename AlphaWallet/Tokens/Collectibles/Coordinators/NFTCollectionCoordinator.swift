@@ -295,7 +295,7 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
             controller.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(controller, animated: true)
         case .nativeCryptocurrency, .erc20:
-            assertImpossibleCodePath()
+            preconditionFailure("Not expect to transfer fungibles here")
         case .erc1155:
             let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: [tokenHolder])
             delegate?.didPress(for: .send(type: .transaction(transactionType)), inViewController: viewController, in: self)

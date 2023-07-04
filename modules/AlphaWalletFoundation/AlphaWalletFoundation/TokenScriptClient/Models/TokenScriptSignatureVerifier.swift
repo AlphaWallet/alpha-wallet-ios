@@ -61,14 +61,14 @@ public class BaseTokenScriptStatusResolver: TokenScriptStatusResolver {
             if isOld {
                 return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Old version"), reason: .oldTokenScriptVersion))
             } else {
-                assertImpossibleCodePath()
+                preconditionFailure("Not expecting an unsupported and new version of TokenScript schema here")
                 return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Unknown schema"), reason: nil))
             }
         case .unknownXml:
-            assertImpossibleCodePath()
+            preconditionFailure("Not expecting an unknown XML here when checking TokenScript schema")
             return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("unknown. Maybe empty invalid? Doesn't even include something that might be our schema"), reason: nil))
         case .others:
-            assertImpossibleCodePath()
+            preconditionFailure("Not expecting an unknown error when checking TokenScript schema")
             return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("Not XML?"), reason: nil))
         }
     }
