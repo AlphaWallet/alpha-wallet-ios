@@ -34,25 +34,12 @@ class AcceptProposalCoordinator: Coordinator {
 
         return panel
     }()
-    private let config: Config
     private let restartHandler: RestartQueueHandler
-    private let networkService: NetworkService
-    private let serversProvider: ServersProvidable
 
     weak var delegate: AcceptProposalCoordinatorDelegate?
 
-    init(analytics: AnalyticsLogger,
-         proposalType: ProposalType,
-         navigationController: UINavigationController,
-         config: Config,
-         restartHandler: RestartQueueHandler,
-         networkService: NetworkService,
-         serversProvider: ServersProvidable) {
-
-        self.serversProvider = serversProvider
-        self.config = config
+    init(analytics: AnalyticsLogger, proposalType: ProposalType, navigationController: UINavigationController, restartHandler: RestartQueueHandler) {
         self.restartHandler = restartHandler
-        self.networkService = networkService
         self.analytics = analytics
         self.proposalType = proposalType
         self.navigationController = navigationController
