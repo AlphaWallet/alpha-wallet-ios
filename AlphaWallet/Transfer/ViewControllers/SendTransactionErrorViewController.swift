@@ -89,7 +89,7 @@ class SendTransactionErrorViewController: UIViewController {
             }
             delegate?.linkTapped(url, forError: viewModel.error, in: self)
         } else {
-            assertImpossibleCodePath(message: "Should only show link button if there's a URl")
+            preconditionFailure("Should only show link button if there's a URl")
         }
     }
 
