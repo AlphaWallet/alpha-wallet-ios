@@ -733,7 +733,7 @@ extension ActiveWalletCoordinator {
 
         showPaymentFlow(for: type, server: server, navigationController: presentationNavigationController)
     }
-    
+
     func openUrlInBrowser(url: URL, animated: Bool = true) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         showTab(.browser)
@@ -997,14 +997,14 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         } else {
             transactionCoordinator?.showTransaction(.standalone(transaction), navigationController: nvc)
         }
-        
+
         let viewController = nvc.viewControllers[0]
 
         let leftBarButtonItem = UIBarButtonItem.closeBarButton()
         leftBarButtonItem.selectionClosure = { [weak nvc] _ in nvc?.dismiss(animated: true) }
 
         viewController.navigationItem.leftBarButtonItem = leftBarButtonItem
-        
+
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .present(nvc, animated: true)
