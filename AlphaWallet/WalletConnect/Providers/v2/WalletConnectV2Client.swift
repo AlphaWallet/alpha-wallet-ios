@@ -23,35 +23,6 @@ struct SocketFactory: WebSocketFactory {
     }
 }
 
-struct DefaultEthereumSignerFactory: SignerFactory {
-    func createEthereumSigner() -> WalletConnectSigner.EthereumSigner {
-        Web3Signer()
-    }
-}
-
-struct Web3Signer: WalletConnectSigner.EthereumSigner {
-    enum SignerError: Error {
-        case recoverPubKeyFailure
-    }
-
-    func sign(message: Data, with key: Data) throws -> WalletConnectSigner.EthereumSignature {
-        let hash = message.sha3(.keccak256)
-        let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-        return WalletConnectSigner.EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
-    }
-
-    func recoverPubKey(signature: WalletConnectSigner.EthereumSignature, message: Data) throws -> Data {
-        guard let data = Web3.Utils.recoverPublicKey(message: message, v: signature.v, r: signature.r, s: signature.s) else {
-            throw SignerError.recoverPubKeyFailure
-        }
-        return data
-    }
-
-    func keccak256(_ data: Data) -> Data {
-        return data.sha3(.keccak256)
-    }
-}
-
 struct MyCryptoProvider: WalletConnectSigner.CryptoProvider {
     enum SignerError: Error {
         case recoverPubKeyFailure
