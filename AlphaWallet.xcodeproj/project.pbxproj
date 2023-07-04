@@ -192,6 +192,7 @@
 		5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FB7C3FB2A9CC0CC51D7 /* TokensViewControllerTableViewSectionHeader.swift */; };
 		5E7C725EE65E35A84B599598 /* EIP712TypedDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77FAAB69452F5310356F /* EIP712TypedDataTests.swift */; };
 		5E7C7264B6B898A90F1761F0 /* AlphaWalletAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70E0ADFCBFD9B7354389 /* AlphaWalletAddressTests.swift */; };
+		5E7C7270C6A83CC1ADC106DC /* AcceptAuthRequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78C1C9053761426DD847 /* AcceptAuthRequestViewController.swift */; };
 		5E7C7282CB016A92582D4394 /* ErrorLocalizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C704885516A808B3B8866 /* ErrorLocalizations.swift */; };
 		5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */; };
 		5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */; };
@@ -235,6 +236,7 @@
 		5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79778E4BFE1322711EA6 /* LocaleViewModel.swift */; };
 		5E7C74C1C2AB84F9AFAC630E /* TokenCardRowViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C12E88EB0B73AA1E562 /* TokenCardRowViewModelProtocol.swift */; };
 		5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B080E387A79058430B9 /* ConfirmSignMessageTableViewCellViewModel.swift */; };
+		5E7C74D586547B32EF5CD91C /* AcceptProposalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C792D433507535E3F77A6 /* AcceptProposalViewController.swift */; };
 		5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewModel.swift */; };
 		5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */; };
 		5E7C74E53BBB1B451D683F9A /* AcceptAuthRequestCoordinatorBridgeToPromise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73DE68212B06BAE705C1 /* AcceptAuthRequestCoordinatorBridgeToPromise.swift */; };
@@ -334,7 +336,6 @@
 		5E7C7A928412AF3E16CDA038 /* AmountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D0DCE61EA2DE2DA21D /* AmountTextField.swift */; };
 		5E7C7AAC782446EADECEADF1 /* SeedPhraseBackupIntroductionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77AED5BC29ED8D075D08 /* SeedPhraseBackupIntroductionViewModel.swift */; };
 		5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B3302309706CA0F972A /* TokensViewController.swift */; };
-		5E7C7AC5E475004230EDD4F3 /* AcceptAuthRequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A2989C54BDE06C2B7E8 /* AcceptAuthRequestViewController.swift */; };
 		5E7C7ACB2F44B820940EACEB /* TokenInstanceActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C741DF75781BBB24CE6D0 /* TokenInstanceActionViewController.swift */; };
 		5E7C7AD1BA92A8FFF930F8DC /* BrowserURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C8CA3706DC14167786C /* BrowserURLParserTests.swift */; };
 		5E7C7AD59EA28935E32B3E91 /* KeystoreBackupIntroductionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F829626688EA50E1B68 /* KeystoreBackupIntroductionViewController.swift */; };
@@ -615,7 +616,6 @@
 		8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91824EE66D700E19DFF /* GasSpeedView.swift */; };
 		8757E5DC25DD162E00812392 /* SignatureConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */; };
 		8757E5DE25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DD25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift */; };
-		8757E5E025DE5A9D00812392 /* AcceptProposalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DF25DE5A9D00812392 /* AcceptProposalViewController.swift */; };
 		8757E5E225DE5ADB00812392 /* AcceptProposalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E125DE5ADB00812392 /* AcceptProposalViewModel.swift */; };
 		87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */; };
 		87584FA527E9DDB0006A7CD1 /* GridStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA427E9DDB0006A7CD1 /* GridStackView.swift */; };
@@ -1230,6 +1230,7 @@
 		5E7C7892A9FC3F53B13498D9 /* GenerateSellMagicLinkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateSellMagicLinkViewController.swift; sourceTree = "<group>"; };
 		5E7C78B61907C2C1E2BCD478 /* BrowserHomeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHomeViewModel.swift; sourceTree = "<group>"; };
 		5E7C78C073F380B48D5BE94C /* LayoutConstraintsWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutConstraintsWrapper.swift; sourceTree = "<group>"; };
+		5E7C78C1C9053761426DD847 /* AcceptAuthRequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcceptAuthRequestViewController.swift; sourceTree = "<group>"; };
 		5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRowViewProtocol.swift; sourceTree = "<group>"; };
 		5E7C78CF45AA54EF8647C44B /* SeedPhraseBackupIntroductionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseBackupIntroductionViewController.swift; sourceTree = "<group>"; };
 		5E7C78DB6F47344EBBC2567F /* ChainIdTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainIdTests.swift; sourceTree = "<group>"; };
@@ -1242,6 +1243,7 @@
 		5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+UIView.swift"; sourceTree = "<group>"; };
 		5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationRowDescriptionView.swift; sourceTree = "<group>"; };
 		5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseCell.swift; sourceTree = "<group>"; };
+		5E7C792D433507535E3F77A6 /* AcceptProposalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcceptProposalViewController.swift; sourceTree = "<group>"; };
 		5E7C793CDFA907BFDFECB6CB /* DappViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappViewCell.swift; sourceTree = "<group>"; };
 		5E7C7962AE417E12F13FF58E /* SetSellTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C796C7DEA3C2A70861828 /* PromptBackupWalletViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletViewViewModel.swift; sourceTree = "<group>"; };
@@ -1256,7 +1258,6 @@
 		5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionDiskBackingStoreWithOverridesTests.swift; sourceTree = "<group>"; };
 		5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7A1D9A35D86A3DE31989 /* ActivitiesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivitiesViewController.swift; sourceTree = "<group>"; };
-		5E7C7A2989C54BDE06C2B7E8 /* AcceptAuthRequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcceptAuthRequestViewController.swift; sourceTree = "<group>"; };
 		5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleChainTokenCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenDisplayHelper.swift; sourceTree = "<group>"; };
 		5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeCoordinator.swift; sourceTree = "<group>"; };
@@ -1547,7 +1548,6 @@
 		8750F91824EE66D700E19DFF /* GasSpeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedView.swift; sourceTree = "<group>"; };
 		8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationViewController.swift; sourceTree = "<group>"; };
 		8757E5DD25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationConfirmationViewModel.swift; sourceTree = "<group>"; };
-		8757E5DF25DE5A9D00812392 /* AcceptProposalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptProposalViewController.swift; sourceTree = "<group>"; };
 		8757E5E125DE5ADB00812392 /* AcceptProposalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptProposalViewModel.swift; sourceTree = "<group>"; };
 		87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		87584FA427E9DDB0006A7CD1 /* GridStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridStackView.swift; sourceTree = "<group>"; };
@@ -3159,12 +3159,10 @@
 		5E7C77BAC05F2F2417098707 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				8757E5DF25DE5A9D00812392 /* AcceptProposalViewController.swift */,
 				5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */,
 				5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */,
 				87509A5F26F8D63600D3EE85 /* ModalViewController.swift */,
 				87C7B5CB29373FFB0012CCA7 /* TopTabBarViewController.swift */,
-				5E7C7A2989C54BDE06C2B7E8 /* AcceptAuthRequestViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -4405,6 +4403,8 @@
 				87BBF97E2563DD7500FF4846 /* SignMessageCoordinatorBridgeToPromise.swift */,
 				87BBF97F2563DD7500FF4846 /* TransactionInProgressCoordinatorBridgeToPromise.swift */,
 				87BBF9802563DD7500FF4846 /* TransactionConfirmationCoordinatorBridgeToPromise.swift */,
+				5E7C792D433507535E3F77A6 /* AcceptProposalViewController.swift */,
+				5E7C78C1C9053761426DD847 /* AcceptAuthRequestViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -5810,7 +5810,6 @@
 				8757E5DE25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
-				8757E5E025DE5A9D00812392 /* AcceptProposalViewController.swift in Sources */,
 				5E7C712B11D9D9AAA02C022F /* WalletConnectSessionCellViewModel.swift in Sources */,
 				5E7C7E38EE25F8837CDF6875 /* TransactionRowViewModel.swift in Sources */,
 				5E7C7EEB905CA4DEF2BD9608 /* ReplaceTransactionCoordinator.swift in Sources */,
@@ -5878,12 +5877,13 @@
 				5E7C7C6CCD56211F6F4F6362 /* AttestationViewCell.swift in Sources */,
 				5E7C7700D969F10D4E9D683A /* AttestationsStore.swift in Sources */,
 				5E7C7DBE5806A28F19C7E3F7 /* Attestation+Extension.swift in Sources */,
-				5E7C7AC5E475004230EDD4F3 /* AcceptAuthRequestViewController.swift in Sources */,
 				5E7C7A8106F96477D1F66954 /* AcceptAuthRequestViewModel.swift in Sources */,
 				5E7C7081EF1F78FC609265A0 /* AcceptProposalCoordinatorBridgeToPromise.swift in Sources */,
 				5E7C74E53BBB1B451D683F9A /* AcceptAuthRequestCoordinatorBridgeToPromise.swift in Sources */,
 				5E7C7E17D98D673D1CADC217 /* AcceptAuthRequestCoordinator.swift in Sources */,
 				5E7C7DFB3A663A3581A8C3CB /* AcceptProposalCoordinator.swift in Sources */,
+				5E7C74D586547B32EF5CD91C /* AcceptProposalViewController.swift in Sources */,
+				5E7C7270C6A83CC1ADC106DC /* AcceptAuthRequestViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
