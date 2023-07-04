@@ -202,7 +202,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
     }
 
     private func didUpgrade(topic: String, namespaces: [String: SessionNamespace]) {
-        infoLog("[WalletConnect2] WC: Did receive session upgrate")
+        infoLog("[WalletConnect2] WC: Did receive session upgrade")
 
         _ = try? storage.update(.topic(string: topic), namespaces: namespaces)
     }
