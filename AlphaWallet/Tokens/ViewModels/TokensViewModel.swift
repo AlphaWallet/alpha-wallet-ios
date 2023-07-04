@@ -320,7 +320,11 @@ final class TokensViewModel {
     }
 
     private var isFooterHidden: Bool {
-        !serversProvider.enabledServers.contains(.main)
+        if Features.default.isAvailable(.buyCryptoEnabled) {
+            return !serversProvider.enabledServers.contains(.main)
+        } else {
+            return true
+        }
     }
 
     func set(isSearchActive: Bool) {

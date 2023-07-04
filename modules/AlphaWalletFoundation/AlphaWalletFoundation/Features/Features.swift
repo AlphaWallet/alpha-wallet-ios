@@ -94,6 +94,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
     case isTokenScriptSignatureStatusEnabled
     case isSwapEnabled
     case isCoinbasePayEnabled
+    case buyCryptoEnabled
     case isLoggingEnabledForTickerMatches
     case isChangeCurrencyEnabled
     case isNftTransferEnabled
@@ -119,6 +120,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
         case .isBlockscanChatEnabled: return true
         case .isTokenScriptSignatureStatusEnabled: return false
         case .isSwapEnabled: return true
+        case .buyCryptoEnabled: return false
         case .isCoinbasePayEnabled: return true
         case .isLoggingEnabledForTickerMatches: return false
         case .isChangeCurrencyEnabled: return false
