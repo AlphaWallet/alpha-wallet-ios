@@ -11,7 +11,7 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
-/// Etherscan and Blockout api networking
+/// Etherscan and Blockscout api networking
 class EtherscanCompatibleApiNetworking: ApiNetworking {
     private let server: RPCServer
     private let transporter: ApiTransporter

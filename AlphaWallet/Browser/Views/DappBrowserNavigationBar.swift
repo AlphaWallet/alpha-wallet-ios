@@ -102,7 +102,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         backButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
-        
+
         return backButton
     }()
     private let forwardButton: UIButton = {
@@ -134,7 +134,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
             hide.hideAll()
             show.showAll()
-            //FIXME: need to resolve somehow show/hide animation, show is broked when animation view
+            //FIXME: need to resolve somehow show/hide animation, show is broken when animation view
             UIView.animate(withDuration: 0.3) {
                 self.layoutIfNeeded()
                 self.stackView.layoutIfNeeded()
@@ -168,7 +168,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         let spacer1 = UIView.spacerWidth()
         let spacer2 = UIView.spacerWidth()
         let spacer3 = UIView.spacerWidth(10)
-        //NOTE: remove spacing beetwen backButton and forwardButton buttons
+        //NOTE: remove spacing between backButton and forwardButton buttons
         let backwardForwardButtonStackView = [backButton, forwardButton].asStackView(axis: .horizontal)
 
         viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, homeButton, spacer3, moreButton])

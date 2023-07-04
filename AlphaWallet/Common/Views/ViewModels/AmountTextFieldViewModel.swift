@@ -88,7 +88,7 @@ final class AmountTextFieldViewModel {
     }
 
     let debugName: String
-    
+
     init(token: EnterAmountSupportable?, debugName: String) {
         self.debugName = debugName
         self.set(token: token)
@@ -148,7 +148,7 @@ final class AmountTextFieldViewModel {
 
     func set(token: EnterAmountSupportable?, switchToTokenImmediatelly: Bool = false) {
         if var currentPair = currentPair.value, !switchToTokenImmediatelly {
-            //NOTE: don't switch beetwen fiat an crypto when token changes
+            //NOTE: don't switch between fiat an crypto when token changes
             self.currentPair.value = token.flatMap { currentPair.set(token: $0) }
         } else {
             self.currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(cryptoToFiatRate.value.currency)) }

@@ -504,7 +504,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }
 
     func show(error: Error) {
-        //TODO Not comprehensive. Example, if we are showing a token instance view and tap on unverified to open browser, this wouldn't owrk
+        //TODO Not comprehensive. Example, if we are showing a token instance view and tap on unverified to open browser, this wouldn't work
         if let topVC = navigationController.presentedViewController {
             topVC.displayError(error: error)
         } else {
@@ -1103,7 +1103,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
         askUserToRateAppOrSubscribeToNewsletter()
     }
 
-    //NOTE: askUserToRateAppOrSubscribeToNewsletter can't be called ringht in confirmation coordinator as after successfully sent transaction coordinator dismissed
+    //NOTE: askUserToRateAppOrSubscribeToNewsletter can't be called right in confirmation coordinator as after successfully sent transaction coordinator dismissed
     private func askUserToRateAppOrSubscribeToNewsletter() {
         let hostViewController = UIApplication.shared.presentedViewController(or: navigationController)
         let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: appTracker, analytics: analytics)

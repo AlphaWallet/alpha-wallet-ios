@@ -15,7 +15,7 @@ class BlockieImageView: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         imageView.rounding = .circle
-        
+
         return imageView
     }()
 
@@ -25,7 +25,7 @@ class BlockieImageView: UIView {
         didSet { imageView.contentMode = contentMode }
     }
 
-    ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
+    ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute force, for 24x24 image its enough 100x100 web image view size
     init(size: CGSize) {
         super.init(frame: .zero)
 
@@ -83,7 +83,7 @@ class BlockieImageView: UIView {
         case .none:
             imageView.setImage(url: nil)
         }
-        
+
         if hideWhenImageIsNil {
             isHidden = blockieImage == nil
         }

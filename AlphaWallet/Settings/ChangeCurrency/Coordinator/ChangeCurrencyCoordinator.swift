@@ -1,5 +1,5 @@
 //
-//  ChangeCuurencyCoordinator.swift
+//  ChangeCurrencyCoordinator.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 30.06.2020.

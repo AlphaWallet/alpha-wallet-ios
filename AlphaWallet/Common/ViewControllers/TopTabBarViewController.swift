@@ -87,7 +87,7 @@ class TopTabBarViewController: UIViewController {
         return nil
     }
 
-    //NOTE: need to triggle initial selection state when view layout its subviews for first time
+    //NOTE: need to trigger initial selection state when view layout its subviews for first time
     private var didLayoutSubviewsAtFirstTime: Bool = true
 
     func set(viewControllers: [UIViewController]) {

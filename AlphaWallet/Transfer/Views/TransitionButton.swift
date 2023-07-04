@@ -18,7 +18,7 @@ public enum StopAnimationStyle {
     case shake
 }
 
-/// UIButton sublass for loading and transition animation. Useful for network based application or where you need to animate an action button while doing background tasks.
+/// UIButton subclass for loading and transition animation. Useful for network based application or where you need to animate an action button while doing background tasks.
 @IBDesignable open class TransitionButton: UIButton, CAAnimationDelegate {
     var shrinkBorderColor: UIColor = AlphaWallet.Configuration.Color.Semantic.transitionButtonShrinkBorder
     var shrinkBorderWidth: CGFloat = 3.0
