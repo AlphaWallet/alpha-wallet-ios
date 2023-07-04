@@ -45,7 +45,7 @@ class TransactionsViewModel {
         input.map { _ in Loadable<Void, Error>.loading }
             .delay(for: .seconds(1), scheduler: RunLoop.main)
             .handleEvents(receiveOutput: { _ in
-                //TODO: implement reloading transactions, not it realoads only when its updated in db
+                //TODO: implement reloading transactions, not it reloads only when its updated in db
             })
             .map { _ in Loadable<Void, Error>.done(()) }
             .share()
@@ -118,8 +118,8 @@ extension TransactionsViewModel.functional {
                     items.append(.standalone(each))
                 } else {
                     items.append(.group(each))
-                    //NOTE: already stored localized operations might be dublicated, that could cause crash when building datasource snapshot, catched few times
-                    //apply .uniqued() to remove dublicates, updated code to filter operations when creating transaction object.
+                    //NOTE: already stored localized operations might be duplicated, that could cause crash when building datasource snapshot, caught few times
+                    //apply .uniqued() to remove duplicates, updated code to filter operations when creating transaction object.
                     items.append(contentsOf: each.localizedOperations.uniqued().map { .item(transaction: each, operation: $0) })
                 }
             }

@@ -163,8 +163,8 @@ public struct FunctionOrigin {
                 functionName: functionName,
                 output: functionType.output,
                 assetAttributeProvider: assetAttributeProvider) else { return nil }
-        //NOTE: updated with storing cancellable in chinld subscribable to avoid ref cycles, looks like syncAsync might cause it.
-        //be carefull with cancellables
+        //NOTE: updated with storing cancellable in chainld subscribable to avoid ref cycles, looks like syncAsync might cause it.
+        //be careful with cancellables
         let resultSubscribable: Subscribable<AssetInternalValue> = subscribable.mapFirst { value in
             guard let value = value else { return nil }
             if let bitmask = self.bitmask {
@@ -173,7 +173,7 @@ public struct FunctionOrigin {
                 return value
             }
         }
-        
+
         return .subscribable(resultSubscribable)
     }
 

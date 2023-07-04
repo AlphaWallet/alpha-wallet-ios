@@ -7,7 +7,7 @@
 
 import UIKit
 
-///Reusable TableViewCell allows to change its contantained view
+///Reusable TableViewCell allows to change its container view
 class ContainerTableViewCell: UITableViewCell {
     let background = UIView()
     let cellSeparators = (top: UIView(), bottom: UIView())

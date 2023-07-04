@@ -48,7 +48,7 @@ class WebImageViewModel {
                             switch state {
                             case .loading: return .loading
                             case .done(let value): return ViewState.content(value)
-                            //Not applicatable here, as publisher returns can failure, handled in `replaceError`
+                            //Not applicable here, as publisher returns can failure, handled in `replaceError`
                             case .failure: return .noContent
                             }
                         }.replaceError(with: .noContent)

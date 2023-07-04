@@ -1,9 +1,4 @@
-//
-//  BartercardAnalytics.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 06.11.2020.
-//
+// Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
 import AlphaWalletFoundation

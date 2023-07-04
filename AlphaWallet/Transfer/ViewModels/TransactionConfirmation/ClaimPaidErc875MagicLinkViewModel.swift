@@ -29,7 +29,7 @@ extension TransactionConfirmationViewModel {
              price: BigUInt,
              numberOfTokens: UInt,
              tokensService: TokensProcessingPipeline) {
-            
+
             self.configurator = configurator
             self.price = price
             self.numberOfTokens = numberOfTokens
@@ -101,7 +101,7 @@ extension TransactionConfirmationViewModel {
         }
 
         private var formattedAmountValue: String {
-            //NOTE: what actual token can be here? or its always native crypto, need to firegu out right `decimals` value, better to pass here actual NSDecimalNumber value
+            //NOTE: what actual token can be here? or its always native crypto, need to figure out right `decimals` value, better to pass here actual NSDecimalNumber value
             let amountToSend = (Decimal(bigUInt: price, decimals: session.server.decimals) ?? .zero).doubleValue
             let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
 

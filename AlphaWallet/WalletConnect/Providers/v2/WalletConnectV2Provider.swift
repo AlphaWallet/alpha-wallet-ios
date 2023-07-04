@@ -174,7 +174,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
         infoLog("[WalletConnect2] WC: Did receive session request")
 
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
-        //FIXME: update with ability ask user for enabled disaled server
+        //FIXME: update with ability ask user for enabled disabled server
         guard let server = request.rpcServer, serversProvider.enabledServers.contains(server) else {
             return reject(request: request, error: .internalError)
         }

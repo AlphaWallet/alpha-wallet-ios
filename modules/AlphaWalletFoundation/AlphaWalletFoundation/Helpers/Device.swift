@@ -77,7 +77,7 @@ import UIKit
 ///
 /// Often it's required to bing different parameters for specific screen resolution.
 /// There are 2 methods that will help you to detect what parameter to use. But
-/// wirst of all let me introduce ScreenFamily.
+/// first of all let me introduce ScreenFamily.
 ///
 /// This is enum that breaks all possible screen resolutions into 3 groups:
 /// - ScreenFamily.*small*:        All iPhones/iPods without iPhone 6Plus
@@ -696,7 +696,7 @@ public func >= (lhs: AlphaWallet.Device.Screen, rhs: AlphaWallet.Device.Version)
 /// - parameter old:       In the case Apple stops to produce 3.5 and 4.0 inches devices this will represent it
 /// - parameter small:     Include 4.7 inches iPhone 6 size
 /// - parameter medium:    Include devices with screen resolution 5.5, 7.9 inches (iPhone 6Plus and iPad mini)
-/// - parameter big:       Include devices with biger screen resolutions (Regular iPad and iPad Pro)
+/// - parameter big:       Include devices with bigger screen resolutions (Regular iPad and iPad Pro)
 public enum ScreenFamily: String {
     case unknown
     case old

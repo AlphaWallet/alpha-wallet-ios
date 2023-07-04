@@ -47,7 +47,7 @@ class AVPlayerViewModel {
         return player
     }()
     private let viewStateSubject = PassthroughSubject<AVPlayerViewModel.LoadVideoState, Never>()
-    
+
     var viewState: AnyPublisher<AVPlayerViewModel.LoadVideoState, Never> {
         viewStateSubject.eraseToAnyPublisher()
     }
@@ -117,7 +117,7 @@ class AVPlayerViewModel {
     }
 
     private func loadVideo(url: URL) -> AnyPublisher<AVURLAsset.AVAssetLoadingState, AVURLAsset.AVAssetError> {
-        //TODO: might be needed to verify `networkBecomeReachablePublisher` it doesn't work as axpected
+        //TODO: might be needed to verify `networkBecomeReachablePublisher` it doesn't work as expected
         return reachability.networkBecomeReachablePublisher
             .setFailureType(to: AVURLAsset.AVAssetError.self)
             .flatMapLatest { _ in AVURLAsset(url: url).loadValuesAsync() }
@@ -127,7 +127,7 @@ class AVPlayerViewModel {
 }
 
 extension AVPlayerViewModel {
-    
+
     enum MediaType {
         case video
         case audio
@@ -190,7 +190,7 @@ extension AVURLAsset {
                         let playerItem = AVPlayerItem(asset: asset)
                         if let e = playerItem.error {
                             seal.send(completion: .failure(AVAssetError.general(e)))
-                        } else {    
+                        } else {
                             seal.send(.loaded(playerItem, isVideoAvailable: asset.isVideoAvailable))
                             seal.send(completion: .finished)
                         }

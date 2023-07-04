@@ -66,7 +66,7 @@ class EditBookmarkViewController: UIViewController {
         let xOffset: CGFloat = 16
 
         containerView.stackView.addArrangedSubviews([
-            .spacer(height: 16), //NOTE: use spacer to aboid cropping shadow
+            .spacer(height: 16), //NOTE: use spacer to avoid cropping shadow
             imageHolder,
             UIView.spacer(height: ScreenChecker.size(big: 28, medium: 28, small: 20)),
             titleTextFieldLayout,
@@ -115,7 +115,7 @@ class EditBookmarkViewController: UIViewController {
 
         let input = EditBookmarkViewModelInput(saveSelected: saveSelected)
         let output = viewModel.transform(input: input)
-        
+
         output.viewState
             .sink { [imageHolder, iconImageView, titleTextField, urlTextField, navigationItem] viewState in
                 navigationItem.title = viewState.title

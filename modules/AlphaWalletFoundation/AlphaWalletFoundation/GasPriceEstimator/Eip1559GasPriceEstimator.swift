@@ -125,7 +125,7 @@ public final class Eip1559GasPriceEstimator: NSObject, GasPriceEstimator {
                     switch strongSelf.selectedGasSpeed {
                     case .custom:
                         guard case .estimated = subject.value else {
-                            //NOTE: rebuild with selected value to make sure warnings and erros have updated, if there any
+                            //NOTE: rebuild with selected value to make sure warnings and errors have updated, if there any
                             strongSelf.handle(oracleResult: subject.value)
                             return
                         }
