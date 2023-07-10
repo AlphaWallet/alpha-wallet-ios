@@ -38,7 +38,7 @@ final class RenameWalletViewModel {
 
         let assignedName = input.willAppear.map { _ in FileWalletStorage().name(for: self.account) }
 
-        let resolvedEns = domainResolutionService.resolveEns(address: account)
+        let resolvedEns = domainResolutionService.resolveEns(address: account, server: RPCServer.forResolvingEns)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
             .prepend(nil)

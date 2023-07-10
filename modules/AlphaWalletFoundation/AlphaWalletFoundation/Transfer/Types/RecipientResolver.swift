@@ -22,6 +22,7 @@ public class RecipientResolver {
     }
 
     public let address: AlphaWallet.Address?
+    private let server: RPCServer
     private var resolution: Loadable<BlockieAndAddressOrEnsResolution, Error> = .loading
     public var ensName: EnsName? {
         resolution.value?.resolution.value
@@ -38,8 +39,9 @@ public class RecipientResolver {
     }
     private let domainResolutionService: DomainResolutionServiceType
 
-    public init(address: AlphaWallet.Address?, domainResolutionService: DomainResolutionServiceType) {
+    public init(address: AlphaWallet.Address?, server: RPCServer, domainResolutionService: DomainResolutionServiceType) {
         self.address = address
+        self.server = server
         self.domainResolutionService = domainResolutionService
     }
 
@@ -54,7 +56,7 @@ public class RecipientResolver {
                 .eraseToAnyPublisher()
         }
 
-        return domainResolutionService.resolveEnsAndBlockie(address: address)
+        return domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
             .map { resolution -> Loadable<BlockieAndAddressOrEnsResolution, Error> in return .done(resolution) }
             .catch { return Just(Loadable<BlockieAndAddressOrEnsResolution, Error>.failure($0)) }
             .handleEvents(receiveOutput: { [weak self] in self?.resolution = $0 })

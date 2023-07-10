@@ -85,7 +85,7 @@ class ImportWalletViewController: UIViewController {
         return textView
     }()
     lazy var watchAddressTextField: AddressTextField = {
-        let textField = AddressTextField(domainResolutionService: domainResolutionService)
+        let textField = AddressTextField(server: RPCServer.forResolvingEns, domainResolutionService: domainResolutionService)
         textField.inputAccessoryButtonType = .done
         textField.delegate = self
         textField.returnKeyType = .done

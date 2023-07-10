@@ -36,7 +36,7 @@ class SendViewController: UIViewController {
         return view
     }()
     lazy var targetAddressTextField: AddressTextField = {
-        let targetAddressTextField = AddressTextField(domainResolutionService: domainResolutionService)
+        let targetAddressTextField = AddressTextField(server: viewModel.transactionType.server, domainResolutionService: domainResolutionService)
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
         targetAddressTextField.pasteButton.contentHorizontalAlignment = .right

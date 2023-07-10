@@ -15,7 +15,7 @@ struct TransactionConfirmationViewModelOutput {
 
 protocol TransactionConfirmationViewModelType: ExpandableSection {
     var confirmButtonViewModel: ConfirmButtonViewModel { get }
-    
+
     func transform(input: TransactionConfirmationViewModelInput) -> TransactionConfirmationViewModelOutput
     func shouldShowChildren(for section: Int, index: Int) -> Bool
 }
@@ -28,7 +28,7 @@ struct TransactionConfirmationViewModel {
                                tokensService: TokensProcessingPipeline) -> TransactionConfirmationViewModelType {
 
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
-        let recipientResolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
+        let recipientResolver = RecipientResolver(address: recipientOrContract, server: configurator.session.server, domainResolutionService: domainResolutionService)
         switch configuration {
         case .tokenScriptTransaction(_, let contract, let functionCallMetaData):
             return TokenScriptTransactionViewModel(
@@ -92,7 +92,7 @@ struct TransactionConfirmationViewModel {
 }
 
 extension TransactionConfirmationViewModel {
-    
+
     struct ViewState {
         let title: String
         let views: [ViewType]
