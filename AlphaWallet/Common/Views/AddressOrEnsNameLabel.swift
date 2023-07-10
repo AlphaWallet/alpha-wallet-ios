@@ -126,7 +126,7 @@ class AddressOrEnsNameLabel: UILabel {
         currentlyResolving = nil
     }
 
-    func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
+    func resolve(_ value: String, server: RPCServer) -> Promise<BlockieAndAddressOrEnsResolution> {
         let valueArg = value
 
         if let currentlyResolving = currentlyResolving, currentlyResolving.value == value {
@@ -137,7 +137,7 @@ class AddressOrEnsNameLabel: UILabel {
         let promise = Promise<BlockieAndAddressOrEnsResolution> { seal in
             if let address = AlphaWallet.Address(string: value) {
                 cancelable?.cancel()
-                cancelable = domainResolutionService.resolveEnsAndBlockie(address: address)
+                cancelable = domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
                     .sink(receiveCompletion: { _ in
                         seal.fulfill((nil, .resolved(.none)))
                     }, receiveValue: { value in

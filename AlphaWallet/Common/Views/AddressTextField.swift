@@ -26,6 +26,7 @@ extension AddressTextFieldDelegate {
 final class AddressTextField: UIControl {
     private let domainResolutionService: DomainResolutionServiceType
     private let notifications = NotificationCenter.default
+    private let server: RPCServer
 
     private lazy var textField: UITextField = {
         let textField = UITextField()
@@ -43,7 +44,7 @@ final class AddressTextField: UIControl {
         textField.autocorrectionType = .no
         textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = Configuration.Font.textField
-        
+
         return textField
     }()
     lazy private var ensAddressLabel: AddressOrEnsNameLabel = {
@@ -182,7 +183,8 @@ final class AddressTextField: UIControl {
 
     weak var delegate: AddressTextFieldDelegate?
 
-    init(domainResolutionService: DomainResolutionServiceType, edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
+    init(server: RPCServer, domainResolutionService: DomainResolutionServiceType, edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
+        self.server = server
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -329,7 +331,7 @@ final class AddressTextField: UIControl {
             textFieldText = value
 
             delegate?.didPaste(in: self)
-            ensAddressLabel.resolve(value).done { [weak self] resolution in
+            ensAddressLabel.resolve(value, server: server).done { [weak self] resolution in
                 self?.addressOrEnsNameDidResolve(resolution, whileTextWasPaste: true)
             }.cauterize()
         } else {
@@ -395,7 +397,7 @@ extension AddressTextField: UITextFieldDelegate {
     }
 
     private func ensAddressResolve(value: String) {
-        ensAddressLabel.resolve(value).done { [weak self] resolution in
+        ensAddressLabel.resolve(value, server: server).done { [weak self] resolution in
             self?.addressOrEnsNameDidResolve(resolution, whileTextWasPaste: false)
         }.cauterize()
     }

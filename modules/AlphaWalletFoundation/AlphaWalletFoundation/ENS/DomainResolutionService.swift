@@ -14,7 +14,7 @@ public class DomainResolutionService {
     private let storage: EnsRecordsStorage
     private let blockiesGenerator: BlockiesGenerator
     private lazy var getEnsAddressResolver = EnsResolver(storage: storage, blockchainProvider: blockchainProvider)
-    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: blockchainProvider.server, storage: storage, networkService: networkService)
+    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(fallbackServer: blockchainProvider.server, storage: storage, networkService: networkService)
     private lazy var ensReverseLookupResolver = EnsReverseResolver(storage: storage, blockchainProvider: blockchainProvider)
     private let networkService: NetworkService
     private let blockchainProvider: BlockchainProvider
@@ -29,7 +29,6 @@ public class DomainResolutionService {
 
 extension DomainResolutionService: DomainResolutionServiceType {
     public func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {
-
         let services: [CachebleAddressResolutionServiceType] = [
             getEnsAddressResolver,
             unstoppableDomainsV2Resolver
@@ -49,8 +48,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
             .eraseToAnyPublisher()
     }
 
-    public func resolveEnsAndBlockie(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
-
+    public func resolveEnsAndBlockie(address: AlphaWallet.Address, server actualServer: RPCServer) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
         func getBlockieImage(for ens: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
             return blockiesGenerator.getBlockieOrEnsAvatarImage(address: address, ens: ens)
                 .map { image -> BlockieAndAddressOrEnsResolution in
@@ -60,7 +58,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
                 }.eraseToAnyPublisher()
         }
 
-        return resolveEns(address: address)
+        return resolveEns(address: address, server: actualServer)
             .flatMap { getBlockieImage(for: $0) }
             .eraseToAnyPublisher()
     }
@@ -81,7 +79,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
             .eraseToAnyPublisher()
     }
 
-    public func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<EnsName, PromiseError> {
+    public func resolveEns(address: AlphaWallet.Address, server actualServer: RPCServer) -> AnyPublisher<EnsName, PromiseError> {
         let services: [CachedEnsResolutionServiceType] = [
             ensReverseLookupResolver,
             unstoppableDomainsV2Resolver
@@ -96,7 +94,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
             .flatMap { [ensReverseLookupResolver] address in
                 ensReverseLookupResolver.getENSNameFromResolver(for: address)
             }.catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<String, PromiseError> in
-                unstoppableDomainsV2Resolver.resolveDomain(address: address)
+                unstoppableDomainsV2Resolver.resolveDomain(address: address, server: actualServer)
             }.receive(on: RunLoop.main)//We want to be sure it's on main
             .eraseToAnyPublisher()
     }

@@ -16,7 +16,7 @@ public class GetWalletName {
         if let walletName = FileWalletStorage().name(for: address) {
             return .just(walletName)
         } else {
-            return domainResolutionService.resolveEns(address: address)
+            return domainResolutionService.resolveEns(address: address, server: RPCServer.forResolvingEns)
                 .map { ens -> EnsName? in return ens }
                 .replaceError(with: nil)
                 .eraseToAnyPublisher()

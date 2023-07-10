@@ -55,7 +55,7 @@ class NewTokenViewController: UIViewController {
         }
     }
     private lazy var addressTextField: AddressTextField = {
-        let textField = AddressTextField(domainResolutionService: domainResolutionService)
+        let textField = AddressTextField(server: RPCServer.forResolvingEns, domainResolutionService: domainResolutionService)
         textField.returnKeyType = .next
         textField.inputAccessoryButtonType = .next
         textField.delegate = self

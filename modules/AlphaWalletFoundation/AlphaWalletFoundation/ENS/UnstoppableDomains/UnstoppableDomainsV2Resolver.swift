@@ -7,24 +7,73 @@
 
 import Foundation
 import Combine
-import SwiftyJSON
-import AlphaWalletENS
 import AlphaWalletCore
+import AlphaWalletENS
 import AlphaWalletLogger
+import AlphaWalletWeb3
+import SwiftyJSON
 
 struct UnstoppableDomainsV2ApiError: Error {
     var localizedDescription: String
 }
 
-final class UnstoppableDomainsV2Resolver {
-    private let server: RPCServer
+class UnstoppableDomainsV2Resolver {
+    private let fallbackServer: RPCServer
     private let storage: EnsRecordsStorage
     private let networkProvider: UnstoppableDomainsV2NetworkProvider
 
-    init(server: RPCServer, storage: EnsRecordsStorage, networkService: NetworkService) {
-        self.server = server
+    init(fallbackServer: RPCServer, storage: EnsRecordsStorage, networkService: NetworkService) {
+        self.fallbackServer = fallbackServer
         self.storage = storage
         self.networkProvider = .init(networkService: networkService)
+    }
+
+    func resolveDomain(address: AlphaWallet.Address, server actualServer: RPCServer) -> AnyPublisher<String, PromiseError> {
+        let fallbackServer = fallbackServer
+        return Just(actualServer)
+            .setFailureType(to: PromiseError.self)
+            .flatMap { [self] actualServer in
+                _resolveDomain(address: address, server: actualServer)
+            .catch { error -> AnyPublisher<String, PromiseError> in
+                if actualServer == fallbackServer {
+                    return Fail(error: error).eraseToAnyPublisher()
+                } else {
+                    return _resolveDomain(address: address, server: fallbackServer)
+                }
+            }.receive(on: RunLoop.main)
+            }.eraseToAnyPublisher()
+    }
+
+    private func _resolveDomain(address: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<String, PromiseError> {
+        if let cachedResult = cachedEnsValue(for: address) {
+            return .just(cachedResult)
+        }
+
+        let parameters = [EthereumAddress(address: address)] as [AnyObject]
+        let abiString = """
+                        [ 
+                          { 
+                            "constant": false, 
+                            "inputs": [ 
+                              {"address": "","type": "address"}, 
+                            ], 
+                            "name": "reverseNameOf", 
+                            "outputs": [{"name": "", "type": "string"}], 
+                            "type": "function" 
+                          },
+                        ]
+                        """
+        return callSmartContract(withServer: server, contract: AlphaWallet.Address(string: "0xa9a6A3626993D487d2Dbda3173cf58cA1a9D9e9f")!, functionName: "reverseNameOf", abiString: abiString, parameters: parameters)
+            .publisher()
+            .tryMap { result in
+                if let name = result["0"] as? String, !name.isEmpty {
+                    return name
+                } else {
+                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Can't reverse resolve \(address.eip55String) on: \(server)")
+                }
+            }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     func resolveAddress(forName name: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {
@@ -42,49 +91,17 @@ final class UnstoppableDomainsV2Resolver {
                 infoLog("[UnstoppableDomains] resolving name: \(name)…")
                 return networkProvider.resolveAddress(forName: name)
                     .handleEvents(receiveOutput: { address in
-                        let key = EnsLookupKey(nameOrAddress: name, server: self.server)
+                        let key = EnsLookupKey(nameOrAddress: name, server: self.fallbackServer)
                         self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
                     }).share()
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
-
-    func resolveDomain(address: AlphaWallet.Address) -> AnyPublisher<String, PromiseError> {
-        if let value = self.cachedEnsValue(for: address) {
-            return .just(value)
-        }
-
-        return Just(address)
-            .setFailureType(to: PromiseError.self)
-            .flatMap { [networkProvider] address -> AnyPublisher<String, PromiseError> in
-                infoLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
-                return networkProvider.resolveDomain(address: address)
-                    .handleEvents(receiveOutput: { domain in
-                        let key = EnsLookupKey(nameOrAddress: address.eip55String, server: self.server)
-                        self.storage.addOrUpdate(record: .init(key: key, value: .ens(domain)))
-                    }).share()
-                    .eraseToAnyPublisher()
-            }.eraseToAnyPublisher()
-    }
-}
-
-extension UnstoppableDomainsV2Resolver: CachebleAddressResolutionServiceType {
-
-    func cachedAddressValue(for name: String) -> AlphaWallet.Address? {
-        let key = EnsLookupKey(nameOrAddress: name, server: server)
-        switch storage.record(for: key, expirationTime: Constants.Ens.recordExpiration)?.value {
-        case .address(let address):
-            return address
-        case .record, .ens, .none:
-            return nil
-        }
-    }
 }
 
 extension UnstoppableDomainsV2Resolver: CachedEnsResolutionServiceType {
-
     func cachedEnsValue(for address: AlphaWallet.Address) -> String? {
-        let key = EnsLookupKey(nameOrAddress: address.eip55String, server: server)
+        let key = EnsLookupKey(nameOrAddress: address.eip55String, server: fallbackServer)
         switch storage.record(for: key, expirationTime: Constants.Ens.recordExpiration)?.value {
         case .ens(let ens):
             return ens
@@ -94,8 +111,19 @@ extension UnstoppableDomainsV2Resolver: CachedEnsResolutionServiceType {
     }
 }
 
-extension UnstoppableDomainsV2Resolver {
+extension UnstoppableDomainsV2Resolver: CachebleAddressResolutionServiceType {
+    func cachedAddressValue(for name: String) -> AlphaWallet.Address? {
+        let key = EnsLookupKey(nameOrAddress: name, server: fallbackServer)
+        switch storage.record(for: key, expirationTime: Constants.Ens.recordExpiration)?.value {
+        case .address(let address):
+            return address
+        case .record, .ens, .none:
+            return nil
+        }
+    }
+}
 
+extension UnstoppableDomainsV2Resolver {
     enum DecodingError: Error {
         case domainNotFound
         case ownerNotFound
@@ -131,73 +159,6 @@ extension UnstoppableDomainsV2Resolver {
 
             init(json: JSON) throws {
                 meta = try Meta(json: json["meta"])
-            }
-        }
-    }
-
-    struct DomainResolution {
-        struct Response {
-            struct Pagination {
-                let perPage: Int
-                let nextStartingAfter: String?
-                let sortBy: String
-                let sortDirection: String
-                let hasMore: Bool
-
-                init(json: JSON) {
-                    perPage = json["perPage"].intValue
-                    nextStartingAfter = json["nextStartingAfter"].string
-                    sortBy = json["sortBy"].stringValue
-                    sortDirection = json["sortDirection"].stringValue
-                    hasMore = json["hasMore"].boolValue
-                }
-            }
-
-            struct ResponseData {
-                struct Attributes {
-                    let meta: AddressResolution.Meta
-
-                    init(json: JSON) throws {
-                        meta = try AddressResolution.Meta(json: json["meta"])
-                    }
-                }
-
-                struct Records {
-                    let values: [String: String]
-
-                    init(json: JSON) throws {
-                        var values: [String: String] = [:]
-                        for key in Constants.unstoppableDomainsRecordKeys {
-                            guard let value = json[key].string else { continue }
-                            values[key] = value
-                        }
-
-                        self.values = values
-                    }
-                }
-
-                let id: String
-                let attributes: Attributes
-                let records: Records
-
-                init(json: JSON) throws {
-                    guard let id = json["id"].string else {
-                        throw DecodingError.idNotFound
-                    }
-                    self.id = id
-                    attributes = try Attributes(json: json["attributes"])
-                    records = try Records(json: json["records"])
-                }
-            }
-
-            let data: [ResponseData]
-            let meta: Pagination
-
-            init(json: JSON) throws {
-                data = json["data"].arrayValue.compactMap { json in
-                    try? ResponseData(json: json)
-                }
-                meta = Pagination(json: json["meta"])
             }
         }
     }

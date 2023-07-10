@@ -27,7 +27,7 @@ class RequestViewModel {
             .foregroundColor: Configuration.Color.Semantic.labelTextActive
         ])
     }
-    
+
     init(account: Wallet, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
         self.domainResolutionService = domainResolutionService
@@ -57,7 +57,7 @@ class RequestViewModel {
     }
 
     private func resolveEns() -> AnyPublisher<String?, Never> {
-        domainResolutionService.resolveEns(address: account.address)
+        domainResolutionService.resolveEns(address: account.address, server: RPCServer.forResolvingEns)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
             .prepend(nil)
