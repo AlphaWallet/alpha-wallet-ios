@@ -8,6 +8,7 @@
 import Foundation
 import AlphaWalletOpenSea
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 final class NftCollectionDisplayHelper {
     private (set) var tokenId: TokenId

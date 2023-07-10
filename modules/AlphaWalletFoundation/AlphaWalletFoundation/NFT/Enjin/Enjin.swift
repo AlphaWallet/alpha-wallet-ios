@@ -6,21 +6,21 @@
 //
 
 import Foundation
-import Apollo
 import Combine
 import AlphaWalletCore
+import Apollo
 
 public final class Enjin {
     private let server: RPCServer
     private var networking: EnjinNetworking?
     private let storage: EnjinStorage
     private static var sharedNetworking: EnjinNetworking?
-    
+
     public init(server: RPCServer,
                 storage: EnjinStorage,
                 accessTokenStore: EnjinAccessTokenStore,
                 credentials: EnjinCredentials?) {
-        
+
         self.storage = storage
         self.server = server
 

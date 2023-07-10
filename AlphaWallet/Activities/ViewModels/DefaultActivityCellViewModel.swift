@@ -1,9 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
-import BigInt
-import AlphaWalletFoundation
 import Combine
+import AlphaWalletFoundation
+import BigInt
 
 struct DefaultActivityCellViewModel {
     private var server: RPCServer {

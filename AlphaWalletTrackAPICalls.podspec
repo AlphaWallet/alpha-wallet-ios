@@ -23,4 +23,5 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
   s.frameworks       = 'Foundation'
+  #Should not include any of our own pods as dependency unless that pod is never going to have a dependency on this pod
 end

@@ -8,6 +8,8 @@
 import Foundation
 import CoreFoundation
 import Combine
+import AlphaWalletCore
+import AlphaWalletTokenScript
 import CombineExt
 
 class ActivitiesGenerator {

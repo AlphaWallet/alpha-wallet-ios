@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import BigInt
 import Combine
+import AlphaWalletWeb3
+import BigInt
 
 class Eip1559FeeOracle {
     private let suggestEip1559: SuggestEip1559

@@ -1,7 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import BigInt
 import Foundation
+import AlphaWalletABI
+import BigInt
 
 /*
 This enum is only used to support decode solidity types (represented by json values) to swift primitive types.

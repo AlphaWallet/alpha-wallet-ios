@@ -1,10 +1,11 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import AlphaWalletCore
-import BigInt
 import Combine
+import AlphaWalletCore
+import AlphaWalletTokenScript
 import AlphaWalletWeb3
+import BigInt
 
 final class EventSourceForActivities {
     typealias EventForActivityPublisher = AnyPublisher<[EventActivityInstance], Never>
@@ -115,7 +116,7 @@ final class EventSourceForActivities {
         private func map(token: Token) -> [Token] {
             guard let session = sessionsProvider.session(for: token.server) else { return [] }
 
-            let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+            let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
             switch server {
             case .any:

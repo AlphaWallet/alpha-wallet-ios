@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletTokenScript
 
 public enum TokenView {
     case view
@@ -17,7 +18,7 @@ public enum OpenSeaBackedNonFungibleTokenHandling {
     public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, tokenViewType: TokenView) {
         self = {
             if !token.balanceNft.isEmpty && token.balanceNft[0].balance.hasPrefix("{") {
-                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+                let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
                 let view: String
                 switch tokenViewType {
                 case .viewIconified:

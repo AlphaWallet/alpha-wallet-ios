@@ -8,6 +8,7 @@
 import Foundation
 import BigInt
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 public final class TransactionNotificationSource: LocalNotificationSource {
@@ -124,7 +125,7 @@ extension TransactionNotificationSource.functional {
     }
 
     static func mappedByServer(transactions: [Transaction]) -> ServerDictionary<[Transaction]> {
-        var serverFilteredTransactions = ServerDictionary<[Transaction]>()
+        var serverFilteredTransactions = AlphaWalletFoundation.ServerDictionary<[Transaction]>()
         let tsx = transactions
         for each in tsx {
             if let value = serverFilteredTransactions[safe: each.server] {

@@ -38,20 +38,6 @@ public struct SignedOrder {
     }
 }
 
-extension String {
-    public var hexToBytes: [UInt8] {
-		let hex: [Character]
-		if count % 2 == 0 {
-			hex = Array(self)
-		} else {
-			hex = Array(("0" + self))
-		}
-		return stride(from: 0, to: count, by: 2).compactMap {
-			UInt8(String(hex[$0..<$0.advanced(by: 2)]), radix: 16)
-		}
-	}
-}
-
 extension BinaryInteger {
     public var data: Data {
         var source = self

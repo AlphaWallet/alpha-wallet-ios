@@ -86,7 +86,7 @@ extension TokenHolder {
                 selections.append(TokenSelection(tokenId: tokenId, value: BigUInt(newAmount)))
             }
         }
-        
+
         return self
     }
 

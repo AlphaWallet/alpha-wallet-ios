@@ -5,7 +5,8 @@
 //  Created by Vladyslav Shepitko on 12.11.2021.
 //
 
-import Foundation 
+import Foundation
+import AlphaWalletTokenScript
 
 public struct Eip155URL {
     let tokenType: TokenInterfaceType?
@@ -68,4 +69,3 @@ extension RPCServer {
         }
     }
 }
-

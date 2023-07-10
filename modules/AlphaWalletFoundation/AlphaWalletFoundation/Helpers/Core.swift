@@ -1,10 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
-
-public func isRunningTests() -> Bool {
-    return ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil
-}
+import func AlphaWalletCore.isRunningTests
+let isRunningTests = AlphaWalletCore.isRunningTests
 
 public func isAlphaWallet() -> Bool {
     Bundle.main.bundleIdentifier == "com.stormbird.alphawallet"

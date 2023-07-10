@@ -25,10 +25,3 @@ public struct AssetCreator: Codable {
         self.user = json["user"]["username"].string
     }
 }
-
-//TODO would be good to move to AlphaWalletCore? This is duplicated in the app
-fileprivate extension String {
-    var trimmed: String {
-        return trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    }
-}

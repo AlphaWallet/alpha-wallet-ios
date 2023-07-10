@@ -23,8 +23,13 @@ Pod::Spec.new do |s|
   s.source_files     = 'modules/AlphaWalletCore/AlphaWalletCore/**/*.{h,m,swift}'
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
+  s.frameworks       = 'Combine'
   s.frameworks       = 'Foundation'
 
+  #Should not include any of our own pods as dependency unless that pod is never going to have a dependency on this pod
   s.dependency 'Alamofire', '5.6.4'
+  s.dependency 'APIKit', '5.1.0'
+  s.dependency 'BigInt'
+  s.dependency 'CombineExt', '1.8.0'
   s.dependency 'PromiseKit'
 end

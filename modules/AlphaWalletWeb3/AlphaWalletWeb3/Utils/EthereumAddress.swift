@@ -13,7 +13,7 @@ public struct EthereumAddress: Equatable {
         case normal
         case contractDeployment
     }
-    
+
     public var isValid: Bool {
         switch self.type {
         case .normal:
@@ -27,7 +27,7 @@ public struct EthereumAddress: Equatable {
     public static func == (lhs: EthereumAddress, rhs: EthereumAddress) -> Bool {
         return lhs.addressData == rhs.addressData && lhs.type == rhs.type
     }
-    
+
     public var addressData: Data {
         switch self.type {
         case .normal:
@@ -44,12 +44,12 @@ public struct EthereumAddress: Equatable {
             return "0x"
         }
     }
-    
+
     public static func toChecksumAddress(_ addr: String) -> String? {
         let address = addr.lowercased().stripHexPrefix()
         guard let hash = address.data(using: .ascii)?.sha3(.keccak256).toHexString().stripHexPrefix() else { return nil }
         var ret = "0x"
-        
+
         for (i, char) in address.enumerated() {
             let startIdx = hash.index(hash.startIndex, offsetBy: i)
             let endIdx = hash.index(hash.startIndex, offsetBy: i+1)
@@ -64,7 +64,7 @@ public struct EthereumAddress: Equatable {
         }
         return ret
     }
-    
+
     public init?(_ addressString: String, type: AddressType = .normal, ignoreChecksum: Bool = false) {
         switch type {
         case .normal:
@@ -100,13 +100,13 @@ public struct EthereumAddress: Equatable {
             self.type = .contractDeployment
         }
     }
-    
+
     public init?(_ addressData: Data, type: AddressType = .normal) {
         guard addressData.count == 20 else { return nil }
         self._address = addressData.toHexString().addHexPrefix()
         self.type = type
     }
-    
+
     public static func contractDeploymentAddress() -> EthereumAddress {
         return EthereumAddress("0x", type: .contractDeployment)!
     }

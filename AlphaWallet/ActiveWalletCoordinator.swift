@@ -1,9 +1,9 @@
 import UIKit
 import PromiseKit
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
-import AlphaWalletCore
 import AlphaWalletNotifications
 
 // swiftlint:disable file_length

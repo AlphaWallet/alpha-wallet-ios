@@ -39,7 +39,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             tokensDataStore: tokensDataStore,
             transporter: transporter)
     }()
-    
+
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
         analytics: analytics,
         blockNumberProvider: session.blockNumberProvider,
@@ -67,7 +67,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let etherToken: Token
     private let transporter: ApiTransporter
     private var cancellable = AtomicDictionary<String, AnyCancellable>()
-    
+
     weak public var delegate: TokenBalanceFetcherDelegate?
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 

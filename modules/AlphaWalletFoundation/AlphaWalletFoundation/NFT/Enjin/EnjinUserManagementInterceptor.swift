@@ -5,9 +5,10 @@
 //  Created by Vladyslav Shepitko on 05.11.2021.
 //
 
+import AlphaWalletCore
+import AlphaWalletLogger
 import Apollo
 import PromiseKit
-import AlphaWalletLogger
 
 public typealias EnjinAccessToken = String
 public typealias EnjinCredentials = (email: String, password: String)
@@ -55,7 +56,7 @@ class EnjinUserManager {
         case fetchAccessTokenFailure
         case credentialsNotFound
     }
-    
+
     func enjinAuthorize() -> Promise<EnjinAccessToken> {
         guard let credentials = credentials else {
             return .init(error: EnjinUserManagementInterceptor.UserError.usersCredentialsNotFound)
@@ -141,7 +142,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
                                                             request: HTTPRequest<Operation>,
                                                             response: HTTPResponse<Operation>?,
                                                             completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-        
+
         guard let createdResponse = response else {
             chain.handleErrorAsync(JSONResponseParsingError.noResponseToParse, request: request, response: response, completion: completion)
             return

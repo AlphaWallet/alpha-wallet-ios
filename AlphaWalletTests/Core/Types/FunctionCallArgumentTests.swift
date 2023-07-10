@@ -9,6 +9,7 @@ import XCTest
 @testable import AlphaWallet
 import EthereumAddress
 import BigInt
+import AlphaWalletABI
 import AlphaWalletFoundation
 
 class FunctionCallArgumentTests: XCTestCase {

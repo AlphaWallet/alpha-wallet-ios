@@ -6,26 +6,23 @@
 //
 
 import Foundation
+import Combine
 import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
-import Combine
+import AlphaWalletWeb3
 
-extension BlockchainsProvider {
+extension BlockchainsProviderImplementation {
     static func make(servers: [RPCServer]) -> BlockchainsProvider {
         let analytics = FakeAnalyticsService()
 
         let config = Config.make(defaults: .standardOrForTests, enabledServers: servers)
 
-        let blockchainFactory = BaseBlockchainFactory(
-            config: config,
-            analytics: analytics)
+        let blockchainFactory = BaseBlockchainFactory(analytics: analytics)
 
         let serversProvider = BaseServersProvider(config: config)
 
-        let blockchainsProvider = BlockchainsProvider(
-            serversProvider: serversProvider,
-            blockchainFactory: blockchainFactory)
+        let blockchainsProvider = BlockchainsProviderImplementation(serversProvider: serversProvider, blockchainFactory: blockchainFactory)
 
         return blockchainsProvider
     }
@@ -36,7 +33,7 @@ extension FakeSessionsProvider {
         let provider = FakeSessionsProvider(
             config: .make(),
             analytics: FakeAnalyticsService(),
-            blockchainsProvider: .make(servers: servers),
+            blockchainsProvider: BlockchainsProviderImplementation .make(servers: servers),
             tokensDataStore: FakeTokensDataStore(servers: servers),
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(true),
@@ -78,7 +75,7 @@ class FakeSessionsProvider: SessionsProvider {
         self.init(
             config: config,
             analytics: FakeAnalyticsService(),
-            blockchainsProvider: BlockchainsProvider.make(servers: servers),
+            blockchainsProvider: BlockchainsProviderImplementation.make(servers: servers),
             tokensDataStore: FakeTokensDataStore(servers: servers),
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(false),
@@ -108,7 +105,9 @@ class FakeSessionsProvider: SessionsProvider {
     public func start() {
         blockchainsProvider
             .blockchains
-            .map { [sessionsSubject] blockchains -> ServerDictionary<WalletSession>in
+            .map { [sessionsSubject] (blockchains: ServerDictionary<BlockchainCallable>) -> ServerDictionary<WalletSession>in
+                //TODO unfortunate casting needed due to how/when we extract AlphaWalletTokenScript
+                let blockchains = blockchains.mapValues { $0 as! BlockchainProvider }
                 var sessions: ServerDictionary<WalletSession> = .init()
 
                 for blockchain in blockchains.values {

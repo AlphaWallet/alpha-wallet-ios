@@ -5,6 +5,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletNotifications
+import AlphaWalletTokenScript
 
 struct SettingsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

@@ -27,10 +27,6 @@ public protocol SupportedTokenActionsProvider {
     func start()
 }
 
-public protocol TokenActionProvider {
-    var action: String { get }
-}
-
 open class TokenActionsService: SupportedTokenActionsProvider, TokenActionServiceProvidable {
     @Published private var services: [SupportedTokenActionsProvider] = []
     private var cancelable = Set<Combine.AnyCancellable>()

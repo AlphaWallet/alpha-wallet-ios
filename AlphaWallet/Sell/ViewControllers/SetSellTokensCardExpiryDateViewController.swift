@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 protocol SetSellTokensCardExpiryDateViewControllerDelegate: AnyObject, CanOpenURL {

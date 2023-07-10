@@ -22,4 +22,5 @@ Pod::Spec.new do |spec|
   spec.resource_bundles = {'AlphaWalletShareExtensionCore' => ['modules/AlphaWalletShareExtensionCore/AlphaWalletShareExtensionCore/**/*.{graphql,json}'] }
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
+  #Should not include any of our own pods as dependency unless that pod is never going to have a dependency on this pod
 end

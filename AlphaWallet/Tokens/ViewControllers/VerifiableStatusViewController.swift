@@ -3,6 +3,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletFoundation
+import enum AlphaWalletTokenScript.TokenLevelTokenScriptDisplayStatus
 
 @objc protocol VerifiableStatusViewController: CanOpenURL2 {
     func showContractWebPage()

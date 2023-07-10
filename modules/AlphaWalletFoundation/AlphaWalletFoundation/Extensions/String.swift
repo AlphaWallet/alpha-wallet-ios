@@ -4,21 +4,6 @@ import UIKit
 import BigInt
 
 extension String {
-    public var hex: String {
-        guard let data = self.data(using: .utf8) else {
-            return String()
-        }
-
-        return data.map { String(format: "%02x", $0) }.joined()
-    }
-
-    public var hexEncoded: String {
-        guard let data = self.data(using: .utf8) else {
-            return String()
-        }
-        return data.hexEncoded
-    }
-
     var isHexEncoded: Bool {
         guard starts(with: "0x") else {
             return false
@@ -32,34 +17,6 @@ extension String {
 
     public var doubleValue: Double {
         return optionalDecimalValue?.doubleValue ?? 0.0
-    }
-
-    public var trimmed: String {
-        return trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    }
-
-    public var has0xPrefix: Bool {
-        return hasPrefix("0x")
-    }
-
-    public var isPrivateKey: Bool {
-        let value = self.drop0x.components(separatedBy: " ").joined()
-        return value.count == 64
-    }
-
-    public var drop0x: String {
-        if count > 2 && substring(with: 0..<2) == "0x" {
-            return String(dropFirst(2))
-        }
-        return self
-    }
-
-    public var add0x: String {
-        if hasPrefix("0x") {
-            return self
-        } else {
-            return "0x" + self
-        }
     }
 
     public var dropParenthesis: String {
@@ -81,40 +38,6 @@ extension String {
     public func isNumeric() -> Bool {
         let numberCharacters = CharacterSet.decimalDigits.inverted
         return !isEmpty && rangeOfCharacter(from: numberCharacters) == nil
-    }
-}
-
-extension String {
-    public func index(from: Int) -> Index {
-        return index(startIndex, offsetBy: from)
-    }
-
-    public func substring(from: Int) -> String {
-        let fromIndex = index(from: from)
-        return String(self[fromIndex...])
-    }
-
-    public func substring(to: Int) -> String {
-        let toIndex = index(from: to)
-        return String(self[..<toIndex])
-    }
-
-    public func substring(with r: Range<Int>) -> String {
-        let startIndex = index(from: r.lowerBound)
-        let endIndex = index(from: r.upperBound)
-        return String(self[startIndex..<endIndex])
-    }
-
-    public func nextLetterInAlphabet(for index: Int) -> String? {
-        guard let uniCode = UnicodeScalar(self) else {
-            return nil
-        }
-        switch uniCode {
-        case "A"..<"Z":
-            return String(UnicodeScalar(uniCode.value.advanced(by: index))!)
-        default:
-            return nil
-        }
     }
 }
 
@@ -161,28 +84,6 @@ extension String {
         return buffer.joined(separator: " ")
     }
 
-}
-
-extension StringProtocol {
-
-    public func chunked(into size: Int) -> [SubSequence] {
-        var chunks: [SubSequence] = []
-
-        var i = startIndex
-
-        while let nextIndex = index(i, offsetBy: size, limitedBy: endIndex) {
-            chunks.append(self[i ..< nextIndex])
-            i = nextIndex
-        }
-
-        let finalChunk = self[i ..< endIndex]
-
-        if finalChunk.isEmpty == false {
-            chunks.append(finalChunk)
-        }
-
-        return chunks
-    }
 }
 
 extension String {

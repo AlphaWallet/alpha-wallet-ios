@@ -346,7 +346,7 @@ final class ImportMagicLinkController {
                     name: name,
                     symbol: symbol,
                     fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i),
-                    inWallet: wallet,
+                    inWallet: wallet.address,
                     server: server,
                     tokenType: tokenType,
                     assetDefinitionStore: assetDefinitionStore)

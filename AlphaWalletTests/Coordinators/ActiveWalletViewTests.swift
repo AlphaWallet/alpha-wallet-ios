@@ -1,15 +1,16 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import XCTest
-@testable import AlphaWallet
-import AlphaWalletFoundation
 import Combine
+@testable import AlphaWallet
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
 import Alamofire
 
 final class FakeApiTransporter: ApiTransporter {
-    
-    func responseTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<HTTPURLResponse, AlphaWalletFoundation.SessionTaskError> {
+
+    func responseTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<HTTPURLResponse, AlphaWalletFoundation.SessionTaskError> {
         return .empty()
     }
 
@@ -23,7 +24,7 @@ final class FakeApiTransporter: ApiTransporter {
 }
 
 final class FakeNetworkService: NetworkService {
-    func dataTask(_ request: AlphaWalletFoundation.URLRequestConvertible) async throws -> URLRequest.Response {
+    func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response {
         let url = URL(string: "https://github.com/AlphaWallet/alpha-wallet-ios")!
         let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)!
         return (data: Data(), response: response)
@@ -36,13 +37,13 @@ final class FakeNetworkService: NetworkService {
 
     func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
                 usingThreshold: UInt64,
-                with request: AlphaWalletFoundation.URLRequestConvertible,
+                with request: URLRequestConvertible,
                 callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
 
         return .empty()
     }
 
-    func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible, callbackQueue: DispatchQueue = .main) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+    func dataTaskPublisher(_ request: URLRequestConvertible, callbackQueue: DispatchQueue = .main) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         return AnyPublisher<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>.create { [callbackQueue, delay] seal in
             self.calls += 1
 
@@ -75,7 +76,7 @@ extension AnyCAIP10AccountProvidable {
 
 extension AssetDefinitionStore {
     static func make() -> AssetDefinitionStore {
-        return .init(networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
+        return .init(networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProviderImplementation.make(servers: [.main]), features: TokenScriptFeatures())
     }
 }
 

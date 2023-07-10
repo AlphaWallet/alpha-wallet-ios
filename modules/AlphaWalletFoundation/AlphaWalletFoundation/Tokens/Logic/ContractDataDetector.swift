@@ -1,10 +1,11 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit
-import BigInt
 import Combine
+import AlphaWalletCore
 import AlphaWalletWeb3
+import BigInt
+import PromiseKit
 
 public enum ContractData {
     case name(String)

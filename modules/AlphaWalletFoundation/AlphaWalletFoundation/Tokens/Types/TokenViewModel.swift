@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletTokenScript
 import BigInt
 
 public protocol TokenIdentifiable {

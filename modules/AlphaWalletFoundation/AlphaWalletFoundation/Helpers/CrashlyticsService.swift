@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletCore
 
 public protocol CrashlyticsReporter: AnyObject {
     func track(wallets: [Wallet])

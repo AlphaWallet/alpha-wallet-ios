@@ -1,8 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import RealmSwift
 import Combine
+import AlphaWalletTokenScript
+import RealmSwift
 
 public protocol NonActivityEventsDataStore {
     func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstanceValue?

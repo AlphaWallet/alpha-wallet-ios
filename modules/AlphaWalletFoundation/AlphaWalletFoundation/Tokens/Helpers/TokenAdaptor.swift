@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AlphaWalletTokenScript
 import AlphaWalletOpenSea
 import BigInt
 import Combine
@@ -70,12 +71,12 @@ public struct TokenAdaptor {
     public func getTokenHolder(token: TokenScriptSupportable) -> TokenHolder {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
             //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(
             withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
             server: token.server,
-            account: wallet,
+            account: wallet.address,
             assetDefinitionStore: assetDefinitionStore)
 
         let tokenScriptToken = TokenScript.Token(
@@ -225,7 +226,7 @@ public struct TokenAdaptor {
             symbol: symbol,
             fromTokenIdOrEvent: tokenIdOrEvent,
             index: index,
-            inWallet: wallet,
+            inWallet: wallet.address,
             server: token.server,
             tokenType: token.type,
             assetDefinitionStore: assetDefinitionStore)
@@ -283,7 +284,7 @@ public struct TokenAdaptor {
         var values = xmlHandler.resolveAttributesBypassingCache(
             withTokenIdOrEvent: tokenIdOrEvent,
             server: token.server,
-            account: wallet,
+            account: wallet.address,
             assetDefinitionStore: assetDefinitionStore)
 
         values.setTokenId(string: nonFungible.tokenId)

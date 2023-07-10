@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletCore
 
 extension UIImage {
     static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()

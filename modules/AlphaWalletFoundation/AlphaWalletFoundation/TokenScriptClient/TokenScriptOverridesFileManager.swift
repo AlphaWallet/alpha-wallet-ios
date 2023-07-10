@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletTokenScript
 import AlphaWalletCore
 import AlphaWalletLogger
 

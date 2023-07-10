@@ -13,6 +13,7 @@ import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletTrackAPICalls
 import AlphaWalletNotifications
+import AlphaWalletTokenScript
 
 extension TokenScript {
     static let baseTokenScriptFiles: [TokenType: String] = [
@@ -23,7 +24,7 @@ extension TokenScript {
 
 protocol ApplicationNavigatable: RestartQueueNavigatable, DonationUserActivityNavigatable, UniversalLinkNavigatable, SystemSettingsRequestable, PushNotificationNavigatable {
     var navigation: AnyPublisher<ApplicationNavigation, Never> { get }
-    
+
     func showCreateWallet()
     func showActiveWallet(wallet: Wallet)
     func showActiveWalletIfNeeded()
@@ -48,6 +49,8 @@ class Application: WalletDependenciesProvidable {
     let legacyFileBasedKeystore: LegacyFileBasedKeystore
     let lock: Lock
     let keystore: Keystore
+    //This exist because feature flags are set at the app level (as of 20230709: AlpahWalletFoundation), but we read a few of those flags within AlphaWalletTokenScript
+    let tokenScriptFeatures: TokenScriptFeatures
     let assetDefinitionStore: AssetDefinitionStore
     let appTracker: AppTracker
     let universalLinkService: UniversalLinkService
@@ -119,7 +122,7 @@ class Application: WalletDependenciesProvidable {
         self.caip10AccountProvidable = AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvider)
         self.currencyService = CurrencyService(storage: config)
         self.walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
-        self.networkService = BaseNetworkService(analytics: analytics)
+        self.networkService = BaseNetworkService()
         let navigationHandler = ApplicationNavigationHandler(subject: navigationSubject)
         self.universalLinkService = BaseUniversalLinkService(
             analytics: analytics,
@@ -130,16 +133,13 @@ class Application: WalletDependenciesProvidable {
 
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
         self.systemSettingsRequestableDelegate = SystemSettingsRequestableDelegate()
-        self.blockchainsProvider = BlockchainsProvider(
+        self.blockchainsProvider = BlockchainsProviderImplementation(
                 serversProvider: serversProvider,
-                blockchainFactory: BaseBlockchainFactory(
-                    config: config,
-                    analytics: analytics))
-
-        self.assetDefinitionStore = AssetDefinitionStore(
-            baseTokenScriptFiles: TokenScript.baseTokenScriptFiles,
-            networkService: networkService,
-            blockchainsProvider: blockchainsProvider)
+                blockchainFactory: BaseBlockchainFactory(analytics: analytics))
+        let tokenScriptFeatures = TokenScriptFeatures()
+        Self.copyFeatures(Features.default, toTokenScriptFeatures: tokenScriptFeatures)
+        self.tokenScriptFeatures = tokenScriptFeatures
+        self.assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService, blockchainsProvider: blockchainsProvider, features: tokenScriptFeatures)
 
         self.coinTickersFetcher = CoinTickersFetcherImpl(
             transporter: BaseApiTransporter(),
@@ -213,6 +213,8 @@ class Application: WalletDependenciesProvidable {
         self.userActivityService = UserActivityService(handlers: [
             donationUserActivityHandler
         ])
+
+        Features.delegate = self
 
         bindWalletAddressesStore()
         handleTokenScriptOverrideImport()
@@ -503,6 +505,12 @@ class Application: WalletDependenciesProvidable {
         guard let wallet = dependencies.values.keys.first(where: { $0.address == walletAddress }) else { return nil }
         return dependencies[wallet]
     }
+
+    private static func copyFeatures(_ features: Features, toTokenScriptFeatures tokenScriptFeatures: TokenScriptFeatures) {
+        tokenScriptFeatures.isActivityEnabled = features.isAvailable(.isActivityEnabled)
+        tokenScriptFeatures.isTokenScriptSignatureStatusEnabled = features.isAvailable(.isTokenScriptSignatureStatusEnabled)
+        tokenScriptFeatures.shouldLoadTokenScriptWithFailedSignatures = features.isAvailable(.shouldLoadTokenScriptWithFailedSignatures )
+    }
 }
 // swiftlint:enable type_body_length
 
@@ -527,6 +535,12 @@ extension Application: WalletApiCoordinatorDelegate {
 }
 
 extension Application: ShortcutNavigatable { }
+
+extension Application: FeaturesDelegate {
+    func featuresModified(_ features: Features) {
+        Self.copyFeatures(features, toTokenScriptFeatures: tokenScriptFeatures)
+    }
+}
 
 extension AtomicDictionary: WalletDependenciesProvidable where Key == Wallet, Value == WalletDependencies {
     public func walletDependencies(walletAddress: AlphaWallet.Address) -> WalletDependencies? {

@@ -2,6 +2,7 @@
 
 import Combine
 import Foundation
+import AlphaWalletCore
 import AlphaWalletLogger
 
 public protocol BlockscanChatServiceDelegate: AnyObject {

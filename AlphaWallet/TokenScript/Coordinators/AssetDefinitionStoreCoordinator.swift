@@ -12,7 +12,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let navigationController: UINavigationController
     private lazy var rootViewController: AssetDefinitionsOverridesViewController = {
-        let viewModel = AssetDefinitionsOverridesViewModel(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, fileExtension: AssetDefinitionDiskBackingStore.fileExtension)
+        let viewModel = AssetDefinitionsOverridesViewModel(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, fileExtension: XMLHandler.fileExtension)
         let viewController = AssetDefinitionsOverridesViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true

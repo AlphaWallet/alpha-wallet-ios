@@ -5,10 +5,11 @@
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
-import UIKit
 import Combine
-import BigInt
+import UIKit
 import AlphaWalletFoundation
+import enum AlphaWalletTokenScript.TokenLevelTokenScriptDisplayStatus
+import BigInt
 
 struct SwapQuoteDetailsViewModelInput {
 

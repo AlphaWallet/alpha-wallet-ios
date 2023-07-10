@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
   s.frameworks       = 'Foundation'
 
   s.dependency 'AlphaWalletAddress'
-  s.dependency 'AlphaWalletWeb3'
   s.dependency 'AlphaWalletTrustWalletCoreExtensions'
+  s.dependency 'AlphaWalletWeb3'
   s.dependency 'TrustKeystore'
 end
 

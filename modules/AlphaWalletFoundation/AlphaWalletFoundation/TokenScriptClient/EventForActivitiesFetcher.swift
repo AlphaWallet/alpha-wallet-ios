@@ -6,10 +6,11 @@
 //
 
 import Foundation
-import AlphaWalletCore
-import BigInt
 import Combine
+import AlphaWalletCore
+import AlphaWalletTokenScript
 import AlphaWalletWeb3
+import BigInt
 
 final class EventForActivitiesFetcher {
     enum FetcherError: Error {

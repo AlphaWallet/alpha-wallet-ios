@@ -3,6 +3,7 @@
 import UIKit
 import MessageUI
 import AlphaWalletFoundation
+import enum AlphaWalletTokenScript.TokenScript
 
 protocol ContactUsBannerViewDelegate: AnyObject {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView)

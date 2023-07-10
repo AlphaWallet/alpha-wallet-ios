@@ -168,7 +168,7 @@ public class TransactionsService {
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensService.token(for: $0, server: transaction.original.server) }
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
-        
+
         transactionDataStore.add(transactions: [transaction])
     }
 }

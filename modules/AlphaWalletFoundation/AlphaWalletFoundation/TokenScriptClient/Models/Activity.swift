@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletTokenScript
 import BigInt
 
 public struct Activity {
