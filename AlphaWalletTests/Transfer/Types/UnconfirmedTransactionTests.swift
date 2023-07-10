@@ -88,3 +88,9 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual((result.params?["to"] as? AlphaWalletWeb3.EthereumAddress)?.description, recipient.eip55String)
     }
 }
+
+extension EthereumAddress: CustomStringConvertible {
+    public var description: String {
+        address
+    }
+}

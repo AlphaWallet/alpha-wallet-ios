@@ -6,10 +6,11 @@
 //
 
 import UIKit
-import BigInt
 import Combine
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
+import BigInt
 
 protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)
@@ -224,22 +225,14 @@ extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
 extension TokenScriptCoordinator: ConfirmTokenScriptActionTransactionDelegate {
     func confirmTransactionSelected(in navigationController: UINavigationController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         do {
-            let data = try transactionFunction.makeUnConfirmedTransaction(
-                withTokenObject: token,
-                tokenId: tokenId,
-                attributeAndValues: values,
-                localRefs: localRefs,
-                server: server,
-                session: session)
+            let tokenScriptUnconfirmedTransaction: TokenScriptUnconfirmedTransaction = try transactionFunction.makeUnConfirmedTransaction(tokenServer: token.server, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, wallet: session.account.address)
+            let unconfirmedTransaction: UnconfirmedTransaction = UnconfirmedTransaction(transactionType: TransactionType.prebuilt(tokenScriptUnconfirmedTransaction.server), value: tokenScriptUnconfirmedTransaction.value, recipient: tokenScriptUnconfirmedTransaction.recipient, contract: tokenScriptUnconfirmedTransaction.contract, data: tokenScriptUnconfirmedTransaction.data)
 
             let coordinator = TransactionConfirmationCoordinator(
                 presentingViewController: navigationController,
                 session: session,
-                transaction: data.0,
-                configuration: .tokenScriptTransaction(
-                    confirmType: .signThenSend,
-                    contract: contract,
-                    functionCallMetaData: data.1),
+                transaction: unconfirmedTransaction,
+                configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: tokenScriptUnconfirmedTransaction.decodedFunctionCall),
                 analytics: analytics,
                 domainResolutionService: domainResolutionService,
                 keystore: keystore,

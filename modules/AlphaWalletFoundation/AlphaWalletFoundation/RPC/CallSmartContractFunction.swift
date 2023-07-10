@@ -1,10 +1,13 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit
+import Combine
+import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3
+import struct AlphaWalletTokenScript.Web3Error
 import BigInt
+import PromiseKit
 
 extension RPCServer {
     public var rpcHeaders: RPCNodeHTTPHeaders {
@@ -51,7 +54,7 @@ extension Web3 {
         } else {
             let rpcHeaders = server.rpcHeaders
             guard let webProvider = Web3HttpProvider(server.rpcURL, headers: rpcHeaders) else {
-                throw Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.chainID)")
+                throw AlphaWalletTokenScript.Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.chainID)")
             }
             let configuration = webProvider.session.configuration
             configuration.timeoutIntervalForRequest = timeout
@@ -139,7 +142,7 @@ final class GetEventLogs {
                 let promise = contract
                     .getIndexedEventsPromise(eventName: eventName, filter: filter)
                     .ensure(on: queue, { self?.inFlightPromises[key] = .none })
-                    
+
                 self?.inFlightPromises[key] = promise
 
                 return promise

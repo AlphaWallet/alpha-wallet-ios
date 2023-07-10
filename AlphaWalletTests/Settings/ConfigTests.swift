@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 extension WalletConnectCoordinator {

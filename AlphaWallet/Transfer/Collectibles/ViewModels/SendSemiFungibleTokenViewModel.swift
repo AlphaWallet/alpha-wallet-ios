@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import enum AlphaWalletTokenScript.OpenURLError
 import Combine
 
 final class SendSemiFungibleTokenViewModel {

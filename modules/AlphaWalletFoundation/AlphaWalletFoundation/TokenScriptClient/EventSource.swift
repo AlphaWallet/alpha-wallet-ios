@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import Combine
+import AlphaWalletTokenScript
 import AlphaWalletWeb3
 
 final class EventSource {

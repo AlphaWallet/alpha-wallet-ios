@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 struct TokenCardWebViewModel {
     let tokenHolder: TokenHolder

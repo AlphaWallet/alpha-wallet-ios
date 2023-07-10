@@ -6,6 +6,7 @@
 
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
+import AlphaWalletABI
 import BigInt
 
 /// A struct represents EIP712 type tuple

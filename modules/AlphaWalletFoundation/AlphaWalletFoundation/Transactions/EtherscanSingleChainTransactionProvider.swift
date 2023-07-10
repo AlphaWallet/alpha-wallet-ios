@@ -24,7 +24,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         pendingTransactionProvider.completeTransaction
     }
     public private (set) var state: TransactionProviderState = .pending
-    
+
     init(session: WalletSession,
          analytics: AnalyticsLogger,
          transactionDataStore: TransactionDataStore,
@@ -96,7 +96,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
             }).store(in: &cancellable)
         */
-        
+
         pendingTransactionProvider.completeTransaction
             .compactMap { try? $0.get() }
             .sink { [weak self] in self?.forceFetchLatestTransactions(transaction: $0) }

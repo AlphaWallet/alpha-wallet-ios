@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import struct AlphaWalletTokenScript.TokenId
 
 class NonFungibleRowView: TokenCardViewRepresentable {
     private let titleLabel = UILabel()
@@ -24,7 +25,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFill
         imageView.loading = .disabled
-        
+
         return imageView
     }()
 

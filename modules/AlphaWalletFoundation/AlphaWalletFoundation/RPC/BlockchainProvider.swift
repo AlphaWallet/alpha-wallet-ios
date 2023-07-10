@@ -7,21 +7,20 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3
-import BigInt
-import AlphaWalletCore
 import APIKit
+import BigInt
 import JSONRPCKit
 
-public protocol BlockchainProvider {
+public protocol BlockchainProvider: BlockchainCallable {
     var server: RPCServer { get }
 
     func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
     func blockNumber() -> AnyPublisher<Int, SessionTaskError>
     func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError>
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
-    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
     func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError>
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError>
@@ -31,12 +30,6 @@ public protocol BlockchainProvider {
     func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError>
     func getChainId() -> AnyPublisher<Int, SessionTaskError>
     func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError>
-}
-
-extension BlockchainProvider {
-    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter = .latest) -> AnyPublisher<R.Response, SessionTaskError> {
-        call(method, block: block)
-    }
 }
 
 public final class RpcBlockchainProvider: BlockchainProvider {

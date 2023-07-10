@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletOpenSea
+import AlphaWalletTokenScript
 import BigInt
 
 public struct Token: Equatable, Hashable {

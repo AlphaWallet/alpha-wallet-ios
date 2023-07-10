@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletABI
 
 public struct Erc1155SafeTransferFrom: ContractMethod {
     let recipient: AlphaWallet.Address

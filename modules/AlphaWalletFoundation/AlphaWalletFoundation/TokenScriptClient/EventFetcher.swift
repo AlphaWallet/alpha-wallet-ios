@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import BigInt
 import Combine
+import AlphaWalletTokenScript
 import AlphaWalletWeb3
+import BigInt
 
 extension WalletSession {
     enum SessionError: Error {

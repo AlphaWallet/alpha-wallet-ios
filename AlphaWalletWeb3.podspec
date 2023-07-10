@@ -28,6 +28,9 @@ s.source_files     = 'modules/AlphaWalletWeb3/AlphaWalletWeb3/**/*.{h,m,swift}'
 s.public_header_files = "AlphaWalletWeb3/**/*.{h}"
 s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 
+s.dependency 'AlphaWalletAddress'
+s.dependency 'AlphaWalletCore'
+s.dependency 'APIKit'
 s.dependency 'BigInt'
 s.dependency 'CryptoSwift'
 s.dependency 'secp256k1_ios', '~> 0.1.3'

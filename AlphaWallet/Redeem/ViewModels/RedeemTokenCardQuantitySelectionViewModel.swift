@@ -9,13 +9,14 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 struct RedeemTokenCardQuantitySelectionViewModel {
     let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
     let session: WalletSession
-    
+
     var headerTitle: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenRedeemSelectQuantityTitle(tokenTypeName)
@@ -34,7 +35,7 @@ struct RedeemTokenCardQuantitySelectionViewModel {
 extension XMLHandler {
     func getLabel() -> String {
         let name = getLabel(fallback: R.string.localizable.tokenTitlecase())
-        if name == Constants.katNameFallback {
+        if name == AlphaWalletTokenScript.Constants.katNameFallback {
             return R.string.localizable.katTitlecase()
         } else {
             return name
@@ -43,7 +44,7 @@ extension XMLHandler {
 
     func getNameInPluralForm() -> String {
         let name = getNameInPluralForm(fallback: R.string.localizable.tokensTitlecase())
-        if name == Constants.katNameFallback {
+        if name == AlphaWalletTokenScript.Constants.katNameFallback {
             return R.string.localizable.katTitlecase()
         } else {
             return name

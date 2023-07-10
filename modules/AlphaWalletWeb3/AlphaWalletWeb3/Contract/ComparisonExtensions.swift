@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 extension BigUInt: EventFilterComparable {
@@ -93,4 +94,3 @@ extension EthereumAddress: EventFilterComparable {
         }
     }
 }
-

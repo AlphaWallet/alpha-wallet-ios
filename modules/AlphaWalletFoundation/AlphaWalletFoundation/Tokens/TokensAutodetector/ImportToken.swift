@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 import BigInt
 
 public protocol TokenImportable: AnyObject {

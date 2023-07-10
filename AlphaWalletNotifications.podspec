@@ -25,10 +25,10 @@ Pod::Spec.new do |s|
 
   s.frameworks       = 'Foundation'
 
+  s.dependency 'AlphaWalletCore'
   s.dependency 'AlphaWalletFoundation'
   s.dependency 'FirebaseCrashlytics'
   s.dependency 'Firebase/Messaging'
-  s.dependency 'AlphaWalletCore'
   s.dependency 'SwiftyJSON'
   
 end

@@ -4,6 +4,7 @@ import XCTest
 @testable import AlphaWallet
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletWeb3
 
 extension TokensFilter {
     static func make() -> TokensFilter {
@@ -34,7 +35,7 @@ extension WalletDataProcessingPipeline {
         let sessionsProvider = FakeSessionsProvider(
             config: .make(),
             analytics: FakeAnalyticsService(),
-            blockchainsProvider: .make(servers: [server]),
+            blockchainsProvider: BlockchainsProviderImplementation .make(servers: [server]),
             tokensDataStore: tokensDataStore,
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(true),
@@ -47,7 +48,7 @@ extension WalletDataProcessingPipeline {
 
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
-        
+
         let tokensService = AlphaWalletTokensService(
             sessionsProvider: sessionsProvider,
             tokensDataStore: tokensDataStore,
@@ -100,7 +101,7 @@ extension WalletDataProcessingPipeline {
             sessionsProvider: sessionsProvider,
             eventsDataStore: eventsDataStore,
             transactionsService: transactionsService)
-        
+
         dep.sessionsProvider.start()
         dep.fetcher.start()
         dep.pipeline.start()

@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import struct AlphaWalletCore.CryptoAddressValidator
 import AlphaWalletFoundation
 
 protocol NewTokenViewControllerDelegate: AnyObject {

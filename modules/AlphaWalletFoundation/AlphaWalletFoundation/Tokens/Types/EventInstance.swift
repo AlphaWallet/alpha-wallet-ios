@@ -1,13 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletTokenScript
 import RealmSwift
 
 class EventInstance: Object {
-    static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, blockNumber: Int, logIndex: Int, filter: String) -> String {
-        "\(contract.eip55String)-\(tokenContract.eip55String)-\(server.chainID)-\(eventName)-\(blockNumber)-\(logIndex)-\(filter)"
-    }
-
     @objc dynamic var primaryKey: String = ""
     @objc dynamic var contract: String = Constants.nullAddress.eip55String
     @objc dynamic var tokenContract: String = Constants.nullAddress.eip55String
@@ -69,5 +66,12 @@ class EventInstance: Object {
                 return nil
             }
         })
+    }
+}
+
+extension EventInstanceValue {
+    init(event: EventInstance) {
+        self.init(primaryKey: event.primaryKey, contract: event.contract, tokenContract: event.tokenContract, chainId: event.chainId, eventName: event.eventName, blockNumber: event.blockNumber, logIndex: event.logIndex, filter: event.filter, json: event.json, data: event._data)
+
     }
 }

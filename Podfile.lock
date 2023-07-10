@@ -1,17 +1,25 @@
 PODS:
   - Alamofire (5.6.4)
+  - AlphaWalletABI (1.0.0):
+    - AlphaWalletAddress
+    - AlphaWalletWeb3
+    - EthereumABI
+    - TrustKeystore
   - AlphaWalletAddress (1.0.2):
     - AlphaWalletCore
-    - AlphaWalletWeb3
     - EthereumAddress
     - TrustKeystore
   - AlphaWalletAttestation (0.0.1):
     - AlphaWalletFoundation
+    - AlphaWalletTokenScript
     - AlphaWalletWeb3
     - BigInt
     - GzipSwift
   - AlphaWalletCore (1.0.2):
     - Alamofire (= 5.6.4)
+    - APIKit (= 5.1.0)
+    - BigInt
+    - CombineExt (= 1.8.0)
     - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
@@ -19,6 +27,7 @@ PODS:
     - AlphaWalletWeb3
     - PromiseKit
   - AlphaWalletFoundation (1.0.0):
+    - AlphaWalletABI
     - AlphaWalletAddress
     - AlphaWalletCore
     - AlphaWalletENS
@@ -27,6 +36,7 @@ PODS:
     - AlphaWalletLogger
     - AlphaWalletOpenSea
     - AlphaWalletShareExtensionCore
+    - AlphaWalletTokenScript
     - AlphaWalletTrustWalletCoreExtensions
     - AlphaWalletWeb3
     - AlphaWalletWeb3Provider
@@ -36,7 +46,6 @@ PODS:
     - BlockiesSwift
     - CombineExt (= 1.8.0)
     - CryptoSwift (~> 1.4)
-    - EthereumABI
     - JSONRPCKit (~> 2.0.0)
     - Kanna
     - PaperTrailLumberjack/Swift
@@ -63,14 +72,30 @@ PODS:
   - AlphaWalletOpenSea (1.0.0):
     - AlphaWalletAddress
     - AlphaWalletCore
+    - BigInt
     - PromiseKit
     - SwiftyJSON (= 5.0.0)
   - AlphaWalletShareExtensionCore (1.0.0)
+  - AlphaWalletTokenScript (1.0.0):
+    - AlphaWalletABI
+    - AlphaWalletAddress
+    - AlphaWalletCore
+    - AlphaWalletLogger
+    - AlphaWalletOpenSea
+    - AlphaWalletWeb3
+    - APIKit
+    - BigInt
+    - Kanna
+    - PromiseKit/CorePromise
   - AlphaWalletTrackAPICalls (1.0.0)
   - AlphaWalletTrustWalletCoreExtensions (1.0.0):
+    - AlphaWalletCore
     - BigInt
     - TrustWalletCore (= 2.6.34)
   - AlphaWalletWeb3 (0.0.1):
+    - AlphaWalletAddress
+    - AlphaWalletCore
+    - APIKit
     - BigInt
     - CryptoSwift
     - PromiseKit (~> 6.3.0)
@@ -232,6 +257,7 @@ PODS:
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
+  - AlphaWalletABI (from `.`)
   - AlphaWalletAddress (from `.`)
   - AlphaWalletAttestation (from `.`)
   - AlphaWalletCore (from `.`)
@@ -243,6 +269,7 @@ DEPENDENCIES:
   - AlphaWalletNotifications (from `.`)
   - AlphaWalletOpenSea (from `.`)
   - AlphaWalletShareExtensionCore (from `.`)
+  - AlphaWalletTokenScript (from `.`)
   - AlphaWalletTrackAPICalls (from `.`)
   - AlphaWalletTrustWalletCoreExtensions (from `.`)
   - AlphaWalletWeb3 (from `.`)
@@ -326,6 +353,8 @@ SPEC REPOS:
     - xcbeautify
 
 EXTERNAL SOURCES:
+  AlphaWalletABI:
+    :path: "."
   AlphaWalletAddress:
     :path: "."
   AlphaWalletAttestation:
@@ -347,6 +376,8 @@ EXTERNAL SOURCES:
   AlphaWalletOpenSea:
     :path: "."
   AlphaWalletShareExtensionCore:
+    :path: "."
+  AlphaWalletTokenScript:
     :path: "."
   AlphaWalletTrackAPICalls:
     :path: "."
@@ -407,20 +438,22 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
-  AlphaWalletAddress: e9f10243983ac7f51671671b7964eb49d14854ab
-  AlphaWalletAttestation: 64970455862b55785a04d7f3da556e781e1ae9a5
-  AlphaWalletCore: 6f67a6ce7b25614a4cad4ca7330afeaea1b9ad03
+  AlphaWalletABI: 3a44d65976f24264b93389a830f9333ee72fb274
+  AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
+  AlphaWalletAttestation: 20806a9a5448a2c88927c0ff32726d68c5936032
+  AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
-  AlphaWalletFoundation: 7cf355ef9b4aff7acd54621290a533dd2659ed69
+  AlphaWalletFoundation: fecb0317a9f6b55dd736416660830a1145b9cd0c
   AlphaWalletGoBack: 665101a1185145ef0a4a92943dcb11ae1fe697ca
-  AlphaWalletHardwareWallet: 01e02d59b25853134c823063e27a9e05fbfde0a7
+  AlphaWalletHardwareWallet: 7aafac3ef2246713a606bd69e3af75ff111e1afc
   AlphaWalletLogger: 54208bad850ec92a32fa4f969d0026305b6ce028
-  AlphaWalletNotifications: bdf36020ac1ed564c06a01f60d10f42b402e96d7
-  AlphaWalletOpenSea: f2711af0cbce462bcd569cff276a9a17fe16e6b8
+  AlphaWalletNotifications: 6e6a5f1cf0fc598c1c917dfb527a608b049a0a96
+  AlphaWalletOpenSea: e6ee4efb03db0dfebc69dfe23db33fa33bba8918
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
+  AlphaWalletTokenScript: b4e5d7acdc85ed6915d8bf07c82abf20836cee50
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
-  AlphaWalletTrustWalletCoreExtensions: 290b1c05cada7715c29b52622688da01ab88ffa7
-  AlphaWalletWeb3: fe40c838f2f829a50d8a666090c9c6cd906b5431
+  AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
+  AlphaWalletWeb3: e15e5841128a960f45c51cdb07843e4588447b2c
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02
@@ -478,6 +511,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 33a87f051e9a4960aea2e639beb2cb787b24b55b
+PODFILE CHECKSUM: f29721774eddc40fefd076855cdca437f2155e8a
 
 COCOAPODS: 1.11.3

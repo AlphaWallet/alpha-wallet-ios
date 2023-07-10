@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import BigInt 
+import BigInt
+import AlphaWalletTokenScript
 
 public protocol TokenScriptSupportable {
     var name: String { get }
@@ -220,4 +221,10 @@ public func compositeTokenName(forContract contract: AlphaWallet.Address, fromCo
         compositeName = localizedNameFromAssetDefinition
     }
     return compositeName
+}
+
+extension XMLHandler {
+    public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStoreProtocol) {
+        self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+    }
 }

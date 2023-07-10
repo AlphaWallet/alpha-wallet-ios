@@ -3,7 +3,8 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
-import AlphaWalletFoundation
+import AlphaWalletAddress
+import AlphaWalletTokenScript
 
 class AssetDefinitionDiskBackingStoreWithOverridesTests: XCTestCase {
     func testBackingStoreWithOverrides() {

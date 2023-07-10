@@ -2,12 +2,13 @@
 
 import Foundation
 import UIKit
-import BigInt
-import PromiseKit
 import WebKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletTokenScript
+import BigInt
+import PromiseKit
 
 protocol RequestSignMessageDelegate: AnyObject {
     func requestSignMessage(message: SignMessageType,
@@ -104,7 +105,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         webView.stopLoading()
     }
     private var cancellable: AnyCancellable?
-    
+
     //Implementation: String concatenation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
         lastTokenHolder = tokenHolder
@@ -209,7 +210,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
             .resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]),
                      userEntryValues: .init(),
                      server: server,
-                     account: wallet,
+                     account: wallet.address,
                      additionalValues: .init(),
                      localRefs: localRefs,
                      attributes: attributes)

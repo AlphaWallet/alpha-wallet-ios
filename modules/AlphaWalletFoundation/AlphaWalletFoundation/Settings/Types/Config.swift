@@ -54,8 +54,8 @@ public struct Config {
         setLocale(locale.id)
 
         EtherNumberFormatter.full = .createFullEtherNumberFormatter()
-        EtherNumberFormatter.short = .createShortEtherNumberFormatter()
-        EtherNumberFormatter.shortPlain = .createShortPlainEtherNumberFormatter()
+        EtherNumberFormatter.short = .createShortEtherNumberFormatter(maximumFractionDigits: Constants.etherFormatterFractionDigits)
+        EtherNumberFormatter.shortPlain = .createShortPlainEtherNumberFormatter(maximumFractionDigits: Constants.etherFormatterFractionDigits)
         EtherNumberFormatter.plain = .createPlainEtherNumberFormatter()
     }
 
@@ -178,7 +178,6 @@ public struct Config {
         //We don't write to this key anymore as we support more than 1 service provider. Reading this key only for legacy reasons
         static let usePrivateNetwork = "usePrivateNetworkKey"
         static let privateNetworkProvider = "privateNetworkProvider"
-        static let customRpcServers = "customRpcServers"
         static let homePageURL = "homePageURL"
         static let sendAnalyticsEnabled = "sendAnalyticsEnabled"
         static let sendCrashReportingEnabled = "sendCrashReportingEnabled"
@@ -262,15 +261,6 @@ public struct Config {
             defaults.set(chainIds, forKey: Keys.enabledServers)
 
             Self.enabledServersSubject.send(newValue)
-        }
-    }
-
-    public var customRpcServersJson: String? {
-        get {
-            return defaults.string(forKey: Keys.customRpcServers)
-        }
-        set {
-            defaults.set(newValue, forKey: Keys.customRpcServers)
         }
     }
 

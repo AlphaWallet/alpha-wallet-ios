@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletCore
 
 extension Int {
-
     public func toString() -> String {
         return String(self)
     }

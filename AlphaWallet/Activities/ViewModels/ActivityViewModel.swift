@@ -1,10 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
-import AlphaWalletFoundation
-import UIKit
 import Combine
+import Foundation
+import UIKit
+import AlphaWalletFoundation
+import BigInt
 
 struct ActivityViewModel {
     let activity: Activity

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletABI
 import BigInt
 
 public struct Erc20Transfer: ContractMethod {

@@ -200,9 +200,3 @@ public struct Eip1559FeeOracleResult: Equatable {
         self.maxPriorityFeePerGas = maxPriorityFeePerGas
     }
 }
-
-public extension Int {
-    var hexEncoded: String {
-        return String(self, radix: 16).add0x
-    }
-}

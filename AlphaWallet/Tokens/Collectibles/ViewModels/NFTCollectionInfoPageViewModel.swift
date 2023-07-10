@@ -10,6 +10,7 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletCore
+import struct AlphaWalletTokenScript.Constants
 
 struct NFTCollectionInfoPageViewModelInput {
     let selection: AnyPublisher<IndexPath, Never>

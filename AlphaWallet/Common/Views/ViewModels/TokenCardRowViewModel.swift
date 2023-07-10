@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 import Combine
 
 struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {

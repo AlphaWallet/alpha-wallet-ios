@@ -2,6 +2,7 @@
 //This struct sets the amount of gas units to consume
 import Foundation
 import BigInt
+import AlphaWalletCore
 
 public struct GasLimitConfiguration {
     public static let defaultGasLimit = BigUInt(90_000)

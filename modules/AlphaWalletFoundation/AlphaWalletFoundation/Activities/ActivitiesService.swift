@@ -6,8 +6,10 @@
 //
 
 import Foundation
-import CoreFoundation
 import Combine
+import CoreFoundation
+import AlphaWalletCore
+import AlphaWalletTokenScript
 import CombineExt
 
 public protocol ActivitiesServiceType: AnyObject {
@@ -53,7 +55,7 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     private let activitiesGenerator: ActivitiesGenerator
-    
+
     init(sessionsProvider: SessionsProvider,
          eventsActivityDataStore: EventsActivityDataStoreProtocol,
          transactionDataStore: TransactionDataStore,
@@ -233,7 +235,7 @@ public class ActivitiesService: ActivitiesServiceType {
         cancellableSet[token.addressAndRPCServer] = attributeValues.resolveAllAttributes()
             .sink(receiveValue: { [weak self] resolvedAttributeNameValues in
                 guard let stronSelf = self else { return }
-                
+
                 //NOTE: Fix crush when element with index out of range
                 if let (index, oldActivity) = stronSelf.activitiesIndexLookup[activity.id] {
                     let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)

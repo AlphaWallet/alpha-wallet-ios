@@ -2,11 +2,11 @@
 
 import Foundation
 import UIKit
-import BigInt
-import PromiseKit
+import Combine
 import AlphaWalletFoundation
 import AlphaWalletCore
-import Combine
+import BigInt
+import PromiseKit
 
 protocol TokenInstanceActionViewControllerDelegate: AnyObject, CanOpenURL, RequestSignMessageDelegate {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
@@ -140,7 +140,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             .resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent,
                      userEntryValues: .init(),
                      server: server,
-                     account: session.account,
+                     account: session.account.address,
                      additionalValues: existingAttributeValues,
                      localRefs: tokenScriptRendererView.localRefs,
                      attributes: action.attributes)

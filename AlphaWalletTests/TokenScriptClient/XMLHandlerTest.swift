@@ -9,14 +9,18 @@ import Foundation
 import XCTest
 @testable import AlphaWallet
 import BigInt
+import AlphaWalletAddress
+import AlphaWalletCore
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
+
 // swiftlint:disable type_body_length
 class XMLHandlerTest: XCTestCase {
     let tokenHex = "0x00000000000000000000000000000000fefe5ae99a3000000000000000010001".substring(from: 2)
 
     func testParser() {
         let assetDefinitionStore = AssetDefinitionStore.make()
-        let token = XMLHandler(contract: Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: assetDefinitionStore).getToken(
+        let token = XMLHandler(contract: AlphaWalletFoundation.Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: assetDefinitionStore).getToken(
                 name: "",
                 symbol: "",
                 fromTokenIdOrEvent: .tokenId(tokenId: BigUInt(tokenHex, radix: 16)!),
@@ -899,7 +903,7 @@ class XMLHandlerTest: XCTestCase {
             </ts:token>
         """
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProviderImplementation.make(servers: [.main]), features: TokenScriptFeatures())
 
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)
@@ -913,8 +917,8 @@ class XMLHandlerTest: XCTestCase {
 // swiftlint:enable function_body_length
 
     func testNoAssetDefinition() {
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
-        let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc875, assetDefinitionStore: store)
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProviderImplementation.make(servers: [.main]), features: TokenScriptFeatures())
+        let xmlHandler = XMLHandler(contract: AlphaWalletFoundation.Constants.nullAddress, tokenType: .erc875, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc721, assetDefinitionStore: store)

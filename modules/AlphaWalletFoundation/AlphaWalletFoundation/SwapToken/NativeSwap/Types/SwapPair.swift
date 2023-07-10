@@ -10,7 +10,7 @@ import Foundation
 public struct SwapPair: Equatable {
     public var from: Token
     public var to: Token?
-    
+
     public init(from: Token, to: Token? = nil) {
         self.from = from
         self.to = to

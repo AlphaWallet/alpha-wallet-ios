@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletTokenScript
 import RealmSwift
 
 ///This class shouldn't be modified since we have migrated to a Realm database that contains data from all chains

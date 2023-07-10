@@ -6,6 +6,7 @@
 //
 import FirebaseCore
 import FirebaseCrashlytics
+import func AlphaWalletCore.isRunningTests
 import AlphaWalletFoundation
 import AlphaWalletLogger
 

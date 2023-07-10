@@ -415,6 +415,7 @@
 		5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77A8E9F8DF94ED53D452 /* WebImageView.swift */; };
 		5E7C7F67945615E242B61CC3 /* BoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C5454600A70DCFD7C0E /* BoxView.swift */; };
 		5E7C7F69EBFEEBFBDB381F6E /* AttestationViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B55ABB480A38611D682 /* AttestationViewCellViewModel.swift */; };
+		5E7C7F776D272AC23213B3BA /* ImportedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7864DB8E82BACE2F5F1F /* ImportedTypes.swift */; };
 		5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C768D3C3F400E0B88B575 /* ETH.tsml */; };
 		5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */; };
 		5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C75D9C3EA9FF978ECF8E5 /* DAI.tsml */; };
@@ -1222,6 +1223,7 @@
 		5E7C783E3ADA4CF9554A0E7D /* NonFungibleTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NonFungibleTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C78402B975F69A72E8C04 /* TokensViewControllerTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewControllerTableViewHeader.swift; sourceTree = "<group>"; };
 		5E7C78454B11E39CF8B5E695 /* EnterPasswordCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterPasswordCoordinator.swift; sourceTree = "<group>"; };
+		5E7C7864DB8E82BACE2F5F1F /* ImportedTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImportedTypes.swift; path = Types/ImportedTypes.swift; sourceTree = "<group>"; };
 		5E7C786E7AACC1ECD44F2EAA /* DecodedFunctionCall+DecodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DecodedFunctionCall+DecodeTests.swift"; sourceTree = "<group>"; };
 		5E7C78795F6336DDBE2EB4C5 /* ERC20-TokenScript.tsml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.tsml; path = "ERC20-TokenScript.tsml"; sourceTree = "<group>"; };
 		5E7C788ADDEA0609433B1FDF /* VerifySeedPhraseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifySeedPhraseViewController.swift; sourceTree = "<group>"; };
@@ -2047,6 +2049,7 @@
 				5E7C74F0A1BB877A6FE35F37 /* BuyCrypto */,
 				5E7C704885516A808B3B8866 /* ErrorLocalizations.swift */,
 				5E7C7D784300C463FF3C7514 /* HardwareWallet */,
+				5E7C7864DB8E82BACE2F5F1F /* ImportedTypes.swift */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -4966,6 +4969,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/APIKit/APIKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/AlphaWalletABI/AlphaWalletABI.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletAddress/AlphaWalletAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletAttestation/AlphaWalletAttestation.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletCore/AlphaWalletCore.framework",
@@ -4977,6 +4981,7 @@
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletNotifications/AlphaWalletNotifications.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletOpenSea/AlphaWalletOpenSea.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletShareExtensionCore/AlphaWalletShareExtensionCore.framework",
+				"${BUILT_PRODUCTS_DIR}/AlphaWalletTokenScript/AlphaWalletTokenScript.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletTrackAPICalls/AlphaWalletTrackAPICalls.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletTrustWalletCoreExtensions/AlphaWalletTrustWalletCoreExtensions.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletWeb3/AlphaWalletWeb3.framework",
@@ -5033,6 +5038,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/APIKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletABI.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletAttestation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletCore.framework",
@@ -5044,6 +5050,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletNotifications.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletOpenSea.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletShareExtensionCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletTokenScript.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletTrackAPICalls.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletTrustWalletCoreExtensions.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletWeb3.framework",
@@ -5884,6 +5891,7 @@
 				5E7C7DFB3A663A3581A8C3CB /* AcceptProposalCoordinator.swift in Sources */,
 				5E7C74D586547B32EF5CD91C /* AcceptProposalViewController.swift in Sources */,
 				5E7C7270C6A83CC1ADC106DC /* AcceptAuthRequestViewController.swift in Sources */,
+				5E7C7F776D272AC23213B3BA /* ImportedTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

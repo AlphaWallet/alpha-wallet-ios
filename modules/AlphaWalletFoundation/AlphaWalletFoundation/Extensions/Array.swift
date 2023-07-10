@@ -7,12 +7,6 @@
 
 import Foundation
 
-public func - <T: Equatable> (left: [T], right: [T]) -> [T] {
-    return left.filter { l in
-        !right.contains { $0 == l }
-    }
-}
-
 extension Array {
     public func chunked(into size: Int) -> [[Element]] {
         return stride(from: 0, to: count, by: size).map {

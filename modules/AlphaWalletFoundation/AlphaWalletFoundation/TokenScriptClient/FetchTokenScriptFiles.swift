@@ -2,6 +2,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletTokenScript
 
 public class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore

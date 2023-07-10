@@ -7,6 +7,9 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
+import AlphaWalletTokenScript
+import protocol AlphaWalletWeb3.BlockchainCallable
 
 public protocol SessionsProvider: AnyObject {
     var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> { get }
@@ -60,7 +63,10 @@ open class BaseSessionsProvider: SessionsProvider {
     public func start() {
         blockchainsProvider
             .blockchains
-            .map { [weak self, sessionsSubject] blockchains -> ServerDictionary<WalletSession> in
+            .map { [weak self, sessionsSubject] (blockchains: ServerDictionary<BlockchainCallable>) -> ServerDictionary<WalletSession> in
+                //TODO unfortunate casting needed due to how/when we extract AlphaWalletTokenScript
+                let blockchains = blockchains.mapValues { $0 as! BlockchainProvider }
+
                 guard let strongSelf = self else { return .init() }
                 var sessions: ServerDictionary<WalletSession> = .init()
 
@@ -147,7 +153,7 @@ open class BaseSessionsProvider: SessionsProvider {
                 tokensDataStore: tokensDataStore,
                 server: server,
                 ercTokenProvider: ercTokenProvider)
-            
+
             return EtherscanCompatibleApiNetworking(
                 server: server,
                 transporter: transporter,
