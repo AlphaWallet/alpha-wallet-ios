@@ -7,6 +7,7 @@
 
 import AlphaWalletAddress
 import AlphaWalletCore
+//TODO this dependency on AlphaWalletWeb3 should be removed
 import AlphaWalletWeb3
 import BigInt
 import EthereumABI

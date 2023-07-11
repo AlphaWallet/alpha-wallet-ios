@@ -7,6 +7,7 @@ import Foundation
 import BigInt
 import Combine
 import AlphaWalletCore
+import AlphaWalletWeb3
 
 final class GetErc721Balance {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc721Balance")

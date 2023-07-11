@@ -6,31 +6,32 @@
 //
 
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
-import AlphaWalletWeb3
 
-struct Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
-    typealias Response = [BigInt: BigUInt]
+public struct Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
+    public typealias Response = [BigInt: BigUInt]
 
     private let tokenIds: Set<BigInt>
     private let address: AlphaWallet.Address
 
-    let contract: AlphaWallet.Address
-    let name: String = "balanceOfBatch"
-    let abi: String = AlphaWallet.Ethereum.ABI.erc1155String
-    var parameters: [AnyObject] {
+    public let contract: AlphaWallet.Address
+    public let name: String = "balanceOfBatch"
+    public let abi: String = GetERC1155BalanceOfBatch().abi
+    public var parameters: [AnyObject] {
         let address = EthereumAddress(address.eip55String)!
         let addresses: [EthereumAddress] = [EthereumAddress](repeating: address, count: tokenIds.count)
         return [addresses, Array(tokenIds)] as [AnyObject]
     }
 
-    init(contract: AlphaWallet.Address, address: AlphaWallet.Address, tokenIds: Set<BigInt>) {
+    public init(contract: AlphaWallet.Address, address: AlphaWallet.Address, tokenIds: Set<BigInt>) {
         self.contract = contract
         self.address = address
         self.tokenIds = tokenIds
     }
 
-    func response(from dictionary: [String: Any]) throws -> [BigInt: BigUInt] {
+    public func response(from dictionary: [String: Any]) throws -> [BigInt: BigUInt] {
         guard let balances = dictionary["0"] as? [BigUInt], balances.count == tokenIds.count else {
             throw CastError(actualValue: dictionary["0"], expectedType: [BigUInt].self)
         }

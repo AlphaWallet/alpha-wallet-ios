@@ -6,21 +6,23 @@
 //
 
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
 
-struct Erc875IsStormBirdContractMethodCall: ContractMethodCall {
-    typealias Response = Bool
+public struct Erc875IsStormBirdContractMethodCall: ContractMethodCall {
+    public typealias Response = Bool
 
     private let function = GetIsERC875()
 
-    let contract: AlphaWallet.Address
-    var name: String { function.name }
-    var abi: String { function.abi }
+    public let contract: AlphaWallet.Address
+    public var name: String { function.name }
+    public var abi: String { function.abi }
 
-    init(contract: AlphaWallet.Address) {
+    public init(contract: AlphaWallet.Address) {
         self.contract = contract
     }
 
-    func response(from dictionary: [String: Any]) throws -> Bool {
+    public func response(from dictionary: [String: Any]) throws -> Bool {
         guard let isErc875 = dictionary["0"] as? Bool else {
             throw CastError(actualValue: dictionary["0"], expectedType: Bool.self)
         }

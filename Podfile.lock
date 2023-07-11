@@ -100,6 +100,7 @@ PODS:
     - CryptoSwift
     - PromiseKit (~> 6.3.0)
     - secp256k1_ios (~> 0.1.3)
+    - SwiftyJSON (= 5.0.0)
   - AlphaWalletWeb3Provider (0.3.0)
   - APIKit (5.1.0)
   - Apollo (0.53.0):
@@ -453,7 +454,7 @@ SPEC CHECKSUMS:
   AlphaWalletTokenScript: b4e5d7acdc85ed6915d8bf07c82abf20836cee50
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
   AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
-  AlphaWalletWeb3: e15e5841128a960f45c51cdb07843e4588447b2c
+  AlphaWalletWeb3: fc820c60792055ba6914d1892e8bdfac6ea1da3c
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02

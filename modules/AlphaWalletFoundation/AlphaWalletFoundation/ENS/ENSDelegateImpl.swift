@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletENS
+import AlphaWalletWeb3
 import Combine
 
 class ENSDelegateImpl: ENSDelegate {

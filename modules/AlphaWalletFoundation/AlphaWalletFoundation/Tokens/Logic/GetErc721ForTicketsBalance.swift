@@ -1,9 +1,10 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation 
+import Foundation
 import BigInt
 import Combine
 import AlphaWalletCore
+import AlphaWalletWeb3
 
 class GetErc721ForTicketsBalance {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc721ForTicketsBalance")

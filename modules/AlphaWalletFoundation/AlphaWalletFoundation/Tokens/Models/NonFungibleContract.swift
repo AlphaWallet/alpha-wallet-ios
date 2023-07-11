@@ -1,8 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
 import Combine
+import AlphaWalletWeb3
+import BigInt
 
 final class NonFungibleContract {
     private let blockchainProvider: BlockchainProvider

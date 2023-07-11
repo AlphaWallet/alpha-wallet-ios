@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
+import SwiftyJSON
 
-enum TokenUriData {
+public enum TokenUriData {
     case uri(URL)
     case string(String)
     case json(JSON)
     case data(Data)
 }
-
-import SwiftyJSON
 
 struct TokenUriDecoder {
     let base64Decoder: Base64Decoder = Base64Decoder()
@@ -53,48 +54,48 @@ struct TokenUriDecoder {
     }
 }
 
-struct Erc721TokenUriMethodCall: ContractMethodCall {
-    typealias Response = TokenUriData
+public struct Erc721TokenUriMethodCall: ContractMethodCall {
+    public typealias Response = TokenUriData
 
     private let function = GetTokenUri()
     private let tokenId: String
     private let decoder: TokenUriDecoder
 
-    let contract: AlphaWallet.Address
-    var name: String { function.name }
-    var abi: String { function.abi }
-    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+    public let contract: AlphaWallet.Address
+    public var name: String { function.name }
+    public var abi: String { function.abi }
+    public var parameters: [AnyObject] { [tokenId] as [AnyObject] }
 
-    init(contract: AlphaWallet.Address, tokenId: String) {
+    public init(contract: AlphaWallet.Address, tokenId: String) {
         self.contract = contract
         self.tokenId = tokenId
         self.decoder = TokenUriDecoder(tokenId: tokenId)
     }
 
-    func response(from dictionary: [String: Any]) throws -> TokenUriData {
+    public func response(from dictionary: [String: Any]) throws -> TokenUriData {
         return try decoder.decode(from: dictionary)
     }
 }
 
-struct Erc721UriMethodCall: ContractMethodCall {
-    typealias Response = TokenUriData
+public struct Erc721UriMethodCall: ContractMethodCall {
+    public typealias Response = TokenUriData
 
     private let function = GetUri()
     private let tokenId: String
     private let decoder: TokenUriDecoder
 
-    let contract: AlphaWallet.Address
-    var name: String { function.name }
-    var abi: String { function.abi }
-    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+    public let contract: AlphaWallet.Address
+    public var name: String { function.name }
+    public var abi: String { function.abi }
+    public var parameters: [AnyObject] { [tokenId] as [AnyObject] }
 
-    init(contract: AlphaWallet.Address, tokenId: String) {
+    public init(contract: AlphaWallet.Address, tokenId: String) {
         self.contract = contract
         self.tokenId = tokenId
         self.decoder = TokenUriDecoder(tokenId: tokenId)
     }
 
-    func response(from dictionary: [String: Any]) throws -> TokenUriData {
+    public func response(from dictionary: [String: Any]) throws -> TokenUriData {
         return try decoder.decode(from: dictionary)
     }
 }
