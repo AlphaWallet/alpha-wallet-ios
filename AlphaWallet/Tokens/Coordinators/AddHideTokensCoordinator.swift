@@ -9,7 +9,7 @@ protocol AddHideTokensCoordinatorDelegate: AnyObject {
 
 class AddHideTokensCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let navigationController: UINavigationController
     private let sessionsProvider: SessionsProvider
     private lazy var viewModel = AddHideTokensViewModel(
@@ -42,7 +42,7 @@ class AddHideTokensCoordinator: Coordinator {
          wallet: Wallet,
          tokenCollection: TokensProcessingPipeline,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          navigationController: UINavigationController,
          serversProvider: ServersProvidable,
          sessionsProvider: SessionsProvider,

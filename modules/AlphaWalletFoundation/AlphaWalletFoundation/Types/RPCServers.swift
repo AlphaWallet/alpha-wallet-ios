@@ -17,7 +17,7 @@ extension RPCServer: Hashable, CaseIterable {
     }
 
     //Using this property avoids direct reference to `.main`, which could be a sign of a possible crash — i.e. using `.main` when it is disabled by the user
-    public static var forResolvingEns: RPCServer {
+    public static var forResolvingDomainNames: RPCServer {
         .main
     }
 

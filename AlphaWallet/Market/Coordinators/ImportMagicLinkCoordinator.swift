@@ -17,7 +17,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private let keystore: Keystore
     private let tokensService: TokensProcessingPipeline
     private let session: WalletSession
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let networkService: NetworkService
     private let controller: ImportMagicLinkController
     private var cancelable = Set<AnyCancellable>()
@@ -32,7 +32,7 @@ class ImportMagicLinkCoordinator: Coordinator {
          keystore: Keystore,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          importToken: TokenImportable & TokenOrContractFetchable,
          reachability: ReachabilityManagerProtocol) {
 

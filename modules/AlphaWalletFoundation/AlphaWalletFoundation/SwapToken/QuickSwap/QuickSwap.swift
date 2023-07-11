@@ -60,7 +60,7 @@ public class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
             static let output = "outputCurrency"
         }
 
-        case inputOutput(from: AlphaWallet.Address, to: AddressOrEnsName)
+        case inputOutput(from: AlphaWallet.Address, to: AddressOrDomainName)
         case input(AlphaWallet.Address)
         case none
 

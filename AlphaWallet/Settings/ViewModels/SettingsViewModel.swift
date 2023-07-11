@@ -41,7 +41,7 @@ final class SettingsViewModel {
     init(account: Wallet,
          lock: Lock,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          promptBackup: PromptBackup,
          pushNotificationsService: PushNotificationsService) {
 

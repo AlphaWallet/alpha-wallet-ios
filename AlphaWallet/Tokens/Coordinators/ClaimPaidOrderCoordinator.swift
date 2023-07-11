@@ -21,7 +21,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
     private let token: Token
     private let signedOrder: SignedOrder
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let assetDefinitionStore: AssetDefinitionStore
     private var numberOfTokens: UInt {
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
@@ -33,7 +33,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
         }
     }
     private let networkService: NetworkService
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
@@ -43,7 +43,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
          token: Token,
          signedOrder: SignedOrder,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          assetDefinitionStore: AssetDefinitionStore,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {
@@ -64,7 +64,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             let transaction = try TransactionType.prebuilt(token.server).buildClaimPaidErc875MagicLink(
                 recipient: session.account.address,
                 signedOrder: signedOrder)
-            
+
             let coordinator = TransactionConfirmationCoordinator(
                 presentingViewController: navigationController,
                 session: session,

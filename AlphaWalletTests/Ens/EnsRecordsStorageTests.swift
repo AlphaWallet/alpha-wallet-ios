@@ -20,8 +20,8 @@ class EnsRecordsStorageTests: XCTestCase {
     func testAddRecord() {
         let storage = FakeEnsRecordsStorage()
         XCTAssertEqual(storage.allRecords, [], "Storage is empty")
-        let key: EnsLookupKey = .init(nameOrAddress: "key", server: .main)
-        let r1 = EnsRecord(key: key, value: .ens("hello alpha wallet"))
+        let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
+        let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
         storage.addOrUpdate(record: r1)
 
         XCTAssertEqual(storage.allRecords.count, 1)
@@ -31,14 +31,14 @@ class EnsRecordsStorageTests: XCTestCase {
         let storage = FakeEnsRecordsStorage()
         XCTAssertEqual(storage.allRecords, [], "Storage is empty")
 
-        let key: EnsLookupKey = .init(nameOrAddress: "key", server: .main)
-        let r1 = EnsRecord(key: key, value: .ens("hello alpha wallet"))
+        let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
+        let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
         storage.addOrUpdate(record: r1)
 
         let r1_copy = storage.record(for: key, expirationTime: -120)
         XCTAssertEqual(r1, r1_copy)
 
-        let r10 = EnsRecord(key: key, value: .record("image"))
+        let r10 = DomainNameRecord(key: key, value: .record("image"))
         storage.addOrUpdate(record: r10)
 
         let r10_copy = storage.record(for: key, expirationTime: -120)
@@ -49,8 +49,8 @@ class EnsRecordsStorageTests: XCTestCase {
     func testFetchExpiredRecord() {
         let storage = FakeEnsRecordsStorage()
 
-        let key: EnsLookupKey = .init(nameOrAddress: "key", server: .main)
-        let r1 = EnsRecord(key: key, value: .ens("hello alpha wallet"))
+        let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
+        let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
         storage.addOrUpdate(record: r1)
 
         let r1_copy = storage.record(for: key, expirationTime: -120)
@@ -58,7 +58,7 @@ class EnsRecordsStorageTests: XCTestCase {
         XCTAssertEqual(r1, r1_copy, "Copy and initial value are queal")
 
         let dateThatExpired = Date(timeIntervalSinceNow: -600)
-        let r10 = EnsRecord(key: key, value: .ens("hello alpha wallet"), date: dateThatExpired)
+        let r10 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"), date: dateThatExpired)
         storage.addOrUpdate(record: r10)
 
         let r10_copy = storage.record(for: key, expirationTime: -120)

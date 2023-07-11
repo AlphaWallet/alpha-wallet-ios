@@ -15,7 +15,7 @@ class WalletCoordinator: Coordinator {
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var cancellable = Set<AnyCancellable>()
 
     var navigationController: UINavigationController
@@ -26,7 +26,7 @@ class WalletCoordinator: Coordinator {
          navigationController: UINavigationController = NavigationController(),
          keystore: Keystore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType) {
+         domainResolutionService: DomainNameResolutionServiceType) {
 
         self.config = config
         self.navigationController = navigationController

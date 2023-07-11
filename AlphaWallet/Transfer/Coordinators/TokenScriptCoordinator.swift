@@ -27,7 +27,7 @@ class TokenScriptCoordinator: Coordinator {
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
@@ -46,7 +46,7 @@ class TokenScriptCoordinator: Coordinator {
          tokenObject: Token,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          action: TokenInstanceAction,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {

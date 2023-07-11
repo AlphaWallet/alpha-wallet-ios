@@ -17,7 +17,7 @@ class ReplaceTransactionCoordinator: Coordinator {
 
     private let tokensService: TokensProcessingPipeline
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: GasPrice)
     private let nonce: BigUInt
     private let keystore: Keystore
@@ -81,7 +81,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
     init?(analytics: AnalyticsLogger,
-          domainResolutionService: DomainResolutionServiceType,
+          domainResolutionService: DomainNameResolutionServiceType,
           keystore: Keystore,
           presentingViewController: UIViewController,
           session: WalletSession,
@@ -159,7 +159,7 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
             let coordinator = TransactionInProgressCoordinator(
                 presentingViewController: strongSelf.presentingViewController,
                 server: strongSelf.session.server)
-            
+
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

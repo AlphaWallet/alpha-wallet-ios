@@ -38,7 +38,7 @@ public final class Eip681UrlResolver {
         }
     }
 
-    @discardableResult public func resolve(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
+    @discardableResult public func resolve(protocolName: String, address: AddressOrDomainName, functionName: String?, params: [String: String]) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
         return Just(protocolName)
             .setFailureType(to: CheckEIP681Error.self)
             .map { protocolName in
@@ -88,7 +88,7 @@ public final class Eip681UrlResolver {
         }
     }
 
-    private static func buildFungibleTransactionType(_ token: Token, recipient: AddressOrEnsName?, amount amount: Eip681Amount) -> TransactionType {
+    private static func buildFungibleTransactionType(_ token: Token, recipient: AddressOrDomainName?, amount amount: Eip681Amount) -> TransactionType {
         let amountToSend: FungibleAmount
 
         //NOTE: use decimals only if send ether or number has e notation

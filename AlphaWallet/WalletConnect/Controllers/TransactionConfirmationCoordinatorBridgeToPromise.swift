@@ -21,7 +21,7 @@ typealias SendTransactionAndFiatOnRampDelegate = SendTransactionDelegate & BuyCr
 
 private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let navigationController: UINavigationController
     private let session: WalletSession
     private let coordinator: Coordinator & CanOpenURL
@@ -37,7 +37,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
          session: WalletSession,
          coordinator: Coordinator & CanOpenURL,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          delegate: SendTransactionAndFiatOnRampDelegate?,
          keystore: Keystore,
          tokensService: TokensProcessingPipeline,
@@ -127,7 +127,7 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: CanOpenURL {
 }
 
 extension TransactionConfirmationCoordinator {
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, tokensService: TokensProcessingPipeline, networkService: NetworkService) -> Promise<ConfirmResult> {
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainNameResolutionServiceType, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, tokensService: TokensProcessingPipeline, networkService: NetworkService) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(
             navigationController,
             session: session,
@@ -138,7 +138,7 @@ extension TransactionConfirmationCoordinator {
             keystore: keystore,
             tokensService: tokensService,
             networkService: networkService)
-        
+
         return bridge.promise(transaction: transaction, configuration: configuration, source: source)
     }
 }

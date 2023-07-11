@@ -9,17 +9,18 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
-public protocol DomainResolutionServiceType {
+public protocol DomainNameResolutionServiceType {
     func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError>
-    func resolveEns(address: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<EnsName, PromiseError>
+    func reverseResolveDomainName(address: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<DomainName, PromiseError>
+    //TODO does UnstoppableDomains support blockies the same way as ENS?
     func resolveEnsAndBlockie(address: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
     func resolveAddressAndBlockie(string: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
 }
 
-public protocol CachebleAddressResolutionServiceType {
-    func cachedAddressValue(for name: String) -> AlphaWallet.Address?
+public protocol CachedDomainNameResolutionServiceType {
+    func cachedAddress(for name: String) -> AlphaWallet.Address?
 }
 
-public protocol CachedEnsResolutionServiceType {
-    func cachedEnsValue(for address: AlphaWallet.Address) -> String?
+public protocol CachedDomainNameReverseResolutionServiceType {
+    func cachedDomainName(for address: AlphaWallet.Address) -> String?
 }

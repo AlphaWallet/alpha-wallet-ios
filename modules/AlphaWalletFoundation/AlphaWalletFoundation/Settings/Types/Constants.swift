@@ -50,7 +50,7 @@ public struct Constants {
     public static let nullAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000000")!
     public static let nativeCryptoAddressInDatabase = nullAddress
 
-    static let unstoppableDomainsV2API = URL(string: "https://resolve.unstoppabledomains.com")!
+    static let unstoppableDomainsAPI = URL(string: "https://resolve.unstoppabledomains.com")!
     static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
 
     //xDai dapps
@@ -123,7 +123,7 @@ public struct Constants {
         static let getChainStateInterval: TimeInterval = 6
     }
 
-    enum Ens {
+    enum DomainName {
         static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
     }
 

@@ -41,7 +41,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         return controller
     }()
     private let account: Wallet?
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
     let parentNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -50,7 +50,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     init(analytics: AnalyticsLogger,
          navigationController: UINavigationController,
          account: Wallet?,
-         domainResolutionService: DomainResolutionServiceType) {
+         domainResolutionService: DomainNameResolutionServiceType) {
 
         self.analytics = analytics
         self.account = account

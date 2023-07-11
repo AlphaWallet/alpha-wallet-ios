@@ -24,7 +24,7 @@ extension AddressTextFieldDelegate {
 }
 
 final class AddressTextField: UIControl {
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let notifications = NotificationCenter.default
     private let server: RPCServer
 
@@ -183,7 +183,7 @@ final class AddressTextField: UIControl {
 
     weak var delegate: AddressTextFieldDelegate?
 
-    init(server: RPCServer, domainResolutionService: DomainResolutionServiceType, edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
+    init(server: RPCServer, domainResolutionService: DomainNameResolutionServiceType, edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
         self.server = server
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)

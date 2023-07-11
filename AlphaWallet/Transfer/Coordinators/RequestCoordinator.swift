@@ -10,7 +10,7 @@ protocol RequestCoordinatorDelegate: AnyObject {
 
 class RequestCoordinator: Coordinator {
     private let account: Wallet
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
     private lazy var requestViewController: RequestViewController = {
         let viewModel = RequestViewModel(account: account, domainResolutionService: domainResolutionService)
@@ -26,7 +26,7 @@ class RequestCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, account: Wallet, domainResolutionService: DomainResolutionServiceType) {
+    init(navigationController: UINavigationController, account: Wallet, domainResolutionService: DomainNameResolutionServiceType) {
         self.navigationController = navigationController
         self.account = account
         self.domainResolutionService = domainResolutionService

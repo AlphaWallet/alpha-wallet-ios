@@ -24,7 +24,7 @@ struct TransactionConfirmationViewModel {
 
     static func buildViewModel(configurator: TransactionConfigurator,
                                configuration: TransactionType.Configuration,
-                               domainResolutionService: DomainResolutionServiceType,
+                               domainResolutionService: DomainNameResolutionServiceType,
                                tokensService: TokensProcessingPipeline) -> TransactionConfirmationViewModelType {
 
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract

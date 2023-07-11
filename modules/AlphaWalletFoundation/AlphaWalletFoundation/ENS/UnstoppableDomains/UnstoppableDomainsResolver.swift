@@ -1,5 +1,5 @@
 //
-//  UnstoppableDomainsV2Resolver.swift
+//  UnstoppableDomainsResolver.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 27.01.2022.
@@ -13,16 +13,16 @@ import AlphaWalletLogger
 import AlphaWalletWeb3
 import SwiftyJSON
 
-struct UnstoppableDomainsV2ApiError: Error {
+struct UnstoppableDomainsApiError: Error {
     var localizedDescription: String
 }
 
-class UnstoppableDomainsV2Resolver {
+class UnstoppableDomainsResolver {
     private let fallbackServer: RPCServer
-    private let storage: EnsRecordsStorage
-    private let networkProvider: UnstoppableDomainsV2NetworkProvider
+    private let storage: DomainNameRecordsStorage
+    private let networkProvider: UnstoppableDomainsNetworkProvider
 
-    init(fallbackServer: RPCServer, storage: EnsRecordsStorage, networkService: NetworkService) {
+    init(fallbackServer: RPCServer, storage: DomainNameRecordsStorage, networkService: NetworkService) {
         self.fallbackServer = fallbackServer
         self.storage = storage
         self.networkProvider = .init(networkService: networkService)
@@ -45,7 +45,7 @@ class UnstoppableDomainsV2Resolver {
     }
 
     private func _resolveDomain(address: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<String, PromiseError> {
-        if let cachedResult = cachedEnsValue(for: address) {
+        if let cachedResult = cachedDomainName(for: address) {
             return .just(cachedResult)
         }
 
@@ -69,7 +69,7 @@ class UnstoppableDomainsV2Resolver {
                 if let name = result["0"] as? String, !name.isEmpty {
                     return name
                 } else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Can't reverse resolve \(address.eip55String) on: \(server)")
+                    throw UnstoppableDomainsApiError(localizedDescription: "Can't reverse resolve \(address.eip55String) on: \(server)")
                 }
             }
             .mapError { PromiseError.some(error: $0) }
@@ -81,7 +81,7 @@ class UnstoppableDomainsV2Resolver {
             return .just(value)
         }
 
-        if let value = self.cachedAddressValue(for: name) {
+        if let value = self.cachedAddress(for: name) {
             return .just(value)
         }
 
@@ -91,7 +91,7 @@ class UnstoppableDomainsV2Resolver {
                 infoLog("[UnstoppableDomains] resolving name: \(name)…")
                 return networkProvider.resolveAddress(forName: name)
                     .handleEvents(receiveOutput: { address in
-                        let key = EnsLookupKey(nameOrAddress: name, server: self.fallbackServer)
+                        let key = DomainNameLookupKey(nameOrAddress: name, server: self.fallbackServer)
                         self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
                     }).share()
                     .eraseToAnyPublisher()
@@ -99,31 +99,31 @@ class UnstoppableDomainsV2Resolver {
     }
 }
 
-extension UnstoppableDomainsV2Resolver: CachedEnsResolutionServiceType {
-    func cachedEnsValue(for address: AlphaWallet.Address) -> String? {
-        let key = EnsLookupKey(nameOrAddress: address.eip55String, server: fallbackServer)
-        switch storage.record(for: key, expirationTime: Constants.Ens.recordExpiration)?.value {
-        case .ens(let ens):
-            return ens
+extension UnstoppableDomainsResolver: CachedDomainNameReverseResolutionServiceType {
+    func cachedDomainName(for address: AlphaWallet.Address) -> String? {
+        let key = DomainNameLookupKey(nameOrAddress: address.eip55String, server: fallbackServer)
+        switch storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
+        case .domainName(let domainName):
+            return domainName
         case .record, .address, .none:
             return nil
         }
     }
 }
 
-extension UnstoppableDomainsV2Resolver: CachebleAddressResolutionServiceType {
-    func cachedAddressValue(for name: String) -> AlphaWallet.Address? {
-        let key = EnsLookupKey(nameOrAddress: name, server: fallbackServer)
-        switch storage.record(for: key, expirationTime: Constants.Ens.recordExpiration)?.value {
+extension UnstoppableDomainsResolver: CachedDomainNameResolutionServiceType {
+    func cachedAddress(for name: String) -> AlphaWallet.Address? {
+        let key = DomainNameLookupKey(nameOrAddress: name, server: fallbackServer)
+        switch storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
         case .address(let address):
             return address
-        case .record, .ens, .none:
+        case .record, .domainName, .none:
             return nil
         }
     }
 }
 
-extension UnstoppableDomainsV2Resolver {
+extension UnstoppableDomainsResolver {
     enum DecodingError: Error {
         case domainNotFound
         case ownerNotFound

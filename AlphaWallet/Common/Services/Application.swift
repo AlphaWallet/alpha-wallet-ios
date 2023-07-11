@@ -66,7 +66,7 @@ class Application: WalletDependenciesProvidable {
     let caip10AccountProvidable: CAIP10AccountProvidable
     let walletConnectProvider: WalletConnectProvider
     let blockiesGenerator: BlockiesGenerator
-    let domainResolutionService: DomainResolutionServiceType
+    let domainResolutionService: DomainNameResolutionServiceType
     let localNotificationsService: LocalNotificationService
     let pushNotificationsService: PushNotificationsService
     let blockchainsProvider: BlockchainsProvider
@@ -561,9 +561,9 @@ extension TokenImageFetcherImpl {
 extension RpcBlockchainProvider {
     static func instanceForResolvingEns(analytics: AnalyticsLogger) -> RpcBlockchainProvider {
         return RpcBlockchainProvider(
-            server: .forResolvingEns,
+            server: .forResolvingDomainNames,
             analytics: analytics,
-            params: .defaultParams(for: .forResolvingEns))
+            params: .defaultParams(for: .forResolvingDomainNames))
     }
 }
 

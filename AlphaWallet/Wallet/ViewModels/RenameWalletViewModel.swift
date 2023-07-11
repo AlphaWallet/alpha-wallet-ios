@@ -22,9 +22,9 @@ struct RenameWalletViewModelOutput {
 final class RenameWalletViewModel {
     private let account: AlphaWallet.Address
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
-    init(account: AlphaWallet.Address, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
+    init(account: AlphaWallet.Address, analytics: AnalyticsLogger, domainResolutionService: DomainNameResolutionServiceType) {
         self.account = account
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
@@ -38,8 +38,8 @@ final class RenameWalletViewModel {
 
         let assignedName = input.willAppear.map { _ in FileWalletStorage().name(for: self.account) }
 
-        let resolvedEns = domainResolutionService.resolveEns(address: account, server: RPCServer.forResolvingEns)
-            .map { ens -> EnsName? in return ens }
+        let resolvedEns = domainResolutionService.reverseResolveDomainName(address: account, server: RPCServer.forResolvingDomainNames)
+            .map { ens -> DomainName? in return ens }
             .replaceError(with: nil)
             .prepend(nil)
 

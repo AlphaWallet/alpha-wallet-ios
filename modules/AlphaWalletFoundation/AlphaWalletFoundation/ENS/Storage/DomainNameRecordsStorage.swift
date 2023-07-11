@@ -10,15 +10,15 @@ import AlphaWalletCore
 import Combine
 import AlphaWalletENS
 
-public protocol EnsRecordsStorage: AnyObject {
-    var allRecords: [EnsRecord] { get }
+public protocol DomainNameRecordsStorage: AnyObject {
+    var allRecords: [DomainNameRecord] { get }
 
-    func record(for key: EnsLookupKey, expirationTime: TimeInterval) -> EnsRecord?
-    func addOrUpdate(record: EnsRecord)
-    func removeRecord(for key: EnsLookupKey)
+    func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) -> DomainNameRecord?
+    func addOrUpdate(record: DomainNameRecord)
+    func removeRecord(for key: DomainNameLookupKey)
 }
 
-extension EnsLookupKey {
+extension DomainNameLookupKey {
     init?(object: EnsRecordObject) {
         let components = object.uid.components(separatedBy: "-")
         guard let nameOrAddress = components[safe: 0] else { return nil }
@@ -30,18 +30,18 @@ extension EnsLookupKey {
     }
 }
 
-extension RealmStore: EnsRecordsStorage {
+extension RealmStore: DomainNameRecordsStorage {
 
-    public var allRecords: [EnsRecord] {
-        var records: [EnsRecord] = []
+    public var allRecords: [DomainNameRecord] {
+        var records: [DomainNameRecord] = []
         performSync { realm in
-            records = realm.objects(EnsRecordObject.self).compactMap { EnsRecord(recordObject: $0) }
+            records = realm.objects(EnsRecordObject.self).compactMap { DomainNameRecord(recordObject: $0) }
         }
         return records
     }
 
-    public func record(for key: EnsLookupKey, expirationTime: TimeInterval) -> EnsRecord? {
-        var record: EnsRecord?
+    public func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) -> DomainNameRecord? {
+        var record: DomainNameRecord?
         let expirationDate = NSDate(timeInterval: expirationTime, since: Date())
         let predicate = NSPredicate(format: "uid = %@ AND creatingDate > %@", key.description, expirationDate)
 
@@ -49,13 +49,13 @@ extension RealmStore: EnsRecordsStorage {
             record = realm.objects(EnsRecordObject.self)
                 .filter(predicate)
                 .first
-                .flatMap { EnsRecord(recordObject: $0) }
+                .flatMap { DomainNameRecord(recordObject: $0) }
         }
 
         return record
     }
 
-    public func addOrUpdate(record: EnsRecord) {
+    public func addOrUpdate(record: DomainNameRecord) {
         performSync { realm in
             try? realm.safeWrite {
                 let object = EnsRecordObject(record: record)
@@ -65,7 +65,7 @@ extension RealmStore: EnsRecordsStorage {
         }
     }
 
-    public func removeRecord(for key: EnsLookupKey) {
+    public func removeRecord(for key: DomainNameLookupKey) {
         let predicate = NSPredicate(format: "uid == '\(key.description)'")
         performSync { realm in
             try? realm.safeWrite {
@@ -76,17 +76,17 @@ extension RealmStore: EnsRecordsStorage {
     }
 }
 
-extension EnsRecord {
+extension DomainNameRecord {
     init?(recordObject: EnsRecordObject) {
-        guard let key = EnsLookupKey(object: recordObject) else { return nil }
+        guard let key = DomainNameLookupKey(object: recordObject) else { return nil }
         self.key = key
         self.date = recordObject.creatingDate as Date
         if let addressString = recordObject.addressRawValue, let address = AlphaWallet.Address(string: addressString) {
             self.value = .address(address)
         } else if let record = recordObject.recordRawValue {
             self.value = .record(record)
-        } else if let ens = recordObject.ensRawValue {
-            self.value = .ens(ens)
+        } else if let domainName = recordObject.ensRawValue {
+            self.value = .domainName(domainName)
         } else {
             return nil
         }

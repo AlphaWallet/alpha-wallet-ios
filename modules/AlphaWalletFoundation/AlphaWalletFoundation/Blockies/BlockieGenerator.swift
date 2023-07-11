@@ -28,13 +28,13 @@ public class BlockiesGenerator {
     private var cache: [String: BlockiesImage] = [:]
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private var sizelessCache: [String: BlockiesImage] = [:]
-    private let storage: EnsRecordsStorage
+    private let storage: DomainNameRecordsStorage
     private lazy var ensTextRecordFetcher = GetEnsTextRecord(blockchainProvider: blockchainProvider, storage: storage)
     private let assetImageProvider: NftAssetImageProvider
     private let blockchainProvider: BlockchainProvider
 
     public init(assetImageProvider: NftAssetImageProvider,
-                storage: EnsRecordsStorage,
+                storage: DomainNameRecordsStorage,
                 blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
         self.assetImageProvider = assetImageProvider
@@ -93,7 +93,7 @@ public class BlockiesGenerator {
             .mapError { SmartContractError.embedded($0) }
             //NOTE: cache fetched open sea image url and rewrite ens avatar with new image
             .handleEvents(receiveOutput: { [storage] url in
-                let key = EnsLookupKey(nameOrAddress: nameOrAddress, server: .forResolvingEns, record: .avatar)
+                let key = DomainNameLookupKey(nameOrAddress: nameOrAddress, server: .forResolvingDomainNames, record: .avatar)
                 storage.addOrUpdate(record: .init(key: key, value: .record(url.absoluteString)))
             }).map { url -> BlockiesImage in
                 return .url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true)

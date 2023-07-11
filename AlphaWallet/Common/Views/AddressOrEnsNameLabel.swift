@@ -26,7 +26,7 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
     private var currentlyResolving: (value: String, promise: Promise<BlockieAndAddressOrEnsResolution>)? {
         didSet {
@@ -66,17 +66,17 @@ class AddressOrEnsNameLabel: UILabel {
         switch addressOrEnsName {
         case .address(let value):
             return value.eip55String
-        case .ensName, .none:
+        case .domainName, .none:
             return nil
         }
     }
 
-    var addressOrEnsName: AddressOrEnsName? {
+    var addressOrEnsName: AddressOrDomainName? {
         didSet {
             switch addressOrEnsName {
             case .some(.address(let address)):
                 text = addressFormat.formattedAddress(address)
-            case .some(.ensName(let string)):
+            case .some(.domainName(let string)):
                 text = string
             case .none:
                 text = nil
@@ -93,7 +93,7 @@ class AddressOrEnsNameLabel: UILabel {
     var addressFormat: AddressFormat = .truncateMiddle
     var shouldShowLoadingIndicator: Bool = false
 
-    init(domainResolutionService: DomainResolutionServiceType) {
+    init(domainResolutionService: DomainNameResolutionServiceType) {
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false

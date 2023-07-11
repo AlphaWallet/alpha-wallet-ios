@@ -31,7 +31,7 @@ class SettingsCoordinator: Coordinator {
     private let walletBalanceService: WalletBalanceService
     private let blockscanChatService: BlockscanChatService
     private let blockiesGenerator: BlockiesGenerator
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var account: Wallet {
         return sessionsProvider.activeSessions.anyValue.account
     }
@@ -74,7 +74,7 @@ class SettingsCoordinator: Coordinator {
          walletBalanceService: WalletBalanceService,
          blockscanChatService: BlockscanChatService,
          blockiesGenerator: BlockiesGenerator,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,

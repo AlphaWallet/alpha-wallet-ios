@@ -31,7 +31,7 @@ class PaymentCoordinator: Coordinator {
     private var shouldRestoreNavigationBarIsHiddenState: Bool
     private var latestNavigationStackViewController: UIViewController?
     private let reachabilityManager: ReachabilityManagerProtocol
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let tokensFilter: TokensFilter
     private let networkService: NetworkService
     private let transactionDataStore: TransactionDataStore
@@ -52,7 +52,7 @@ class PaymentCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          tokensPipeline: TokensProcessingPipeline,
          reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          tokenSwapper: TokenSwapper,
          tokensFilter: TokensFilter,
          networkService: NetworkService,

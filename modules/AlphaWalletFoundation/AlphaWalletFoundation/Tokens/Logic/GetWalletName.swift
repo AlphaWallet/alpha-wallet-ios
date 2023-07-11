@@ -5,9 +5,9 @@ import Combine
 
 //Use the wallet name which the user has set, otherwise fallback to ENS, if available
 public class GetWalletName {
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
-    public init(domainResolutionService: DomainResolutionServiceType) {
+    public init(domainResolutionService: DomainNameResolutionServiceType) {
         self.domainResolutionService = domainResolutionService
     }
 
@@ -16,8 +16,8 @@ public class GetWalletName {
         if let walletName = FileWalletStorage().name(for: address) {
             return .just(walletName)
         } else {
-            return domainResolutionService.resolveEns(address: address, server: RPCServer.forResolvingEns)
-                .map { ens -> EnsName? in return ens }
+            return domainResolutionService.reverseResolveDomainName(address: address, server: RPCServer.forResolvingDomainNames)
+                .map { ens -> DomainName? in return ens }
                 .replaceError(with: nil)
                 .eraseToAnyPublisher()
         }

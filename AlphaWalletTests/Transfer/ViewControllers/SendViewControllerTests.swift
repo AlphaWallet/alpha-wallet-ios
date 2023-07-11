@@ -175,7 +175,7 @@ class SendViewControllerTests: XCTestCase {
         vc.didScanQRCode(qrCode)
 
         let expectation = self.expectation(description: "did update token balance expectation")
-        let destination = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63").flatMap { AddressOrEnsName(address: $0) }
+        let destination = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63").flatMap { AddressOrDomainName(address: $0) }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             XCTAssertEqual(vc.viewModel.latestQrCode, qrCode)
@@ -241,7 +241,7 @@ class SendViewControllerTests: XCTestCase {
 
         let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: tokenAreGoingToBeResolved)
-        
+
         vc.didScanQRCode("aw.app/ethereum:0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72@1/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1.004e18")
 
         let expectation = self.expectation(description: "did update token balance expectation")
@@ -293,7 +293,7 @@ class TokenBalanceTests: XCTestCase {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
             }.store(in: &cancelable)
-        
+
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")!), for: token)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
@@ -304,7 +304,7 @@ class TokenBalanceTests: XCTestCase {
         coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 666), for: tokenToTicker)
 
         tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("4000000020224719101120")!), for: token)
-        
+
         waitForExpectations(timeout: 50)
     }
 

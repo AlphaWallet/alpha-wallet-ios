@@ -7,7 +7,7 @@ public enum AddressOrEip681 {
     ///Strictly speaking, EIP 681 should be like this:
     ///  ethereum:pay-0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18
     ///the "pay-" prefix is optional, if that prefix absent, the payload (0xfb6 here) must be an address. This is because not all ethereum: links are EIP 681
-    case eip681(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String])
+    case eip681(protocolName: String, address: AddressOrDomainName, functionName: String?, params: [String: String])
 }
 
 public struct AddressOrEip681Parser {
@@ -18,7 +18,7 @@ public struct AddressOrEip681Parser {
             return .address(address)
         }
 
-        guard parts.count == 2, let addressOrNameString = parts.last?.slice(to: "@").slice(to: "/").slice(to: "?"), let address = AddressOrEnsName(string: Eip681Parser.stripOptionalPrefix(from: addressOrNameString)) else { return nil }
+        guard parts.count == 2, let addressOrNameString = parts.last?.slice(to: "@").slice(to: "/").slice(to: "?"), let address = AddressOrDomainName(string: Eip681Parser.stripOptionalPrefix(from: addressOrNameString)) else { return nil }
         let secondHalf = parts[1]
         let uncheckedParamParts = Array(secondHalf.components(separatedBy: "?")[1...])
         let paramParts = uncheckedParamParts.isEmpty ? [] : Array(uncheckedParamParts[0].components(separatedBy: "&"))

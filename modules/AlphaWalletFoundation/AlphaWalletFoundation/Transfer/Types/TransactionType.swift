@@ -7,7 +7,7 @@ public enum FungibleAmount {
         case fiat(value: Double, currency: Currency)
         case crypto(value: Double)
     }
-    
+
     case amount(Double)
     case allFunds
     case notSet
@@ -52,7 +52,7 @@ public enum TransactionType {
         }
     }
 
-    public init(fungibleToken token: Token, recipient: AddressOrEnsName? = nil, amount: FungibleAmount = .notSet) {
+    public init(fungibleToken token: Token, recipient: AddressOrDomainName? = nil, amount: FungibleAmount = .notSet) {
         switch token.type {
         case .nativeCryptocurrency:
             self = .nativeCryptocurrency(token, destination: recipient, amount: amount)
@@ -64,8 +64,8 @@ public enum TransactionType {
         }
     }
 
-    case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
-    case erc20Token(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
+    case nativeCryptocurrency(Token, destination: AddressOrDomainName?, amount: FungibleAmount)
+    case erc20Token(Token, destination: AddressOrDomainName?, amount: FungibleAmount)
     case erc875Token(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
@@ -75,7 +75,7 @@ public enum TransactionType {
 
 extension TransactionType {
 
-    public var recipient: AddressOrEnsName? {
+    public var recipient: AddressOrDomainName? {
         switch self {
         case .nativeCryptocurrency(_, let recipient, _), .erc20Token(_, let recipient, _):
             return recipient
@@ -93,7 +93,7 @@ extension TransactionType {
         }
     }
 
-    public mutating func override(recipient: AddressOrEnsName?) {
+    public mutating func override(recipient: AddressOrDomainName?) {
         switch self {
         case .nativeCryptocurrency(let token, _, let amount), .erc20Token(let token, _, let amount):
             self = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)

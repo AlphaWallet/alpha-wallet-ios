@@ -36,7 +36,7 @@ class NewTokenCoordinator: Coordinator {
     private let sessionsProvider: SessionsProvider
     private let serversProvider: ServersProvidable
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let navigationController: UINavigationController
     private lazy var viewController: NewTokenViewController = {
         return NewTokenViewController(
@@ -56,7 +56,7 @@ class NewTokenCoordinator: Coordinator {
          serversProvider: ServersProvidable,
          sessionsProvider: SessionsProvider,
          initialState: NewTokenInitialState = .empty,
-         domainResolutionService: DomainResolutionServiceType) {
+         domainResolutionService: DomainNameResolutionServiceType) {
 
         self.serversProvider = serversProvider
         self.wallet = wallet

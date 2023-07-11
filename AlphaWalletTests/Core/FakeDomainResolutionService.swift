@@ -6,12 +6,12 @@ import Combine
 import AlphaWalletCore
 import AlphaWalletFoundation
 
-class FakeDomainResolutionService: DomainResolutionServiceType {
+class FakeDomainResolutionService: DomainNameResolutionServiceType {
     func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {
         return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
-    func resolveEns(address: AlphaWallet.Address, server: AlphaWalletFoundation.RPCServer) -> AnyPublisher<EnsName, PromiseError> {
+    func reverseResolveDomainName(address: AlphaWallet.Address, server: AlphaWalletFoundation.RPCServer) -> AnyPublisher<DomainName, PromiseError> {
         return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
