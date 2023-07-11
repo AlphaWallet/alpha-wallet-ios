@@ -32,7 +32,7 @@ class EnsResolverTests: XCTestCase {
                 case .finished:
                     break
                 case .failure(let error):
-                    guard case .embeded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
+                    guard case .embedded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
                         XCTFail("Unknown error: \(error)")
                         return
                     }
@@ -62,7 +62,7 @@ class EnsResolverTests: XCTestCase {
                 case .finished:
                     break
                 case .failure(let error):
-                    guard case .embeded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
+                    guard case .embedded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
                         XCTFail("Unknown error: \(error)")
                         return
                     }
@@ -92,7 +92,7 @@ class EnsResolverTests: XCTestCase {
                 case .finished:
                     break
                 case .failure(let error):
-                    guard case .embeded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
+                    guard case .embedded(let e) = error, let pe = e as? PromiseError, let e = pe.embedded as? AlphaWalletWeb3.Web3Error else {
                         XCTFail("Unknown error: \(error)")
                         return
                     }

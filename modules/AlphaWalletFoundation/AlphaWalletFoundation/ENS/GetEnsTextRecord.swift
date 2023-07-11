@@ -76,7 +76,7 @@ extension GetEnsTextRecord {
             //NOTE: once open sea image url cached it will be here as `url`, so the next time we willn't decode it as eip155 and return it as it is
             guard let result = Eip155UrlCoder.decode(from: _url) else {
                 guard let url = URL(string: _url) else {
-                    return .fail(.embeded(AnyError.blockieCreateFailure))
+                    return .fail(.embedded(AnyError.blockieCreateFailure))
                 }
                 //NOTE: fallback to URL in case if result isn't eip155
                 return .just(.image(image: .url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true), raw: _url))

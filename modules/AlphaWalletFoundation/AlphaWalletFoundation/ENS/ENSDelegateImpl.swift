@@ -19,7 +19,7 @@ class ENSDelegateImpl: ENSDelegate {
     func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, AlphaWalletENS.SmartContractError> {
         return IsInterfaceSupported165(blockchainProvider: blockchainProvider)
             .getInterfaceSupported165(hash: hash, contract: contract)
-            .mapError { e in SmartContractError.embeded(e) }
+            .mapError { e in SmartContractError.embedded(e) }
             .eraseToAnyPublisher()
     }
 
@@ -27,7 +27,7 @@ class ENSDelegateImpl: ENSDelegate {
 
         return blockchainProvider
             .call(AnyContractMethodCall(contract: contract, functionName: functionName, abiString: abiString, parameters: parameters))
-            .mapError { e in SmartContractError.embeded(e) }
+            .mapError { e in SmartContractError.embedded(e) }
             .eraseToAnyPublisher()
     }
 
