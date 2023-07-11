@@ -439,13 +439,13 @@ fileprivate extension Attestation.functional {
                           { 
                             "constant": false, 
                             "inputs": [ 
-                              {"rootKeyUID": "","type": "bytes32"}, 
-                              {"signerAddress": "","type": "address"}, 
+                              {"name": "rootKeyUID","type": "bytes32"}, 
+                              {"name": "signerAddress","type": "address"}
                             ], 
                             "name": "validateSignature", 
                             "outputs": [{"name": "", "type": "bool"}], 
                             "type": "function" 
-                          },
+                          }
                         ]
                         """
         let parameters = [rootKeyUID, EthereumAddress(address: signerAddress)] as [AnyObject]
