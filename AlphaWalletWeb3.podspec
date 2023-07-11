@@ -35,4 +35,5 @@ s.dependency 'BigInt'
 s.dependency 'CryptoSwift'
 s.dependency 'secp256k1_ios', '~> 0.1.3'
 s.dependency 'PromiseKit', '~> 6.3.0'
+s.dependency 'SwiftyJSON', '5.0.0'
 end

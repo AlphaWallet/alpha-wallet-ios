@@ -6,25 +6,26 @@
 //
 
 import Foundation
-import AlphaWalletWeb3
+import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
 
-struct Erc20BalanceOfMethodCall: ContractMethodCall {
-    typealias Response = BigUInt
+public struct Erc20BalanceOfMethodCall: ContractMethodCall {
+    public typealias Response = BigUInt
 
-    let contract: AlphaWallet.Address
-    let name: String = "balanceOf"
-    let abi: String = Web3.Utils.erc20ABI
-    var parameters: [AnyObject] { [address.eip55String] as [AnyObject] }
+    public let contract: AlphaWallet.Address
+    public let name: String = "balanceOf"
+    public let abi: String = Web3.Utils.erc20ABI
+    public var parameters: [AnyObject] { [address.eip55String] as [AnyObject] }
 
     private let address: AlphaWallet.Address
 
-    init(contract: AlphaWallet.Address, address: AlphaWallet.Address) {
+    public init(contract: AlphaWallet.Address, address: AlphaWallet.Address) {
         self.contract = contract
         self.address = address
     }
 
-    func response(from dictionary: [String: Any]) throws -> BigUInt {
+    public func response(from dictionary: [String: Any]) throws -> BigUInt {
         guard let balanceOfUnknownType = dictionary["0"], let balance = BigUInt(String(describing: balanceOfUnknownType)) else {
             throw CastError(actualValue: dictionary["0"], expectedType: BigUInt.self)
         }

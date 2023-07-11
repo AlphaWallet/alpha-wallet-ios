@@ -2,6 +2,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletWeb3
 
 public class IsErc875Contract {
     private let blockchainProvider: BlockchainProvider

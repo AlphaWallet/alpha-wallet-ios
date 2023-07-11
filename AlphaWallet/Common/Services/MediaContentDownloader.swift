@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import AVKit
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 protocol ContentCacheStorage: AnyObject {

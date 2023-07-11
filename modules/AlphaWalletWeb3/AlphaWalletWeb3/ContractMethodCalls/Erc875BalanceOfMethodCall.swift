@@ -6,24 +6,25 @@
 //
 
 import Foundation
+import AlphaWalletAddress
 
-struct Erc875BalanceOfMethodCall: ContractMethodCall {
-    typealias Response = [String]
+public struct Erc875BalanceOfMethodCall: ContractMethodCall {
+    public typealias Response = [String]
 
     private let function = GetERC875Balance()
     private let address: AlphaWallet.Address
 
-    let contract: AlphaWallet.Address
-    var name: String { function.name }
-    var abi: String { function.abi }
-    var parameters: [AnyObject] { [address.eip55String] as [AnyObject] }
+    public let contract: AlphaWallet.Address
+    public var name: String { function.name }
+    public var abi: String { function.abi }
+    public var parameters: [AnyObject] { [address.eip55String] as [AnyObject] }
 
-    init(contract: AlphaWallet.Address, address: AlphaWallet.Address) {
+    public init(contract: AlphaWallet.Address, address: AlphaWallet.Address) {
         self.address = address
         self.contract = contract
     }
 
-    func response(from dictionary: [String: Any]) throws -> [String] {
+    public func response(from dictionary: [String: Any]) throws -> [String] {
         return Erc875BalanceOfMethodCall.adapt(dictionary["0"])
     }
 

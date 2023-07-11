@@ -5,6 +5,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletWeb3
 
 public class IsInterfaceSupported165 {
     private let fileName: String

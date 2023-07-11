@@ -8,6 +8,7 @@
 import XCTest
 @testable import AlphaWallet
 import Foundation
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 final class Base64DecoderTests: XCTestCase {

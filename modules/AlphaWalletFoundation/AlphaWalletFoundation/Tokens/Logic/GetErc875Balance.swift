@@ -1,8 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import AlphaWalletCore
 import Combine
+import AlphaWalletCore
+import AlphaWalletWeb3
 
 class GetErc875Balance {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc875Balance")

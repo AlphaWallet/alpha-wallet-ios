@@ -9,6 +9,7 @@ import Foundation
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
+import AlphaWalletWeb3
 import SwiftyJSON
 import Combine
 import BigInt
@@ -164,7 +165,7 @@ final class JsonFromTokenUri {
                                 tokenType: NonFungibleFromJsonTokenType,
                                 uri originalUri: URL,
                                 address: AlphaWallet.Address) -> Publisher {
-        
+
         let uri = originalUri.rewrittenIfIpfs
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
 
