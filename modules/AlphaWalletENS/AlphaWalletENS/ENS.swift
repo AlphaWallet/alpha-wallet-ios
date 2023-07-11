@@ -15,7 +15,7 @@ public typealias ChainId = Int
 
 public enum SmartContractError: Error {
     case delegateNotFound
-    case embeded(Error)
+    case embedded(Error)
 }
 
 public protocol ENSDelegate: AnyObject {
@@ -54,7 +54,7 @@ public class ENS {
 
         //if it does not contain .eth, then it is not a valid ens name
         if !name.contains(".") {
-            return .fail(.embeded(ENSError(description: "Invalid ENS Name")))
+            return .fail(.embedded(ENSError(description: "Invalid ENS Name")))
         }
 
         return getResolver(forName: name)
@@ -84,19 +84,19 @@ public class ENS {
         return delegate.callSmartContract(withChainId: chainId, contract: Self.registrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject]).flatMap { result -> AnyPublisher<[String: Any], SmartContractError> in
             guard let resolverEthereumAddress = result["0"] as? EthereumAddress else {
                 let error = ENSError(description: "Error extracting result from \(Self.registrarContract).\(function.name)()")
-                return .fail(.embeded(error))
+                return .fail(.embedded(error))
             }
             let resolver = AlphaWallet.Address(address: resolverEthereumAddress)
             guard !resolver.isNull else {
                 let error = ENSError(description: "Null address returned")
-                return .fail(.embeded(error))
+                return .fail(.embedded(error))
             }
             let function = ENSReverseLookupEncode()
             return delegate.callSmartContract(withChainId: chainId, contract: resolver, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
         }.flatMap { result -> AnyPublisher<(String, AlphaWallet.Address), SmartContractError> in
             guard let ensName = result["0"] as? String, ensName.contains(".") else {
                 let error = ENSError(description: "Incorrect data output from ENS resolver")
-                return .fail(.embeded(error))
+                return .fail(.embedded(error))
             }
             return self.getENSAddress(fromName: ensName).map { (ensName, $0) }.eraseToAnyPublisher()
         }.tryMap { ensName, resolvedAddress -> String in
@@ -106,7 +106,7 @@ public class ENS {
                 throw ENSError(description: "Forward resolution of ENS name found by reverse look up doesn't match")
             }
         }.mapError { e in
-            SmartContractError.embeded(e)
+            SmartContractError.embedded(e)
         }.eraseToAnyPublisher()
     }
 
@@ -114,7 +114,7 @@ public class ENS {
         //TODO improve if delegate is nil
         guard let delegate = delegate else { return .fail(.delegateNotFound) }
         guard !name.components(separatedBy: ".").isEmpty else {
-            return .fail(.embeded(ENSError(description: "\(name) is invalid ENS name")))
+            return .fail(.embedded(ENSError(description: "\(name) is invalid ENS name")))
         }
 
         let addr = name.lowercased().nameHash
@@ -125,7 +125,7 @@ public class ENS {
             guard !record.isEmpty else { throw ENSError(description: "ENS text record not found for record: \(record) for chainId: \(chainId)") }
             return record
         }.mapError { e in
-            SmartContractError.embeded(e)
+            SmartContractError.embedded(e)
         }.eraseToAnyPublisher()
     }
 
@@ -155,14 +155,14 @@ public class ENS {
                 } else {
                     if resolver.isNull {
                         let error = ENSError(description: "Null address returned")
-                        return .fail(.embeded(error))
+                        return .fail(.embedded(error))
                     } else {
                         return .just(resolver)
                     }
                 }
             } else {
                 let error = ENSError(description: "Error extracting result from \(Self.registrarContract).\(function.name)()")
-                return .fail(.embeded(error))
+                return .fail(.embedded(error))
             }
         }.eraseToAnyPublisher()
     }
@@ -181,7 +181,7 @@ public class ENS {
             guard !ensAddress.isNull else { throw ENSError(description: "Null address returned") }
             return ensAddress
         }.mapError { e in
-            SmartContractError.embeded(e)
+            SmartContractError.embedded(e)
         }.eraseToAnyPublisher()
     }
 
@@ -194,7 +194,7 @@ public class ENS {
         let dnsEncodedName = functional.dnsEncode(name: name)
         guard let callData = delegate.getSmartContractCallData(withChainId: chainId, contract: resolver, functionName: addrFunction.name, abiString: addrFunction.abi, parameters: [node] as [AnyObject]) else {
             struct FailedToBuildCallDataForEnsIp10: Error {}
-            return Fail(error: SmartContractError.embeded(FailedToBuildCallDataForEnsIp10()))
+            return Fail(error: SmartContractError.embedded(FailedToBuildCallDataForEnsIp10()))
                 .eraseToAnyPublisher()
         }
         verboseLog("[ENS] addr data calldata: \(callData.hexString)")
@@ -213,7 +213,7 @@ public class ENS {
             guard !address.isNull else { throw ENSError(description: "Null address returned") }
             return address
         }.mapError { e in
-            SmartContractError.embeded(e)
+            SmartContractError.embedded(e)
         }.eraseToAnyPublisher()
     }
 
