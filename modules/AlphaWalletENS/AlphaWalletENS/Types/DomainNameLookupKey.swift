@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AlphaWalletENS
+import AlphaWalletCore
 
 public struct DomainNameLookupKey: Hashable, CustomStringConvertible {
     public let nameOrAddress: String

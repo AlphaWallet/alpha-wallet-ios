@@ -31,3 +31,7 @@ public typealias EtherNumberFormatter = AlphaWalletWeb3.EtherNumberFormatter
 
 import AlphaWalletABI
 public typealias DecodedFunctionCall = AlphaWalletABI.DecodedFunctionCall
+
+import AlphaWalletENS
+public typealias AddressOrDomainName = AlphaWalletENS.AddressOrDomainName
+public typealias DomainName = AlphaWalletENS.DomainName

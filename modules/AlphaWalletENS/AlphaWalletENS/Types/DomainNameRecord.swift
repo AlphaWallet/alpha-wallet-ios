@@ -1,5 +1,5 @@
 //
-//  EnsRecord.swift
+//  DomainNameRecord.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 06.06.2022.
@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletENS
 
 public typealias DomainName = String
 public typealias DomainNameTextRecord = String

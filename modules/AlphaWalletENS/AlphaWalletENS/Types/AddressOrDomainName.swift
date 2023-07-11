@@ -1,8 +1,8 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletAddress
 
-//TODO this should probably be part of AlphaWallet.Address functionality instead, but narrowing the scope of the current change when we added this
 public enum AddressOrDomainName: Equatable {
     case address(AlphaWallet.Address)
     case domainName(String)

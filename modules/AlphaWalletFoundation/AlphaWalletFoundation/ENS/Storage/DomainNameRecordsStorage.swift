@@ -1,5 +1,5 @@
 //
-//  EnsRecordsStorage.swift
+//  DomainNameRecordsStorage.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 06.06.2022.
@@ -24,9 +24,11 @@ extension DomainNameLookupKey {
         guard let nameOrAddress = components[safe: 0] else { return nil }
         guard let chainId = components[safe: 1].flatMap({ Int($0) }) else { return nil }
 
-        self.server = RPCServer(chainID: chainId)
-        self.record = components[safe: 2].flatMap { EnsTextRecordKey(rawValue: $0) }
-        self.nameOrAddress = nameOrAddress
+        if let record = components[safe: 2].flatMap { EnsTextRecordKey(rawValue: $0) } {
+            self.init(nameOrAddress: nameOrAddress, server: RPCServer(chainID: chainId), record: record)
+        } else {
+            self.init(nameOrAddress: nameOrAddress, server: RPCServer(chainID: chainId))
+        }
     }
 }
 
@@ -79,14 +81,13 @@ extension RealmStore: DomainNameRecordsStorage {
 extension DomainNameRecord {
     init?(recordObject: EnsRecordObject) {
         guard let key = DomainNameLookupKey(object: recordObject) else { return nil }
-        self.key = key
-        self.date = recordObject.creatingDate as Date
+        let date = recordObject.creatingDate as Date
         if let addressString = recordObject.addressRawValue, let address = AlphaWallet.Address(string: addressString) {
-            self.value = .address(address)
+            self.init(key: key, value: .address(address), date: date)
         } else if let record = recordObject.recordRawValue {
-            self.value = .record(record)
+            self.init(key: key, value: .record(record), date: date)
         } else if let domainName = recordObject.ensRawValue {
-            self.value = .domainName(domainName)
+            self.init(key: key, value: .domainName(domainName), date: date)
         } else {
             return nil
         }
