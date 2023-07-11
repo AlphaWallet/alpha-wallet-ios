@@ -56,7 +56,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }()
     private let localNotificationsService: LocalNotificationService
     private let blockiesGenerator: BlockiesGenerator
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let tokenSwapper: TokenSwapper
     private let tokensService: TokensService
     private let lock: Lock
@@ -145,7 +145,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          walletConnectCoordinator: WalletConnectCoordinator,
          localNotificationsService: LocalNotificationService,
          blockiesGenerator: BlockiesGenerator,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          tokenSwapper: TokenSwapper,
          sessionsProvider: SessionsProvider,
          tokenCollection: TokensProcessingPipeline,
@@ -1355,7 +1355,7 @@ extension ActiveWalletCoordinator {
 
     enum PendingOperation {
         case swapToken
-        case sendToken(recipient: AddressOrEnsName?)
+        case sendToken(recipient: AddressOrDomainName?)
     }
 }
 // swiftlint:enable file_length

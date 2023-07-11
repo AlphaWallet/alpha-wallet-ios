@@ -15,7 +15,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sessionsProvider: SessionsProvider
     private var config: Config
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
@@ -58,7 +58,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
          config: Config,
          browserOnly: Bool,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          bookmarksStore: BookmarksStore,
          browserHistoryStorage: BrowserHistoryStorage,
          wallet: Wallet,

@@ -72,7 +72,7 @@ class TokensCoordinator: Coordinator {
 
     private var viewWillAppearHandled = false
     private let blockiesGenerator: BlockiesGenerator
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let wallet: Wallet
     private let currencyService: CurrencyService
     private var cancellable = Set<AnyCancellable>()
@@ -102,7 +102,7 @@ class TokensCoordinator: Coordinator {
          tokenCollection: TokensProcessingPipeline,
          tokensService: TokensService,
          blockiesGenerator: BlockiesGenerator,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          tokensFilter: TokensFilter,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher,

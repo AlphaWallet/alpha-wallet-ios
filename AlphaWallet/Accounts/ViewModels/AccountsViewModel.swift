@@ -26,7 +26,7 @@ final class AccountsViewModel {
     private let analytics: AnalyticsLogger
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var cancellable = Set<AnyCancellable>()
 
     private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
@@ -63,7 +63,7 @@ final class AccountsViewModel {
          analytics: AnalyticsLogger,
          walletBalanceService: WalletBalanceService,
          blockiesGenerator: BlockiesGenerator,
-         domainResolutionService: DomainResolutionServiceType) {
+         domainResolutionService: DomainNameResolutionServiceType) {
 
         self.keystore = keystore
         self.configuration = configuration

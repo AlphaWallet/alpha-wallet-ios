@@ -13,7 +13,7 @@ class InitialWalletCreationCoordinator: Coordinator {
     private let keystore: Keystore
     private let config: Config
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -23,7 +23,7 @@ class InitialWalletCreationCoordinator: Coordinator {
          navigationController: UINavigationController,
          keystore: Keystore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType) {
+         domainResolutionService: DomainNameResolutionServiceType) {
 
         self.config = config
         self.navigationController = navigationController

@@ -30,7 +30,7 @@ class TransactionConfirmationCoordinator: Coordinator {
 
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
-        
+
         return controller
     }()
     private lazy var hostViewController: FloatingPanelController = {
@@ -45,7 +45,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var canBeDismissed = true
     private var server: RPCServer { configurator.session.server }
     private let navigationController: UIViewController
@@ -61,7 +61,7 @@ class TransactionConfirmationCoordinator: Coordinator {
          transaction: UnconfirmedTransaction,
          configuration: TransactionType.Configuration,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          keystore: Keystore,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {

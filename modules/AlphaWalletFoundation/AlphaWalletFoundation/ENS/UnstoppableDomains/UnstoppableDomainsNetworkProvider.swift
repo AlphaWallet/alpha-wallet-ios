@@ -1,5 +1,5 @@
 //
-//  UnstoppableDomainsV2NetworkProvider.swift
+//  UnstoppableDomainsNetworkProvider.swift
 //  AlphaWalletFoundation
 //
 //  Created by Vladyslav Shepitko on 23.09.2022.
@@ -11,7 +11,7 @@ import AlphaWalletENS
 import AlphaWalletCore
 import AlphaWalletLogger
 
-struct UnstoppableDomainsV2NetworkProvider {
+struct UnstoppableDomainsNetworkProvider {
     private let networkService: NetworkService
 
     init(networkService: NetworkService) {
@@ -24,15 +24,15 @@ struct UnstoppableDomainsV2NetworkProvider {
             .receive(on: DispatchQueue.global())
             .tryMap { response -> AlphaWallet.Address in
                 guard let json = try? JSON(data: response.data) else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsV2API.absoluteString) API isMainThread: \(Thread.isMainThread)")
+                    throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
                 }
 
-                let value = try UnstoppableDomainsV2Resolver.AddressResolution.Response(json: json)
+                let value = try UnstoppableDomainsResolver.AddressResolution.Response(json: json)
                 if let owner = value.meta.owner {
                     infoLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
                     return owner
                 } else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsV2API.absoluteString) API isMainThread: \(Thread.isMainThread)")
+                    throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
                 }
             }.mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -42,7 +42,7 @@ struct UnstoppableDomainsV2NetworkProvider {
         let name: String
 
         public func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: Constants.unstoppableDomainsV2API, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: Constants.unstoppableDomainsAPI, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/domains/\(name)"
 
             let request = try URLRequest(url: components.asURL(), method: .get)

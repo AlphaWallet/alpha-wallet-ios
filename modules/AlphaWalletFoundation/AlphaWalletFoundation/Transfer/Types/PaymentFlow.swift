@@ -43,7 +43,7 @@ public enum PaymentFlow {
 
 public enum UncompletedPaymentFlow {
     /// when user need to select token to send to recipient
-    case sendToRecipient(recipient: AddressOrEnsName)
+    case sendToRecipient(recipient: AddressOrDomainName)
 }
 
 public enum SuggestedPaymentFlow {

@@ -40,7 +40,7 @@ class TransferNFTCoordinator: Coordinator {
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
@@ -59,7 +59,7 @@ class TransferNFTCoordinator: Coordinator {
          transactionType: TransactionType,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService,
          tokenImageFetcher: TokenImageFetcher) {

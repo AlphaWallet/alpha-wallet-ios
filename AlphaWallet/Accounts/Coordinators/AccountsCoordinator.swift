@@ -50,7 +50,7 @@ class AccountsCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let viewModel: AccountsCoordinatorViewModel
     private var cancelable = Set<AnyCancellable>()
     private let promptBackup: PromptBackup
@@ -80,7 +80,7 @@ class AccountsCoordinator: Coordinator {
          viewModel: AccountsCoordinatorViewModel,
          walletBalanceService: WalletBalanceService,
          blockiesGenerator: BlockiesGenerator,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          promptBackup: PromptBackup) {
 
         self.promptBackup = promptBackup

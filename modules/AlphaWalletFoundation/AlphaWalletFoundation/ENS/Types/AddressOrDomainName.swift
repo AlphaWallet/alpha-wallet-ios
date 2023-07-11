@@ -3,18 +3,18 @@
 import Foundation
 
 //TODO this should probably be part of AlphaWallet.Address functionality instead, but narrowing the scope of the current change when we added this
-public enum AddressOrEnsName: Equatable {
+public enum AddressOrDomainName: Equatable {
     case address(AlphaWallet.Address)
-    case ensName(String)
+    case domainName(String)
 
     public init(address: AlphaWallet.Address) {
         self = .address(address)
     }
 
-    public init?(ensName: String) {
-        let optionalResult: AddressOrEnsName?
-        if ensName.contains(".") {
-            optionalResult = .ensName(ensName)
+    public init?(domainName: String) {
+        let optionalResult: AddressOrDomainName?
+        if domainName.contains(".") {
+            optionalResult = .domainName(domainName)
         } else {
             optionalResult = nil
         }
@@ -26,11 +26,11 @@ public enum AddressOrEnsName: Equatable {
     }
 
     public init?(string: String) {
-        let optionalResult: AddressOrEnsName?
+        let optionalResult: AddressOrDomainName?
         if let address = AlphaWallet.Address(string: string) {
             optionalResult = .address(address)
         } else {
-            optionalResult = AddressOrEnsName(ensName: string)
+            optionalResult = AddressOrDomainName(domainName: string)
         }
         if let result = optionalResult {
             self = result
@@ -43,7 +43,7 @@ public enum AddressOrEnsName: Equatable {
         switch self {
         case .address(let address):
             return address.eip55String
-        case .ensName(let string):
+        case .domainName(let string):
             return string
         }
     }
@@ -52,7 +52,7 @@ public enum AddressOrEnsName: Equatable {
         switch self {
         case .address(let address):
             return address
-        case .ensName:
+        case .domainName:
             return nil
         }
     }
@@ -62,7 +62,7 @@ public enum AddressOrEnsName: Equatable {
         switch self {
         case .address(let address):
             return address.eip55String.drop0x.lowercased() == contract.drop0x.lowercased()
-        case .ensName:
+        case .domainName:
             return false
         }
     }

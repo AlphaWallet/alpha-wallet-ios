@@ -24,7 +24,7 @@ public class RecipientResolver {
     public let address: AlphaWallet.Address?
     private let server: RPCServer
     private var resolution: Loadable<BlockieAndAddressOrEnsResolution, Error> = .loading
-    public var ensName: EnsName? {
+    public var ensName: DomainName? {
         resolution.value?.resolution.value
     }
     public var blockieImage: BlockiesImage? {
@@ -37,9 +37,9 @@ public class RecipientResolver {
         }
         return false
     }
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
 
-    public init(address: AlphaWallet.Address?, server: RPCServer, domainResolutionService: DomainResolutionServiceType) {
+    public init(address: AlphaWallet.Address?, server: RPCServer, domainResolutionService: DomainNameResolutionServiceType) {
         self.address = address
         self.server = server
         self.domainResolutionService = domainResolutionService

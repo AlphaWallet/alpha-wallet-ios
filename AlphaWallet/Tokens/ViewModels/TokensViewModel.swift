@@ -55,7 +55,7 @@ final class TokensViewModel {
         }
     }
     private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let blockiesGenerator: BlockiesGenerator
     private let sectionViewModelsSubject = CurrentValueSubject<[TokensViewModel.SectionViewModel], Never>([])
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
@@ -161,7 +161,7 @@ final class TokensViewModel {
          walletConnectProvider: WalletConnectProvider,
          walletBalanceService: WalletBalanceService,
          config: Config,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          blockiesGenerator: BlockiesGenerator,
          assetDefinitionStore: AssetDefinitionStore,
          tokenImageFetcher: TokenImageFetcher,

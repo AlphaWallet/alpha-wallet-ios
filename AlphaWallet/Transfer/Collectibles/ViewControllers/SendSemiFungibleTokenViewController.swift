@@ -54,7 +54,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let viewModel: SendSemiFungibleTokenViewModel
     private let tokenCardViewFactory: TokenCardViewFactory
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var cancellable = Set<AnyCancellable>()
 
     var contract: AlphaWallet.Address {
@@ -73,7 +73,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
         return view
     }()
 
-    init(viewModel: SendSemiFungibleTokenViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
+    init(viewModel: SendSemiFungibleTokenViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainNameResolutionServiceType) {
         self.viewModel = viewModel
         self.tokenCardViewFactory = tokenCardViewFactory
         self.domainResolutionService = domainResolutionService

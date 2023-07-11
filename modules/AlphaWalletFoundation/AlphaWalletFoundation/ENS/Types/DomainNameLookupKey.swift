@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletENS
 
-public struct EnsLookupKey: Hashable, CustomStringConvertible {
+public struct DomainNameLookupKey: Hashable, CustomStringConvertible {
     public let nameOrAddress: String
     public let server: RPCServer
     public let record: EnsTextRecordKey?

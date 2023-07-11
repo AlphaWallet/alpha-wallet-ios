@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 27.01.2022.
 //
 
-import Foundation 
+import Foundation
 import AlphaWalletCore
 
-public enum AddressOrEnsResolution {
+public enum AddressOrDomainNameResolution {
     case invalidInput
-    case resolved(AddressOrEnsName?)
+    case resolved(AddressOrDomainName?)
 
     public var value: String? {
         switch self {
@@ -22,4 +22,4 @@ public enum AddressOrEnsResolution {
     }
 }
 
-public typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
+public typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrDomainNameResolution)

@@ -16,7 +16,7 @@ class SendCoordinator: Coordinator {
     private let tokensPipeline: TokensProcessingPipeline
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let sessionsProvider: SessionsProvider
     private let networkService: NetworkService
@@ -39,7 +39,7 @@ class SendCoordinator: Coordinator {
          tokensPipeline: TokensProcessingPipeline,
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          networkService: NetworkService,
          tokenImageFetcher: TokenImageFetcher,
          tokensService: TokensService) {

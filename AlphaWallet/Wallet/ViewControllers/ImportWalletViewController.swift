@@ -16,7 +16,7 @@ class ImportWalletViewController: UIViewController {
 
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private let viewModel = ImportWalletViewModel()
 
     private lazy var containerView: ScrollableStackView = {
@@ -85,7 +85,7 @@ class ImportWalletViewController: UIViewController {
         return textView
     }()
     lazy var watchAddressTextField: AddressTextField = {
-        let textField = AddressTextField(server: RPCServer.forResolvingEns, domainResolutionService: domainResolutionService)
+        let textField = AddressTextField(server: RPCServer.forResolvingDomainNames, domainResolutionService: domainResolutionService)
         textField.inputAccessoryButtonType = .done
         textField.delegate = self
         textField.returnKeyType = .done
@@ -167,7 +167,7 @@ class ImportWalletViewController: UIViewController {
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
-    init(keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
+    init(keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainNameResolutionServiceType) {
         self.keystore = keystore
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService

@@ -47,7 +47,7 @@ final class SwapTokensCoordinator: Coordinator {
     }()
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
-    private let domainResolutionService: DomainResolutionServiceType
+    private let domainResolutionService: DomainNameResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensFilter: TokensFilter
     private let networkService: NetworkService
@@ -62,7 +62,7 @@ final class SwapTokensCoordinator: Coordinator {
          configurator: SwapOptionsConfigurator,
          keystore: Keystore,
          analytics: AnalyticsLogger,
-         domainResolutionService: DomainResolutionServiceType,
+         domainResolutionService: DomainNameResolutionServiceType,
          assetDefinitionStore: AssetDefinitionStore,
          tokensPipeline: TokensProcessingPipeline,
          tokensFilter: TokensFilter,
