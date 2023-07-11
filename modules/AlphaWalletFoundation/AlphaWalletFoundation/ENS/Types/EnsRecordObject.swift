@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletENS
 import RealmSwift
 
 //Domain name rather than ENS-specific. So includes UnstoppableDomains too. Renaming the type would require a Realm migration

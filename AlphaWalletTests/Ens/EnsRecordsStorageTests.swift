@@ -8,10 +8,9 @@
 import XCTest
 import Foundation
 @testable import AlphaWallet
-import AlphaWalletFoundation
+import AlphaWalletENS
 
 class EnsRecordsStorageTests: XCTestCase {
-
     func testIsStorageEmpty() throws {
         let storage = FakeEnsRecordsStorage()
         XCTAssertEqual(storage.allRecords, [], "Storage is empty")

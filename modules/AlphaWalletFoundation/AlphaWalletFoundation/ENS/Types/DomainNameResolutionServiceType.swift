@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletENS
 
 public protocol DomainNameResolutionServiceType {
     func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError>
