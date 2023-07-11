@@ -11,11 +11,11 @@ class FakeDomainResolutionService: DomainResolutionServiceType {
         return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
-    func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<EnsName, PromiseError> {
+    func resolveEns(address: AlphaWallet.Address, server: AlphaWalletFoundation.RPCServer) -> AnyPublisher<EnsName, PromiseError> {
         return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
-    func resolveEnsAndBlockie(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+    func resolveEnsAndBlockie(address: AlphaWallet.Address, server: AlphaWalletFoundation.RPCServer) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
         return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
