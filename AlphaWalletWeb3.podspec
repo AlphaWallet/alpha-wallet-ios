@@ -29,6 +29,7 @@ s.public_header_files = "AlphaWalletWeb3/**/*.{h}"
 s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 
 s.dependency 'AlphaWalletAddress'
+s.dependency 'AlphaWalletABI'
 s.dependency 'AlphaWalletCore'
 s.dependency 'APIKit'
 s.dependency 'BigInt'

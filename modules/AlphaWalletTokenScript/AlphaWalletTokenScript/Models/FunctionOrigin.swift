@@ -4,6 +4,7 @@ import Foundation
 import AlphaWalletABI
 import AlphaWalletAddress
 import AlphaWalletCore
+import AlphaWalletWeb3
 import BigInt
 import Kanna
 

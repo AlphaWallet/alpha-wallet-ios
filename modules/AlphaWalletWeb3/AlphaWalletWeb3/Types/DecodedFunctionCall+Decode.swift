@@ -5,10 +5,9 @@
 //  Created by Vladyslav Shepitko on 11.05.2021.
 //
 
+import AlphaWalletABI
 import AlphaWalletAddress
 import AlphaWalletCore
-//TODO this dependency on AlphaWalletWeb3 should be removed
-import AlphaWalletWeb3
 import BigInt
 import EthereumABI
 
