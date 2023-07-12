@@ -4,7 +4,7 @@ import Foundation
 import AlphaWalletAddress
 
 extension AlphaWallet.Ethereum.ABI {
-    public static let erc20: Data = {
+    public static let erc20: String = {
         """
         [
            {
@@ -496,7 +496,7 @@ extension AlphaWallet.Ethereum.ABI {
               "type":"event"
            }
         ]
-        """.data(using: .utf8)!
+        """
     }()
 
 }

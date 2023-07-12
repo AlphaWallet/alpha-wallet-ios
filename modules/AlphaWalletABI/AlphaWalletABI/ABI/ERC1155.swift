@@ -4,11 +4,7 @@ import Foundation
 import AlphaWalletAddress
 
 extension AlphaWallet.Ethereum.ABI {
-    public static let erc1155String: String = {
-        String(data: erc1155, encoding: .utf8)!
-    }()
-
-    public static let erc1155: Data = {
+    public static let erc1155: String = {
             """
     [
       {
@@ -99,6 +95,6 @@ extension AlphaWallet.Ethereum.ABI {
         ]
       }
     ]
-    """.data(using: .utf8)!
+    """
     }()
 }

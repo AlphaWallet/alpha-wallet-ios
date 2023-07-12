@@ -75,7 +75,7 @@ public struct DecodedFunctionCall {
     public init?(data: Data) {
         if let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.erc20) {
             self = decoded
-        } else if let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.erc721Data) {
+        } else if let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.erc721) {
             self = decoded
         } else {
             return nil
