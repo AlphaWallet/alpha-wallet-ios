@@ -67,8 +67,7 @@ struct ContractAbiV1: ContractRepresentable {
 
     init(abi abiString: String, address: EthereumAddress? = nil) throws {
         do {
-            guard let jsonData = abiString.data(using: .utf8) else { throw Web3.ContractError.abiError(.abiInvalid) }
-
+            let jsonData = Data(abiString.utf8)
             self.abi = try JSONDecoder().decode([ABIRecord].self, from: jsonData).map { try $0.parse() }
             self.address = address
         } catch {

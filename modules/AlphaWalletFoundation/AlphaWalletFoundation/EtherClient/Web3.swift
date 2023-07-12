@@ -12,7 +12,7 @@ import BigInt
 extension Web3.Utils {
     /*
          guard let wallet = keystore.currentWallet else { fatalError() }
-         guard let message = "Hello AlphaWallet".data(using: .utf8) else { fatalError() }
+         let message = Data("Hello AlphaWallet".utf8)
          guard let signature = try? keystore.signMessage(message, for: wallet.address, prompt: "Sign Message").get() else { fatalError() }
 
          switch Web3.Utils.ecrecover(message: message, signature: signature) {

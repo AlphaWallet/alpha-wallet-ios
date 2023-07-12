@@ -77,9 +77,7 @@ extension String {
         return data.map { String(format: "%02x", $0) }.joined() }
 
     internal var hexEncoded: String {
-        guard let data = self.data(using: .utf8) else {
-            return String()
-        }
+        let data = Data(self.utf8)
         return data.hexEncoded
     }
 

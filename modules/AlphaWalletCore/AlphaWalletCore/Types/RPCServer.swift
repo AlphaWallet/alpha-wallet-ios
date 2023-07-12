@@ -138,8 +138,8 @@ public enum RPCServer: Hashable, CaseIterable {
 
     private static func convertJsonToCustomRpcs(_ json: String?) -> [CustomRPC] {
         if let json = json {
-            let data = json.data(using: .utf8)
-            if let servers = try? JSONDecoder().decode([CustomRPC].self, from: data!) {
+            let data = Data(json.utf8)
+            if let servers = try? JSONDecoder().decode([CustomRPC].self, from: data) {
                 return servers
             } else {
                 return .init()

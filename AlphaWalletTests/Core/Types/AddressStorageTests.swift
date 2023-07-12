@@ -32,7 +32,7 @@ class AddressStorageTests: XCTestCase {
 //        return; //NOTE: disable this test as it takes too mutch time for execution
 //
 //        guard let bundlePath = Bundle(for: AddressStorageTests.self).path(forResource: "tikersForTest", ofType: "json") else { XCTFail() }
-//        guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { XCTFail(); return }
+//        let jsonData = try Data(String(contentsOfFile: bundlePath).utf8)
 //
 //        self.measure {
 //            let storage = InMemoryAddressStorage()
@@ -58,7 +58,7 @@ class AddressStorageTests: XCTestCase {
     func testInFileAddressStorage() throws {
         let filestorage: StorageType = try FileStorage.forTestSuite()
         guard let bundlePath = Bundle(for: AddressStorageTests.self).path(forResource: "tikersForTest", ofType: "json") else { XCTFail(); return }
-        guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { XCTFail(); return }
+        let jsonData = try Data(String(contentsOfFile: bundlePath).utf8)
 
         self.measure {
             let storage: FileAddressStorage = FileAddressStorage(persistentStorage: filestorage)
