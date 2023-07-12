@@ -10,7 +10,7 @@ class CallSmartContractFunctionTests: XCTestCase {
         let contractAddress = AlphaWallet.Address(string: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362")!
         let server = RPCServer.main
         let eventName = "TransferSingle"
-        let abiString = AlphaWallet.Ethereum.ABI.erc1155String
+        let abiString = AlphaWallet.Ethereum.ABI.erc1155
         let nullFilter: [EventFilterable]? = nil
         let recipientAddress = EthereumAddress(AlphaWallet.Address(string: "0x3EA245FC5909A55e426a2C044Aa4b48a143F9819")!.eip55String)!
         let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]

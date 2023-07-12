@@ -37,6 +37,10 @@ extension DecodedFunctionCall {
         }
     }
 
+    public static func decode(data: Data, abi: String) -> DecodedFunctionCall? {
+        decode(data: data, abi: Data(abi.utf8))
+    }
+
     public static func decode(data: Data, abi: Data) -> DecodedFunctionCall? {
         guard let contract = contract(abi: abi), data.count > 4 else { return nil }
 

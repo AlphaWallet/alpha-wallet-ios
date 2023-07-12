@@ -287,7 +287,7 @@ public class Erc1155TokenIdsFetcher {
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
 
         return blockchainProvider
-            .eventLogs(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
+            .eventLogs(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155, filter: eventFilter)
             .map { events -> [Erc1155TransferEvent] in
                 let events = events.filter { $0.eventLog != nil }
                 let sortedEvents = events.sorted(by: { a, b in

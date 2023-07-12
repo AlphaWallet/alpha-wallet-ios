@@ -34,7 +34,7 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(_recipient, recipient)
         XCTAssertEqual(_amount, amount)
 
-        let _contract = try Contract(abi: String(data: AlphaWallet.Ethereum.ABI.erc20, encoding: .utf8)!)
+        let _contract = try Contract(abi: AlphaWallet.Ethereum.ABI.erc20)
         guard let result = _contract.decodeInputData(transaction.data) else { fatalError() }
 
         XCTAssertEqual(result.name, "transfer")
@@ -77,7 +77,7 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(transaction.contract, contract)
         XCTAssertEqual(transaction.recipient, recipient)
 
-        let _contract = try Contract(abi: AlphaWallet.Ethereum.ABI.erc721String)
+        let _contract = try Contract(abi: AlphaWallet.Ethereum.ABI.erc721)
         guard let result = _contract.decodeInputData(transaction.data) else { fatalError() }
 
         XCTAssertEqual(result.signature, "42842e0e")
