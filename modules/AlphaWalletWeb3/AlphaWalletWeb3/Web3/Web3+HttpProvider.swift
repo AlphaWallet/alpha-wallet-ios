@@ -32,7 +32,7 @@ public class Web3HttpProvider: Web3RequestProvider {
 
     private static func generateBasicAuthCredentialsHeaderValue(fromURL url: URL) -> String? {
         guard let username = url.user, let password = url.password  else { return nil }
-        return "\(username):\(password)".data(using: .utf8)?.base64EncodedString()
+        return Data("\(username):\(password)".utf8).base64EncodedString()
     }
 
     private static func urlRequest<T: Encodable>(for request: T, providerURL: URL, headers: RPCNodeHTTPHeaders, using decoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {

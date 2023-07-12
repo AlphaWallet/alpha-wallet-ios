@@ -76,7 +76,7 @@ class BackupCoordinator: Coordinator {
         case .success(let value):
             let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
             do {
-                try value.data(using: .utf8)!.write(to: url)
+                try Data(value.utf8).write(to: url)
             } catch {
                 completion(.failure(error))
                 return

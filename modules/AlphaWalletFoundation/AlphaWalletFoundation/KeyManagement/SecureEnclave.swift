@@ -109,7 +109,7 @@ class SecureEnclave {
     }
 
     private func tagData(fromName name: String) -> Data {
-        return name.data(using: .utf8)!
+        return Data(name.utf8)
     }
 
     private func createPrivateKey(withName name: String) throws -> SecKey {
