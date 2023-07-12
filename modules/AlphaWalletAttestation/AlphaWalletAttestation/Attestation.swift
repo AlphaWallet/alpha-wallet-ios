@@ -181,6 +181,13 @@ public struct Attestation: Codable, Hashable {
     }
     public var time: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.time)) }
     public var expirationTime: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.expirationTime)) }
+    public var expirationTime: Date? {
+        if easAttestation.expirationTime < easAttestation.time {
+            return nil
+        } else {
+            return Date(timeIntervalSince1970: TimeInterval(easAttestation.expirationTime))
+        }
+    }
 
     public var verifyingContract: AlphaWallet.Address? { AlphaWallet.Address(string: easAttestation.verifyingContract) }
     public var chainId: Int { easAttestation.chainId }
