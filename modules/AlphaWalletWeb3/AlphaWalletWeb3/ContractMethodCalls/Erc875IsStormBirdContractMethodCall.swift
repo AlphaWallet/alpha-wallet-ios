@@ -12,11 +12,9 @@ import AlphaWalletCore
 public struct Erc875IsStormBirdContractMethodCall: ContractMethodCall {
     public typealias Response = Bool
 
-    private let function = GetIsERC875()
-
     public let contract: AlphaWallet.Address
-    public var name: String { function.name }
-    public var abi: String { function.abi }
+    public let name: String = "isStormBirdContract"
+    public var abi: String { AlphaWallet.Ethereum.ABI.erc875 }
 
     public init(contract: AlphaWallet.Address) {
         self.contract = contract
