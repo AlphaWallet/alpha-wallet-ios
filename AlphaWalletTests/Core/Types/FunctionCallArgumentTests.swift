@@ -9,8 +9,8 @@ import XCTest
 @testable import AlphaWallet
 import EthereumAddress
 import BigInt
-import AlphaWalletABI
 import AlphaWalletFoundation
+import struct AlphaWalletWeb3.FunctionCall
 
 class FunctionCallArgumentTests: XCTestCase {
 

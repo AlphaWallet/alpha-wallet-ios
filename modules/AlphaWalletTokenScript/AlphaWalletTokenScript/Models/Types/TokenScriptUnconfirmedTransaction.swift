@@ -2,7 +2,7 @@
 
 import Foundation
 import AlphaWalletAddress
-import AlphaWalletABI
+import AlphaWalletWeb3
 import AlphaWalletCore
 import BigInt
 

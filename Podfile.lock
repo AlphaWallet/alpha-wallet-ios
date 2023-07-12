@@ -2,7 +2,6 @@ PODS:
   - Alamofire (5.6.4)
   - AlphaWalletABI (1.0.0):
     - AlphaWalletAddress
-    - AlphaWalletWeb3
     - EthereumABI
     - TrustKeystore
   - AlphaWalletAddress (1.0.2):
@@ -93,6 +92,7 @@ PODS:
     - BigInt
     - TrustWalletCore (= 2.6.34)
   - AlphaWalletWeb3 (0.0.1):
+    - AlphaWalletABI
     - AlphaWalletAddress
     - AlphaWalletCore
     - APIKit
@@ -439,7 +439,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
-  AlphaWalletABI: 3a44d65976f24264b93389a830f9333ee72fb274
+  AlphaWalletABI: 5a4303eba7e575cf6ca11b70bb06f1b1d05b0d19
   AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
   AlphaWalletAttestation: 20806a9a5448a2c88927c0ff32726d68c5936032
   AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
@@ -454,7 +454,7 @@ SPEC CHECKSUMS:
   AlphaWalletTokenScript: b4e5d7acdc85ed6915d8bf07c82abf20836cee50
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
   AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
-  AlphaWalletWeb3: fc820c60792055ba6914d1892e8bdfac6ea1da3c
+  AlphaWalletWeb3: 8ceea40c2729c8b718a46b2d9c0d6dd282187279
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02

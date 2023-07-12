@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletABI
 import BigInt
 
 public struct FunctionCall {
