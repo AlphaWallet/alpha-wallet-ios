@@ -48,7 +48,13 @@ class AttestationViewController: UIViewController {
         let dateFormatter = Date.formatter(with: "dd MMM yyyy h:mm:ss a")
         let validFromView = functional.createAttributeView(name: R.string.localizable.attestationsValidFrom(), value: dateFormatter.string(from: attestation.time))
         attributeViews.append(validFromView)
-        let validUntilView = functional.createAttributeView(name: R.string.localizable.attestationsValidUntil(), value: dateFormatter.string(from: attestation.expirationTime))
+        let expirationTimeString: String
+        if let expirationTime = attestation.expirationTime {
+            expirationTimeString = dateFormatter.string(from: expirationTime)
+        } else {
+            expirationTimeString = "—"
+        }
+        let validUntilView = functional.createAttributeView(name: R.string.localizable.attestationsValidUntil(), value: expirationTimeString)
         attributeViews.append(validUntilView)
 
         attributesStackView.set(subviews: attributeViews)
