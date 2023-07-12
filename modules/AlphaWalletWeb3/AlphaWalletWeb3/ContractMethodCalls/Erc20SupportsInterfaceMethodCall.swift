@@ -12,12 +12,11 @@ import AlphaWalletCore
 public struct Erc20SupportsInterfaceMethodCall: ContractMethodCall {
     public typealias Response = Bool
 
-    private let function = GetInterfaceSupported165Encode()
     private let hash: String
 
     public let contract: AlphaWallet.Address
-    public var name: String { function.name }
-    public var abi: String { function.abi }
+    public let name: String = "supportsInterface"
+    public var abi: String { AlphaWallet.Ethereum.ABI.erc165 }
     public var parameters: [AnyObject] { [hash] as [AnyObject] }
 
     public init(contract: AlphaWallet.Address, hash: String) {

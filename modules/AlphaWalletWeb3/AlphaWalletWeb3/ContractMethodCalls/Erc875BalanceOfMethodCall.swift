@@ -11,12 +11,11 @@ import AlphaWalletAddress
 public struct Erc875BalanceOfMethodCall: ContractMethodCall {
     public typealias Response = [String]
 
-    private let function = GetERC875Balance()
     private let address: AlphaWallet.Address
 
     public let contract: AlphaWallet.Address
-    public var name: String { function.name }
-    public var abi: String { function.abi }
+    public var name: String { "balanceOf" }
+    public var abi: String { AlphaWallet.Ethereum.ABI.erc875 }
     public var parameters: [AnyObject] { [address.eip55String] as [AnyObject] }
 
     public init(contract: AlphaWallet.Address, address: AlphaWallet.Address) {

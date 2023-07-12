@@ -57,13 +57,12 @@ struct TokenUriDecoder {
 public struct Erc721TokenUriMethodCall: ContractMethodCall {
     public typealias Response = TokenUriData
 
-    private let function = GetTokenUri()
     private let tokenId: String
     private let decoder: TokenUriDecoder
 
     public let contract: AlphaWallet.Address
-    public var name: String { function.name }
-    public var abi: String { function.abi }
+    public let name: String = "tokenURI"
+    public var abi: String { AlphaWallet.Ethereum.ABI.erc721Metadata }
     public var parameters: [AnyObject] { [tokenId] as [AnyObject] }
 
     public init(contract: AlphaWallet.Address, tokenId: String) {
@@ -80,13 +79,12 @@ public struct Erc721TokenUriMethodCall: ContractMethodCall {
 public struct Erc721UriMethodCall: ContractMethodCall {
     public typealias Response = TokenUriData
 
-    private let function = GetUri()
     private let tokenId: String
     private let decoder: TokenUriDecoder
 
     public let contract: AlphaWallet.Address
-    public var name: String { function.name }
-    public var abi: String { function.abi }
+    public let name: String = "uri"
+    public var abi: String { AlphaWallet.Ethereum.ABI.erc721Metadata }
     public var parameters: [AnyObject] { [tokenId] as [AnyObject] }
 
     public init(contract: AlphaWallet.Address, tokenId: String) {

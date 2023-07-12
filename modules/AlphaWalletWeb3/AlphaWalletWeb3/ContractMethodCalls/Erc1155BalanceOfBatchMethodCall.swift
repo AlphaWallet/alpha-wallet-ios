@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletABI
 import AlphaWalletAddress
 import AlphaWalletCore
 import BigInt
@@ -18,7 +19,7 @@ public struct Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
 
     public let contract: AlphaWallet.Address
     public let name: String = "balanceOfBatch"
-    public let abi: String = GetERC1155BalanceOfBatch().abi
+    public let abi: String = AlphaWallet.Ethereum.ABI.erc1155
     public var parameters: [AnyObject] {
         let address = EthereumAddress(address.eip55String)!
         let addresses: [EthereumAddress] = [EthereumAddress](repeating: address, count: tokenIds.count)
