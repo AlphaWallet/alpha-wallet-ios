@@ -12,7 +12,7 @@ extension TokenActionsService {
     static func instance(networkService: NetworkService, tokenSwapper: TokenSwapper) -> TokenActionsService {
         let service = TokenActionsService()
         let traitCollection = UINavigationController().traitCollection
-        if Features.default.isAvailable(.buyCryptoEnabled) {
+        if Features.current.isAvailable(.buyCryptoEnabled) {
             service.register(service: BuyTokenProvider(subProviders: [
                 Coinbase(action: R.string.localizable.aWalletTokenBuyOnCoinbaseTitle()),
                 Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle(), networking: BaseRampNetworking(networkService: networkService))
@@ -30,7 +30,7 @@ extension TokenActionsService {
             Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle(), networking: BaseOneinchNetworking(networkService: networkService)),
             //uniswap
         ]
-        availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []
+        availableSwapProviders += Features.current.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []
 
         service.register(service: SwapTokenProvider(subProviders: availableSwapProviders, action: R.string.localizable.aWalletTokenSwapButtonTitle()))
         service.register(service: ArbitrumBridge(action: R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle()))

@@ -291,7 +291,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(showMyWalletAddressAction)
 
-        if sessionsProvider.session(for: .main) != nil && Features.default.isAvailable(.buyCryptoEnabled) {
+        if sessionsProvider.session(for: .main) != nil && Features.current.isAvailable(.buyCryptoEnabled) {
             let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.buyCrypto(wallet: strongSelf.wallet, server: .main, viewController: strongSelf.tokensViewController, source: .walletTab)

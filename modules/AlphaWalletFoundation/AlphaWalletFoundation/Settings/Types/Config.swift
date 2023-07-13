@@ -190,7 +190,7 @@ public struct Config {
 
     public var sendAnalyticsEnabled: Bool? {
         get {
-            guard Features.default.isAvailable(.isAnalyticsUIEnabled) else { return nil }
+            guard Features.current.isAvailable(.isAnalyticsUIEnabled) else { return nil }
             guard let value = defaults.value(forKey: Keys.sendAnalyticsEnabled) as? Bool else {
                 return nil
             }
@@ -198,7 +198,7 @@ public struct Config {
             return value
         }
         set {
-            guard Features.default.isAvailable(.isAnalyticsUIEnabled) else {
+            guard Features.current.isAvailable(.isAnalyticsUIEnabled) else {
                 defaults.removeObject(forKey: Keys.sendAnalyticsEnabled)
                 return
             }
@@ -226,7 +226,7 @@ public struct Config {
 
     public var sendPrivateTransactionsProvider: SendPrivateTransactionsProvider? {
         get {
-            guard Features.default.isAvailable(.isUsingPrivateNetwork) else { return nil }
+            guard Features.current.isAvailable(.isUsingPrivateNetwork) else { return nil }
             if defaults.bool(forKey: Keys.usePrivateNetwork) {
                 //Default, for legacy reasons
                 return .ethermine
@@ -236,7 +236,7 @@ public struct Config {
             }
         }
         set {
-            guard Features.default.isAvailable(.isUsingPrivateNetwork) else { return }
+            guard Features.current.isAvailable(.isUsingPrivateNetwork) else { return }
             defaults.set(newValue?.rawValue, forKey: Keys.privateNetworkProvider)
         }
     }

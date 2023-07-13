@@ -22,14 +22,14 @@ public final class CurrencyService {
 
     public init(storage: CurrencyServiceStorage) {
         self.storage = storage
-        if !Features.default.isAvailable(.isChangeCurrencyEnabled) {
+        if !Features.current.isAvailable(.isChangeCurrencyEnabled) {
             self.storage.currency = .default
         }
         currency = storage.currency
     }
 
     public func set(currency: Currency) {
-        guard Features.default.isAvailable(.isChangeCurrencyEnabled) else { return }
+        guard Features.current.isAvailable(.isChangeCurrencyEnabled) else { return }
 
         storage.currency = currency
         self.currency = currency

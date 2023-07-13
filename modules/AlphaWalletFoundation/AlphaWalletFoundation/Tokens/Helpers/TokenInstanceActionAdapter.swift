@@ -51,7 +51,7 @@ public struct TokenInstanceActionAdapter {
                 }
             }
 
-            if Features.default.isAvailable(.isNftTransferEnabled) {
+            if Features.current.isAvailable(.isNftTransferEnabled) {
                 return results
             } else {
                 return results.filter { $0.type != .nonFungibleTransfer }

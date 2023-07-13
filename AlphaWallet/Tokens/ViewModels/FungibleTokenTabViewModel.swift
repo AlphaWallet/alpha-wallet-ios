@@ -42,7 +42,7 @@ class FungibleTokenTabViewModel {
 
         let hasTicker = tokensPipeline.tokenViewModel(for: token)?.balance.ticker != nil
 
-        if Features.default.isAvailable(.isAlertsEnabled) && hasTicker {
+        if Features.current.isAvailable(.isAlertsEnabled) && hasTicker {
             tabBarItems = [.details, .activities, .alerts]
         } else {
             tabBarItems = [.details, .activities]

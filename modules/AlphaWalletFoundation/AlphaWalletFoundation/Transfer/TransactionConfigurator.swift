@@ -83,7 +83,7 @@ public class TransactionConfigurator {
                     initialMaxPriorityFeePerGas: maxPriorityFeePerGas)
             }
         } else {
-            if session.blockchainProvider.server.supportsEip1559 && Features.default.isAvailable(.isEip1559Enabled) && !isRunningTests() {
+            if session.blockchainProvider.server.supportsEip1559 && Features.current.isAvailable(.isEip1559Enabled) && !isRunningTests() {
                 gasPriceEstimator = Eip1559GasPriceEstimator(
                     blockchainProvider: session.blockchainProvider,
                     initialMaxFeePerGas: nil,

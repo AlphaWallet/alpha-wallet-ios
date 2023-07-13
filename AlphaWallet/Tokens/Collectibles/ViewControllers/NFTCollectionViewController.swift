@@ -199,7 +199,7 @@ class NFTCollectionViewController: UIViewController {
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
-        if Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) {
+        if Features.current.isAvailable(.isTokenScriptSignatureStatusEnabled) {
             let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
             if tokenScriptStatusPromise.isPending {
                 let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)

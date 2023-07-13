@@ -50,7 +50,7 @@ open class TokenSwapper: ObservableObject {
                 serversProvider: ServersProvidable,
                 networking: TokenSwapperNetworking,
                 analyticsLogger: AnalyticsLogger) {
-        
+
         self.reachabilityManager = reachabilityManager
         self.networking = networking
         self.serversProvider = serversProvider
@@ -58,7 +58,7 @@ open class TokenSwapper: ObservableObject {
     }
 
     public func start() {
-        guard Features.default.isAvailable(.isSwapEnabled) else { return }
+        guard Features.current.isAvailable(.isSwapEnabled) else { return }
 
         reachabilityManager.networkBecomeReachablePublisher
             .combineLatest(serversProvider.enabledServersPublisher, reloadSubject)

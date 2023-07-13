@@ -11,7 +11,7 @@ import AlphaWalletTokenScript
 class TokenScriptSignatureVerifierTest: XCTestCase {
 
     func testValidatorAPIPassed() {
-        if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
+        if Features.current.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
             return
         }
 
@@ -32,7 +32,7 @@ class TokenScriptSignatureVerifierTest: XCTestCase {
     }
 
     func testValidatorAPIFailed() {
-        if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
+        if Features.current.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
             return
         }
 

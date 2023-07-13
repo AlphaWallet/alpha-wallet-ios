@@ -10,7 +10,7 @@ public protocol FeaturesDelegate: AnyObject {
 }
 
 public class Features {
-    public static let `default`: Features = Features()!
+    public static let current: Features = Features()!
     public weak static var delegate: FeaturesDelegate?
 
     private let encoder: JSONEncoder = JSONEncoder()

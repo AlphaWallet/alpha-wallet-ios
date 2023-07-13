@@ -24,7 +24,7 @@ class ActivityViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         imageView.rounding = .circle
         imageView.placeholderRounding = .circle
-        
+
         return imageView
     }()
 
@@ -191,7 +191,7 @@ class ActivityViewController: UIViewController {
         }
 
         buttonsBar.viewController = self
-        if Features.default.isAvailable(.isSpeedupAndCancelEnabled) && viewModel.isPendingTransaction {
+        if Features.current.isAvailable(.isSpeedupAndCancelEnabled) && viewModel.isPendingTransaction {
             buttonsBar.configure(.combined(buttons: 3))
             configureSpeedupButton(buttonsBar.buttons[0])
             configureCancelButton(buttonsBar.buttons[1])
@@ -243,7 +243,7 @@ class ActivityViewController: UIViewController {
 }
 
 extension ActivityViewController: TokenInstanceWebViewDelegate {
-    
+
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,

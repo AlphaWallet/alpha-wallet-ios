@@ -55,7 +55,7 @@ public final class UNUserNotificationsService: NSObject {
     private func registerForReceivingRemoteNotifications() {
         application.applicationIconBadgeNumber = 0
 
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
         Messaging.messaging().delegate = self
     }
 
