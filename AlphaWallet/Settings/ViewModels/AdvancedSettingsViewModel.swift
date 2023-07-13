@@ -22,7 +22,7 @@ class AdvancedSettingsViewModel {
     private let wallet: Wallet
     private let config: Config
     private (set) var rows: [AdvancedSettingsViewModel.AdvancedSettingsRow] = []
-    private let features: Features = .default
+    private let features: Features = .current
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
 
     init(wallet: Wallet, config: Config) {

@@ -146,10 +146,10 @@ class ActiveWalletViewTests: XCTestCase {
         let tabbarController = coordinator.navigationController.viewControllers[1] as? UITabBarController
 
         XCTAssertNotNil(tabbarController)
-        if Features.default.isAvailable(.isSwapEnabled) {
+        if Features.current.isAvailable(.isSwapEnabled) {
             XCTAssert(tabbarController?.viewControllers!.count == 5)
             XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
-            if Features.default.isAvailable(.isActivityEnabled) {
+            if Features.current.isAvailable(.isActivityEnabled) {
                 XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is ActivitiesViewController)
             } else {
                 XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)

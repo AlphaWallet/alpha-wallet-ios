@@ -117,7 +117,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         let tabBarController: TabBarController = .withOverridenBarAppearence()
         tabBarController.delegate = self
 
-        if Environment.isDebug && Features.default.isAvailable(.isSwapEnabled) {
+        if Environment.isDebug && Features.current.isAvailable(.isSwapEnabled) {
             tabBarController.tabBar.addSubview(swapButton)
             swapButton.topAnchor.constraint(equalTo: tabBarController.tabBar.topAnchor, constant: 2).isActive = true
             swapButton.centerXAnchor.constraint(equalTo: tabBarController.tabBar.centerXAnchor).isActive = true
@@ -427,13 +427,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
 
         let transactionCoordinator = createTransactionCoordinator()
 
-        if Features.default.isAvailable(.isActivityEnabled) {
+        if Features.current.isAvailable(.isActivityEnabled) {
             let activityCoordinator = createActivityCoordinator()
             viewControllers.append(activityCoordinator.navigationController)
         } else {
             viewControllers.append(transactionCoordinator.navigationController)
         }
-        if Environment.isDebug && Features.default.isAvailable(.isSwapEnabled) {
+        if Environment.isDebug && Features.current.isAvailable(.isSwapEnabled) {
             let swapDummyViewController = UIViewController()
             swapDummyViewController.tabBarItem = ActiveWalletViewModel.Tabs.swap.tabBarItem
             viewControllers.append(swapDummyViewController)

@@ -79,7 +79,7 @@ class SupportViewModel: NSObject {
             logAccessGithub()
             return .openUrl(.github)
         case .email:
-            let attachments = Features.default.isAvailable(.isAttachingLogFilesToSupportEmailEnabled) ? DDLogger.logFilesAttachments : []
+            let attachments = Features.current.isAvailable(.isAttachingLogFilesToSupportEmailEnabled) ? DDLogger.logFilesAttachments : []
             return .shareAttachments(attachments: attachments)
         }
 

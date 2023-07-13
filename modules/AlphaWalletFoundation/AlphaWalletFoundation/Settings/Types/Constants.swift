@@ -58,14 +58,14 @@ public struct Constants {
     static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
 
     static func buyWithRampUrl(asset: String, wallet: Wallet) -> String? {
-        guard Features.default.isAvailable(.buyCryptoEnabled) else { return nil }
+        guard Features.current.isAvailable(.buyCryptoEnabled) else { return nil }
         guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
         return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Flogo-horizontal-new.svg&hostAppName=AlphaWallet&swapAsset=\(asset)&userAddress=\(wallet.address.eip55String)"
     }
 
     static func buyWithCoinbaseUrl(blockchain: String, wallet: Wallet) -> String? {
-        guard Features.default.isAvailable(.buyCryptoEnabled) else { return nil }
-        guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
+        guard Features.current.isAvailable(.buyCryptoEnabled) else { return nil }
+        guard Features.current.isAvailable(.isCoinbasePayEnabled) else { return nil }
         guard Constants.Credentials.coinbaseAppId.nonEmpty else { return nil }
         let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinbaseAppId)"
         return base + ("&destinationWallets=[{\"address\": \"\(wallet.address.eip55String)\",\"blockchains\":[\"\(blockchain)\"]}]".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")

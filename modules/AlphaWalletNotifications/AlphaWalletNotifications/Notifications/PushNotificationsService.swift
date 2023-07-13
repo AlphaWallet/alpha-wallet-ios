@@ -68,7 +68,7 @@ public class BasePushNotificationsService: NSObject, PushNotificationsService {
         self.unUserNotificationService = unUserNotificationService
         super.init()
 
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
 
         keystore.didAddWallet
             .flatMap { self.requestSilentAuthorization(wallet: $0.wallet) }
@@ -93,7 +93,7 @@ public class BasePushNotificationsService: NSObject, PushNotificationsService {
     }
 
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return [] }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return [] }
         infoLog("[UNUserNotificationsService] will present notification: \(notification.request.content.userInfo)")
         //NOTE: we don't display push notification popup, refresh transactions instead and display local notificiations popups
         //that only when app is alive, when its closed a push popup will be presented by system, that should be handled too, maybe in some next steps:
@@ -110,14 +110,14 @@ public class BasePushNotificationsService: NSObject, PushNotificationsService {
     }
 
     public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
         let userInfo = response.notification.request.content.userInfo
         infoLog("[UNUserNotificationsService] did receive response: \(userInfo)")
         _ = await notificationHandler.process(userInfo: userInfo, appStartedFromPush: true)
     }
 
     public func requestToEnableNotification() {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
         Task { @MainActor in
             await unUserNotificationService.requestToEnableNotification()
         }
@@ -288,13 +288,13 @@ public class BasePushNotificationsService: NSObject, PushNotificationsService {
     }
 
     public func register(deviceToken: Result<Data, Error>) {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
 
         unUserNotificationService.register(deviceToken: deviceToken)
     }
 
     public func handle(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) async {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return }
 
         if let userInfo = launchOptions?[.remoteNotification] as? [String: AnyObject] {
             infoLog("[UNUserNotificationsService] handle launchOptions: \(launchOptions)")
@@ -303,7 +303,7 @@ public class BasePushNotificationsService: NSObject, PushNotificationsService {
     }
 
     public func handle(remoteNotification userInfo: RemoteNotificationUserInfo) async -> UIBackgroundFetchResult {
-        guard Features.default.isAvailable(.areNotificationsEnabled) else { return .noData }
+        guard Features.current.isAvailable(.areNotificationsEnabled) else { return .noData }
 
         unUserNotificationService.handle(remoteNotification: userInfo)
         infoLog("[UNUserNotificationsService] Receive remote push notification: \(userInfo)")

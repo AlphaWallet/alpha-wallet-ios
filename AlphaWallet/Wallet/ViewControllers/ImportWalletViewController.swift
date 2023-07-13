@@ -321,7 +321,7 @@ class ImportWalletViewController: UIViewController {
     private func validateMnemonic() -> Bool {
         mnemonicTextView.errorState = .none
         var msg: String
-        if Features.default.isAvailable(.is24SeedWordPhraseAllowed) {
+        if Features.current.isAvailable(.is24SeedWordPhraseAllowed) {
             msg = R.string.localizable.importWalletImportInvalidMnemonicCount24()
         } else {
             msg = R.string.localizable.importWalletImportInvalidMnemonicCount12()

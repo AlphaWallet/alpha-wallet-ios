@@ -137,7 +137,7 @@ class Application: WalletDependenciesProvidable {
                 serversProvider: serversProvider,
                 blockchainFactory: BaseBlockchainFactory(analytics: analytics))
         let tokenScriptFeatures = TokenScriptFeatures()
-        Self.copyFeatures(Features.default, toTokenScriptFeatures: tokenScriptFeatures)
+        Self.copyFeatures(Features.current, toTokenScriptFeatures: tokenScriptFeatures)
         self.tokenScriptFeatures = tokenScriptFeatures
         self.assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService, blockchainsProvider: blockchainsProvider, features: tokenScriptFeatures)
 

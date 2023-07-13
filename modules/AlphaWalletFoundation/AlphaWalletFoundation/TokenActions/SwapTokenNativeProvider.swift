@@ -25,7 +25,7 @@ public final class SwapTokenNativeProvider: SupportedTokenActionsProvider, Token
     }
 
     public func isSupport(token: TokenActionsIdentifiable) -> Bool {
-        guard Features.default.isAvailable(.isSwapEnabled) else { return false }
+        guard Features.current.isAvailable(.isSwapEnabled) else { return false }
         return tokenSwapper.supports(contractAddress: token.contractAddress, server: token.server)
     }
 

@@ -320,7 +320,7 @@ final class TokensViewModel {
     }
 
     private var isFooterHidden: Bool {
-        if Features.default.isAvailable(.buyCryptoEnabled) {
+        if Features.current.isAvailable(.buyCryptoEnabled) {
             return !serversProvider.enabledServers.contains(.main)
         } else {
             return true

@@ -17,7 +17,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let eventsDataStore: NonActivityEventsDataStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
-        guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
+        guard Features.current.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceForActivities(
             wallet: wallet,
             config: config,

@@ -12,7 +12,7 @@ class FeaturesViewController: UIViewController {
 
     // MARK: - User Interface
 
-    private let features: Features = Features.default
+    private let features: Features = Features.current
 
     private lazy var tableViewController: FeaturesTableViewController = {
         let controller = FeaturesTableViewController(features: features)

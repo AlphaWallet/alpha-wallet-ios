@@ -17,7 +17,7 @@ public struct MnemonicLengthValidator {
     }
 
     public func isValidSeedPhraseLength(count: Int) -> Bool {
-        if Features.default.isAvailable(.is24SeedWordPhraseAllowed) {
+        if Features.current.isAvailable(.is24SeedWordPhraseAllowed) {
             return HDWallet.validSeedPhraseCounts.contains(count)
         }
         return count == HDWallet.SeedPhraseCount.word12.count

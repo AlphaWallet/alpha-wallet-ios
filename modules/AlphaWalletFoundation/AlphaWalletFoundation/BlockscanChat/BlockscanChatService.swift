@@ -56,7 +56,7 @@ public class BlockscanChatService {
     private func refreshUnreadCount(forBlockscanChat blockscanChat: BlockscanChat) {
         let isCurrentRealAccount = account.address == blockscanChat.address
 
-        guard Features.default.isAvailable(.isBlockscanChatEnabled) else { return }
+        guard Features.current.isAvailable(.isBlockscanChatEnabled) else { return }
         guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
 
         blockscanChat

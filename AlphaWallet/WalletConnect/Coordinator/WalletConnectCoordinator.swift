@@ -291,7 +291,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     }
 
     func provider(_ provider: WalletConnectProvider, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {
-        if Features.default.isAvailable(.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections) {
+        if Features.current.isAvailable(.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections) {
             infoLog("[WalletConnect] app-enforced timeout for waiting for new connection")
             analytics.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
                 Analytics.WalletConnectAction.connectionUrl.rawValue: url.absoluteString

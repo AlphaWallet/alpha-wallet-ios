@@ -290,7 +290,7 @@ extension SettingsViewModel.functional {
         }
 
         var systemRows: [SettingsViewModel.SettingsSystemRow] = []
-        if Features.default.isAvailable(.areNotificationsEnabled) {
+        if Features.current.isAvailable(.areNotificationsEnabled) {
             systemRows += [.notifications, .passcode, .selectActiveNetworks, .advanced]
         } else {
             systemRows += [.passcode, .selectActiveNetworks, .advanced]

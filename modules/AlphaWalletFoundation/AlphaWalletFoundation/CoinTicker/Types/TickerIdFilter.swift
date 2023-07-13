@@ -22,11 +22,11 @@ public class TickerIdFilter {
     private func filterMathesInPlatforms(token: TokenMappedToTicker, tickerId: TickerId) -> Bool {
         func isMatchingSymbolAndName(token: TokenMappedToTicker, tickerId: TickerId) -> Bool {
             let result = tickerId.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame && tickerId.name.compare(token.name, options: .caseInsensitive) == .orderedSame
-            if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
+            if Features.current.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                 Self.matchCounts["by symbol+name, ignoring platform", default: 0] += 1
             }
             //Logging enabled has a side effect. This matching regardless of platform will be applied. Otherwise the counts logged will be incorrect
-            if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
+            if Features.current.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                 return result
             } else {
                 //Force is so we no longer match by ignoring the platform, this produces false positives. Eg. https://candleexplorer.com/address/0x6Ee592139e9DD84587a32831A33a32202d1f0F12 would match USDC with price = $1 because name = "USDC" and symbol = "USDC", but anyone can create such a token on any chain
@@ -50,17 +50,17 @@ public class TickerIdFilter {
         if let contract = tickerId.platforms.first(where: { $0.server == token.server }) {
             if contract.address == Constants.nullAddress {
                 let result = tickerId.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame
-                if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
+                if Features.current.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                     Self.matchCounts["by platform+symbol for 0x0", default: 0] += 1
                 }
                 return result
             } else if contract.address == token.contractAddress {
-                if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
+                if Features.current.isAvailable(.isLoggingEnabledForTickerMatches) {
                     Self.matchCounts["by platform+contract", default: 0] += 1
                 }
                 return true
             } else if token.server == .polygon && token.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.address == Self.polygonMaticContract {
-                if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
+                if Features.current.isAvailable(.isLoggingEnabledForTickerMatches) {
                     Self.matchCounts["by platform + Polygon 0x0 = Matic contract", default: 0] += 1
                 }
                 return true
