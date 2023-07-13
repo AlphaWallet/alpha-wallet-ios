@@ -14,14 +14,13 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
     private let fetchPendingTransactionsQueue: OperationQueue
     private let blockchainProvider: BlockchainProvider
     private let responseSubject = PassthroughSubject<Swift.Result<EthereumTransaction, SessionTaskError>, Never>()
+    private let transaction: Transaction
 
     var interval: TimeInterval { return Constants.Covalent.pendingTransactionUpdateInterval }
     var name: String { "PendingTransactionSchedulerProvider" }
     var operation: AnyPublisher<Void, PromiseError> {
         return fetchPublisher()
     }
-
-    let transaction: Transaction
 
     var responsePublisher: AnyPublisher<Swift.Result<EthereumTransaction, SessionTaskError>, Never> {
         responseSubject.eraseToAnyPublisher()
@@ -46,7 +45,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
                 self?.handle(response: .success(tx))
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let error) = result else { return }
-                
+
                 self?.handle(response: .failure(error))
             })
             .mapToVoid()

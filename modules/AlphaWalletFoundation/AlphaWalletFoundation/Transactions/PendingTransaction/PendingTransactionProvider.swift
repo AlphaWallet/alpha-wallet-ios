@@ -76,6 +76,7 @@ public final class PendingTransactionProvider {
     }
 
     private func runPendingTransactionWatchers(transactions: [Transaction]) {
+        guard !session.config.development.isAutoFetchingDisabled else { return }
         for transaction in transactions {
             guard store[transaction.id] == nil else { continue }
 
