@@ -149,47 +149,16 @@ open class BaseSessionsProvider: SessionsProvider {
 
         switch server.transactionsSource {
         case .etherscan(let apiKey, let url):
-            let transactionBuilder = TransactionBuilder(
-                tokensDataStore: tokensDataStore,
-                server: server,
-                ercTokenProvider: ercTokenProvider)
-
-            return EtherscanCompatibleApiNetworking(
-                server: server,
-                transporter: transporter,
-                transactionBuilder: transactionBuilder,
-                baseUrl: url,
-                apiKey: apiKey)
+            let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
+            return EtherscanCompatibleApiNetworking(server: server, transporter: transporter, transactionBuilder: transactionBuilder, baseUrl: url, apiKey: apiKey, analytics: analytics)
         case .blockscout(let apiKey, let url):
-            let transactionBuilder = TransactionBuilder(
-                tokensDataStore: tokensDataStore,
-                server: server,
-                ercTokenProvider: ercTokenProvider)
-
-            return BlockscoutApiNetworking(
-                server: server,
-                transporter: transporter,
-                transactionBuilder: transactionBuilder,
-                apiKey: apiKey,
-                baseUrl: url)
+            let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
+            return BlockscoutApiNetworking(server: server, transporter: transporter, transactionBuilder: transactionBuilder, apiKey: apiKey, baseUrl: url, analytics: analytics)
         case .covalent(let apiKey):
-            return CovalentApiNetworking(
-                server: server,
-                apiKey: apiKey,
-                transporter: transporter)
-
+            return CovalentApiNetworking(server: server, apiKey: apiKey, transporter: transporter, analytics: analytics)
         case .oklink(let apiKey):
-            let transactionBuilder = TransactionBuilder(
-                tokensDataStore: tokensDataStore,
-                server: server,
-                ercTokenProvider: ercTokenProvider)
-
-            return OklinkApiNetworking(
-                server: server,
-                apiKey: apiKey,
-                transporter: transporter,
-                ercTokenProvider: ercTokenProvider,
-                transactionBuilder: transactionBuilder)
+            let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
+            return OklinkApiNetworking(server: server, apiKey: apiKey, transporter: transporter, ercTokenProvider: ercTokenProvider, transactionBuilder: transactionBuilder, analytics: analytics)
         case .unknown:
             return FallbackApiNetworking()
         }

@@ -17,16 +17,15 @@ public class CovalentApiNetworking: ApiNetworking {
     private let transporter: ApiTransporter
     private let paginationFilter = TransactionPageBasedPaginationFilter()
     private let defaultPagination = PageBasedTransactionsPagination(page: 0, lastFetched: [], limit: 500)
+    private let analytics: AnalyticsLogger
 
-    public init(server: RPCServer,
-                apiKey: String?,
-                transporter: ApiTransporter) {
-
+    public init(server: RPCServer, apiKey: String?, transporter: ApiTransporter, analytics: AnalyticsLogger) {
         self.server = server
         self.apiKey = apiKey
         self.transporter = transporter
+        self.analytics = analytics
     }
-    
+
     public func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
         return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
@@ -38,7 +37,7 @@ public class CovalentApiNetworking: ApiNetworking {
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
             return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
         }
-        
+
         let request = TransactionsRequest(
             baseUrl: baseUrl,
             walletAddress: walletAddress,
@@ -47,9 +46,11 @@ public class CovalentApiNetworking: ApiNetworking {
             pageSize: pagination.limit,
             apiKey: apiKey ?? "",
             blockSignedAtAsc: sortOrder == .asc)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { [server, paginationFilter] response -> TransactionsResponse in
                 guard let json = try? JSON(data: response.data) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
@@ -71,7 +72,7 @@ public class CovalentApiNetworking: ApiNetworking {
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-        
+
         return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
@@ -99,11 +100,13 @@ public class CovalentApiNetworking: ApiNetworking {
         return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
     }
 
-    fileprivate static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
+    fileprivate static func log(response: URLRequest.Response, server: RPCServer, analytics: AnalyticsLogger, domainName: String, caller: String = #function) {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
             let json = try? JSON(response.data)
             infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+            let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
             break
         }

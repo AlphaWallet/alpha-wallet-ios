@@ -116,6 +116,8 @@ public enum Analytics {
         case lifiFetchSupportedToolsError
         case lifiFetchSupportedChainsError
         case coinGeckoRateLimited
+        case blockchainExplorerRateLimited
+        case blockchainExplorerError
     }
 
     public enum Properties: String {
@@ -140,6 +142,7 @@ public enum Analytics {
         case reason
         case domainName
         case scheme
+        case code
     }
 
     public enum EmbeddedDeepLinkType: String {
