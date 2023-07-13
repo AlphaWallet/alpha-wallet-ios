@@ -425,6 +425,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
         case .attestation(let attestation):
             infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient))")
+
             //TODO prompt user to import the attestation?
             if let recipient = attestation.recipient {
                 if recipient.isNull {
