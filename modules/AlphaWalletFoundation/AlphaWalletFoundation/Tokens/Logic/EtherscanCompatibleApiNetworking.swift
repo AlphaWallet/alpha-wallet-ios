@@ -338,7 +338,10 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             let json = try? JSON(response.data)
             infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
         case .success:
-            break
+            //Etherscan. Reproduce by curling without an API key a few times
+            if let json = try? JSON(response.data), json["result"].stringValue == "Max rate limit reached" {
+                infoLog("[API] request rate limited with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+            }
         }
     }
 }
