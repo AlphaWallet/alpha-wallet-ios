@@ -50,7 +50,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -80,7 +80,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -110,7 +110,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc1155) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -179,7 +179,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
             .mapError { PromiseError(error: $0) }
             .flatMap { [transactionBuilder] result -> AnyPublisher<TransactionsResponse, PromiseError> in
                 if result.response.statusCode == 404 {
@@ -255,7 +255,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { Self.log(response: $0, server: server) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -274,7 +274,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { Self.log(response: $0, server: server) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -292,7 +292,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { Self.log(response: $0, server: server) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -332,7 +332,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
             .eraseToAnyPublisher()
     }
 
-    static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
+    fileprivate static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
             let json = try? JSON(response.data)

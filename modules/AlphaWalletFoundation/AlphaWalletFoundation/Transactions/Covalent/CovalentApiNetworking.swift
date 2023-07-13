@@ -5,9 +5,10 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import SwiftyJSON
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
+import SwiftyJSON
 
 public class CovalentApiNetworking: ApiNetworking {
     private let server: RPCServer
@@ -48,7 +49,7 @@ public class CovalentApiNetworking: ApiNetworking {
             blockSignedAtAsc: sortOrder == .asc)
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server) })
             .tryMap { [server, paginationFilter] response -> TransactionsResponse in
                 guard let json = try? JSON(data: response.data) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
@@ -96,6 +97,16 @@ public class CovalentApiNetworking: ApiNetworking {
                                          pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
         return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+    }
+
+    fileprivate static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
+        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
+        case .failure:
+            let json = try? JSON(response.data)
+            infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+        case .success:
+            break
+        }
     }
 }
 
