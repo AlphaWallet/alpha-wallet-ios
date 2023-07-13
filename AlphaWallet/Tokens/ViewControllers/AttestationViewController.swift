@@ -69,10 +69,17 @@ class AttestationViewController: UIViewController {
             containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+
+        showIssuerKeyVerificationButton()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    private func showIssuerKeyVerificationButton() {
+        let issuerKeyVerificationButton = Self.functional.createIssuerKeyVerificationButton(isVerified: attestation.isValidAttestationIssuer)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: issuerKeyVerificationButton)
     }
 
     enum functional {}
@@ -97,6 +104,33 @@ fileprivate extension AttestationViewController.functional {
         let view = TokenAttributeView(indexPath: indexPath)
         view.configure(viewModel: viewModel)
         return view
+    }
+
+    static func createIssuerKeyVerificationButton(isVerified: Bool) -> UIButton {
+        let title: String
+        let image: UIImage?
+        let tintColor: UIColor
+        let button = UIButton(type: .system)
+        if isVerified {
+            //TODO localize
+            title = "Trusted issuer"
+            image = R.image.verified()
+            tintColor = Configuration.Color.Semantic.textFieldContrastText
+        } else {
+            //TODO localize
+            title = "Not trusted"
+            image = R.image.unverified()
+            tintColor = Configuration.Color.Semantic.defaultErrorText
+        }
+        button.setTitle(title, for: .normal)
+        button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.imageView?.tintColor = tintColor
+        button.titleLabel?.font = Fonts.regular(size: 11)
+        button.setTitleColor(tintColor, for: .normal)
+        //TODO hardcoded margins don't work well across languages, e.g. for Chinese
+        button.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
+        button.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
+        return button
     }
 }
 

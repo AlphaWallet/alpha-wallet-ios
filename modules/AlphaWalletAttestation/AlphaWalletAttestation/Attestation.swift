@@ -152,7 +152,6 @@ public struct Attestation: Codable, Hashable {
         case validateSignatureFailed(chainId: ChainId, signerAddress: AlphaWallet.Address, error: AttestationInternalError)
         case schemaRecordNotFound(ChainId, AttestationInternalError)
         case chainNotSupported(chainId: ChainId, error: AttestationInternalError)
-        case invalidAttestationIssuer
         case ecRecoveredSignerDoesNotMatch
         case parseAttestationUrlFailed(String)
     }
@@ -175,12 +174,12 @@ public struct Attestation: Codable, Hashable {
     public let data: [TypeValuePair]
     public let source: String
     private let easAttestation: EasAttestation
+    public let isValidAttestationIssuer: Bool
 
     public var recipient: AlphaWallet.Address? {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: easAttestation.recipient)
     }
     public var time: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.time)) }
-    public var expirationTime: Date { Date(timeIntervalSince1970: TimeInterval(easAttestation.expirationTime)) }
     public var expirationTime: Date? {
         if easAttestation.expirationTime < easAttestation.time {
             return nil
@@ -194,9 +193,10 @@ public struct Attestation: Codable, Hashable {
     //TODO not hardcode
     public var name: String { "EAS Attestation" }
 
-    private init(data: [TypeValuePair], easAttestation: EasAttestation, source: String) {
+    private init(data: [TypeValuePair], easAttestation: EasAttestation, isValidAttestationIssuer: Bool, source: String) {
         self.data = data
         self.easAttestation = easAttestation
+        self.isValidAttestationIssuer = isValidAttestationIssuer
         self.source = source
     }
 
@@ -256,22 +256,19 @@ public struct Attestation: Codable, Hashable {
         }
         let attestation = EasAttestation(fromAttestationArrayString: attestationFromArrayString)
 
-        let isValidAttestationIssuer = try await functional.checkIsValidAttestationIssuer(attestation: attestation)
-        verboseLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
-        guard isValidAttestationIssuer else {
-            throw AttestationError.invalidAttestationIssuer
-        }
-
         let isEcRecoveredSignerMatches = try functional.checkEcRecoveredSignerMatches(attestation: attestation)
         verboseLog("[Attestation] ec-recovered signer matches: \(isEcRecoveredSignerMatches)")
         guard isEcRecoveredSignerMatches else {
             throw AttestationError.ecRecoveredSignerDoesNotMatch
         }
 
-        let results: [TypeValuePair] = try await functional.extractAttestationData(attestation: attestation)
-        verboseLog("[Attestation] decoded attestation data: \(results)")
+        let isValidAttestationIssuer = try await functional.checkIsValidAttestationIssuer(attestation: attestation)
+        verboseLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
 
-        return Attestation(data: results, easAttestation: attestation, source: source)
+        let results: [TypeValuePair] = try await functional.extractAttestationData(attestation: attestation)
+        verboseLog("[Attestation] decoded attestation data: \(results) isValidAttestationIssuer: \(isValidAttestationIssuer)")
+
+        return Attestation(data: results, easAttestation: attestation, isValidAttestationIssuer: isValidAttestationIssuer, source: source)
     }
 
     enum functional {}
