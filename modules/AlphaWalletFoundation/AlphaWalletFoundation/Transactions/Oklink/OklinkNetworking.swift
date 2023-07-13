@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import AlphaWalletCore
 import Combine
+import AlphaWalletCore
+import AlphaWalletLogger
 import SwiftyJSON
 
 //NOTE: as api dosn't return localized operation contract, symbol and decimal for transfer transactions, fetch them from rpc node
@@ -26,18 +27,15 @@ public class OklinkApiNetworking: ApiNetworking {
     private let ercTokenProvider: TokenProviderType
     private let transactionBuilder: TransactionBuilder
     private let defaultPagination = PageBasedTransactionsPagination(page: 0, lastFetched: [], limit: 50)
+    private let analytics: AnalyticsLogger
 
-    public init(server: RPCServer,
-                apiKey: String?,
-                transporter: ApiTransporter,
-                ercTokenProvider: TokenProviderType,
-                transactionBuilder: TransactionBuilder) {
-
+    public init(server: RPCServer, apiKey: String?, transporter: ApiTransporter, ercTokenProvider: TokenProviderType, transactionBuilder: TransactionBuilder, analytics: AnalyticsLogger) {
         self.transactionBuilder = transactionBuilder
         self.ercTokenProvider = ercTokenProvider
         self.server = server
         self.apiKey = apiKey
         self.transporter = transporter
+        self.analytics = analytics
     }
 
     public func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
@@ -63,9 +61,11 @@ public class OklinkApiNetworking: ApiNetworking {
             headers: OklinkApiNetworking.allHTTPHeaderFields)
 
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response in
@@ -106,9 +106,11 @@ public class OklinkApiNetworking: ApiNetworking {
             headers: OklinkApiNetworking.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
@@ -141,9 +143,11 @@ public class OklinkApiNetworking: ApiNetworking {
             headers: OklinkApiNetworking.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
@@ -176,9 +180,11 @@ public class OklinkApiNetworking: ApiNetworking {
             headers: OklinkApiNetworking.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter.dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { try decoder.decode(data: $0.data) }
             .mapError { PromiseError(error: $0) }
             .flatMap { response -> AnyPublisher<TransactionsResponse, PromiseError> in
@@ -348,6 +354,17 @@ public class OklinkApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
+    fileprivate static func log(response: URLRequest.Response, server: RPCServer, analytics: AnalyticsLogger, domainName: String, caller: String = #function) {
+        switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
+        case .failure:
+            let json = try? JSON(response.data)
+            infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+            let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
+        case .success:
+            break
+        }
+    }
 }
 
 fileprivate extension TransactionState {

@@ -20,18 +20,15 @@ class BlockscoutApiNetworking: ApiNetworking {
     private let apiKey: String?
     private let baseUrl: URL
     private let defaultPagination = BlockBasedPagination(startBlock: nil, endBlock: nil)
+    private let analytics: AnalyticsLogger
 
-    init(server: RPCServer,
-         transporter: ApiTransporter,
-         transactionBuilder: TransactionBuilder,
-         apiKey: String?,
-         baseUrl: URL) {
-
+    init(server: RPCServer, transporter: ApiTransporter, transactionBuilder: TransactionBuilder, apiKey: String?, baseUrl: URL, analytics: AnalyticsLogger) {
         self.baseUrl = baseUrl
         self.apiKey = apiKey
         self.transactionBuilder = transactionBuilder
         self.transporter = transporter
         self.server = server
+        self.analytics = analytics
     }
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
@@ -47,10 +44,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .tokentx)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -76,10 +75,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .txlist)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -105,10 +106,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .txlist)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc1155) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -174,10 +177,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .txlist)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .mapError { PromiseError(error: $0) }
             .flatMap { [transactionBuilder] result -> AnyPublisher<TransactionsResponse, PromiseError> in
                 if result.response.statusCode == 404 {
@@ -239,10 +244,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .tokentx)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -258,10 +265,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .tokentx)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -277,10 +286,12 @@ class BlockscoutApiNetworking: ApiNetworking {
             apiKey: apiKey,
             walletAddress: walletAddress,
             action: .tokentx)
+        let analytics = analytics
+        let domainName = baseUrl.host!
 
         return transporter
             .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { EtherscanCompatibleApiNetworking.log(response: $0, server: server) })
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
             .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -306,11 +317,13 @@ class BlockscoutApiNetworking: ApiNetworking {
             }.eraseToAnyPublisher()
     }
 
-    static func log(response: URLRequest.Response, server: RPCServer, caller: String = #function) {
+    fileprivate static func log(response: URLRequest.Response, server: RPCServer, analytics: AnalyticsLogger, domainName: String, caller: String = #function) {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
             let json = try? JSON(response.data)
             infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+            let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
             break
         }
