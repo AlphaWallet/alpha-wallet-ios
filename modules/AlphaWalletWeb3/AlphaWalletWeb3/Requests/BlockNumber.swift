@@ -1,17 +1,21 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 import Foundation
+import AlphaWalletCore
+import BigInt
 import JSONRPCKit
 
-struct BlockNumberRequest: JSONRPCKit.Request {
-    typealias Response = Int
+public struct BlockNumberRequest: JSONRPCKit.Request {
+    public typealias Response = Int
 
-    var method: String {
+    public var method: String {
         return "eth_blockNumber"
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init() {
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String, let value = BigInt(response.drop0x, radix: 16) {
             return numericCast(value)
         } else {

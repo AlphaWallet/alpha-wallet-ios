@@ -23,7 +23,7 @@ public struct UnsignedTransaction {
                 gasLimit: BigUInt,
                 server: RPCServer,
                 transactionType: TransactionType) {
-        
+
         self.value = value
         self.account = account
         self.to = to

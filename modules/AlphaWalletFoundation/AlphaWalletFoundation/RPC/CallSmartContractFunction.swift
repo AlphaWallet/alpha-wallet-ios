@@ -119,7 +119,7 @@ public func getSmartContractCallData(withServer server: RPCServer, contract cont
     guard let web3 = try? Web3.instance(for: server, timeout: 60) else { return nil }
     guard let contract = try? Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress), options: web3.options) else { return nil }
     guard let promiseCreator = try? contract.method(functionName, parameters: parameters, options: nil) else { return nil }
-    return promiseCreator.transaction.data
+    return promiseCreator.data
 }
 
 final class GetEventLogs {

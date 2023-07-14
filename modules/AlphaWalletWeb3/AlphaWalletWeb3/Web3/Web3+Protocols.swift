@@ -18,12 +18,12 @@ public protocol EventParserResultProtocol {
     var eventLog: EventLog? { get }
 }
 
-public protocol EventParserProtocol {
-    func parseTransaction(_ transaction: EthereumTransaction) -> Swift.Result<[EventParserResultProtocol], Web3Error>
+protocol EventParserProtocol {
+    func parseTransaction(_ transaction: Transaction) -> Swift.Result<[EventParserResultProtocol], Web3Error>
     func parseTransactionByHash(_ hash: Data) -> Swift.Result<[EventParserResultProtocol], Web3Error>
     func parseBlock(_ block: Block) -> Swift.Result<[EventParserResultProtocol], Web3Error>
     func parseBlockByNumber(_ blockNumber: UInt64) -> Swift.Result<[EventParserResultProtocol], Web3Error>
-    func parseTransactionPromise(_ transaction: EthereumTransaction) -> Promise<[EventParserResultProtocol]>
+    func parseTransactionPromise(_ transaction: Transaction) -> Promise<[EventParserResultProtocol]>
     func parseTransactionByHashPromise(_ hash: Data) -> Promise<[EventParserResultProtocol]>
     func parseBlockByNumberPromise(_ blockNumber: UInt64) -> Promise<[EventParserResultProtocol]>
     func parseBlockPromise(_ block: Block) -> Promise<[EventParserResultProtocol]>

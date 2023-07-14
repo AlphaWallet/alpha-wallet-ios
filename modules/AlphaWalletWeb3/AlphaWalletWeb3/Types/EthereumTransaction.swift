@@ -4,21 +4,21 @@ import BigInt
 import Foundation
 
 public struct EthereumTransaction {
-    let blockHash: String
-    let blockNumber: String
-    let from: String
-    let to: String
-    let gas: String
-    let gasPrice: GasPrice?
-    let hash: String
-    let input: String
-    let value: String
-    let nonce: String
-    let transactionIndex: String
+    public let blockHash: String
+    public let blockNumber: String
+    public let from: String
+    public let to: String
+    public let gas: String
+    public let gasPrice: GasPrice?
+    public let hash: String
+    public let input: String
+    public let value: String
+    public let nonce: String
+    public let transactionIndex: String
 }
 
 extension EthereumTransaction {
-    
+
     public init(dictionary: [String: AnyObject]) {
         let blockHash = dictionary["blockHash"] as? String ?? ""
         let blockNumber = dictionary["blockNumber"] as? String ?? ""

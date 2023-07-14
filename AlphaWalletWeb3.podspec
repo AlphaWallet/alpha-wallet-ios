@@ -31,10 +31,12 @@ s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 s.dependency 'AlphaWalletAddress'
 s.dependency 'AlphaWalletABI'
 s.dependency 'AlphaWalletCore'
+s.dependency 'AlphaWalletLogger'
 s.dependency 'APIKit'
 s.dependency 'BigInt'
 s.dependency 'CryptoSwift'
 s.dependency 'secp256k1_ios', '~> 0.1.3'
+s.dependency 'JSONRPCKit'
 s.dependency 'PromiseKit', '~> 6.3.0'
 s.dependency 'SwiftyJSON', '5.0.0'
 end

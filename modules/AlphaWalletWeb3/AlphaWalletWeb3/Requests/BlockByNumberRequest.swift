@@ -6,24 +6,29 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import AlphaWalletWeb3
 import BigInt
 import JSONRPCKit
 
-struct BlockByNumberRequest: JSONRPCKit.Request {
-    typealias Response = Block
+public struct BlockByNumberRequest: JSONRPCKit.Request {
+    public typealias Response = Block
 
     let number: BigUInt
     var fullTransactions: Bool = false
-    var method: String {
+    public var method: String {
         return "eth_getBlockByNumber"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [String(number, radix: 16).add0x, fullTransactions]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(number: BigUInt) {
+        self.number = number
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         do {
             let data = try Data(json: resultObject)
             return try JSONDecoder().decode(Block.self, from: data)

@@ -11,10 +11,10 @@ import BigInt
 import PromiseKit
 
 extension Web3.Eth {
-    
-    func estimateGasPromise(_ transaction: EthereumTransaction, options: Web3Options? = nil, onBlock: String = "latest") -> Promise<BigUInt> {
+
+    func estimateGasPromise(_ transaction: Transaction, options: Web3Options? = nil, onBlock: String = "latest") -> Promise<BigUInt> {
         do {
-            guard let request = EthereumTransaction.createRequest(method: .estimateGas, transaction: transaction, onBlock: onBlock, options: options) else {
+            guard let request = Transaction.createRequest(method: .estimateGas, transaction: transaction, onBlock: onBlock, options: options) else {
                 throw Web3Error.inputError("Transaction is invalid")
             }
             let rp = web3.dispatch(request)

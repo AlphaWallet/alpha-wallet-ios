@@ -1,23 +1,28 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import JSONRPCKit
+import AlphaWalletCore
 import AlphaWalletLogger
+import JSONRPCKit
 
-struct GetTransactionRequest: JSONRPCKit.Request {
-    typealias Response = EthereumTransaction?
+public struct GetTransactionRequest: JSONRPCKit.Request {
+    public typealias Response = EthereumTransaction?
 
     let hash: String
 
-    var method: String {
+    public var method: String {
         return "eth_getTransactionByHash"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [hash]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(hash: String) {
+        self.hash = hash
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if resultObject is NSNull {
             infoLog("[RPC] Fetch transaction by hash: \(hash) is null")
             return nil
@@ -25,7 +30,7 @@ struct GetTransactionRequest: JSONRPCKit.Request {
         guard let dict = resultObject as? [String: AnyObject] else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)
         }
-        
+
         return EthereumTransaction(dictionary: dict)
     }
 }

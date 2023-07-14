@@ -1,15 +1,19 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 import JSONRPCKit
 
-struct ChainIdRequest: JSONRPCKit.Request {
-    typealias Response = Int
-    var method: String {
+public struct ChainIdRequest: JSONRPCKit.Request {
+    public typealias Response = Int
+    public var method: String {
         return "eth_chainId"
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init() {
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String, let chainId = Int(chainId0xString: response) {
             return chainId
         } else {

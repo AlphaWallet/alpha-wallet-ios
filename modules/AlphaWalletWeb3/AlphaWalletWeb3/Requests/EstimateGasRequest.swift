@@ -1,10 +1,12 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
 import JSONRPCKit
 import BigInt
 
-enum EstimateGasTransactionType {
+public enum EstimateGasTransactionType {
     case normal(to: AlphaWallet.Address)
     case contractDeployment
 
@@ -17,7 +19,7 @@ enum EstimateGasTransactionType {
         }
     }
 
-    var canCapGasLimit: Bool {
+    public var canCapGasLimit: Bool {
         switch self {
         case .normal:
             return true
@@ -27,19 +29,19 @@ enum EstimateGasTransactionType {
     }
 }
 
-struct EstimateGasRequest: JSONRPCKit.Request {
-    typealias Response = BigUInt
+public struct EstimateGasRequest: JSONRPCKit.Request {
+    public typealias Response = BigUInt
 
     let from: AlphaWallet.Address
     let transactionType: EstimateGasTransactionType
     let value: BigUInt
     let data: Data
 
-    var method: String {
+    public var method: String {
         return "eth_estimateGas"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         //Explicit type declaration to speed up build time. 160msec -> <100ms, as of Xcode 11.7
         var results: [[String: String]] = [
             [
@@ -54,7 +56,14 @@ struct EstimateGasRequest: JSONRPCKit.Request {
         return results
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(from: AlphaWallet.Address, transactionType: EstimateGasTransactionType, value: BigUInt, data: Data) {
+        self.from = from
+        self.transactionType = transactionType
+        self.value = value
+        self.data = data
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String, let value = BigUInt(response.drop0x, radix: 16) {
             return value
         } else {

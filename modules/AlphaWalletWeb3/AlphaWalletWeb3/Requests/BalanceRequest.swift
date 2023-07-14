@@ -1,23 +1,29 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
+import BigInt
 import JSONRPCKit
 
-struct BalanceRequest: JSONRPCKit.Request {
-    typealias Response = Balance
+public struct BalanceRequest: JSONRPCKit.Request {
+    public typealias Response = Balance
 
     let address: AlphaWallet.Address
 
-    var method: String {
+    public var method: String {
         return "eth_getBalance"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [address.eip55String, "latest"]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(address: AlphaWallet.Address) {
+        self.address = address
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String, let value = BigUInt(response.drop0x, radix: 16) {
             return Balance(value: value)
         } else {

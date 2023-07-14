@@ -30,7 +30,7 @@ extension Web3 {
         let contract: ContractRepresentable
         let web3: Web3
 
-        public var options: Web3Options?
+        var options: Web3Options?
 
         public init(web3: Web3, abiString: String, at: EthereumAddress? = nil, options: Web3Options? = nil) throws {
             self.web3 = web3
@@ -50,7 +50,7 @@ extension Web3 {
             self.options = mergedOptions
         }
 
-        public func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options? = nil) throws -> TransactionIntermediate {
+        func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options? = nil) throws -> TransactionIntermediate {
             let mergedOptions = Web3Options.merge(self.options, with: options)
             var transaction = try contract.deploy(bytecode: bytecode, parameters: parameters, extraData: extraData, options: mergedOptions)
             transaction.chainID = web3.chainID
@@ -66,27 +66,27 @@ extension Web3 {
             return TransactionIntermediate(transaction: transaction, web3: web3, contract: contract, method: method, options: mergedOptions)
         }
 
-        public func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
+        func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
             return contract.parseEvent(eventLog)
         }
 
-        public func createEventParser(_ eventName: String, filter: EventFilter?) -> EventParserProtocol? {
+        func createEventParser(_ eventName: String, filter: EventFilter?) -> EventParserProtocol? {
             return EventParser(web3: web3, eventName: eventName, contract: contract, filter: filter)
         }
 
-        public func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
+        func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
             contract.decodeReturnData(method, data: data)
         }
 
-        public func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
+        func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
             contract.decodeInputData(method, data: data)
         }
 
-        public func decodeInputData(_ data: Data) -> [String: Any]? {
+        func decodeInputData(_ data: Data) -> [String: Any]? {
             contract.decodeInputData(data)?.params
         }
 
-        public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
+        func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
             contract.testBloomForEventPrecence(eventName: eventName, bloom: bloom)
         }
     }

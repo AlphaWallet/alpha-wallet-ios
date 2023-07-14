@@ -10,10 +10,10 @@ import Foundation
 import PromiseKit
 
 extension Web3.Eth {
-    
-    public func callPromise(_ transaction: EthereumTransaction, options: Web3Options, onBlock: String = "latest") -> Promise<Data> {
+
+    func callPromise(_ transaction: Transaction, options: Web3Options, onBlock: String = "latest") -> Promise<Data> {
         do {
-            guard let request = EthereumTransaction.createRequest(method: .call, transaction: transaction, onBlock: onBlock, options: options) else {
+            guard let request = Transaction.createRequest(method: .call, transaction: transaction, onBlock: onBlock, options: options) else {
                 throw Web3Error.inputError("Transaction is invalid")
             }
             let rp = web3.dispatch(request)

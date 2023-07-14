@@ -9,15 +9,15 @@
 import Foundation
 import BigInt
 
-public protocol ContractRepresentable {
+protocol ContractRepresentable {
     var address: EthereumAddress? { get set }
     var allMethods: [String] { get }
     var allEvents: [String] { get }
 
     init(abi: String, address: EthereumAddress?) throws
 
-    func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
-    func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
+    func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> Transaction
+    func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> Transaction
     func methodData(_ method: String, parameters: [AnyObject], fallbackData: Data) throws -> Data
     func decodeReturnData(_ method: String, data: Data) -> [String: Any]?
     func decodeInputData(_ method: String, data: Data) -> [String: Any]?
@@ -42,7 +42,7 @@ public protocol EventFilterEncodable {
 }
 
 public protocol EventFilterable: EventFilterComparable, EventFilterEncodable {
-    
+
 }
 
 extension BigUInt: EventFilterable {
@@ -61,7 +61,7 @@ public struct EventFilter {
         case latest
         case pending
         case blockNumber(UInt64)
-        
+
         var encoded: String {
             switch self {
             case .latest:
@@ -73,23 +73,23 @@ public struct EventFilter {
             }
         }
     }
-    
+
     public init() {
-        
+
     }
-    
+
     public init(fromBlock: Block?, toBlock: Block?, addresses: [EthereumAddress]? = nil, parameterFilters: [[EventFilterable]?]? = nil) {
         self.fromBlock = fromBlock
         self.toBlock = toBlock
         self.addresses = addresses
         self.parameterFilters = parameterFilters
     }
-    
+
     public var fromBlock: Block?
     public var toBlock: Block?
     public var addresses: [EthereumAddress]?
     public var parameterFilters: [[EventFilterable]?]?
-    
+
     public func rpcPreEncode() -> EventFilterParameters {
         var encoding = EventFilterParameters()
         if let fromBlock = fromBlock {

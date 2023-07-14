@@ -84,7 +84,7 @@ struct ContractAbiV1: ContractRepresentable {
         self.address = at
     }
 
-    func deploy(bytecode: Data, parameters: [AnyObject] = [AnyObject](), extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
+    func deploy(bytecode: Data, parameters: [AnyObject] = [AnyObject](), extraData: Data = Data(), options: Web3Options?) throws -> Transaction {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
 
         var gasLimit: BigUInt
@@ -116,10 +116,10 @@ struct ContractAbiV1: ContractRepresentable {
             fullData.append(extraData)
         }
 
-        return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: fullData)
+        return Transaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: fullData)
     }
 
-    func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
+    func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> Transaction {
         var to: EthereumAddress
         if let address = address {
             to = address
@@ -152,7 +152,7 @@ struct ContractAbiV1: ContractRepresentable {
 
         let data = try methodData(method, parameters: parameters, fallbackData: extraData)
 
-        return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
+        return Transaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
     }
 
     func methodData(_ method: String = "fallback", parameters: [AnyObject] = [], fallbackData: Data) throws -> Data {

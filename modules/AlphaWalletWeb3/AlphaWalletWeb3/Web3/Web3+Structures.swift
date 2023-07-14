@@ -44,12 +44,12 @@ extension Web3Options: Decodable {
         case gas
         case value
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.gasLimit = try decodeHexToBigUInt(container, key: .gas)
         self.gasPrice = try decodeHexToBigUInt(container, key: .gasPrice)
-        
+
         let toString = try container.decode(String.self, forKey: .to)
         var to: EthereumAddress?
         if toString == "0x" || toString == "0x0" {
@@ -64,7 +64,7 @@ extension Web3Options: Decodable {
     }
 }
 
-extension EthereumTransaction: Decodable {
+extension Transaction: Decodable {
     enum CodingKeys: String, CodingKey {
         case to
         case data
@@ -75,11 +75,11 @@ extension EthereumTransaction: Decodable {
         case s
         case value
     }
-    
-    public init(from decoder: Decoder) throws {
+
+    init(from decoder: Decoder) throws {
         let options = try Web3Options(from: decoder)
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         var data = try decodeHexToData(container, key: .data, allowOptional: true)
         if data != nil {
             self.data = data!
@@ -91,19 +91,19 @@ extension EthereumTransaction: Decodable {
                 throw DecodeError.initFailure
             }
         }
-        
+
         guard let nonce = try decodeHexToBigUInt(container, key: .nonce) else { throw DecodeError.initFailure }
         self.nonce = nonce
 
         guard let v = try decodeHexToBigUInt(container, key: .v) else { throw DecodeError.initFailure }
         self.v = v
-        
+
         guard let r = try decodeHexToBigUInt(container, key: .r) else { throw DecodeError.initFailure }
         self.r = r
-        
+
         guard let s = try decodeHexToBigUInt(container, key: .s) else { throw DecodeError.initFailure }
         self.s = s
-        
+
         if options.value == nil || options.to == nil || options.gasLimit == nil || options.gasPrice == nil {
             throw DecodeError.initFailure
         }
@@ -111,7 +111,7 @@ extension EthereumTransaction: Decodable {
         self.to = options.to!
         self.gasPrice = options.gasPrice!
         self.gasLimit = options.gasLimit!
-        
+
         let inferedChainID = self.inferedChainID
         if self.inferedChainID != nil && self.v >= BigUInt(37) {
             self.chainID = inferedChainID
@@ -120,33 +120,33 @@ extension EthereumTransaction: Decodable {
 }
 
 public struct TransactionDetails: Decodable {
-    public var blockHash: Data?
-    public var blockNumber: BigUInt?
-    public var transactionIndex: BigUInt?
-    public var transaction: EthereumTransaction
-    
+    var blockHash: Data?
+    var blockNumber: BigUInt?
+    var transactionIndex: BigUInt?
+    var transaction: Transaction
+
     enum CodingKeys: String, CodingKey {
         case blockHash
         case blockNumber
         case transactionIndex
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let blockNumber = try decodeHexToBigUInt(container, key: .blockNumber, allowOptional: true)
         self.blockNumber = blockNumber
-        
+
         let blockHash = try decodeHexToData(container, key: .blockHash, allowOptional: true)
         self.blockHash = blockHash
-        
+
         let transactionIndex = try decodeHexToBigUInt(container, key: .blockNumber, allowOptional: true)
         self.transactionIndex = transactionIndex
-        
-        let transaction = try EthereumTransaction(from: decoder)
+
+        let transaction = try Transaction(from: decoder)
         self.transaction = transaction
     }
-    
-    public init? (_ json: [String: AnyObject]) {
+
+    init? (_ json: [String: AnyObject]) {
         let bh = json["blockHash"] as? String
         if bh != nil {
             guard let blockHash = Data.fromHex(bh!) else { return nil }
@@ -154,8 +154,8 @@ public struct TransactionDetails: Decodable {
         }
         let bn = json["blockNumber"] as? String
         let ti = json["transactionIndex"] as? String
-        
-        guard let transaction = EthereumTransaction.fromJSON(json) else { return nil }
+
+        guard let transaction = Transaction.fromJSON(json) else { return nil }
         self.transaction = transaction
         if bn != nil {
             blockNumber = BigUInt(bn!.stripHexPrefix(), radix: 16)
@@ -167,23 +167,23 @@ public struct TransactionDetails: Decodable {
 }
 
 public struct TransactionReceipt: Decodable {
-    public var transactionHash: Data
-    public var blockHash: Data
-    public var blockNumber: BigUInt
-    public var transactionIndex: BigUInt
-    public var contractAddress: EthereumAddress?
-    public var cumulativeGasUsed: BigUInt
-    public var gasUsed: BigUInt
-    public var logs: [EventLog]
+    var transactionHash: Data
+    var blockHash: Data
+    var blockNumber: BigUInt
+    var transactionIndex: BigUInt
+    var contractAddress: EthereumAddress?
+    var cumulativeGasUsed: BigUInt
+    var gasUsed: BigUInt
+    var logs: [EventLog]
     public var status: TXStatus
-    public var logsBloom: EthereumBloomFilter?
-    
+    var logsBloom: EthereumBloomFilter?
+
     public enum TXStatus {
         case ok
         case failed
         case notYetProcessed
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case blockHash
         case blockNumber
@@ -196,29 +196,29 @@ public struct TransactionReceipt: Decodable {
         case logsBloom
         case status
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         guard let blockNumber = try decodeHexToBigUInt(container, key: .blockNumber) else { throw DecodeError.typeMismatch }
         self.blockNumber = blockNumber
-        
+
         guard let blockHash = try decodeHexToData(container, key: .blockHash) else { throw DecodeError.typeMismatch }
         self.blockHash = blockHash
-        
+
         guard let transactionIndex = try decodeHexToBigUInt(container, key: .transactionIndex) else { throw DecodeError.typeMismatch }
         self.transactionIndex = transactionIndex
-        
+
         guard let transactionHash = try decodeHexToData(container, key: .transactionHash) else { throw DecodeError.typeMismatch }
         self.transactionHash = transactionHash
-        
+
         let contractAddress = try container.decodeIfPresent(EthereumAddress.self, forKey: .contractAddress)
         if contractAddress != nil {
             self.contractAddress = contractAddress
         }
-        
+
         guard let cumulativeGasUsed = try decodeHexToBigUInt(container, key: .cumulativeGasUsed) else { throw DecodeError.typeMismatch }
         self.cumulativeGasUsed = cumulativeGasUsed
-        
+
         guard let gasUsed = try decodeHexToBigUInt(container, key: .gasUsed) else { throw DecodeError.typeMismatch }
         self.gasUsed = gasUsed
 
@@ -230,7 +230,7 @@ public struct TransactionReceipt: Decodable {
         } else {
             self.status = TXStatus.failed
         }
-        
+
         if let logsData = try decodeHexToData(container, key: .logsBloom, allowOptional: true), !logsData.isEmpty {
             self.logsBloom = EthereumBloomFilter(logsData)
         }
@@ -239,7 +239,7 @@ public struct TransactionReceipt: Decodable {
         self.logs = logs
     }
 
-    public init(transactionHash: Data, blockHash: Data, blockNumber: BigUInt, transactionIndex: BigUInt, contractAddress: EthereumAddress?, cumulativeGasUsed: BigUInt, gasUsed: BigUInt, logs: [EventLog], status: TXStatus, logsBloom: EthereumBloomFilter?) {
+    init(transactionHash: Data, blockHash: Data, blockNumber: BigUInt, transactionIndex: BigUInt, contractAddress: EthereumAddress?, cumulativeGasUsed: BigUInt, gasUsed: BigUInt, logs: [EventLog], status: TXStatus, logsBloom: EthereumBloomFilter?) {
         self.transactionHash = transactionHash
         self.blockHash = blockHash
         self.blockNumber = blockNumber
@@ -251,8 +251,8 @@ public struct TransactionReceipt: Decodable {
         self.status = status
         self.logsBloom = logsBloom
     }
-    
-    public init?(_ json: [String: AnyObject]) {
+
+    init?(_ json: [String: AnyObject]) {
         guard let th = json["transactionHash"] as? String else { return nil }
         guard let transactionHash = Data.fromHex(th) else { return nil }
         self.transactionHash = transactionHash
@@ -267,7 +267,7 @@ public struct TransactionReceipt: Decodable {
         guard let ls = json["logs"] as? [[String: AnyObject]] else { return nil }
         let lbl = json["logsBloom"] as? String
         let st = json["status"] as? String
-    
+
         guard let bnUnwrapped = BigUInt(bn.stripHexPrefix(), radix: 16) else { return nil }
         blockNumber = bnUnwrapped
         guard let tiUnwrapped = BigUInt(ti.stripHexPrefix(), radix: 16) else { return nil }
@@ -297,7 +297,7 @@ public struct TransactionReceipt: Decodable {
             logsBloom = EthereumBloomFilter(logsData)
         }
     }
-    
+
     static func notProcessed(transactionHash: Data) -> TransactionReceipt {
         let receipt = TransactionReceipt.init(transactionHash: transactionHash, blockHash: Data(), blockNumber: BigUInt(0), transactionIndex: BigUInt(0), contractAddress: nil, cumulativeGasUsed: BigUInt(0), gasUsed: BigUInt(0), logs: [EventLog](), status: .notYetProcessed, logsBloom: nil)
         return receipt
@@ -339,38 +339,38 @@ public struct EventLog: Codable {
         case transactionHash
         case transactionIndex
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         let address = try container.decode(EthereumAddress.self, forKey: .address)
         self.address = address
-        
+
         guard let blockNumber = try decodeHexToBigUInt(container, key: .blockNumber) else { throw DecodeError.typeMismatch }
         self.blockNumber = blockNumber
-        
+
         guard let blockHash = try decodeHexToData(container, key: .blockHash) else { throw DecodeError.typeMismatch }
         self.blockHash = blockHash
-        
+
         guard let transactionIndex = try decodeHexToBigUInt(container, key: .transactionIndex) else { throw DecodeError.typeMismatch }
         self.transactionIndex = transactionIndex
-        
+
         guard let transactionHash = try decodeHexToData(container, key: .transactionHash) else { throw DecodeError.typeMismatch }
         self.transactionHash = transactionHash
-    
+
         guard let data = try decodeHexToData(container, key: .data) else { throw DecodeError.typeMismatch }
         self.data = data
-        
+
         guard let logIndex = try decodeHexToBigUInt(container, key: .logIndex) else { throw DecodeError.typeMismatch }
         self.logIndex = logIndex
-        
+
         let removed = try decodeHexToBigUInt(container, key: .removed, allowOptional: true)
         if removed == 1 {
             self.removed = true
         } else {
             self.removed = false
         }
-    
+
         let topicsStrings = try container.decode([String].self, forKey: .topics)
         var allTopics = [Data]()
         for top in topicsStrings {
@@ -412,11 +412,11 @@ public struct EventLog: Codable {
     }
 }
 
-public enum TransactionInBlock: Decodable {
+enum TransactionInBlock: Decodable {
     case hash(Data)
-    case transaction(EthereumTransaction)
+    case transaction(Transaction)
     case null
-    
+
     public init(from decoder: Decoder) throws {
         let value = try decoder.singleValueContainer()
         if let string = try? value.decode(String.self) {
@@ -424,7 +424,7 @@ public enum TransactionInBlock: Decodable {
             self = .hash(d)
         } else if let dict = try? value.decode([String: String].self) {
 //            guard let t = try? EthereumTransaction(from: decoder) else {throw Web3Error.dataError}
-            guard let t = EthereumTransaction.fromJSON(dict) else { throw DecodeError.typeMismatch }
+            guard let t = Transaction.fromJSON(dict) else { throw DecodeError.typeMismatch }
             self = .transaction(t)
         } else {
             self = .null
@@ -436,7 +436,7 @@ public enum TransactionInBlock: Decodable {
             guard let d = Data.fromHex(string) else { return nil }
             self = .hash(d)
         } else if let dict = data as? [String: AnyObject] {
-            guard let t = EthereumTransaction.fromJSON(dict) else { return nil }
+            guard let t = Transaction.fromJSON(dict) else { return nil }
             self = .transaction(t)
         } else {
             return nil
@@ -462,9 +462,9 @@ public struct Block: Decodable {
     public var gasLimit: BigUInt
     public var gasUsed: BigUInt
     public var timestamp: Date
-    public var transactions: [TransactionInBlock]
+    var transactions: [TransactionInBlock]
     public var uncles: [Data]
-    
+
     enum CodingKeys: String, CodingKey {
         case number
         case hash
@@ -486,40 +486,40 @@ public struct Block: Decodable {
         case transactions
         case uncles
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         guard let number = try decodeHexToBigUInt(container, key: .number) else { throw DecodeError.typeMismatch }
         self.number = number
-        
+
         guard let hash = try decodeHexToData(container, key: .hash) else { throw DecodeError.typeMismatch }
         self.hash = hash
-        
+
         guard let parentHash = try decodeHexToData(container, key: .parentHash) else { throw DecodeError.typeMismatch }
         self.parentHash = parentHash
-        
+
         let nonce = try decodeHexToData(container, key: .nonce, allowOptional: true)
         self.nonce = nonce
-        
+
         guard let sha3Uncles = try decodeHexToData(container, key: .sha3Uncles) else { throw DecodeError.typeMismatch }
         self.sha3Uncles = sha3Uncles
-        
+
         let logsBloomData = try decodeHexToData(container, key: .logsBloom, allowOptional: true)
         var bloom: EthereumBloomFilter?
         if logsBloomData != nil {
             bloom = EthereumBloomFilter(logsBloomData!)
         }
         self.logsBloom = bloom
-        
+
         guard let transactionsRoot = try decodeHexToData(container, key: .transactionsRoot) else { throw DecodeError.typeMismatch }
         self.transactionsRoot = transactionsRoot
-        
+
         guard let stateRoot = try decodeHexToData(container, key: .stateRoot) else { throw DecodeError.typeMismatch }
         self.stateRoot = stateRoot
-        
+
         guard let receiptsRoot = try decodeHexToData(container, key: .receiptsRoot) else { throw DecodeError.typeMismatch }
         self.receiptsRoot = receiptsRoot
-        
+
         let minerAddress = try? container.decode(String.self, forKey: .miner)
         var miner: EthereumAddress?
         if minerAddress != nil {
@@ -527,33 +527,33 @@ public struct Block: Decodable {
             miner = minr
         }
         self.miner = miner
-        
+
         guard let difficulty = try decodeHexToBigUInt(container, key: .difficulty) else { throw DecodeError.typeMismatch }
         self.difficulty = difficulty
-        
+
         guard let totalDifficulty = try decodeHexToBigUInt(container, key: .totalDifficulty) else { throw DecodeError.typeMismatch }
         self.totalDifficulty = totalDifficulty
-        
+
         guard let extraData = try decodeHexToData(container, key: .extraData) else { throw DecodeError.typeMismatch }
         self.extraData = extraData
-        
+
         guard let size = try decodeHexToBigUInt(container, key: .size) else { throw DecodeError.typeMismatch }
         self.size = size
-        
+
         guard let gasLimit = try decodeHexToBigUInt(container, key: .gasLimit) else { throw DecodeError.typeMismatch }
         self.gasLimit = gasLimit
-        
+
         guard let gasUsed = try decodeHexToBigUInt(container, key: .gasUsed) else { throw DecodeError.typeMismatch }
         self.gasUsed = gasUsed
-        
+
         let timestampString = try container.decode(String.self, forKey: .timestamp).stripHexPrefix()
         guard let timestampInt = UInt64(timestampString, radix: 16) else { throw DecodeError.typeMismatch }
         let timestamp = Date(timeIntervalSince1970: TimeInterval(timestampInt))
         self.timestamp = timestamp
-        
+
         let transactions = try container.decode([TransactionInBlock].self, forKey: .transactions)
         self.transactions = transactions
-        
+
         let unclesStrings = try container.decode([String].self, forKey: .uncles)
         var uncles = [Data]()
         for str in unclesStrings {
@@ -570,7 +570,7 @@ public struct EventParserResult: EventParserResultProtocol {
     public var contractAddress: EthereumAddress
     public var decodedResult: [String: Any]
     public var eventLog: EventLog?
-    
+
     public init (eventName: String, transactionReceipt: TransactionReceipt?, contractAddress: EthereumAddress, decodedResult: [String: Any]) {
         self.eventName = eventName
         self.transactionReceipt = transactionReceipt
@@ -581,6 +581,6 @@ public struct EventParserResult: EventParserResultProtocol {
 }
 
 public struct TransactionSendingResult {
-    public var transaction: EthereumTransaction
+    var transaction: Transaction
     public var hash: String
 }
