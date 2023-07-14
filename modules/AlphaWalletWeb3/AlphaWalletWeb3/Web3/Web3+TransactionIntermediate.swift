@@ -13,13 +13,17 @@ import PromiseKit
 extension Web3.Contract {
 
     public class TransactionIntermediate {
-        public var transaction: EthereumTransaction
+        var transaction: Transaction
         var contract: ContractRepresentable
-        public var method: String
-        public var options: Web3Options? = Web3Options.defaultOptions()
+        var method: String
+        var options: Web3Options? = Web3Options.defaultOptions()
         let web3: Web3
 
-        public init(transaction: EthereumTransaction, web3: Web3, contract: ContractRepresentable, method: String, options: Web3Options?) {
+        public var data: Data {
+            transaction.data
+        }
+
+        init(transaction: Transaction, web3: Web3, contract: ContractRepresentable, method: String, options: Web3Options?) {
             self.transaction = transaction
             self.web3 = web3
             self.contract = contract
@@ -32,7 +36,7 @@ extension Web3.Contract {
 
 extension Web3.Contract.TransactionIntermediate {
 
-    func assemblePromise(options: Web3Options? = nil, onBlock: String = "pending") -> Promise<EthereumTransaction> {
+    func assemblePromise(options: Web3Options? = nil, onBlock: String = "pending") -> Promise<Transaction> {
         var assembledTransaction = self.transaction
 
         let eth = Web3.Eth(web3: web3)
@@ -50,7 +54,7 @@ extension Web3.Contract.TransactionIntermediate {
         let gasEstimatePromise: Promise<BigUInt> = eth.estimateGasPromise(assembledTransaction, options: optionsForGasEstimation, onBlock: onBlock)
         let gasPricePromise: Promise<BigUInt> = eth.getGasPricePromise()
 
-        return when(resolved: getNoncePromise, gasEstimatePromise, gasPricePromise).map(on: web3.queue, { results throws -> EthereumTransaction in
+        return when(resolved: getNoncePromise, gasEstimatePromise, gasPricePromise).map(on: web3.queue, { results throws -> Transaction in
 
             guard case .fulfilled(let nonce) = results[0] else {
                 throw Web3Error.inputError("Failed to fetch nonce")

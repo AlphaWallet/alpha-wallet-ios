@@ -6,24 +6,29 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import AlphaWalletWeb3
 import BigInt
 import JSONRPCKit
 
-struct TransactionReceiptRequest: JSONRPCKit.Request {
-    typealias Response = TransactionReceipt
+public struct TransactionReceiptRequest: JSONRPCKit.Request {
+    public typealias Response = TransactionReceipt
 
     let hash: String
 
-    var method: String {
+    public var method: String {
         return "eth_getTransactionReceipt"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [hash]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(hash: String) {
+        self.hash = hash
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         do {
             let data = try Data(json: resultObject)
             return try JSONDecoder().decode(TransactionReceipt.self, from: data)

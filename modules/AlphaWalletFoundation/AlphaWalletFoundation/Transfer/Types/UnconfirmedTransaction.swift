@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletWeb3
 import BigInt
 
 public struct UnconfirmedTransaction {

@@ -1,6 +1,8 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
 import JSONRPCKit
 
 public struct EthCallRequest: JSONRPCKit.Request {

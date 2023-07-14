@@ -1,24 +1,29 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletCore
 import JSONRPCKit
 
-struct SendRawTransactionRequest: JSONRPCKit.Request {
-    typealias Response = String
+public struct SendRawTransactionRequest: JSONRPCKit.Request {
+    public typealias Response = String
 
     let signedTransaction: String
 
-    var method: String {
+    public var method: String {
         return "eth_sendRawTransaction"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [
             signedTransaction,
         ]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(signedTransaction: String) {
+        self.signedTransaction = signedTransaction
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? Response {
             return response
         } else {

@@ -109,7 +109,7 @@ class CcipRead {
         let eth = Web3.Eth(web3: web3)
         //Empty `Web3Options()` so `gasLimit` is not passed in
         let options = Web3Options()
-        let transaction = EthereumTransaction(to: address, data: Data(hex: payload), options: options)
+        let transaction = Transaction(to: address, data: Data(hex: payload), options: options)
         return eth.callPromise(transaction, options: options, onBlock: onBlock)
     }
 

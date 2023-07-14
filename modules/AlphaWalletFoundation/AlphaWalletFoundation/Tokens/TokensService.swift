@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletWeb3
 
 public protocol TokensService {
     var tokens: [Token] { get }

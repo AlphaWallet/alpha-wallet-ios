@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletWeb3
 
 public struct WalletBalance {
     fileprivate struct BalanceRepresentable: Hashable {

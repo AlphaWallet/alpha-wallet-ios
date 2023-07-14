@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletWeb3
 import CombineExt
 
 public class AlphaWalletTokensService: TokensService {

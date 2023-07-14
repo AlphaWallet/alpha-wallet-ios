@@ -95,9 +95,11 @@ PODS:
     - AlphaWalletABI
     - AlphaWalletAddress
     - AlphaWalletCore
+    - AlphaWalletLogger
     - APIKit
     - BigInt
     - CryptoSwift
+    - JSONRPCKit
     - PromiseKit (~> 6.3.0)
     - secp256k1_ios (~> 0.1.3)
     - SwiftyJSON (= 5.0.0)
@@ -454,7 +456,7 @@ SPEC CHECKSUMS:
   AlphaWalletTokenScript: b4e5d7acdc85ed6915d8bf07c82abf20836cee50
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
   AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
-  AlphaWalletWeb3: 8ceea40c2729c8b718a46b2d9c0d6dd282187279
+  AlphaWalletWeb3: 6112b8d749368d3a8208bbec4220b13e003e4f40
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02

@@ -7,9 +7,9 @@
 
 import XCTest
 @testable import AlphaWallet
-import BigInt
+@testable import AlphaWalletWeb3
 import AlphaWalletFoundation
-import AlphaWalletWeb3
+import BigInt
 
 class UnconfirmedTransactionTests: XCTestCase {
 

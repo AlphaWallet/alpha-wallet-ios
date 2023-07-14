@@ -11,22 +11,22 @@ import BigInt
 import PromiseKit
 
 extension Web3.Contract {
-    public struct EventParser: EventParserProtocol {
+    struct EventParser: EventParserProtocol {
 
-        public let contract: ContractRepresentable
-        public let eventName: String
-        public let filter: EventFilter?
+        let contract: ContractRepresentable
+        let eventName: String
+        let filter: EventFilter?
         private let web3: Web3
 
-        public init? (web3 web3Instance: Web3, eventName: String, contract: ContractRepresentable, filter: EventFilter? = nil) {
+        init? (web3 web3Instance: Web3, eventName: String, contract: ContractRepresentable, filter: EventFilter? = nil) {
             guard let _ = contract.allEvents.index(of: eventName) else { return nil }
             self.eventName = eventName
             self.web3 = web3Instance
             self.contract = contract
             self.filter = filter
         }
-        
-        public func parseBlockByNumber(_ blockNumber: UInt64) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
+
+        func parseBlockByNumber(_ blockNumber: UInt64) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseBlockByNumberPromise(blockNumber).wait()
                 return .success(result)
@@ -37,8 +37,8 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
-        public func parseBlock(_ block: Block) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
+
+        func parseBlock(_ block: Block) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseBlockPromise(block).wait()
                 return .success(result)
@@ -49,8 +49,8 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
-        public func parseTransactionByHash(_ hash: Data) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
+
+        func parseTransactionByHash(_ hash: Data) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseTransactionByHashPromise(hash).wait()
                 return .success(result)
@@ -61,8 +61,8 @@ extension Web3.Contract {
                 return .failure(Web3Error.generalError(error))
             }
         }
-        
-        public func parseTransaction(_ transaction: EthereumTransaction) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
+
+        func parseTransaction(_ transaction: Transaction) -> Swift.Result<[EventParserResultProtocol], Web3Error> {
             do {
                 let result = try self.parseTransactionPromise(transaction).wait()
                 return .success(result)
@@ -77,7 +77,7 @@ extension Web3.Contract {
 }
 
 extension Web3.Contract.EventParser {
-    public func parseTransactionPromise(_ transaction: EthereumTransaction) -> Promise<[EventParserResultProtocol]> {
+    func parseTransactionPromise(_ transaction: Transaction) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         do {
             guard let hash = transaction.hash else {
@@ -91,8 +91,8 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
-    public func parseTransactionByHashPromise(_ hash: Data) -> Promise<[EventParserResultProtocol]> {
+
+    func parseTransactionByHashPromise(_ hash: Data) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         let eth = Web3.Eth(web3: self.web3)
         return eth.getTransactionReceiptPromise(hash).map(on: queue) { receipt throws -> [EventParserResultProtocol] in
@@ -102,8 +102,8 @@ extension Web3.Contract.EventParser {
             return results
         }
     }
-    
-    public func parseBlockByNumberPromise(_ blockNumber: UInt64) -> Promise<[EventParserResultProtocol]> {
+
+    func parseBlockByNumberPromise(_ blockNumber: UInt64) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         let eth = Web3.Eth(web3: self.web3)
         do {
@@ -121,8 +121,8 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
-    public func parseBlockPromise(_ block: Block) -> Promise<[EventParserResultProtocol]> {
+
+    func parseBlockPromise(_ block: Block) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         do {
             guard let bloom = block.logsBloom else {
@@ -149,7 +149,7 @@ extension Web3.Contract.EventParser {
                 return returnPromise.promise
             }
             return Promise { seal in
-                
+
                 var pendingEvents: [Promise<[EventParserResultProtocol]>] = []
                 for transaction in block.transactions {
                     switch transaction {
@@ -189,7 +189,7 @@ extension Web3.Contract.EventParser {
             return returnPromise.promise
         }
     }
-    
+
 }
 
 extension Web3.Contract {

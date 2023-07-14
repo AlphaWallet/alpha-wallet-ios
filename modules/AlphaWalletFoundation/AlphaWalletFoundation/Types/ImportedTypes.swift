@@ -29,6 +29,8 @@ public typealias BlockchainsProvider = AlphaWalletWeb3.BlockchainsProvider
 public typealias EthereumUnit = AlphaWalletWeb3.EthereumUnit
 public typealias EtherNumberFormatter = AlphaWalletWeb3.EtherNumberFormatter
 public typealias DecodedFunctionCall = AlphaWalletWeb3.DecodedFunctionCall
+public typealias GasPrice = AlphaWalletWeb3.GasPrice
+public typealias EthereumTransaction = AlphaWalletWeb3.EthereumTransaction
 
 import AlphaWalletENS
 public typealias AddressOrDomainName = AlphaWalletENS.AddressOrDomainName

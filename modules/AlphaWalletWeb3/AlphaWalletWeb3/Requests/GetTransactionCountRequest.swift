@@ -1,27 +1,34 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import BigInt
 import Foundation
+import AlphaWalletAddress
+import AlphaWalletCore
+import BigInt
 import JSONRPCKit
 
-struct GetTransactionCountRequest: JSONRPCKit.Request {
-    typealias Response = Int
+public struct GetTransactionCountRequest: JSONRPCKit.Request {
+    public typealias Response = Int
 
     let address: AlphaWallet.Address
     let state: String
 
-    var method: String {
+    public var method: String {
         return "eth_getTransactionCount"
     }
 
-    var parameters: Any? {
+    public var parameters: Any? {
         return [
             address.eip55String,
             state,
         ]
     }
 
-    func response(from resultObject: Any) throws -> Response {
+    public init(address: AlphaWallet.Address, state: String) {
+        self.address = address
+        self.state = state
+    }
+
+    public func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String {
             return BigInt(response.drop0x, radix: 16).map({ numericCast($0) }) ?? 0
         } else {

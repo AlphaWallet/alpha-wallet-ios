@@ -11,7 +11,7 @@ import PromiseKit
 
 extension Web3.Eth {
     func sendRawTransactionPromise(_ transaction: Data) -> Promise<TransactionSendingResult> {
-        guard let deserializedTX = EthereumTransaction.fromRaw(transaction) else {
+        guard let deserializedTX = Transaction.fromRaw(transaction) else {
             let promise = Promise<TransactionSendingResult>.pending()
             promise.resolver.reject(Web3Error.inputError("Serialized TX is invalid"))
             return promise.promise
@@ -19,9 +19,9 @@ extension Web3.Eth {
         return sendRawTransactionPromise(deserializedTX)
     }
 
-    func sendRawTransactionPromise(_ transaction: EthereumTransaction) -> Promise<TransactionSendingResult> {
+    func sendRawTransactionPromise(_ transaction: Transaction) -> Promise<TransactionSendingResult> {
         do {
-            guard let request = EthereumTransaction.createRawTransaction(transaction: transaction) else {
+            guard let request = Transaction.createRawTransaction(transaction: transaction) else {
                 throw Web3Error.inputError("Transaction is invalid")
             }
             let rp = web3.dispatch(request)
@@ -32,7 +32,7 @@ extension Web3.Eth {
                     }
                     throw Web3Error.nodeError("Invalid value from Ethereum node")
                 }
-                
+
                 return TransactionSendingResult(transaction: transaction, hash: value)
             }
         } catch {
