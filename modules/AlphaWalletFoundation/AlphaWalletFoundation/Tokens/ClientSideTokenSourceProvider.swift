@@ -26,7 +26,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
             tokensDataStore: tokensDataStore,
             importToken: session.importToken,
             session: session,
-            apiNetworking: session.apiNetworking,
+            blockchainExplorer: session.blockchainExplorer,
             tokenTypes: session.server.autodetectTokenTypes)
 
         return SingleChainTokensAutodetector(autodetectors: [

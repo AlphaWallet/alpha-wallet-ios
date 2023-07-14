@@ -1,16 +1,11 @@
-//
-//  CovalentNetworkProvider.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 30.03.2022.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
 import SwiftyJSON
 
-public class CovalentApiNetworking: ApiNetworking {
+public class CovalentBlockchainExplorer: BlockchainExplorer {
     private let server: RPCServer
     private let baseUrl: URL = URL(string: "https://api.covalenthq.com")!
     private let apiKey: String?
@@ -27,7 +22,7 @@ public class CovalentApiNetworking: ApiNetworking {
     }
 
     public func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
@@ -35,7 +30,7 @@ public class CovalentApiNetworking: ApiNetworking {
                                    pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
-            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
         let request = TransactionsRequest(
@@ -67,37 +62,37 @@ public class CovalentApiNetworking: ApiNetworking {
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                        pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
                                         pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     fileprivate static func log(response: URLRequest.Response, server: RPCServer, analytics: AnalyticsLogger, domainName: String, caller: String = #function) {
@@ -113,7 +108,7 @@ public class CovalentApiNetworking: ApiNetworking {
     }
 }
 
-extension CovalentApiNetworking {
+extension CovalentBlockchainExplorer {
 
     struct TransactionsRequest: URLRequestConvertible {
         let baseUrl: URL

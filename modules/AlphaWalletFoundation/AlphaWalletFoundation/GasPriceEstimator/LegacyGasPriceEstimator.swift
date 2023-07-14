@@ -48,7 +48,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
     }
 
     public init(blockchainProvider: BlockchainProvider,
-                networking: ApiNetworking,
+                networking: BlockchainExplorer,
                 initialGasPrice: BigUInt?) {
 
         self.server = blockchainProvider.server
@@ -186,7 +186,7 @@ extension LegacyGasPriceEstimator {
 
     private class LegacyEstimatesSchedulerProvider: SchedulerProvider {
         private let blockchainProvider: BlockchainProvider
-        private let networking: ApiNetworking
+        private let networking: BlockchainExplorer
 
         let name: String = ""
         let interval: TimeInterval
@@ -206,7 +206,7 @@ extension LegacyGasPriceEstimator {
 
         init(interval: TimeInterval,
              blockchainProvider: BlockchainProvider,
-             networking: ApiNetworking) {
+             networking: BlockchainExplorer) {
 
             self.networking = networking
             self.interval = interval

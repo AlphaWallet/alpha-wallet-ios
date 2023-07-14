@@ -1,9 +1,4 @@
-//
-//  FallbackApiNetworking.swift
-//  AlphaWalletFoundation
-//
-//  Created by Vladyslav Shepitko on 09.05.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import SwiftyJSON
@@ -13,10 +8,9 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
-class FallbackApiNetworking: ApiNetworking {
-
+class FallbackBlockchainExplorer: BlockchainExplorer {
     func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     func normalTransactions(walletAddress: AlphaWallet.Address,

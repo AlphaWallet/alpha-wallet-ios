@@ -23,7 +23,7 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
     init(tokensDataStore: TokensDataStore,
          importToken: TokenImportable & TokenOrContractFetchable,
          session: WalletSession,
-         apiNetworking: ApiNetworking,
+         blockchainExplorer: BlockchainExplorer,
          tokenTypes: [Eip20TokenType]) {
 
         self.session = session
@@ -32,7 +32,7 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
         let providers = tokenTypes.map { tokenType in
             return ContractInteractionsSchedulerProvider(
                 session: session,
-                apiNetworking: apiNetworking,
+                blockchainExplorer: blockchainExplorer,
                 storage: WalletConfig(address: session.account.address),
                 tokenType: tokenType,
                 interval: 60,
@@ -92,7 +92,7 @@ extension TransactedTokensAutodetector {
 
     final class ContractInteractionsSchedulerProvider: SchedulerProvider {
         private let session: WalletSession
-        private let apiNetworking: ApiNetworking
+        private let blockchainExplorer: BlockchainExplorer
         private var storage: PaginationStorage
         private let subject = PassthroughSubject<Result<[AlphaWallet.Address], PromiseError>, Never>()
         private let tokenType: Eip20TokenType
@@ -109,7 +109,7 @@ extension TransactedTokensAutodetector {
         }
 
         init(session: WalletSession,
-             apiNetworking: ApiNetworking,
+             blockchainExplorer: BlockchainExplorer,
              storage: PaginationStorage,
              tokenType: Eip20TokenType,
              interval: TimeInterval = 0,
@@ -120,7 +120,7 @@ extension TransactedTokensAutodetector {
             self.tokenType = tokenType
             self.storage = storage
             self.session = session
-            self.apiNetworking = apiNetworking
+            self.blockchainExplorer = blockchainExplorer
         }
 
         private func fetchPublisher() -> AnyPublisher<Void, PromiseError> {
@@ -144,11 +144,11 @@ extension TransactedTokensAutodetector {
                                          pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
             switch tokenType {
             case .erc1155:
-                return apiNetworking.erc1155TokenInteractions(walletAddress: walletAddress, pagination: pagination)
+                return blockchainExplorer.erc1155TokenInteractions(walletAddress: walletAddress, pagination: pagination)
             case .erc20:
-                return apiNetworking.erc20TokenInteractions(walletAddress: walletAddress, pagination: pagination)
+                return blockchainExplorer.erc20TokenInteractions(walletAddress: walletAddress, pagination: pagination)
             case .erc721:
-                return apiNetworking.erc721TokenInteractions(walletAddress: walletAddress, pagination: pagination)
+                return blockchainExplorer.erc721TokenInteractions(walletAddress: walletAddress, pagination: pagination)
             }
         }
 
@@ -163,7 +163,7 @@ extension TransactedTokensAutodetector {
         }
 
         private func handle(error: PromiseError) {
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured
