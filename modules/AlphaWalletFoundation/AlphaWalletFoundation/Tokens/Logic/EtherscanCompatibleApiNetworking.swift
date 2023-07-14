@@ -128,7 +128,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -150,7 +150,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -198,12 +198,12 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
                     return Publishers.MergeMany(promises)
                         .collect()
                         .map {
-                            let transactions = EtherscanCompatibleApiNetworking.functional.filter(
+                            let transactions = functional.filter(
                                 transactions: $0.compactMap { $0 },
                                 startBlock: pagination.startBlock,
                                 endBlock: pagination.endBlock)
 
-                            let (_, _, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                            let (_, _, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                             if maxBlockNumber > 0 {
                                 let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
                                 return TransactionsResponse(transactions: transactions, nextPage: nextPage)
@@ -234,7 +234,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return getErc1155Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleApiNetworking.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -263,7 +263,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
+            .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -284,7 +284,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
+            .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -304,7 +304,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
         return transporter
             .dataTaskPublisher(request)
             .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-            .tryMap { EtherscanCompatibleApiNetworking.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
+            .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
@@ -319,7 +319,7 @@ class EtherscanCompatibleApiNetworking: ApiNetworking {
 
         return normalTransactions(walletAddress: walletAddress, sortOrder: .asc, pagination: pagination)
             .map {
-                EtherscanCompatibleApiNetworking.functional.mergeTransactionOperationsForNormalTransactions(
+                functional.mergeTransactionOperationsForNormalTransactions(
                     transactions: transactions,
                     normalTransactions: $0.transactions)
             }.eraseToAnyPublisher()

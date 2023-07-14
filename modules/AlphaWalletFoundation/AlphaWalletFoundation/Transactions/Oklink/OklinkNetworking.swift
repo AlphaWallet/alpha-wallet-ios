@@ -59,7 +59,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .transaction,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -104,7 +104,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc20,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -141,7 +141,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc721,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -178,7 +178,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc1155,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
