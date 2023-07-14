@@ -1,9 +1,4 @@
-//
-//  OklinkNetworking.swift
-//  Alamofire
-//
-//  Created by Vladyslav Shepitko on 07.03.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import Combine
@@ -13,7 +8,7 @@ import SwiftyJSON
 
 //NOTE: as api dosn't return localized operation contract, symbol and decimal for transfer transactions, fetch them from rpc node
 // swiftlint:disable type_body_length
-public class OklinkApiNetworking: ApiNetworking {
+public class OklinkBlockchainExplorer: BlockchainExplorer {
     private static var allHTTPHeaderFields: HTTPHeaders = .init([
         "Content-type": "application/json",
         "client": Bundle.main.bundleIdentifier ?? "",
@@ -40,7 +35,7 @@ public class OklinkApiNetworking: ApiNetworking {
     }
 
     public func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func normalTransactions(walletAddress: AlphaWallet.Address,
@@ -48,7 +43,7 @@ public class OklinkApiNetworking: ApiNetworking {
                                    pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
-            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
         let request = TransactionsRequest(
@@ -59,7 +54,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .transaction,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = NormalTransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -93,7 +88,7 @@ public class OklinkApiNetworking: ApiNetworking {
                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
-            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
         let request = TransactionsRequest(
@@ -104,7 +99,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc20,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -130,7 +125,7 @@ public class OklinkApiNetworking: ApiNetworking {
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
-            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
         let request = TransactionsRequest(
@@ -141,7 +136,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc721,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -167,7 +162,7 @@ public class OklinkApiNetworking: ApiNetworking {
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
 
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
-            return .fail(PromiseError(error: ApiNetworkingError.paginationTypeNotSupported))
+            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
         let request = TransactionsRequest(
@@ -178,7 +173,7 @@ public class OklinkApiNetworking: ApiNetworking {
             apiKey: apiKey ?? "",
             chainShortName: server.okLinkChainShortName,
             protocolType: .erc1155,
-            headers: OklinkApiNetworking.allHTTPHeaderFields)
+            headers: Self.allHTTPHeaderFields)
 
         let decoder = TransactionListDecoder(pagination: pagination, paginationFilter: paginationFilter)
         let analytics = analytics
@@ -203,19 +198,19 @@ public class OklinkApiNetworking: ApiNetworking {
     public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                        pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
                                         pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
 
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],
@@ -382,7 +377,7 @@ fileprivate extension TransactionState {
     }
 }
 
-extension OklinkApiNetworking {
+extension OklinkBlockchainExplorer {
 
     struct Response<T> {
         let transactions: [T]

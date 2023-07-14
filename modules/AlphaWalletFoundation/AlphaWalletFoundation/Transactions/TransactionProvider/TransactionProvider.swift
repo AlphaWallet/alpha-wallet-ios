@@ -14,7 +14,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
     private let session: WalletSession
     private let analytics: AnalyticsLogger
     private let ercTokenDetector: ErcTokenDetector
-    private let networking: ApiNetworking
+    private let networking: BlockchainExplorer
     private lazy var pendingTransactionProvider: PendingTransactionProvider = {
         return PendingTransactionProvider(
             session: session,
@@ -34,7 +34,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
                 analytics: AnalyticsLogger,
                 transactionDataStore: TransactionDataStore,
                 ercTokenDetector: ErcTokenDetector,
-                networking: ApiNetworking,
+                networking: BlockchainExplorer,
                 fetchTypes: [TransactionFetchType] = TransactionFetchType.allCases) {
 
         self.session = session
@@ -94,7 +94,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
             let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
             ercTokenDetector.detect(from: newOrUpdatedTransactions)
         case .failure(let error):
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 if let data = schedulerProviders.first(where: { $0.schedulerProvider === provider }) {
                     data.cancel()
                 }
@@ -254,7 +254,7 @@ extension TransactionProvider {
 
     final class TransactionSchedulerProvider: SchedulerProvider {
         private let session: WalletSession
-        private let networking: ApiNetworking
+        private let networking: BlockchainExplorer
         private var paginationStorage: PaginationStorage
         private let fetchType: TransactionFetchType
         private let stateProvider: SchedulerStateProvider
@@ -273,7 +273,7 @@ extension TransactionProvider {
         }
 
         init(session: WalletSession,
-             networking: ApiNetworking,
+             networking: BlockchainExplorer,
              interval: TimeInterval,
              paginationStorage: PaginationStorage,
              fetchType: TransactionFetchType,
@@ -327,7 +327,7 @@ extension TransactionProvider {
         }
 
         private func handle(error: PromiseError) {
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured

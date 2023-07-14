@@ -1,9 +1,4 @@
-//
-//  ApiNetworking.swift
-//  AlphaWalletFoundation
-//
-//  Created by Vladyslav Shepitko on 07.03.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import Combine
@@ -23,13 +18,13 @@ struct BlockBasedPagination: TransactionsPagination {
     let endBlock: Int?
 }
 
-public enum ApiNetworkingError: Error {
+public enum BlockchainExplorerError: Error {
     case paginationTypeNotSupported
     case methodNotSupported
 }
 
 //TODO: replace publisher with async await later
-public protocol ApiNetworking {
+public protocol BlockchainExplorer {
     func normalTransactions(walletAddress: AlphaWallet.Address,
                             sortOrder: GetTransactions.SortOrder,
                             pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError>
@@ -51,7 +46,7 @@ public protocol ApiNetworking {
 
     func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
                                   pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError>
-    
+
     func gasPriceEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError>
 }
 

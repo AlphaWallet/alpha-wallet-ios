@@ -98,7 +98,7 @@ public class TransactionsService {
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
                 ercTokenDetector: ercTokenDetector,
-                apiNetworking: session.apiNetworking)
+                blockchainExplorer: session.blockchainExplorer)
 
             provider.start()
 
@@ -109,7 +109,7 @@ public class TransactionsService {
                 analytics: analytics,
                 transactionDataStore: transactionDataStore,
                 ercTokenDetector: ercTokenDetector,
-                networking: session.apiNetworking)
+                networking: session.blockchainExplorer)
 
             provider.start()
 

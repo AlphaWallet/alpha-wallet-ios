@@ -74,7 +74,7 @@ public class TransactionConfigurator {
             case .legacy(let gasPrice):
                 gasPriceEstimator = LegacyGasPriceEstimator(
                     blockchainProvider: session.blockchainProvider,
-                    networking: session.apiNetworking,
+                    networking: session.blockchainExplorer,
                     initialGasPrice: gasPrice)
             case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas):
                 gasPriceEstimator = Eip1559GasPriceEstimator(
@@ -91,7 +91,7 @@ public class TransactionConfigurator {
             } else {
                 gasPriceEstimator = LegacyGasPriceEstimator(
                     blockchainProvider: session.blockchainProvider,
-                    networking: session.apiNetworking,
+                    networking: session.blockchainExplorer,
                     initialGasPrice: nil)
             }
         }

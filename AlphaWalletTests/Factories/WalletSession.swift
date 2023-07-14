@@ -13,7 +13,7 @@ extension WalletSession {
         let importToken: ImportToken = .make(server: server)
         let nftProvider = FakeNftProvider()
         let tokenAdaptor = TokenAdaptor(assetDefinitionStore: .make(), eventsDataStore: FakeEventsDataStore(account: account), wallet: account, nftProvider: nftProvider)
-        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, apiNetworking: FakeApiNetworking())
+        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, blockchainExplorer: FakeBlockchainExplorer())
     }
 
     static func make(account: Wallet = .make(), server: RPCServer = .main, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService(), importToken: TokenImportable & TokenOrContractFetchable) -> WalletSession {
@@ -21,7 +21,7 @@ extension WalletSession {
         let ercTokenProvider = TokenProvider(account: account, blockchainProvider: blockchainProvider)
         let nftProvider = FakeNftProvider()
         let tokenAdaptor = TokenAdaptor(assetDefinitionStore: .make(), eventsDataStore: FakeEventsDataStore(account: account), wallet: account, nftProvider: nftProvider)
-        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, apiNetworking: FakeApiNetworking())
+        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, blockchainExplorer: FakeBlockchainExplorer())
     }
 
     static func makeStormBirdSession(account: Wallet = .makeStormBird(), server: RPCServer, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService()) -> WalletSession {
@@ -30,14 +30,13 @@ extension WalletSession {
         let importToken: ImportToken = .make(server: server)
         let nftProvider = FakeNftProvider()
         let tokenAdaptor = TokenAdaptor(assetDefinitionStore: .make(), eventsDataStore: FakeEventsDataStore(account: account), wallet: account, nftProvider: nftProvider)
-        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, apiNetworking: FakeApiNetworking())
+        return WalletSession(account: account, server: server, config: config, analytics: analytics, ercTokenProvider: ercTokenProvider, importToken: importToken, blockchainProvider: blockchainProvider, nftProvider: FakeNftProvider(), tokenAdaptor: tokenAdaptor, blockchainExplorer: FakeBlockchainExplorer())
     }
 }
 
-class FakeApiNetworking: ApiNetworking {
-
+class FakeBlockchainExplorer: BlockchainExplorer {
     func gasPriceEstimates() -> AnyPublisher<AlphaWalletFoundation.LegacyGasEstimates, AlphaWalletCore.PromiseError> {
-        return .fail(PromiseError(error: ApiNetworkingError.methodNotSupported))
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     func normalTransactions(walletAddress: AlphaWallet.Address,

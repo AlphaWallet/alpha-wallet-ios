@@ -125,7 +125,7 @@ open class BaseSessionsProvider: SessionsProvider {
             wallet: wallet,
             nftProvider: nftProvider)
 
-        let apiNetworking = buildApiNetworking(server: blockchain.server, wallet: wallet, ercTokenProvider: ercTokenProvider)
+        let blockchainExplorer = buildBlockchainExplorer(server: blockchain.server, wallet: wallet, ercTokenProvider: ercTokenProvider)
 
         return WalletSession(
             account: wallet,
@@ -137,30 +137,30 @@ open class BaseSessionsProvider: SessionsProvider {
             blockchainProvider: blockchain,
             nftProvider: nftProvider,
             tokenAdaptor: tokenAdaptor,
-            apiNetworking: apiNetworking)
+            blockchainExplorer: blockchainExplorer)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {
         sessionsSubject.value[safe: server]
     }
 
-    private func buildApiNetworking(server: RPCServer, wallet: Wallet, ercTokenProvider: TokenProviderType) -> ApiNetworking {
+    private func buildBlockchainExplorer(server: RPCServer, wallet: Wallet, ercTokenProvider: TokenProviderType) -> BlockchainExplorer {
         let transporter = apiTransporterFactory.transporter(server: server)
 
         switch server.transactionsSource {
         case .etherscan(let apiKey, let url):
             let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
-            return EtherscanCompatibleApiNetworking(server: server, transporter: transporter, transactionBuilder: transactionBuilder, baseUrl: url, apiKey: apiKey, analytics: analytics)
+            return EtherscanCompatibleBlockchainExplorer(server: server, transporter: transporter, transactionBuilder: transactionBuilder, baseUrl: url, apiKey: apiKey, analytics: analytics)
         case .blockscout(let apiKey, let url):
             let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
-            return BlockscoutApiNetworking(server: server, transporter: transporter, transactionBuilder: transactionBuilder, apiKey: apiKey, baseUrl: url, analytics: analytics)
+            return BlockscoutBlockchainExplorer(server: server, transporter: transporter, transactionBuilder: transactionBuilder, apiKey: apiKey, baseUrl: url, analytics: analytics)
         case .covalent(let apiKey):
-            return CovalentApiNetworking(server: server, apiKey: apiKey, transporter: transporter, analytics: analytics)
+            return CovalentBlockchainExplorer(server: server, apiKey: apiKey, transporter: transporter, analytics: analytics)
         case .oklink(let apiKey):
             let transactionBuilder = TransactionBuilder(tokensDataStore: tokensDataStore, server: server, ercTokenProvider: ercTokenProvider)
-            return OklinkApiNetworking(server: server, apiKey: apiKey, transporter: transporter, ercTokenProvider: ercTokenProvider, transactionBuilder: transactionBuilder, analytics: analytics)
+            return OklinkBlockchainExplorer(server: server, apiKey: apiKey, transporter: transporter, ercTokenProvider: ercTokenProvider, transactionBuilder: transactionBuilder, analytics: analytics)
         case .unknown:
-            return FallbackApiNetworking()
+            return FallbackBlockchainExplorer()
         }
     }
 }

@@ -29,7 +29,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
          analytics: AnalyticsLogger,
          transactionDataStore: TransactionDataStore,
          ercTokenDetector: ErcTokenDetector,
-         apiNetworking: ApiNetworking,
+         blockchainExplorer: BlockchainExplorer,
          fetchTypes: [TransactionFetchType] = TransactionFetchType.allCases) {
 
         self.session = session
@@ -42,7 +42,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             case .normal:
                 schedulerProvider = LatestTransactionsSchedulerProvider(
                     session: session,
-                    apiNetworking: session.apiNetworking,
+                    blockchainExplorer: session.blockchainExplorer,
                     transactionDataStore: transactionDataStore,
                     interval: 15,
                     stateProvider: PersistantSchedulerStateProvider(
@@ -51,7 +51,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             case .erc20, .erc721, .erc1155:
                 schedulerProvider = LatestTransferTransactionsSchedulerProvider(
                     session: session,
-                    apiNetworking: session.apiNetworking,
+                    blockchainExplorer: session.blockchainExplorer,
                     transferType: fetchType,
                     interval: 15,
                     stateProvider: PersistantSchedulerStateProvider(
@@ -68,7 +68,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
         let oldestTransactionsProvider = OldestTransactionsSchedulerProvider(
             session: session,
-            apiNetworking: session.apiNetworking,
+            blockchainExplorer: session.blockchainExplorer,
             transactionDataStore: transactionDataStore,
             stateProvider: oldestTransactionsStateProvider)
 
@@ -197,7 +197,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         case .success(let transactions):
             addOrUpdate(transactions: transactions)
         case .failure(let error):
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 if let scheduler = schedulerProviders.first(where: { $0.schedulerProvider === provider }) {
                     scheduler.cancel()
                 }
@@ -289,7 +289,7 @@ extension EtherscanSingleChainTransactionProvider {
 
     final class LatestTransferTransactionsSchedulerProvider: SchedulerProvider, LatestTransactionProvidable {
         private let session: WalletSession
-        private let apiNetworking: ApiNetworking
+        private let blockchainExplorer: BlockchainExplorer
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
         private let stateProvider: SchedulerStateProvider
         private let transferType: TransactionFetchType
@@ -307,7 +307,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         init(session: WalletSession,
-             apiNetworking: ApiNetworking,
+             blockchainExplorer: BlockchainExplorer,
              transferType: TransactionFetchType,
              interval: TimeInterval = 0,
              stateProvider: SchedulerStateProvider,
@@ -318,7 +318,7 @@ extension EtherscanSingleChainTransactionProvider {
             self.name = name
             self.interval = interval
             self.session = session
-            self.apiNetworking = apiNetworking
+            self.blockchainExplorer = blockchainExplorer
         }
 
         func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError> {
@@ -346,7 +346,7 @@ extension EtherscanSingleChainTransactionProvider {
                 let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
 
-                return apiNetworking.erc20TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
+                return blockchainExplorer.erc20TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
                     .handleEvents(receiveOutput: { response in
                         //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
                         if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
@@ -356,7 +356,7 @@ extension EtherscanSingleChainTransactionProvider {
             case .erc721:
                 let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
-                return apiNetworking.erc721TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
+                return blockchainExplorer.erc721TokenTransferTransactions(walletAddress: wallet, pagination: pagination)
                     .handleEvents(receiveOutput: { response in
                         //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
                         if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
@@ -367,7 +367,7 @@ extension EtherscanSingleChainTransactionProvider {
                 let startBlock = Config.getLastFetchedErc1155InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
                 let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: nil)
 
-                return apiNetworking.erc1155TokenTransferTransaction(walletAddress: wallet, pagination: pagination)
+                return blockchainExplorer.erc1155TokenTransferTransaction(walletAddress: wallet, pagination: pagination)
                     .handleEvents(receiveOutput: { response in
                         //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
                         if let nextPage = response.nextPage as? BlockBasedPagination, let maxBlockNumber = nextPage.startBlock {
@@ -384,7 +384,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         private func handle(error: PromiseError) {
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured
@@ -396,7 +396,7 @@ extension EtherscanSingleChainTransactionProvider {
 
     final class LatestTransactionsSchedulerProvider: SchedulerProvider, LatestTransactionProvidable {
         private let session: WalletSession
-        private let apiNetworking: ApiNetworking
+        private let blockchainExplorer: BlockchainExplorer
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
         private let stateProvider: SchedulerStateProvider
         private let transactionDataStore: TransactionDataStore
@@ -414,7 +414,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         init(session: WalletSession,
-             apiNetworking: ApiNetworking,
+             blockchainExplorer: BlockchainExplorer,
              transactionDataStore: TransactionDataStore,
              interval: TimeInterval = 0,
              name: String = "",
@@ -425,7 +425,7 @@ extension EtherscanSingleChainTransactionProvider {
             self.name = name
             self.interval = interval
             self.session = session
-            self.apiNetworking = apiNetworking
+            self.blockchainExplorer = blockchainExplorer
         }
 
         ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times
@@ -447,7 +447,7 @@ extension EtherscanSingleChainTransactionProvider {
 
             let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: 999_999_999)
 
-            return apiNetworking
+            return blockchainExplorer
                 .normalTransactions(walletAddress: session.account.address, sortOrder: sortOrder, pagination: pagination)
                 .handleEvents(receiveOutput: { [weak self] response in
                     self?.handle(response: response.transactions)
@@ -463,7 +463,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         private func handle(error: PromiseError) {
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured
@@ -475,7 +475,7 @@ extension EtherscanSingleChainTransactionProvider {
 
     final class OldestTransactionsSchedulerProvider: SchedulerProvider {
         private let session: WalletSession
-        private let apiNetworking: ApiNetworking
+        private let blockchainExplorer: BlockchainExplorer
         private let subject = PassthroughSubject<Result<[Transaction], PromiseError>, Never>()
         private let transactionDataStore: TransactionDataStore
         private let stateProvider: SchedulerStateProvider
@@ -491,7 +491,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         init(session: WalletSession,
-             apiNetworking: ApiNetworking,
+             blockchainExplorer: BlockchainExplorer,
              transactionDataStore: TransactionDataStore,
              stateProvider: SchedulerStateProvider,
              interval: TimeInterval = 0.3,
@@ -502,7 +502,7 @@ extension EtherscanSingleChainTransactionProvider {
             self.name = name
             self.interval = interval
             self.session = session
-            self.apiNetworking = apiNetworking
+            self.blockchainExplorer = blockchainExplorer
         }
 
         ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times
@@ -515,7 +515,7 @@ extension EtherscanSingleChainTransactionProvider {
 
             let pagination = BlockBasedPagination(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1)
 
-            return apiNetworking
+            return blockchainExplorer
                 .normalTransactions(walletAddress: session.account.address, sortOrder: .desc, pagination: pagination)
                 .handleEvents(receiveOutput: { [weak self] response in
                     self?.handle(response: response.transactions)
@@ -536,7 +536,7 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         private func handle(error: PromiseError) {
-            if case ApiNetworkingError.methodNotSupported = error.embedded {
+            if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured
