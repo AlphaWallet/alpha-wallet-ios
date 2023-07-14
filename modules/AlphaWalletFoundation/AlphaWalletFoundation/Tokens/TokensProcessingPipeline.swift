@@ -22,6 +22,7 @@ public protocol TokensProcessingPipeline {
 
 public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let coinTickersFetcher: CoinTickersFetcher
+    private let coinTickersProvider: CoinTickersProvider
     private let tokensService: TokensService
     private let assetDefinitionStore: AssetDefinitionStore
     private var cancelable = Set<AnyCancellable>()
@@ -32,7 +33,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let sessionsProvider: SessionsProvider
 
     public lazy var tokenViewModels: AnyPublisher<[TokenViewModel], Never> = {
-        let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
+        let whenTickersChanged = coinTickersProvider.tickersDidUpdate.dropFirst()
             .receive(on: queue)
             .map { [tokensService] _ in tokensService.tokens }
 
@@ -67,6 +68,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     public init(wallet: Wallet,
                 tokensService: TokensService,
                 coinTickersFetcher: CoinTickersFetcher,
+                coinTickersProvider: CoinTickersProvider,
                 assetDefinitionStore: AssetDefinitionStore,
                 eventsDataStore: NonActivityEventsDataStore,
                 currencyService: CurrencyService,
@@ -78,6 +80,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         self.eventsDataStore = eventsDataStore
         self.tokensService = tokensService
         self.coinTickersFetcher = coinTickersFetcher
+        self.coinTickersProvider = coinTickersProvider
         self.assetDefinitionStore = assetDefinitionStore
     }
 
@@ -112,9 +115,9 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     public func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never> {
-        let whenTickersHasChanged: AnyPublisher<Token?, Never> = coinTickersFetcher.tickersDidUpdate.dropFirst()
+        let whenTickersHasChanged: AnyPublisher<Token?, Never> = coinTickersProvider.tickersDidUpdate.dropFirst()
             //NOTE: filter coin ticker events, allow only if ticker has change
-            .compactMap { [coinTickersFetcher, currencyService] _ in coinTickersFetcher.ticker(for: .init(address: contract, server: server), currency: currencyService.currency) }
+            .compactMap { [coinTickersProvider, currencyService] _ in coinTickersProvider.ticker(for: .init(address: contract, server: server), currency: currencyService.currency) }
             .removeDuplicates()
             .map { [tokensService] _ in tokensService.token(for: contract, server: server) }
             .receive(on: RunLoop.main)
@@ -184,7 +187,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 tokensService.refreshBalance(updatePolicy: .tokens(tokens: tokens))
             }.store(in: &cancelable)
 
-        coinTickersFetcher.updateTickerIds
+        coinTickersProvider.updateTickerIds
             .map { [tokensService] data -> [AddOrUpdateTokenAction] in
                 let v = data.compactMap { i in tokensService.token(for: i.key.address, server: i.key.server).flatMap { ($0, i.tickerId) } }
                 return v.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) }
@@ -216,7 +219,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     private func applyTicker(token: TokenViewModel?) -> TokenViewModel? {
         guard let token = token else { return nil }
-        let ticker = coinTickersFetcher.ticker(for: .init(address: token.contractAddress, server: token.server), currency: currencyService.currency)
+        let ticker = coinTickersProvider.ticker(for: .init(address: token.contractAddress, server: token.server), currency: currencyService.currency)
         let balance: BalanceViewModel
         switch token.type {
         case .nativeCryptocurrency:

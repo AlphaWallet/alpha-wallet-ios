@@ -52,7 +52,7 @@ class ConfigTests: XCTestCase {
             analytics: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: CoinTickersFetcherImpl.make(),
+            coinTickersProvider: CoinTickers.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep1.pipeline,

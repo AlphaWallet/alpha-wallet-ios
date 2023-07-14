@@ -17,7 +17,7 @@ struct FungibleTokenDetailsViewModelOutput {
 
 final class FungibleTokenDetailsViewModel {
     private let chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
-    private let coinTickersFetcher: CoinTickersFetcher
+    private let coinTickersProvider: CoinTickersProvider
     private let tokensService: TokensProcessingPipeline
     private var cancelable = Set<AnyCancellable>()
     private var chartHistories: [ChartHistoryPeriod: ChartHistory] { chartHistoriesSubject.value }
@@ -55,7 +55,7 @@ final class FungibleTokenDetailsViewModel {
     var wallet: Wallet { session.account }
 
     init(token: Token,
-         coinTickersFetcher: CoinTickersFetcher,
+         coinTickersProvider: CoinTickersProvider,
          tokensService: TokensProcessingPipeline,
          session: WalletSession,
          assetDefinitionStore: AssetDefinitionStore,
@@ -69,13 +69,13 @@ final class FungibleTokenDetailsViewModel {
         self.session = session
         self.assetDefinitionStore = assetDefinitionStore
         self.tokensService = tokensService
-        self.coinTickersFetcher = coinTickersFetcher
+        self.coinTickersProvider = coinTickersProvider
         self.token = token
     }
 
     func transform(input: FungibleTokenDetailsViewModelInput) -> FungibleTokenDetailsViewModelOutput {
-        input.willAppear.flatMapLatest { [coinTickersFetcher, token, currencyService] _ in
-            coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: false, periods: ChartHistoryPeriod.allCases, currency: currencyService.currency)
+        input.willAppear.flatMapLatest { [coinTickersProvider, token, currencyService] _ in
+            coinTickersProvider.chartHistories(for: .init(token: token), currency: currencyService.currency)
         }.assign(to: \.value, on: chartHistoriesSubject)
         .store(in: &cancelable)
 

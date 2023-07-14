@@ -27,7 +27,7 @@ extension CurrencyService {
 extension WalletDataProcessingPipeline {
     static func make(wallet: Wallet = .make(),
                      server: RPCServer = .main,
-                     coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl.make(),
+                     coinTickersFetcher: CoinTickersProvider & CoinTickersFetcher = CoinTickers.make(),
                      currencyService: CurrencyService = .make()) -> WalletDependencies {
         let fas = FakeAnalyticsService()
 
@@ -61,6 +61,7 @@ extension WalletDataProcessingPipeline {
             wallet: wallet,
             tokensService: tokensService,
             coinTickersFetcher: coinTickersFetcher,
+            coinTickersProvider: coinTickersFetcher,
             assetDefinitionStore: .make(),
             eventsDataStore: eventsDataStore,
             currencyService: currencyService,

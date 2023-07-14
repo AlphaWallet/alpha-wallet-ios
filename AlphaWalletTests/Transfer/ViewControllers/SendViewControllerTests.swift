@@ -263,7 +263,7 @@ class SendViewControllerTests: XCTestCase {
 
 class TokenBalanceTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
-    private let coinTickersFetcher = CoinTickersFetcherImpl.make()
+    private let coinTickersFetcher = CoinTickers.make()
     private let currencyService: CurrencyService = .make()
 
     lazy var dep = WalletDataProcessingPipeline.make(

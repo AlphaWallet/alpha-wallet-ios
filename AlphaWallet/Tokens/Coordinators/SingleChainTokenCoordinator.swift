@@ -29,7 +29,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let nftProvider: NFTProvider
     private let tokenActionsProvider: SupportedTokenActionsProvider
-    private let coinTickersFetcher: CoinTickersFetcher
+    private let coinTickersProvider: CoinTickersProvider
     private let activitiesService: ActivitiesServiceType
     private let sessionsProvider: SessionsProvider
     private let alertService: PriceAlertServiceType
@@ -51,7 +51,7 @@ class SingleChainTokenCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          nftProvider: NFTProvider,
          tokenActionsProvider: SupportedTokenActionsProvider,
-         coinTickersFetcher: CoinTickersFetcher,
+         coinTickersProvider: CoinTickersProvider,
          activitiesService: ActivitiesServiceType,
          alertService: PriceAlertServiceType,
          tokensPipeline: TokensProcessingPipeline,
@@ -71,7 +71,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.analytics = analytics
         self.nftProvider = nftProvider
         self.tokenActionsProvider = tokenActionsProvider
-        self.coinTickersFetcher = coinTickersFetcher
+        self.coinTickersProvider = coinTickersProvider
         self.activitiesService = activitiesService
         self.alertService = alertService
     }
@@ -122,7 +122,7 @@ class SingleChainTokenCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             tokenActionsProvider: tokenActionsProvider,
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersProvider: coinTickersProvider,
             activitiesService: activitiesService,
             alertService: alertService,
             tokensPipeline: tokensPipeline,

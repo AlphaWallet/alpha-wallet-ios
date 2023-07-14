@@ -63,7 +63,7 @@ class TokensCoordinator: Coordinator {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
     private let walletConnectCoordinator: WalletConnectCoordinator
-    private let coinTickersFetcher: CoinTickersFetcher
+    private let coinTickersProvider: CoinTickersProvider
 
     private let walletBalanceService: WalletBalanceService
     private lazy var alertService: PriceAlertServiceType = {
@@ -96,7 +96,7 @@ class TokensCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          tokenActionsService: TokenActionsService,
          walletConnectCoordinator: WalletConnectCoordinator,
-         coinTickersFetcher: CoinTickersFetcher,
+         coinTickersProvider: CoinTickersProvider,
          activitiesService: ActivitiesServiceType,
          walletBalanceService: WalletBalanceService,
          tokenCollection: TokensProcessingPipeline,
@@ -124,7 +124,7 @@ class TokensCoordinator: Coordinator {
         self.analytics = analytics
         self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
-        self.coinTickersFetcher = coinTickersFetcher
+        self.coinTickersProvider = coinTickersProvider
         self.activitiesService = activitiesService
         self.walletBalanceService = walletBalanceService
         self.blockiesGenerator = blockiesGenerator
@@ -198,7 +198,7 @@ class TokensCoordinator: Coordinator {
             analytics: analytics,
             nftProvider: session.nftProvider,
             tokenActionsProvider: tokenActionsService,
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersProvider: coinTickersProvider,
             activitiesService: activitiesService,
             alertService: alertService,
             tokensPipeline: tokensPipeline,

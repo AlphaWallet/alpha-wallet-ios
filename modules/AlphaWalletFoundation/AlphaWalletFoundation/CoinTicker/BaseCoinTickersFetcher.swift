@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
-public class BaseCoinTickersFetcher {
+public class BaseCoinTickersFetcher: CoinTickersFetcher {
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
     private let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
@@ -20,10 +20,7 @@ public class BaseCoinTickersFetcher {
     /// Resolving ticker ids operations
     private var tickerResolvers: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
 
-    public init(networking: CoinTickerNetworking,
-                storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage,
-                tickerIdsFetcher: TickerIdsFetcher) {
-
+    public init(networking: CoinTickerNetworking, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
         self.networking = networking
         self.tickerIdsFetcher = tickerIdsFetcher
         self.storage = storage
@@ -33,7 +30,7 @@ public class BaseCoinTickersFetcher {
             FileStorage().fileURL(with: $0, fileExtension: "json")
         }.forEach { try? FileManager.default.removeItem(at: $0) }
     }
-    
+
     public func cancel() {
         inlightPromises.values.values.forEach { $0.cancel() }
         inlightPromises.removeAll()
@@ -84,7 +81,7 @@ public class BaseCoinTickersFetcher {
         }
     }
 
-    public func resolveTikerIds(for tokens: [TokenMappedToTicker]) {
+    public func resolveTickerIds(for tokens: [TokenMappedToTicker]) {
         for each in tokens {
             guard tickerResolvers[each] == nil else { continue }
 
@@ -150,7 +147,7 @@ public class BaseCoinTickersFetcher {
 
     private func hasExpired(history mappedChartHistory: MappedChartHistory, for period: ChartHistoryPeriod) -> Bool {
         guard ReachabilityManager().isReachable else { return false }
-        
+
         let hasCacheExpired: Bool
         switch period {
         case .day:
