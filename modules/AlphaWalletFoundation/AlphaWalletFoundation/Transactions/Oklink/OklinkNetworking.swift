@@ -12,6 +12,7 @@ import AlphaWalletLogger
 import SwiftyJSON
 
 //NOTE: as api dosn't return localized operation contract, symbol and decimal for transfer transactions, fetch them from rpc node
+// swiftlint:disable type_body_length
 public class OklinkApiNetworking: ApiNetworking {
     private static var allHTTPHeaderFields: HTTPHeaders = .init([
         "Content-type": "application/json",
@@ -366,6 +367,7 @@ public class OklinkApiNetworking: ApiNetworking {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 fileprivate extension TransactionState {
     init(state: Oklink.TransactionState) {
