@@ -1,19 +1,15 @@
-//
-//  CoinTickersFetcher.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 27.01.2021.
-//
+// Copyright © 2021 Stormbird PTE. LTD.
 
 import Combine
 import Foundation
 
-public protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherProvider {
+public protocol CoinTickersProvider: AnyObject {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
     func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker?
     func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
+    func chartHistories(for token: TokenMappedToTicker, currency: Currency) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
 }
 
 public struct AssignedCoinTickerId: Hashable, Codable {

@@ -18,7 +18,7 @@ final class TokensViewController: UIViewController {
     private var cancellable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<TokensViewModel.SelectionSource, Never>()
-    let viewModel: TokensViewModel
+    private let viewModel: TokensViewModel
 
     lazy private var filterView: ScrollableSegmentedControl = {
         let control = ScrollableSegmentedControl(cells: viewModel.filterViewModel.cells, configuration: viewModel.filterViewModel.configuration)

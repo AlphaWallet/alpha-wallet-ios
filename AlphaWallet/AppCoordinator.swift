@@ -165,7 +165,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
             universalLinkCoordinator: application.universalLinkService,
             accountsCoordinator: accountsCoordinator,
             walletBalanceService: application.walletBalanceService,
-            coinTickersFetcher: application.coinTickersFetcher,
+            coinTickersProvider: application.coinTickers,
             tokenActionsService: application.tokenActionsService,
             walletConnectCoordinator: walletConnectCoordinator,
             localNotificationsService: application.localNotificationsService,

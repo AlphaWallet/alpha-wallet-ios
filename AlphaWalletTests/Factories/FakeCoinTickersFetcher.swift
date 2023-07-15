@@ -11,8 +11,8 @@ import Combine
 import AlphaWalletCore
 import AlphaWalletFoundation
 
-extension CoinTickersFetcherImpl {
-    static func make(config: Config = .make()) -> CoinTickersFetcher {
-        return CoinTickersFetcherImpl(providers: [], storage: RealmStore(realm: fakeRealm()))
+extension CoinTickers {
+    static func make(config: Config = .make()) -> CoinTickersProvider & CoinTickersFetcher {
+        return CoinTickers(fetchers: [], storage: RealmStore(realm: fakeRealm()))
     }
 }

@@ -22,7 +22,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let appTracker: AppTracker
     private let analytics: AnalyticsLogger
     private let restartHandler: RestartQueueHandler
-    private let coinTickersFetcher: CoinTickersFetcher
+    private let coinTickersProvider: CoinTickersProvider
     private let transactionsDataStore: TransactionDataStore
     private let blockscanChatService: BlockscanChatService
     private let activitiesPipeLine: ActivitiesPipeLine
@@ -140,7 +140,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          universalLinkCoordinator: UniversalLinkService,
          accountsCoordinator: AccountsCoordinator,
          walletBalanceService: WalletBalanceService,
-         coinTickersFetcher: CoinTickersFetcher,
+         coinTickersProvider: CoinTickersProvider,
          tokenActionsService: TokenActionsService,
          walletConnectCoordinator: WalletConnectCoordinator,
          localNotificationsService: LocalNotificationService,
@@ -191,7 +191,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         self.universalLinkService = universalLinkCoordinator
         self.accountsCoordinator = accountsCoordinator
         self.walletBalanceService = walletBalanceService
-        self.coinTickersFetcher = coinTickersFetcher
+        self.coinTickersProvider = coinTickersProvider
         self.tokenActionsService = tokenActionsService
         self.blockscanChatService = BlockscanChatService(
             keystore: keystore,
@@ -312,7 +312,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             analytics: analytics,
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: walletConnectCoordinator,
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersProvider: coinTickersProvider,
             activitiesService: activitiesPipeLine,
             walletBalanceService: walletBalanceService,
             tokenCollection: tokensPipeline,

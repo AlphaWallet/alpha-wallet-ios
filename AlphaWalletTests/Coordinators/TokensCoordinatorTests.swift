@@ -36,7 +36,7 @@ class TokensCoordinatorTests: XCTestCase {
             analytics: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: CoinTickersFetcherImpl.make(),
+            coinTickersProvider: CoinTickers.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep.pipeline,
@@ -59,7 +59,7 @@ extension ImportToken {
                      wallet: Wallet = .make(),
                      contractDataFetcher: ContractDataFetchable = FakeContractDataFetcher(),
                      server: RPCServer = .main) -> ImportToken {
-        
+
         return .init(
             tokensDataStore: tokensDataStore,
             contractDataFetcher: contractDataFetcher,

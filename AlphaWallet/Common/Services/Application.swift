@@ -57,7 +57,7 @@ class Application: WalletDependenciesProvidable {
     let analytics: AnalyticsServiceType
     let restartHandler: RestartQueueHandler
     let currencyService: CurrencyService
-    let coinTickersFetcher: CoinTickersFetcher
+    let coinTickers: CoinTickersProvider & CoinTickersFetcher
     let walletBalanceService: WalletBalanceService & WalletBalanceProvidable
     let networkService: NetworkService
     let tokenSwapper: TokenSwapper
@@ -141,7 +141,7 @@ class Application: WalletDependenciesProvidable {
         self.tokenScriptFeatures = tokenScriptFeatures
         self.assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService, blockchainsProvider: blockchainsProvider, features: tokenScriptFeatures)
 
-        self.coinTickersFetcher = CoinTickersFetcherImpl(
+        self.coinTickers = CoinTickers(
             transporter: BaseApiTransporter(),
             analytics: analytics)
 
@@ -446,7 +446,8 @@ class Application: WalletDependenciesProvidable {
         let tokensPipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
             tokensService: tokensService,
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersFetcher: coinTickers,
+            coinTickersProvider: coinTickers,
             assetDefinitionStore: assetDefinitionStore,
             eventsDataStore: eventsDataStore,
             currencyService: currencyService,
