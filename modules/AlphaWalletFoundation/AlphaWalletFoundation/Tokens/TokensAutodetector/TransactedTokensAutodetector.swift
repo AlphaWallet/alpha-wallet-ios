@@ -128,6 +128,11 @@ extension TransactedTokensAutodetector {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
 
+            //TODO remove Config instance creation
+            if Config().development.isAutoFetchingDisabled {
+                return .empty()
+            }
+
             let pagination = storage.pagination(key: TransactedTokensAutodetector.interactionsPaginationKey(server: session.server, tokenType: tokenType))
 
             return buildFetchPublisher(walletAddress: session.account.address, pagination: pagination)
