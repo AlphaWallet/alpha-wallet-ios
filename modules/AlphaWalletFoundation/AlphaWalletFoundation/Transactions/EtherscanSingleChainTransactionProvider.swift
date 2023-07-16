@@ -338,6 +338,11 @@ extension EtherscanSingleChainTransactionProvider {
 
         //NOTE: don't play with .stopped state set it only when method is not supported, otherwise u will stop service
         private func buildFetchPublisher() -> AnyPublisher<TransactionsResponse, PromiseError> {
+            //TODO remove Config instance creation
+            if Config().development.isAutoFetchingDisabled {
+                return .empty()
+            }
+
             let server = session.server
             let wallet = session.account.address
 
@@ -432,6 +437,11 @@ extension EtherscanSingleChainTransactionProvider {
         func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError> {
             guard stateProvider.state != .stopped else {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
+            }
+
+            //TODO remove Config instance creation
+            if Config().development.isAutoFetchingDisabled {
+                return .empty()
             }
 
             let startBlock: Int

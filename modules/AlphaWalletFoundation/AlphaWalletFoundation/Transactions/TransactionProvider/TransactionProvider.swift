@@ -292,6 +292,11 @@ extension TransactionProvider {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
 
+            //TODO remove Config instance creation
+            if Config().development.isAutoFetchingDisabled {
+                return .empty()
+            }
+
             return buildFetchPublisher()
                 .handleEvents(receiveOutput: { [weak self] response in
                     self?.handle(response: response)
