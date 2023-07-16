@@ -85,8 +85,9 @@ extension TransactionConfirmationViewModel {
                 .assign(to: \.etherCurrencyRate, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
-            let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, recipientResolver.resolveRecipient()).mapToVoid()
-            
+            let resolveRecipient = asFuture { await self.recipientResolver.resolveRecipient() }.eraseToAnyPublisher()
+            let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, resolveRecipient).mapToVoid()
+
             let viewState = Publishers.Merge(stateChanges, configurator.objectChanges)
                 .map { _ in
                     TransactionConfirmationViewModel.ViewState(
@@ -116,7 +117,7 @@ extension TransactionConfirmationViewModel {
 
                 let rate = token.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
                 let value = SendFungiblesTransactionViewModel.TransactionBalance(balance: balance, newBalance: newBalance, rate: rate)
-                
+
                 return .done(value)
             }
         }

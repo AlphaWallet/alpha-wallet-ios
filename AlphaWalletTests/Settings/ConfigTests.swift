@@ -67,7 +67,13 @@ class ConfigTests: XCTestCase {
         coordinator.start()
         coordinator.tokensViewController.viewWillAppear(false)
 
-        XCTAssertEqual(coordinator.tokensViewController.navigationItem.title, "0x1000…0000")
+        let expectation = self.expectation(description: "Check ran")
+        //Wait a bit for async to update title
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            XCTAssertEqual(coordinator.tokensViewController.navigationItem.title, "0x1000…0000")
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 6)
     }
 
     func testTabBarItemTitle() {

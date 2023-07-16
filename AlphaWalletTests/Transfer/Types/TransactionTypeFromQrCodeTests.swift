@@ -15,7 +15,7 @@ import Combine
 class ImportTokenTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
 
-    func testImportUnknownErc20Token() throws {
+    func testImportUnknownErc20Token() async throws {
         let tokensDataStore = FakeTokensDataStore()
         let server = RPCServer.main
         let contractDataFetcher = FakeContractDataFetcher(server: server)
@@ -25,9 +25,11 @@ class ImportTokenTests: XCTestCase {
 
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .zero, tokenType: .erc20)
 
-        XCTAssertNil(tokensDataStore.token(for: address, server: server), "Initially token is nil")
+        let token = await tokensDataStore.token(for: address, server: server)
+        XCTAssertNil(token, "Initially token is nil")
 
         let expectation = self.expectation(description: "did resolve erc20 token")
+        let expectationDidCheckAdd = self.expectation(description: "did check adding token token")
         importToken.importToken(for: address)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
@@ -35,10 +37,14 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.type, .erc20)
                 XCTAssertEqual(token.symbol, "erc20")
                 XCTAssertEqual(token.decimals, 6)
-                XCTAssertEqual(token, tokensDataStore.token(for: address, server: server), "Token has added to storage")
+                Task { @MainActor in
+                    let addedToken = await tokensDataStore.token(for: address, server: server)
+                    XCTAssertEqual(token, addedToken, "Token has added to storage")
+                    expectationDidCheckAdd.fulfill()
+                }
             }).store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [expectation, expectationDidCheckAdd], timeout: 30)
     }
 
     func testImportNotDetectedErc20Token() throws {
@@ -64,7 +70,7 @@ class ImportTokenTests: XCTestCase {
         waitForExpectations(timeout: 30)
     }
 
-    func testImportAlreadyAddedErc20Token() throws {
+    func testImportAlreadyAddedErc20Token() async throws {
         let tokensDataStore = FakeTokensDataStore()
         let server = RPCServer.main
         let contractDataFetcher = FakeContractDataFetcher(server: server)
@@ -74,7 +80,7 @@ class ImportTokenTests: XCTestCase {
         let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
 
         let token = Token(contract: address, server: server, value: .zero, type: .erc20)
-        tokensDataStore.addOrUpdate(with: [.init(token)])
+        await tokensDataStore.addOrUpdate(with: [.init(token)])
 
         let expectation = self.expectation(description: "did resolve erc20 token")
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: BigUInt("1"), tokenType: .erc20)
@@ -86,7 +92,7 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.value, .zero)
             }).store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [expectation], timeout: 30)
     }
 }
 
@@ -102,20 +108,20 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         let sessions = FakeSessionsProvider(servers: [.main])
         sessions.importToken[.main] = fakeFakeImportToken
         sessions.start()
-        
+
         let provider = TransactionTypeFromQrCode(sessionsProvider: sessions, session: sessions.session(for: .main)!)
         provider.transactionTypeProvider = transactionTypeSupportable
 
         return provider
     }()
 
-    func testScanSmallEthTransfer() throws {
+    func testScanSmallEthTransfer() async throws {
         let expectation = self.expectation(description: "did resolve erc20 transaction type")
         let qrCode = "aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e12"
 
         let etherToken = Token(contract: Constants.nativeCryptoAddressInDatabase, server: .main, name: "Ether", symbol: "eth", decimals: 18, type: .nativeCryptocurrency)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
-        tokensDataStore.addOrUpdate(with: [
+        await tokensDataStore.addOrUpdate(with: [
             .init(etherToken)
         ])
 
@@ -140,16 +146,16 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [expectation], timeout: 30)
     }
 
-    func testScanSmallErc20Transfer() throws {
+    func testScanSmallErc20Transfer() async throws {
         let expectation = self.expectation(description: "did resolve erc20 transaction type")
         let qrCode = "aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1"
 
         let erc20Token = Token(contract: .init(string: "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7")!, server: .main, name: "erc20", symbol: "erc20", decimals: 6, type: .erc20)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
-        tokensDataStore.addOrUpdate(with: [.init(erc20Token)])
+        await tokensDataStore.addOrUpdate(with: [.init(erc20Token)])
 
         transactionTypeSupportable.transactionType = .erc20Token(erc20Token, destination: nil, amount: .notSet)
 
@@ -166,7 +172,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [expectation], timeout: 30)
     }
 
     func testScanSmallErc20TransferWhenTokenNeedToResolve() throws {

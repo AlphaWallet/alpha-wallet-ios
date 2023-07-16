@@ -12,11 +12,11 @@ import CombineExt
 public protocol TokensProcessingPipeline {
     var tokenViewModels: AnyPublisher<[TokenViewModel], Never> { get }
 
-    func tokenHolders(for token: TokenIdentifiable) -> [TokenHolder]
+    func tokenHolders(for token: TokenIdentifiable) async -> [TokenHolder]
     func tokenHoldersPublisher(for token: TokenIdentifiable) -> AnyPublisher<[TokenHolder], Never>
     func tokenHolderPublisher(for token: TokenIdentifiable, tokenId: TokenId) -> AnyPublisher<TokenHolder?, Never>
     func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never>
-    func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) -> TokenViewModel?
+    func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) async -> TokenViewModel?
     func start()
 }
 
@@ -32,33 +32,47 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let currencyService: CurrencyService
     private let sessionsProvider: SessionsProvider
 
-    public lazy var tokenViewModels: AnyPublisher<[TokenViewModel], Never> = {
+    public lazy var tokenViewModels: AnyPublisher<[TokenViewModel], Never> = { () -> AnyPublisher<[TokenViewModel], Never> in
         let whenTickersChanged = coinTickersProvider.tickersDidUpdate.dropFirst()
             .receive(on: queue)
-            .map { [tokensService] _ in tokensService.tokens }
+            .flatMap { [tokensService] _ in
+                asFuture {
+                    await tokensService.tokens
+                }
+            }
 
         let whenCurrencyChanged = currencyService.$currency.dropFirst()
             .receive(on: queue)
-            .map { [tokensService] _ in tokensService.tokens }
+            .flatMap { [tokensService] _ in
+                asFuture {
+                    await tokensService.tokens
+                }
+            }
 
         let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
             .receive(on: queue)
-            .map { [tokensService] _ in tokensService.tokens }
+            .flatMap { [tokensService] _ in
+                asFuture {
+                    await tokensService.tokens
+                }
+            }
 
         let whenTokensHasChanged = tokensService.tokensPublisher
             .dropFirst()
             .receive(on: queue)
 
         let whenCollectionHasChanged = Publishers.Merge4(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged, whenCurrencyChanged)
-            .map { $0.map { TokenViewModel(token: $0) } }
-            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
-            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-            .receive(on: RunLoop.main)
+                .map { $0.map { TokenViewModel(token: $0) } }
+                .flatMapLatest { tokenViewModels in asFuture { await self.applyTickers(tokens: tokenViewModels) ?? [] } }
+                .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
+                .receive(on: RunLoop.main)
+                .eraseToAnyPublisher()
 
-        let initialSnapshot = Just(tokensService.tokens)
+        let initialSnapshot: AnyPublisher<[TokenViewModel], Never> = asFuture { await self.tokensService.tokens }
             .map { $0.map { TokenViewModel(token: $0) } }
-            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
-            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+            .flatMap { [weak self] tokenViewModels in asFuture { await self?.applyTickers(tokens: tokenViewModels) ?? [] } }
+            .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
+            .eraseToAnyPublisher()
 
         return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
             .share(replay: 1)
@@ -107,25 +121,27 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             }.eraseToAnyPublisher()
     }
 
-    public func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) -> TokenViewModel? {
-        return tokensService.token(for: contract, server: server)
-            .flatMap { TokenViewModel(token: $0) }
-            .flatMap { [weak self] in self?.applyTicker(token: $0) }
-            .flatMap { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
+    public func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) async -> TokenViewModel? {
+        if let token = await tokensService.token(for: contract, server: server) {
+            let viewModel = await applyTicker(token: TokenViewModel(token: token))
+            applyTokenScriptOverrides(token: viewModel)
+            return viewModel
+        } else {
+            return nil
+        }
     }
 
     public func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never> {
         let whenTickersHasChanged: AnyPublisher<Token?, Never> = coinTickersProvider.tickersDidUpdate.dropFirst()
             //NOTE: filter coin ticker events, allow only if ticker has change
-            .compactMap { [coinTickersProvider, currencyService] _ in coinTickersProvider.ticker(for: .init(address: contract, server: server), currency: currencyService.currency) }
-            .removeDuplicates()
-            .map { [tokensService] _ in tokensService.token(for: contract, server: server) }
+            .compactMap { [coinTickersProvider, currencyService] _ in asFuture { await coinTickersProvider.ticker(for: .init(address: contract, server: server), currency: currencyService.currency) } }
+            .flatMap { [tokensService] _ in asFuture { await tokensService.token(for: contract, server: server) } }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         let whenSignatureOrBodyChanged: AnyPublisher<Token?, Never> = assetDefinitionStore
             .assetsSignatureOrBodyChange(for: contract)
-            .map { [tokensService] _ in tokensService.token(for: contract, server: server) }
+            .flatMap { [tokensService] _ in asFuture { await tokensService.token(for: contract, server: server) } }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
@@ -138,21 +154,25 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 case .initial, .error:
                     return false
                 }
-            }).map { [tokensService] _ in tokensService.token(for: contract, server: server) }
+            }).flatMap { [tokensService] _ in asFuture { await tokensService.token(for: contract, server: server) } }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         return Publishers.Merge4(tokensService.tokenPublisher(for: contract, server: server), whenTickersHasChanged, whenSignatureOrBodyChanged, whenEventHasChanged)
             .map { $0.flatMap { TokenViewModel(token: $0) } }
-            .map { [weak self] in self?.applyTicker(token: $0) }
+            .flatMap { [weak self] tokenViewModels in asFuture { await self?.applyTicker(token: tokenViewModels) } }
             .map { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
             .eraseToAnyPublisher()
     }
 
-    public func tokenHolders(for token: TokenIdentifiable) -> [TokenHolder] {
+    public func tokenHolders(for token: TokenIdentifiable) async -> [TokenHolder] {
         guard let session = sessionsProvider.session(for: token.server) else { return [] }
         let tokenAdaptor = session.tokenAdaptor
-        return tokenViewModel(for: token.contractAddress, server: token.server).flatMap { tokenAdaptor.getTokenHolders(token: $0) } ?? []
+        if let tokenViewModel = await tokenViewModel(for: token.contractAddress, server: token.server) {
+            return await tokenAdaptor.getTokenHolders(token: tokenViewModel)
+        } else {
+            return []
+        }
     }
 
     public func tokenHoldersPublisher(for token: TokenIdentifiable) -> AnyPublisher<[TokenHolder], Never> {
@@ -160,13 +180,14 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let tokenAdaptor = session.tokenAdaptor
         return tokenViewModelPublisher(for: token.contractAddress, server: token.server)
             .compactMap { $0 }
-            .map { tokenAdaptor.getTokenHolders(token: $0) }
+            .flatMap { tokenViewModel in asFuture { await tokenAdaptor.getTokenHolders(token: tokenViewModel) } }
             .eraseToAnyPublisher()
     }
 
     private func startTickersHandling() {
         //NOTE: To don't block start method, and apply delay to fetch tickers, inital only
-        let tokens = Publishers.Merge(Just(tokensService.tokens).delay(for: .seconds(2), scheduler: queue), tokensService.addedTokensPublisher)
+        let allTokens = asFuture { await self.tokensService.tokens }
+        let tokens = Publishers.Merge(allTokens.delay(for: .seconds(2), scheduler: queue), tokensService.addedTokensPublisher)
             .removeDuplicates()
 
         Publishers.CombineLatest(tokens, currencyService.$currency)
@@ -188,12 +209,22 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             }.store(in: &cancelable)
 
         coinTickersProvider.updateTickerIds
-            .map { [tokensService] data -> [AddOrUpdateTokenAction] in
-                let v = data.compactMap { i in tokensService.token(for: i.key.address, server: i.key.server).flatMap { ($0, i.tickerId) } }
-                return v.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) }
-            }.sink { [tokensService] actions in
-                tokensService.addOrUpdate(with: actions)
-            }.store(in: &cancelable)
+                .flatMap { [tokensService] (data: [(tickerId: TickerIdString, key: AddressAndRPCServer)]) in
+                    asFuture { () -> [(Token, TickerIdString)] in
+                        await data.asyncCompactMap { each in
+                            await tokensService.token(for: each.key.address, server: each.key.server).flatMap {
+                                ($0, each.tickerId)
+                            }
+                        }
+                    }
+                }
+                .map { (each: [(Token, TickerIdString)]) in each.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) } }
+                .eraseToAnyPublisher()
+                .sink { [tokensService] actions in
+                    Task { @MainActor in
+                        await tokensService.addOrUpdate(with: actions)
+                    }
+                }.store(in: &cancelable)
     }
 
     private func applyTokenScriptOverrides(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {
@@ -213,13 +244,13 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         return token.override(tokenScriptOverrides: overrides)
     }
 
-    private func applyTickers(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {
-        return .just(tokens.compactMap { applyTicker(token: $0) })
+    private func applyTickers(tokens: [TokenViewModel]) async -> [TokenViewModel] {
+        return await tokens.asyncCompactMap { await applyTicker(token: $0) }
     }
 
-    private func applyTicker(token: TokenViewModel?) -> TokenViewModel? {
+    private func applyTicker(token: TokenViewModel?) async -> TokenViewModel? {
         guard let token = token else { return nil }
-        let ticker = coinTickersProvider.ticker(for: .init(address: token.contractAddress, server: token.server), currency: currencyService.currency)
+        let ticker = await coinTickersProvider.ticker(for: .init(address: token.contractAddress, server: token.server), currency: currencyService.currency)
         let balance: BalanceViewModel
         switch token.type {
         case .nativeCryptocurrency:
@@ -240,7 +271,7 @@ public extension TokensProcessingPipeline {
         return tokenViewModelPublisher(for: token.contractAddress, server: token.server)
     }
 
-    func tokenViewModel(for token: Token) -> TokenViewModel? {
-        return tokenViewModel(for: token.contractAddress, server: token.server)
+    func tokenViewModel(for token: Token) async -> TokenViewModel? {
+        return await tokenViewModel(for: token.contractAddress, server: token.server)
     }
 }

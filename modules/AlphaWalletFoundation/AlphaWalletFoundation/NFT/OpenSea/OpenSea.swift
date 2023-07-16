@@ -65,11 +65,13 @@ public final class OpenSea {
             }.eraseToAnyPublisher()
     }
 
-    public func fetchAsset(for value: Eip155URL) -> AnyPublisher<NftAsset, PromiseError> {
+    public func fetchAsset(for value: Eip155URL) async throws -> NftAsset {
         //OK and safer to return a promise that never resolves so we don't mangle with real OpenSea data we stored previously, since this is for development only
-        guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
+        //TODO fix
+        struct DisabledError: Error {}
+        guard !config.development.isOpenSeaFetchingDisabled else { throw DisabledError() }
 
-        return openSea.fetchAsset(asset: value.path, chainId: server.chainID)
+        return try await openSea.fetchAsset(asset: value.path, chainId: server.chainID)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {

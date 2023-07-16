@@ -135,29 +135,26 @@ public class ActivitiesService: ActivitiesServiceType {
     }
 
     private func combineActivitiesWithTransactions() {
-        let transactions = transactionDataStore.transactions(
-            forFilter: transactionsFilterStrategy,
-            servers: Array(sessionsProvider.activeSessions.keys),
-            oldestBlockNumber: activities.last?.blockNumber)
-
-        let items = combine(activities: activities.all, with: transactions)
-        let activities = ActivityCollection.sorted(activities: items)
-
-        activitiesSubject.send(activities)
+        Task { @MainActor in
+            let transactions = await transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: Array(sessionsProvider.activeSessions.keys), oldestBlockNumber: activities.last?.blockNumber)
+            let items = await combine(activities: activities.all, with: transactions)
+            let activities = ActivityCollection.sorted(activities: items)
+            activitiesSubject.send(activities)
+        }
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], with transactions: [Transaction]) -> [ActivityRowModel] {
+    private func combine(activities: [Activity], with transactions: [Transaction]) async -> [ActivityRowModel] {
         let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactions.map { .transaction($0) }
         let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
         let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
 
-        return counters.map {
-            generateRowModels(activityOrTransactions: $0.value, blockNumber: $0.key)
+        return await counters.asyncMap {
+            await generateRowModels(activityOrTransactions: $0.value, blockNumber: $0.key)
         }.flatMap { $0 }
     }
 
-    private func generateRowModels(activityOrTransactions: [ActivityOrTransactionInstance], blockNumber: Int) -> [ActivityRowModel] {
+    private func generateRowModels(activityOrTransactions: [ActivityOrTransactionInstance], blockNumber: Int) async -> [ActivityRowModel] {
         if activityOrTransactions.isEmpty {
             //Shouldn't be possible
             return .init()
@@ -170,7 +167,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     let operations = transaction.localizedOperations
                     return operations.allSatisfy { activity != $0 }
                 }
-                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
+                let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty && activities.isEmpty {
                     results.append(.standaloneTransaction(transaction: transaction, activity: activity))
                 } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
@@ -182,8 +179,8 @@ public class ActivitiesService: ActivitiesServiceType {
                     let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations, wallet: wallet)
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
-                    results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                    results.append(contentsOf: await transaction.localizedOperations.asyncMap {
+                        let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
                     for each in activities {
@@ -200,7 +197,7 @@ public class ActivitiesService: ActivitiesServiceType {
             case .activity(let activity):
                 return [.standaloneActivity(activity: activity)]
             case .transaction(let transaction):
-                let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
+                let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else if transaction.localizedOperations.count == 1 {
@@ -209,8 +206,8 @@ public class ActivitiesService: ActivitiesServiceType {
                     let isSwap = self.isSwap(activities: activities.all, operations: transaction.localizedOperations, wallet: wallet)
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
-                    results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                    results.append(contentsOf: await transaction.localizedOperations.asyncMap {
+                        let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
 
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })

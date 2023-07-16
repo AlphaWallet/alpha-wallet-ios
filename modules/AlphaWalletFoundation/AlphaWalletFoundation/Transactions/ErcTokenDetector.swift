@@ -28,13 +28,11 @@ public final class ErcTokenDetector {
     func detect(from transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
 
-        filterTransactionsToPullContracts(from: transactions)
-            .sinkAsync(receiveCompletion: { _ in
-
-            }, receiveValue: { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
-                guard !transactionsToPullContractsFrom.isEmpty else { return }
-                self?.addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-            })
+        Task { @MainActor in
+            let (transactionsToPullContractsFrom, contractsAndTokenTypes) = await filterTransactionsToPullContracts(from: transactions)
+            guard !transactionsToPullContractsFrom.isEmpty else { return }
+            addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
+        }
     }
 
     private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
@@ -42,44 +40,35 @@ public final class ErcTokenDetector {
         let contractsAndServers = Array(Set(ercTokens.map { AddressAndRPCServer(address: $0.contract, server: $0.server) }))
 
         let actions = ercTokens.map { AddOrUpdateTokenAction.add(ercToken: $0, shouldUpdateBalance: true) }
-        tokensService.addOrUpdate(with: actions)
-
-        for each in contractsAndServers {
-            assetDefinitionStore.fetchXML(forContract: each.address, server: each.server)
+        Task { @MainActor in
+            await tokensService.addOrUpdate(with: actions)
+            for each in contractsAndServers {
+                assetDefinitionStore.fetchXML(forContract: each.address, server: each.server)
+            }
         }
     }
 
-    private var contractsToAvoid: [AlphaWallet.Address] {
-        let deletedContracts = tokensService.deletedContracts(for: server)
-        let hiddenContracts = tokensService.hiddenContracts(for: server)
-        let delegateContracts = tokensService.delegateContracts(for: server)
-        let alreadyAddedContracts = tokensService.alreadyAddedContracts(for: server)
+    private func contractsToAvoid() async -> [AlphaWallet.Address] {
+        let deletedContracts = await tokensService.deletedContracts(for: server)
+        let hiddenContracts = await tokensService.hiddenContracts(for: server)
+        let delegateContracts = await tokensService.delegateContracts(for: server)
+        let alreadyAddedContracts = await tokensService.alreadyAddedContracts(for: server)
 
         return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
     }
 
-    private func filterTransactionsToPullContracts(from transactions: [Transaction]) -> AnyPublisher<(transactions: [Transaction], contractTypes: [AlphaWallet.Address: TokenType]), Never> {
-        let filteredTransactions = ErcTokenDetector.functional.filter(transactions: transactions, contractsToAvoid: contractsToAvoid)
-
+    private func filterTransactionsToPullContracts(from transactions: [Transaction]) async -> (transactions: [Transaction], contractTypes: [AlphaWallet.Address: TokenType]) {
+        let contractsToAvoid = await contractsToAvoid()
+        let filteredTransactions: [Transaction] = ErcTokenDetector.functional.filter(transactions: transactions, contractsToAvoid: contractsToAvoid)
         //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-        let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-        let tokenTypePromises = contracts.map { contract in
-            ercProvider.getTokenType(for: contract)
-                .map { Optional($0) }
-                .replaceError(with: nil)
-                .map { (contract: contract, tokenType: $0) }
-                .eraseToAnyPublisher()
+        let contracts: [AlphaWallet.Address] = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
+        var contractsToTokenTypes: [AlphaWallet.Address: TokenType] = [:]
+        for each in contracts {
+            if let tokenType = try? await self.ercProvider.getTokenType(for: each).async() {
+                contractsToTokenTypes[each] = tokenType
+            }
         }
-
-        return Publishers.MergeMany(tokenTypePromises).collect()
-            .map { tokenTypes in
-                var contractsToTokenTypes: [AlphaWallet.Address: TokenType] = [:]
-                for each in tokenTypes {
-                    guard let tokenType = each.tokenType else { continue }
-                    contractsToTokenTypes[each.contract] = tokenType
-                }
-                return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            }.eraseToAnyPublisher()
+        return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
     }
 }
 

@@ -136,23 +136,23 @@ class AddressOrEnsNameLabel: UILabel {
 
         let promise = Promise<BlockieAndAddressOrEnsResolution> { seal in
             if let address = AlphaWallet.Address(string: value) {
-                cancelable?.cancel()
-                cancelable = domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
-                    .sink(receiveCompletion: { _ in
-                        seal.fulfill((nil, .resolved(.none)))
-                    }, receiveValue: { value in
+                Task { @MainActor in
+                    do {
+                        let blockieAndResolution = try await domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
+                        seal.fulfill(blockieAndResolution)
+                    } catch {
                         self.clearCurrentlyResolvingIf(value: valueArg)
-                        seal.fulfill(value)
-                    })
+                    }
+                }
             } else if value.contains(".") {
-                cancelable?.cancel()
-                cancelable = domainResolutionService.resolveAddressAndBlockie(string: value)
-                    .sink(receiveCompletion: { _ in
-                        seal.fulfill((nil, .resolved(.none)))
-                    }, receiveValue: { value in
+                Task { @MainActor in
+                    do {
+                        let blockieAndResolution = try await domainResolutionService.resolveAddressAndBlockie(string: value)
+                        seal.fulfill(blockieAndResolution)
+                    } catch {
                         self.clearCurrentlyResolvingIf(value: valueArg)
-                        seal.fulfill(value)
-                    })
+                    }
+                }
             } else {
                 seal.fulfill((nil, .resolved(.none)))
             }

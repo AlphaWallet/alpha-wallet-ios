@@ -125,7 +125,9 @@ final class NFTCollectionViewModel {
         input.map { _ in Loadable<Void, Error>.loading }
             .delay(for: .seconds(1), scheduler: RunLoop.main)
             .handleEvents(receiveOutput: { [tokensService, token, tokenHolders] _ in
-                tokenHolders.value = tokensService.tokenHolders(for: token)
+                Task { @MainActor in
+                    tokenHolders.value = await tokensService.tokenHolders(for: token)
+                }
             })
             .map { _ in Loadable<Void, Error>.done(()) }
             .eraseToAnyPublisher()

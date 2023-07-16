@@ -227,8 +227,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 self?.cancellable[randomUuid] = nil
             }, receiveValue: { [weak self] contractToNonFungibles in
                 guard let strongSelf = self else { return }
-                let ops = strongSelf.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToNonFungibles)
-                strongSelf.notifyUpdateBalance(ops)
+                Task { @MainActor in
+                    let ops = await strongSelf.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToNonFungibles)
+                    strongSelf.notifyUpdateBalance(ops)
+                }
             })
     }
 
@@ -249,16 +251,17 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             }, receiveValue: { [weak self, tokensDataStore] jsons in
                 guard let strongSelf = self else { return }
 
-                guard let token = tokensDataStore.token(for: contract, server: strongSelf.session.server) else { return }
-
-                let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
-                strongSelf.notifyUpdateBalance([
-                    .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
-                ])
+                Task { @MainActor in
+                    guard let token = await tokensDataStore.token(for: contract, server: strongSelf.session.server) else { return }
+                    let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
+                    strongSelf.notifyUpdateBalance([
+                        .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
+                    ])
+                }
             })
     }
 
-    private func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]]) -> [AddOrUpdateTokenAction] {
+    private func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]]) async -> [AddOrUpdateTokenAction] {
         var actions: [AddOrUpdateTokenAction] = []
         for (contract, nonFungibles) in contractToNonFungibles {
 
@@ -280,7 +283,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
                 tokenType = .erc721
             }
-            if let token = tokensDataStore.token(for: contract, server: session.server) {
+            if let token = await tokensDataStore.token(for: contract, server: session.server) {
                 actions += [
                     .update(token: token, field: .type(tokenType)),
                     .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets))),
@@ -306,37 +309,35 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private func updateOpenSeaErc721Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]]) {
         //All non-ERC1155 to be defensive
         let erc721ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.value.tokenType != .erc1155 }
-        let ops = buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: erc721ContractToOpenSeaNonFungibles)
-        notifyUpdateBalance(ops)
+        Task { @MainActor in
+            let ops = await buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: erc721ContractToOpenSeaNonFungibles)
+            notifyUpdateBalance(ops)
+        }
     }
 
     private func updateOpenSeaErc1155Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]]) {
         let erc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.value.tokenType == .erc1155 }
 
-        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]]) -> AnyPublisher<[AddOrUpdateTokenAction], SessionTaskError> {
+        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]]) async throws -> [AddOrUpdateTokenAction] {
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { $0.compactMap { BigInt($0.tokenId) } }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
-            let promises = contractsToTokenIds.map { contract, tokenIds in
-                erc1155BalanceFetcher
-                    .getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))
-                    .map { (contract: contract, balances: $0) }
-                    .replaceError(with: (contract: contract, balances: [:]))
-                    .eraseToAnyPublisher()
-            }
 
-            return Publishers.MergeMany(promises).collect()
-                .map { functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToOpenSeaNonFungibles, contractsAndBalances: $0) }
-                .map { self.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: $0) }
-                .setFailureType(to: SessionTaskError.self)
-                .eraseToAnyPublisher()
+            let contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])] = await contractsToTokenIds.asyncCompactMap { contract, tokenIds -> (contract: AlphaWallet.Address, balances: [BigInt: BigUInt])? in
+                if let balance: [BigInt: BigUInt] = try? await erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds)) {
+                    return (contract: contract, balances: balance)
+                } else {
+                    return nil
+                }
+            }.compactMap { $0 }
+
+            let contractToNonFungibles = functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToOpenSeaNonFungibles, contractsAndBalances: contractsAndBalances)
+            return await self.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToNonFungibles)
         }
 
-        _buildErc1155Updater(contractToOpenSeaNonFungibles: erc1155ContractToOpenSeaNonFungibles)
-            .sinkAsync(receiveCompletion: { _ in
-                //no-op
-            }, receiveValue: { [weak self] ops in
-                self?.notifyUpdateBalance(ops)
-            })
+        Task { @MainActor in
+            let ops = try await _buildErc1155Updater(contractToOpenSeaNonFungibles: erc1155ContractToOpenSeaNonFungibles)
+            notifyUpdateBalance(ops)
+        }
     }
 }
 

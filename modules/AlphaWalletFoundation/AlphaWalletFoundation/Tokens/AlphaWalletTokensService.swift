@@ -22,6 +22,14 @@ public class AlphaWalletTokensService: TokensService {
     private let fetchTokenScriptFiles: FetchTokenScriptFiles
     private lazy var tokenRepairService = TokenRepairService(tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
 
+    public var tokens: [Token] {
+        get async {
+            let tokenProviders: ServerDictionary<TokenSourceProvider> = providers.value
+            let all: [Token] = await tokenProviders.asyncFlatMap { await $0.value.getTokens() }
+            return AlphaWalletTokensService.filterAwaySpuriousTokens(all)
+        }
+    }
+
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
@@ -35,10 +43,6 @@ public class AlphaWalletTokensService: TokensService {
 
     public func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
         tokensDataStore.tokensChangesetPublisher(for: servers, predicate: nil)
-    }
-
-    public var tokens: [Token] {
-        AlphaWalletTokensService.filterAwaySpuriousTokens(providers.value.flatMap { $0.value.tokens })
     }
 
     public lazy var addedTokensPublisher: AnyPublisher<[Token], Never> = {
@@ -73,21 +77,23 @@ public class AlphaWalletTokensService: TokensService {
             sessionsProvider: sessionsProvider)
     }
 
-    public func tokens(for servers: [RPCServer]) -> [Token] {
-        return tokensDataStore.tokens(for: servers)
+    public func tokens(for servers: [RPCServer]) async -> [Token] {
+        return await tokensDataStore.tokens(for: servers)
     }
 
     public func mark(token: TokenIdentifiable, isHidden: Bool) {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: token.contractAddress, server: token.server)
-        tokensDataStore.updateToken(primaryKey: primaryKey, action: .isHidden(isHidden))
+        Task {
+            await tokensDataStore.updateToken(primaryKey: primaryKey, action: .isHidden(isHidden))
+        }
     }
 
-    public func token(for contract: AlphaWallet.Address) -> Token? {
-        return tokensDataStore.token(for: contract)
+    public func token(for contract: AlphaWallet.Address) async -> Token? {
+        return await tokensDataStore.token(for: contract)
     }
 
-    public func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
-        return tokensDataStore.token(for: contract, server: server)
+    public func token(for contract: AlphaWallet.Address, server: RPCServer) async -> Token? {
+        return await tokensDataStore.token(for: contract, server: server)
     }
 
     public func refresh() {
@@ -144,12 +150,12 @@ public class AlphaWalletTokensService: TokensService {
         stop()
     }
 
-    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token] {
-        tokensDataStore.addOrUpdate(with: actions)
+    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token] {
+        await tokensDataStore.addOrUpdate(with: actions)
     }
 
-    public func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool? {
-        tokensDataStore.updateToken(primaryKey: primaryKey, action: action)
+    public func updateToken(primaryKey: String, action: TokenFieldUpdate) async -> Bool? {
+        await tokensDataStore.updateToken(primaryKey: primaryKey, action: action)
     }
 
     public func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy) {
@@ -159,7 +165,10 @@ public class AlphaWalletTokensService: TokensService {
             provider.refreshBalance(for: [token])
         case .all:
             for provider in providers.value.values {
-                provider.refreshBalance(for: provider.tokens)
+                Task { @MainActor in
+                    let tokens = await provider.getTokens()
+                    provider.refreshBalance(for: tokens)
+                }
             }
         case .tokens(let tokens):
             for token in tokens {
@@ -182,7 +191,9 @@ public class AlphaWalletTokensService: TokensService {
 
     public func update(token: TokenIdentifiable, value: TokenFieldUpdate) {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: token.contractAddress, server: token.server)
-        tokensDataStore.updateToken(primaryKey: primaryKey, action: value)
+        Task {
+            await tokensDataStore.updateToken(primaryKey: primaryKey, action: value)
+        }
     }
 
     //Remove tokens that look unwanted in the Wallet tab
@@ -200,15 +211,21 @@ public class AlphaWalletTokensService: TokensService {
 
 extension AlphaWalletTokensService {
     public func setBalanceTestsOnly(balance: Balance, for token: Token) {
-        tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .value(balance.value))
+        Task {
+            await tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .value(balance.value))
+        }
     }
 
     public func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token) {
-        tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .nonFungibleBalance(value))
+        Task {
+            await tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .nonFungibleBalance(value))
+        }
     }
 
     public func addOrUpdateTokenTestsOnly(token: Token) {
-        tokensDataStore.addOrUpdate(with: [.init(token)])
+        Task {
+            await tokensDataStore.addOrUpdate(with: [.init(token)])
+        }
     }
 
     public func deleteTokenTestsOnly(token: Token) {
@@ -217,20 +234,19 @@ extension AlphaWalletTokensService {
 }
 
 extension AlphaWalletTokensService {
-
-    public func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
+    public func alreadyAddedContracts(for server: RPCServer) async -> [AlphaWallet.Address] {
+        await tokensDataStore.tokens(for: [server]).map { $0.contractAddress }
     }
 
-    public func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+    public func deletedContracts(for server: RPCServer) async -> [AlphaWallet.Address] {
+        await tokensDataStore.deletedContracts(forServer: server).map { $0.address }
     }
 
-    public func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
+    public func hiddenContracts(for server: RPCServer) async -> [AlphaWallet.Address] {
+        await tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
     }
 
-    public func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokensDataStore.delegateContracts(forServer: server).map { $0.address }
+    public func delegateContracts(for server: RPCServer) async -> [AlphaWallet.Address] {
+        await tokensDataStore.delegateContracts(forServer: server).map { $0.address }
     }
 }

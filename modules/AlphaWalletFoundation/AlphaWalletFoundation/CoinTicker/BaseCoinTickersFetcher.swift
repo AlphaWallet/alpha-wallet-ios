@@ -16,9 +16,9 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
     private let networking: CoinTickerNetworking
     private let tickerIdsFetcher: TickerIdsFetcher
     /// Cached fetch ticker prices operations
-    private var inlightPromises: AtomicDictionary<FetchTickerKey, AnyCancellable> = .init()
+    private var inflightFetchers: AtomicDictionary<FetchTickerKey, Task<Void, Never>> = .init()
     /// Resolving ticker ids operations
-    private var tickerResolvers: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
+    private var inflightResolvers: AtomicDictionary<TokenMappedToTicker, Task<Void, Never>> = .init()
 
     public init(networking: CoinTickerNetworking, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
         self.networking = networking
@@ -32,8 +32,8 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
     }
 
     public func cancel() {
-        inlightPromises.values.values.forEach { $0.cancel() }
-        inlightPromises.removeAll()
+        inflightFetchers.values.values.forEach { $0.cancel() }
+        inflightFetchers.removeAll()
     }
 
     private struct FetchTickerKey: Hashable {
@@ -53,60 +53,63 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
 
     public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool = false, currency: Currency) {
         //NOTE: cancel all previous requests for prev currency
-        inlightPromises.removeAll { $0.currency != currency }
+        inflightFetchers.removeAll { $0.currency != currency }
 
-        let targetTokensToFetchTickers = tokens.filter {
-            let key = FetchTickerKey(contractAddress: $0.contractAddress, server: $0.server, currency: currency)
-            if inlightPromises[key] != nil {
-                return false
-            } else {
-                return force || hasExpiredTickersLifeTimeSinceLastUpdate(for: $0, currency: currency)
+        Task { @MainActor in
+            var targetTokensToFetchTickers: [TokenMappedToTicker] = []
+            for each in tokens {
+                let key = FetchTickerKey(contractAddress: each.contractAddress, server: each.server, currency: currency)
+                if inflightFetchers[key] != nil {
+                    return
+                } else {
+                    let include = await hasExpiredTickersLifeTimeSinceLastUpdate(for: each, currency: currency)
+                    if force || include {
+                        targetTokensToFetchTickers.append(each)
+                    }
+                }
             }
-        }
 
-        guard !targetTokensToFetchTickers.isEmpty else { return }
+            guard !targetTokensToFetchTickers.isEmpty else { return }
 
-        //NOTE: use shared loading tickers operation for batch of tokens
-        let operation = fetchBatchOfTickers(for: targetTokensToFetchTickers, currency: currency)
-            .sink(receiveCompletion: { [inlightPromises] _ in
+            //NOTE: use shared loading tickers operation for batch of tokens
+            let task = Task<Void, Never> {
+                do {
+                    let tickers = try await fetchBatchOfTickers(for: targetTokensToFetchTickers, currency: currency)
+                    storage.addOrUpdate(tickers: tickers)
+                } catch {}
                 for token in targetTokensToFetchTickers {
                     let key = FetchTickerKey(contractAddress: token.contractAddress, server: token.server, currency: currency)
-                    inlightPromises.removeValue(forKey: key)
+                    inflightFetchers[key] = nil
                 }
-            }, receiveValue: { [storage] in storage.addOrUpdate(tickers: $0) })
+            }
 
-        for token in targetTokensToFetchTickers {
-            let key = FetchTickerKey(contractAddress: token.contractAddress, server: token.server, currency: currency)
-            inlightPromises[key] = operation
+            for token in targetTokensToFetchTickers {
+                let key = FetchTickerKey(contractAddress: token.contractAddress, server: token.server, currency: currency)
+                inflightFetchers[key] = task
+            }
         }
     }
 
     public func resolveTickerIds(for tokens: [TokenMappedToTicker]) {
         for each in tokens {
-            guard tickerResolvers[each] == nil else { continue }
-
-            tickerResolvers[each] = tickerIdsFetcher.tickerId(for: each)
-                .handleEvents(receiveCompletion: { [tickerResolvers] _ in
-                    tickerResolvers.removeValue(forKey: each)
-                }, receiveCancel: { [tickerResolvers] in
-                    tickerResolvers.removeValue(forKey: each)
-                }).sink { _ in }
+            guard inflightResolvers[each] == nil else { continue }
+            let task = Task<Void, Never> { @MainActor in
+                await tickerIdsFetcher.tickerId(for: each)
+                inflightResolvers[each] = nil
+            }
+            inflightResolvers[each] = task
         }
     }
 
     /// Returns cached chart history if its not expired otherwise download a new version of history, if ticker id has found
-    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod], currency: Currency) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never> {
-        let publishers = periods.map { fetchChartHistory(force: force, period: $0, for: token, currency: currency) }
-
-        return Publishers.MergeMany(publishers).collect()
-            .map { $0.reorder(by: periods) }
-            .map { mapped -> [ChartHistoryPeriod: ChartHistory] in
-                var values: [ChartHistoryPeriod: ChartHistory] = [:]
-                for each in mapped {
-                    values[each.period] = each.history
-                }
-                return values
-            }.eraseToAnyPublisher()
+    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod], currency: Currency) async -> [ChartHistoryPeriod: ChartHistory] {
+        let unorderedHistoryToPeriods = await periods.asyncMap { await fetchChartHistory(force: force, period: $0, for: token, currency: currency) }
+        let historyToPeriods = unorderedHistoryToPeriods.reorder(by: periods)
+        var values: [ChartHistoryPeriod: ChartHistory] = [:]
+        for each in historyToPeriods {
+            values[each.period] = each.history
+        }
+        return values
     }
 
     struct HistoryToPeriod {
@@ -114,31 +117,26 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
         let history: ChartHistory
     }
 
-    private func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for token: TokenMappedToTicker, currency: Currency) -> AnyPublisher<HistoryToPeriod, Never> {
-        return tickerIdsFetcher.tickerId(for: token)
-            .flatMap { [storage, networking, weak self] tickerId -> AnyPublisher<HistoryToPeriod, Never> in
-                guard let strongSelf = self else { return .empty() }
-                guard let tickerId = tickerId.flatMap({ AssignedCoinTickerId(tickerId: $0, token: token) }) else {
-                    return .just(.init(period: period, history: .empty(currency: currency)))
-                }
+    private func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for token: TokenMappedToTicker, currency: Currency) async -> HistoryToPeriod {
+        guard let tickerIdString = await tickerIdsFetcher.tickerId(for: token) else { return HistoryToPeriod(period: period, history: ChartHistory.empty(currency: currency)) }
+        let tickerId = AssignedCoinTickerId(tickerId: tickerIdString, token: token)
 
-                if let data = storage.chartHistory(period: period, for: tickerId, currency: currency), !strongSelf.hasExpired(history: data, for: period), !force {
-                    return .just(.init(period: period, history: data.history))
-                } else {
-                    return networking.fetchChartHistory(for: period, tickerId: tickerId.tickerId, currency: currency)
-                        .handleEvents(receiveOutput: { history in
-                            storage.addOrUpdateChartHistory(history: history, period: period, for: tickerId)
-                        }).replaceError(with: .empty(currency: currency))
-                        .map { HistoryToPeriod(period: period, history: $0) }
-                        .receive(on: RunLoop.main)
-                        .eraseToAnyPublisher()
-                }
-            }.eraseToAnyPublisher()
+        if let data = await storage.chartHistory(period: period, for: tickerId, currency: currency), !hasExpired(history: data, for: period), !force {
+            return HistoryToPeriod(period: period, history: data.history)
+        } else {
+            do {
+                let history = try await networking.fetchChartHistory(for: period, tickerId: tickerId.tickerId, currency: currency)
+                storage.addOrUpdateChartHistory(history: history, period: period, for: tickerId)
+                return HistoryToPeriod(period: period, history: history)
+            } catch {
+                return HistoryToPeriod(period: period, history: ChartHistory.empty(currency: currency))
+            }
+        }
     }
 
-    private func hasExpiredTickersLifeTimeSinceLastUpdate(for token: TokenMappedToTicker, currency: Currency) -> Bool {
+    private func hasExpiredTickersLifeTimeSinceLastUpdate(for token: TokenMappedToTicker, currency: Currency) async -> Bool {
         let key = AddressAndRPCServer(address: token.contractAddress, server: token.server)
-        if let ticker = storage.ticker(for: key, currency: currency), Date().timeIntervalSince(ticker.lastUpdatedAt) <= pricesCacheLifetime {
+        if let ticker = await storage.ticker(for: key, currency: currency), Date().timeIntervalSince(ticker.lastUpdatedAt) <= pricesCacheLifetime {
             return false
         }
 
@@ -164,32 +162,24 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
         }
     }
 
-    private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker], currency: Currency) -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], PromiseError> {
-        let publishers = tokens.map { token in
-            tickerIdsFetcher.tickerId(for: token).map { $0.flatMap { AssignedCoinTickerId(tickerId: $0, token: token) } }
+    private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker], currency: Currency) async throws -> [AssignedCoinTickerId: CoinTicker] {
+        let assignedCoinTickerIds: [AssignedCoinTickerId] = await tokens.asyncCompactMap { token in
+            if let tickerId = await tickerIdsFetcher.tickerId(for: token) {
+                return AssignedCoinTickerId(tickerId: tickerId, token: token)
+            } else {
+                return nil
+            }
         }
-
-        return Publishers.MergeMany(publishers).collect()
-            .setFailureType(to: PromiseError.self)
-            .flatMap { [networking] tickerIds -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], PromiseError> in
-                let tickerIds = tickerIds.compactMap { $0 }
-                let ids = tickerIds.compactMap { $0.tickerId }
-
-                guard !ids.isEmpty else {
-                    return .just([:])
-                }
-
-                return networking.fetchTickers(for: ids, currency: currency).map { tickers in
-                    var result: [AssignedCoinTickerId: CoinTicker] = [:]
-
-                    for ticker in tickers {
-                        for tickerId in tickerIds.filter({ $0.tickerId == ticker.id }) {
-                            result[tickerId] = ticker
-                        }
-                    }
-                    return result
-                }.eraseToAnyPublisher()
-            }.eraseToAnyPublisher()
+        let tickerIds = assignedCoinTickerIds.map { $0.tickerId }
+        guard !tickerIds.isEmpty else { return [:] }
+        let tickers = try await networking.fetchTickers(for: tickerIds, currency: currency)
+        var result: [AssignedCoinTickerId: CoinTicker] = [:]
+        for ticker in tickers {
+            for each in assignedCoinTickerIds.filter({ $0.tickerId == ticker.id }) {
+                result[each] = ticker
+            }
+        }
+        return result
     }
 }
 

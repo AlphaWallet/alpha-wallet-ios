@@ -52,3 +52,32 @@ public extension Publisher {
         }
     }
 }
+
+enum PublisherAsAsyncError: Error {
+    case finishedWithoutValue
+}
+
+//TODO remove most if not all callers once we migrate completely to async-await
+public extension AnyPublisher {
+    func async() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var finishedWithoutValue = true
+            cancellable = first()
+                .sink { result in
+                    switch result {
+                    case .finished:
+                        if finishedWithoutValue {
+                            continuation.resume(throwing: PublisherAsAsyncError.finishedWithoutValue)
+                        }
+                    case let .failure(error):
+                        continuation.resume(throwing: error)
+                    }
+                    cancellable?.cancel()
+                } receiveValue: { value in
+                    finishedWithoutValue = false
+                    continuation.resume(with: .success(value))
+                }
+        }
+    }
+}

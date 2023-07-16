@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import Combine
+import AlphaWalletCore
 import AlphaWalletENS
 import AlphaWalletWeb3
-import Combine
 
 class ENSDelegateImpl: ENSDelegate {
     private let blockchainProvider: BlockchainProvider
@@ -17,11 +18,12 @@ class ENSDelegateImpl: ENSDelegate {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, AlphaWalletENS.SmartContractError> {
-        return IsInterfaceSupported165(blockchainProvider: blockchainProvider)
-            .getInterfaceSupported165(hash: hash, contract: contract)
-            .mapError { e in SmartContractError.embedded(e) }
-            .eraseToAnyPublisher()
+    func getInterfaceSupported165Async(chainId: Int, hash: String, contract: AlphaWallet.Address) async throws -> Bool {
+        let publisher = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
+                .getInterfaceSupported165(hash: hash, contract: contract)
+                .mapError { e in SmartContractError.embedded(e) }
+                .eraseToAnyPublisher()
+        return try await publisher.async()
     }
 
     func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject]) -> AnyPublisher<[String: Any], SmartContractError> {

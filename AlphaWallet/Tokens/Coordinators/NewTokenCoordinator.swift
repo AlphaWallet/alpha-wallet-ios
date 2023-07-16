@@ -117,10 +117,11 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
 
     func didAddToken(ercToken: ErcToken, in viewController: NewTokenViewController) {
         guard let session = sessionsProvider.session(for: ercToken.server) else { return }
-        let token = session.importToken.importToken(ercToken: ercToken, shouldUpdateBalance: true)
-
-        delegate?.coordinator(self, didAddToken: token)
-        dismiss()
+        Task { @MainActor in
+            let token = await session.importToken.importToken(ercToken: ercToken, shouldUpdateBalance: true)
+            delegate?.coordinator(self, didAddToken: token)
+            dismiss()
+        }
     }
 
     func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController) {

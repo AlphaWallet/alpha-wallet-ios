@@ -13,6 +13,6 @@ import AlphaWalletFoundation
 
 extension CoinTickers {
     static func make(config: Config = .make()) -> CoinTickersProvider & CoinTickersFetcher {
-        return CoinTickers(fetchers: [], storage: RealmStore(realm: fakeRealm()))
+        return CoinTickers(fetchers: [], storage: RealmStore(config: fakeRealm().configuration))
     }
 }

@@ -15,7 +15,7 @@ extension TransactionConfirmationViewModel {
         @Published private var transactedToken: Loadable<TransactedToken, Error> = .loading
         @Published private var balanceViewModel: TransactionBalance = .init(balance: .zero, newBalance: .zero, rate: nil)
         @Published private var etherCurrencyRate: Loadable<CurrencyRate, Error> = .loading
-        
+
         private let configurator: TransactionConfigurator
         private let recipientResolver: RecipientResolver
         private let session: WalletSession
@@ -68,7 +68,8 @@ extension TransactionConfirmationViewModel {
                 .assign(to: \.etherCurrencyRate, on: self, ownership: .weak)
                 .store(in: &cancellable)
 
-            let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, recipientResolver.resolveRecipient()).mapToVoid()
+            let resolveRecipient = asFuture { await self.recipientResolver.resolveRecipient() }.eraseToAnyPublisher()
+            let stateChanges = Publishers.CombineLatest3($balanceViewModel, $etherCurrencyRate, resolveRecipient).mapToVoid()
 
             let viewState = Publishers.Merge(stateChanges, configurator.objectChanges)
                 .compactMap { _ -> TransactionConfirmationViewModel.ViewState? in
@@ -161,7 +162,7 @@ extension TransactionConfirmationViewModel {
                 let amount = NumberFormatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
                 if let rate = balanceViewModel.rate {
                     let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
-                    
+
                     return "\(amount) \(symbol) ≈ \(amountInFiat)"
                 } else {
                     return "\(amount) \(symbol)"

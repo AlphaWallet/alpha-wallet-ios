@@ -85,7 +85,6 @@ public class ContractDataDetector {
     //Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
     //Have to use strong self in promises below, otherwise `self` will be destroyed before fetching completes
     public func fetch() -> AnyPublisher<ContractData, Never> {
-
         assetDefinitionStore.fetchXML(forContract: contract, server: nil)
 
         firstly {

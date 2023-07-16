@@ -14,14 +14,12 @@ class TokensDataStoreTest: XCTestCase {
         type: .erc20
     )
 
-    override func setUp() {
-        storage.addOrUpdate(with: [.init(token)])
-    }
-
     //We make a call to update token in datastore to store the updated balance after an async call to fetch the balance over the web. Token in the datastore might have been deleted when the web call is completed. Make sure this doesn't crash
-    func testUpdateDeletedTokensDoNotCrash() {
+    func testUpdateDeletedTokensDoNotCrash() async {
+        await storage.addOrUpdate(with: [.init(token)])
         storage.deleteTestsOnly(tokens: [token])
-        XCTAssertNil(storage.updateToken(primaryKey: token.primaryKey, action: .value(1)))
+        let tokenUpdateHappened = await storage.updateToken(primaryKey: token.primaryKey, action: .value(1))
+        XCTAssertNil(tokenUpdateHappened)
     }
 
     //Ensure this works:
@@ -30,7 +28,8 @@ class TokensDataStoreTest: XCTestCase {
     //3. Manually add that token back (add custom token screen)
     //4. Swipe to hide that token.
     //5. BOOM.
-    func testHideContractTwiceDoesNotCrash() {
+    func testHideContractTwiceDoesNotCrash() async {
+        await storage.addOrUpdate(with: [.init(token)])
         let contract = AlphaWallet.Address(string: "0x66F08Ca6892017A45Da6FB792a8E946FcBE3d865")!
         storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .goerli)])
         XCTAssertNoThrow(storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .goerli)]))

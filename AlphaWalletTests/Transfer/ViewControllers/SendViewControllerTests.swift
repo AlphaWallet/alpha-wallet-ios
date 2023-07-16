@@ -113,21 +113,21 @@ class SendViewControllerTests: XCTestCase {
         Config.setLocale(AppLocale.system)
     }
 
-    func testTokenBalance() {
+    func testTokenBalance() async {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        let tokens = dep.tokensService.tokens(for: [.main])
+        let tokens = await dep.tokensService.tokens(for: [.main])
 
         XCTAssertTrue(tokens.contains(token))
 
-        let viewModel = dep.pipeline.tokenViewModel(for: token)
+        let viewModel = await dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel)
         XCTAssertEqual(viewModel?.value, BigUInt("2020224719101120")!)
 
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("10000000000000")), for: token)
 
-        let viewModel_2 = dep.pipeline.tokenViewModel(for: token)
+        let viewModel_2 = await dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel_2)
         XCTAssertEqual(viewModel_2?.value, BigUInt("10000000000000")!)
     }
@@ -308,7 +308,7 @@ class TokenBalanceTests: XCTestCase {
         waitForExpectations(timeout: 50)
     }
 
-    func testBalanceUpdates() {
+    func testBalanceUpdates() async {
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
 
@@ -319,7 +319,7 @@ class TokenBalanceTests: XCTestCase {
             value: "2000000020224719101120",
             type: .erc20)
 
-        var balance = pipeline.tokenViewModel(for: token)
+        var balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
         let isNotNilInitialValueExpectation = self.expectation(description: "Non nil value when subscribe for publisher")
@@ -333,11 +333,11 @@ class TokenBalanceTests: XCTestCase {
                 isNotNilInitialValueExpectation.fulfill()
             }
 
-        waitForExpectations(timeout: 10)
+        await fulfillment(of: [isNotNilInitialValueExpectation], timeout: 10)
 
         tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        balance = pipeline.tokenViewModel(for: token)
+        balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(balance)
 
         let hasInitialValueExpectation = self.expectation(description: "Initial value  when subscribe for publisher")
@@ -350,10 +350,10 @@ class TokenBalanceTests: XCTestCase {
                 hasInitialValueExpectation.fulfill()
             }
 
-        waitForExpectations(timeout: 10)
+        await fulfillment(of: [hasInitialValueExpectation], timeout: 10)
     }
 
-    func testBalanceUpdatesPublisherWhenServersChanged() {
+    func testBalanceUpdatesPublisherWhenServersChanged() async {
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
         let token = Token(
@@ -363,12 +363,12 @@ class TokenBalanceTests: XCTestCase {
             value: "2000000020224719101120",
             type: .erc20)
 
-        var balance = pipeline.tokenViewModel(for: token)
+        var balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
         tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        balance = pipeline.tokenViewModel(for: token)
+        balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(balance)
 
         let tokenBalanceUpdateCallbackExpectation = self.expectation(description: "did update token balance expectation")
@@ -409,7 +409,7 @@ class TokenBalanceTests: XCTestCase {
             tokensService.deleteTokenTestsOnly(token: token)
         }
 
-        waitForExpectations(timeout: 50)
+        await fulfillment(of: [tokenBalanceUpdateCallbackExpectation], timeout: 50)
     }
 
     func testTokenDeletion() {
@@ -456,17 +456,17 @@ class TokenBalanceTests: XCTestCase {
         waitForExpectations(timeout: 30)
     }
 
-    func testBalanceUpdatesPublisherWhenNonFungibleBalanceUpdated() {
+    func testBalanceUpdatesPublisherWhenNonFungibleBalanceUpdated() async {
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
 
         let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000004"), server: .main, decimals: 18, value: "0", type: .erc721)
-        var balance = pipeline.tokenViewModel(for: token)
+        var balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
         tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        balance = pipeline.tokenViewModel(for: token)
+        balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(balance)
 
         let tokenBalanceUpdateCallbackExpectation = self.expectation(description: "did update token balance expectation")
@@ -498,20 +498,20 @@ class TokenBalanceTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [tokenBalanceUpdateCallbackExpectation], timeout: 30)
     }
 
-    func testBalanceUpdatesPublisherWhenFungibleBalanceUpdated() {
+    func testBalanceUpdatesPublisherWhenFungibleBalanceUpdated() async {
         var callbackCount: Int = 0
 
         let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000001"), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
-        var balance = pipeline.tokenViewModel(for: token)
+        var balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
-        balance = pipeline.tokenViewModel(for: token)
+        balance = await pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(balance)
 
         let tokenBalanceUpdateCallbackExpectation = self.expectation(description: "did update token balance expectation")
@@ -532,27 +532,31 @@ class TokenBalanceTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [tokenBalanceUpdateCallbackExpectation], timeout: 30)
     }
 
-    func testUpdateNativeCryptoBalance() {
+    func testUpdateNativeCryptoBalance() async {
         let token = Token(contract: .make(), server: .main, value: "0", type: .nativeCryptocurrency)
         let pipeline = dep.pipeline
 
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
 
-        XCTAssertEqual(pipeline.tokenViewModel(for: token)!.balance.value, .zero)
+        let viewModel = await pipeline.tokenViewModel(for: token)
+        XCTAssertEqual(viewModel!.balance.value, .zero)
 
         let testValue1 = BigUInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue1), for: token)
 
-        XCTAssertEqual(pipeline.tokenViewModel(for: token)!.balance.value, testValue1)
+        let viewModel2 = await pipeline.tokenViewModel(for: token)
+        XCTAssertEqual(viewModel2!.balance.value, testValue1)
 
         let testValue2 = BigUInt("20000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue2), for: token)
 
-        XCTAssertNotNil(pipeline.tokenViewModel(for: token))
-        XCTAssertEqual(pipeline.tokenViewModel(for: token)!.balance.value, testValue2)
+        let viewModel3 = await pipeline.tokenViewModel(for: token)
+        XCTAssertNotNil(viewModel3)
+        let viewModel4 = await pipeline.tokenViewModel(for: token)
+        XCTAssertEqual(viewModel4!.balance.value, testValue2)
     }
 
 }

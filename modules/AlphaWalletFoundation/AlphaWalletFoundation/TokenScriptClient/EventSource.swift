@@ -97,8 +97,8 @@ final class EventSource {
         var tokenScriptChanged: AnyPublisher<[Token], Never> {
             assetDefinitionStore.bodyChange
                 .receive(on: queue)
-                .compactMap { [tokensService] in tokensService.token(for: $0) }
-                .compactMap { self.tokensBasedOnTokenScriptServer(token: $0) }
+                .flatMap { [tokensService] address in asFuture { await tokensService.token(for: address) } }.compactMap { $0 }
+                .flatMap { token in asFuture { await self.tokensBasedOnTokenScriptServer(token: token) } }
                 .handleEvents(receiveOutput: { [eventsDataStore] in $0.map { eventsDataStore.deleteEvents(for: $0.contractAddress) } })
                 .share()
                 .eraseToAnyPublisher()
@@ -115,14 +115,14 @@ final class EventSource {
             self.tokensService = tokensService
         }
 
-        private func tokensBasedOnTokenScriptServer(token: Token) -> [Token] {
+        private func tokensBasedOnTokenScriptServer(token: Token) async -> [Token] {
             guard let session = sessionsProvider.session(for: token.server) else { return [] }
             let xmlHandler = session.tokenAdaptor.xmlHandler(token: token)
             guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
             switch server {
             case .any:
                 let enabledServers = sessionsProvider.activeSessions.map { $0.key }
-                return enabledServers.compactMap { tokensService.token(for: token.contractAddress, server: $0) }
+                return await enabledServers.asyncCompactMap { server in await tokensService.token(for: token.contractAddress, server: server) }
             case .server(let server):
                 return [token]
             }
@@ -285,7 +285,9 @@ final class EventSource {
 
                 cancellable = Publishers.Merge3(initial, force, timedOrWaitForCurrent)
                     .receive(on: DispatchQueue.global())
-                    .flatMap { [eventsFetcher] in eventsFetcher.fetchEvents(token: $0.token) }
+                    .flatMap { [eventsFetcher] request in
+                        eventsFetcher.fetchEvents(token: request.token)
+                    }
                     .sink { _ in }
             }
 
@@ -315,7 +317,7 @@ final class EventSource {
             self.eventsDataStore = eventsDataStore
         }
 
-        private func getEventOriginsAndTokenIds(token: Token) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+        private func getEventOriginsAndTokenIds(token: Token) async -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
             guard let session = sessionsProvider.session(for: token.server) else { return [] }
 
             var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
@@ -326,7 +328,7 @@ final class EventSource {
             for each in xmlHandler.attributesWithEventSource {
                 guard let eventOrigin = each.eventOrigin else { continue }
 
-                let tokenHolders = session.tokenAdaptor.getTokenHolders(token: token, isSourcedFromEvents: false)
+                let tokenHolders = await session.tokenAdaptor.getTokenHolders(token: token, isSourcedFromEvents: false)
                 let tokenIds = tokenHolders.flatMap { $0.tokenIds }
 
                 cards.append((eventOrigin, tokenIds))
@@ -336,28 +338,22 @@ final class EventSource {
         }
 
         func fetchEvents(token: Token) -> EventPublisher {
-            let publishers = getEventOriginsAndTokenIds(token: token)
-                .flatMap { value in
-                    value.tokenIds.map { tokenId -> EventPublisher in
+            let subject = PassthroughSubject<[EventInstanceValue], Never>()
+            Task { @MainActor in
+                let eventsAndTokenIds: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = await self.getEventOriginsAndTokenIds(token: token)
+                let all: [EventInstanceValue] = try await eventsAndTokenIds.asyncMap { (value: (eventOrigin: EventOrigin, tokenIds: [TokenId])) in
+                    let what: [EventInstanceValue] = try await value.tokenIds.asyncFlatMap { tokenId in
                         let eventOrigin = value.eventOrigin
-                        let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(
-                            for: eventOrigin.contract,
-                            tokenContract: token.contractAddress,
-                            server: token.server,
-                            eventName: eventOrigin.eventName)
-
-                        return eventFetcher
-                            .fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEventBlockNumber: oldEvent?.blockNumber)
-                            .handleEvents(receiveOutput: { [eventsDataStore] in eventsDataStore.addOrUpdate(events: $0) })
-                            .replaceError(with: [])
-                            .eraseToAnyPublisher()
+                        let oldEvent = await self.eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+                        let events: [EventInstanceValue] = try await self.eventFetcher.fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEventBlockNumber: oldEvent?.blockNumber)
+                        self.eventsDataStore.addOrUpdate(events: events)
+                        return events
                     }
-                }
-
-            return Publishers.MergeMany(publishers)
-                .collect()
-                .map { $0.flatMap { $0 } }
-                .eraseToAnyPublisher()
+                    return what
+                }.flatMap { $0 }
+                subject.send(all)
+            }
+            return subject.eraseToAnyPublisher()
         }
     }
 }

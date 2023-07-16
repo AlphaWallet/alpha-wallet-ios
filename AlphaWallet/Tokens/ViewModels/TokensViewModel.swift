@@ -201,6 +201,7 @@ final class TokensViewModel {
             }.store(in: &cancellable)
 
         tokensPipeline.tokenViewModels
+            .prepend([])
             .sink { [weak self] tokens in
                 self?.tokens = tokens
                 self?.reloadData()
@@ -255,7 +256,9 @@ final class TokensViewModel {
 
     private func blockieImage(input appear: AnyPublisher<Void, Never>) -> AnyPublisher<BlockiesImage, Never> {
         return appear.flatMap { [blockiesGenerator, wallet] _ in
-            blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+            asFuture {
+                await blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+            }
         }.eraseToAnyPublisher()
     }
 
@@ -293,30 +296,32 @@ final class TokensViewModel {
     }
 
     private func selection(trigger: AnyPublisher<TokensViewModel.SelectionSource, Never>) -> AnyPublisher<TokenOrAttestation, Never> {
-        trigger.compactMap { [unowned self, tokensService] source -> TokenOrAttestation? in
-            switch source {
-            case .gridItem(let indexPath, let isLeftCardSelected):
-                switch self.sections[indexPath.section] {
-                case .collectiblePairs:
-                    let pair = collectiblePairs[indexPath.row]
-                    guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
+        trigger.flatMap { [unowned self, tokensService] source in
+            asFuture { () -> TokenOrAttestation? in
+                switch source {
+                case .gridItem(let indexPath, let isLeftCardSelected):
+                    switch self.sections[indexPath.section] {
+                    case .collectiblePairs:
+                        let pair = self.collectiblePairs[indexPath.row]
+                        guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
 
-                    return tokensService.token(for: viewModel.contractAddress, server: viewModel.server).flatMap { TokenOrAttestation.token($0) }
-                case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
-                    return nil
-                }
-            case .cell(let indexPath):
-                let tokenOrServer = self.tokenOrServer(at: indexPath)
-                switch (self.sections[indexPath.section], tokenOrServer) {
-                case (.tokens, .token(let viewModel)):
-                    return .token(tokensService.token(for: viewModel.contractAddress, server: viewModel.server)!)
-                case (.tokens, .attestation(let attestation)):
-                    return .attestation(attestation)
-                case (_, _):
-                    return nil
+                        return await tokensService.token(for: viewModel.contractAddress, server: viewModel.server).flatMap { TokenOrAttestation.token($0) }
+                    case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
+                        return nil
+                    }
+                case .cell(let indexPath):
+                    let tokenOrServer = self.tokenOrServer(at: indexPath)
+                    switch (self.sections[indexPath.section], tokenOrServer) {
+                    case (.tokens, .token(let viewModel)):
+                        return .token(await tokensService.token(for: viewModel.contractAddress, server: viewModel.server)!)
+                    case (.tokens, .attestation(let attestation)):
+                        return .attestation(attestation)
+                    case (_, _):
+                        return nil
+                    }
                 }
             }
-        }.eraseToAnyPublisher()
+        }.compactMap { $0 }.eraseToAnyPublisher()
     }
 
     private var isFooterHidden: Bool {

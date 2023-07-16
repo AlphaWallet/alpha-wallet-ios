@@ -37,40 +37,12 @@ class FungibleTokenCoordinator: Coordinator {
     private let currencyService: CurrencyService
     private let tokenImageFetcher: TokenImageFetcher
     private let tokensService: TokensService
-    private lazy var rootViewController: FungibleTokenTabViewController = {
-        let viewModel = FungibleTokenTabViewModel(
-            token: token,
-            session: session,
-            tokensPipeline: tokensPipeline,
-            assetDefinitionStore: assetDefinitionStore,
-            tokensService: tokensService)
-        let viewController = FungibleTokenTabViewController(viewModel: viewModel)
-        let viewControlers = viewModel.tabBarItems.map { buildViewController(tabBarItem: $0) }
-        viewController.set(viewControllers: viewControlers)
-        viewController.delegate = self
-
-        return viewController
-    }()
-
+    //Optional due to order of initialization It's expected to be always initialized
+    private var rootViewController: FungibleTokenTabViewController?
     var coordinators: [Coordinator] = []
     weak var delegate: FungibleTokenCoordinatorDelegate?
 
-    init(token: Token,
-         navigationController: UINavigationController,
-         session: WalletSession,
-         keystore: Keystore,
-         assetDefinitionStore: AssetDefinitionStore,
-         analytics: AnalyticsLogger,
-         tokenActionsProvider: SupportedTokenActionsProvider,
-         coinTickersProvider: CoinTickersProvider,
-         activitiesService: ActivitiesServiceType,
-         alertService: PriceAlertServiceType,
-         tokensPipeline: TokensProcessingPipeline,
-         sessionsProvider: SessionsProvider,
-         currencyService: CurrencyService,
-         tokenImageFetcher: TokenImageFetcher,
-         tokensService: TokensService) {
-
+    init(token: Token, navigationController: UINavigationController, session: WalletSession, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersProvider: CoinTickersProvider, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, tokensPipeline: TokensProcessingPipeline, sessionsProvider: SessionsProvider, currencyService: CurrencyService, tokenImageFetcher: TokenImageFetcher, tokensService: TokensService) async {
         self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
@@ -86,27 +58,31 @@ class FungibleTokenCoordinator: Coordinator {
         self.coinTickersProvider = coinTickersProvider
         self.activitiesService = activitiesService
         self.alertService = alertService
-    }
-
-    func start() {
-        rootViewController.hidesBottomBarWhenPushed = true
-        rootViewController.navigationItem.largeTitleDisplayMode = .never
-
-        navigationController.pushViewController(rootViewController, animated: true)
-    }
-
-    private func buildViewController(tabBarItem: FungibleTokenTabViewModel.TabBarItem) -> UIViewController {
-        switch tabBarItem {
-        case .details:
-            return buildDetailsViewController()
-        case .activities:
-            return buildActivitiesViewController()
-        case .alerts:
-            return buildAlertsViewController()
+        self.rootViewController = await Self.createRootViewController(token: token, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, sessionsProvider: sessionsProvider, tokenImageFetcher: tokenImageFetcher, activitiesService: activitiesService, analytics: analytics, tokensPipeline: tokensPipeline, tokensService: tokensService, coinTickersProvider: coinTickersProvider, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService, alertService: alertService, delegate: self, cancelable: &cancelable)
+        Task { @MainActor in
+            self.rootViewController?.delegate = self
         }
     }
 
-    private func buildActivitiesViewController() -> UIViewController {
+    func start() {
+        rootViewController!.hidesBottomBarWhenPushed = true
+        rootViewController!.navigationItem.largeTitleDisplayMode = .never
+
+        navigationController.pushViewController(rootViewController!, animated: true)
+    }
+
+    private static func buildViewController(tabBarItem: FungibleTokenTabViewModel.TabBarItem, analytics: AnalyticsLogger, keystore: Keystore, sessionsProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore, tokenImageFetcher: TokenImageFetcher, activitiesService: ActivitiesServiceType, token: Token, coinTickersProvider: CoinTickersProvider, tokensPipeline: TokensProcessingPipeline, session: WalletSession, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService, alertService: PriceAlertServiceType, delegate: FungibleTokenDetailsViewControllerDelegate & ActivitiesViewControllerDelegate & PriceAlertsViewControllerDelegate, cancelable: inout Set<AnyCancellable>) -> UIViewController {
+        switch tabBarItem {
+        case .details:
+            return buildDetailsViewController(token: token, coinTickersProvider: coinTickersProvider, tokensService: tokensPipeline, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, delegate: delegate)
+        case .activities:
+            return buildActivitiesViewController(analytics: analytics, keystore: keystore, session: session, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher, activitiesService: activitiesService, delegate: delegate, cancelable: &cancelable)
+        case .alerts:
+            return buildAlertsViewController(alertService: alertService, token: token, delegate: delegate)
+        }
+    }
+
+    private static func buildActivitiesViewController(analytics: AnalyticsLogger, keystore: Keystore, session: WalletSession, sessionsProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore, tokenImageFetcher: TokenImageFetcher, activitiesService: ActivitiesServiceType, delegate: ActivitiesViewControllerDelegate, cancelable: inout Set<AnyCancellable>) -> UIViewController {
         let viewController = ActivitiesViewController(
             analytics: analytics,
             keystore: keystore,
@@ -116,7 +92,7 @@ class FungibleTokenCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             tokenImageFetcher: tokenImageFetcher)
 
-        viewController.delegate = self
+        viewController.delegate = delegate
 
         //FIXME: replace later with moving it to `ActivitiesViewController`
         activitiesService.activitiesPublisher
@@ -131,19 +107,19 @@ class FungibleTokenCoordinator: Coordinator {
         return viewController
     }
 
-    private func buildAlertsViewController() -> UIViewController {
+    private static func buildAlertsViewController(alertService: PriceAlertServiceType, token: Token, delegate: PriceAlertsViewControllerDelegate) -> UIViewController {
         let viewModel = PriceAlertsViewModel(alertService: alertService, token: token)
         let viewController = PriceAlertsViewController(viewModel: viewModel)
-        viewController.delegate = self
+        viewController.delegate = delegate
 
         return viewController
     }
 
-    private func buildDetailsViewController() -> UIViewController {
+    private static func buildDetailsViewController(token: Token, coinTickersProvider: CoinTickersProvider, tokensService: TokensProcessingPipeline, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService, tokenImageFetcher: TokenImageFetcher, delegate: FungibleTokenDetailsViewControllerDelegate) -> UIViewController {
         lazy var viewModel = FungibleTokenDetailsViewModel(
             token: token,
             coinTickersProvider: coinTickersProvider,
-            tokensService: tokensPipeline,
+            tokensService: tokensService,
             session: session,
             assetDefinitionStore: assetDefinitionStore,
             tokenActionsProvider: tokenActionsProvider,
@@ -151,7 +127,19 @@ class FungibleTokenCoordinator: Coordinator {
             tokenImageFetcher: tokenImageFetcher)
 
         let viewController = FungibleTokenDetailsViewController(viewModel: viewModel)
-        viewController.delegate = self
+        viewController.delegate = delegate
+
+        return viewController
+    }
+
+    @MainActor private static func createRootViewController(token: Token, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, sessionsProvider: SessionsProvider, tokenImageFetcher: TokenImageFetcher, activitiesService: ActivitiesServiceType, analytics: AnalyticsLogger, tokensPipeline: TokensProcessingPipeline, tokensService: TokensService, coinTickersProvider: CoinTickersProvider, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService, alertService: PriceAlertServiceType, delegate: FungibleTokenTabViewControllerDelegate & FungibleTokenDetailsViewControllerDelegate & ActivitiesViewControllerDelegate & PriceAlertsViewControllerDelegate, cancelable: inout Set<AnyCancellable>) async -> FungibleTokenTabViewController {
+        let viewModel = await FungibleTokenTabViewModel(token: token, session: session, tokensPipeline: tokensPipeline, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+        let viewController = FungibleTokenTabViewController(viewModel: viewModel)
+        let viewControlers = viewModel.tabBarItems.map {
+            buildViewController(tabBarItem: $0, analytics: analytics, keystore: keystore, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher, activitiesService: activitiesService, token: token, coinTickersProvider: coinTickersProvider, tokensPipeline: tokensPipeline, session: session, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService, alertService: alertService, delegate: delegate, cancelable: &cancelable)
+        }
+        viewController.set(viewControllers: viewControlers)
+        viewController.delegate = delegate
 
         return viewController
     }
@@ -255,6 +243,6 @@ extension FungibleTokenCoordinator: FungibleTokenTabViewControllerDelegate {
     }
 
     func open(url: URL) {
-        delegate?.didPressOpenWebPage(url, in: rootViewController)
+        delegate?.didPressOpenWebPage(url, in: rootViewController!)
     }
 }

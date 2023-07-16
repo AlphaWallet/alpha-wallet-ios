@@ -47,9 +47,9 @@ final class SelectTokenViewModel {
         }
     }
 
-    func selectTokenViewModel(viewModel: SelectTokenViewModel.ViewModelType) -> Token? {
+    func selectTokenViewModel(viewModel: SelectTokenViewModel.ViewModelType) async -> Token? {
         let value = viewModel.asTokenIdentifiable
-        return tokensService.token(for: value.contractAddress, server: value.server)
+        return await tokensService.token(for: value.contractAddress, server: value.server)
     }
 
     func transform(input: SelectTokenViewModelInput) -> SelectTokenViewModelOutput {

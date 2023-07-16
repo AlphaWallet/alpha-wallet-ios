@@ -22,9 +22,13 @@ public class FetchTokenScriptFiles {
 
     public func start() {
         sessionsProvider.sessions
-            .compactMap { $0.keys }
+            .map { $0.keys }
             .receive(on: queue)
-            .map { [tokensDataStore] in tokensDataStore.tokens(for: Array($0)) }
+            .flatMap { [tokensDataStore] servers in
+                asFuture {
+                    await tokensDataStore.tokens(for: Array(servers))
+                }
+            }
             .map { tokens in
                 return tokens.filter {
                     switch $0.type {

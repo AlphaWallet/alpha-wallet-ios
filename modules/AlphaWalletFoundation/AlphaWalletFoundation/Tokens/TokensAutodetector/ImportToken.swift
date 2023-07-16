@@ -9,16 +9,17 @@ import Foundation
 import Combine
 import AlphaWalletCore
 import BigInt
+import PromiseKit
 
 public protocol TokenImportable: AnyObject {
-    func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool) -> Token
+    func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool) async -> Token
     func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> AnyPublisher<Token, ImportToken.ImportTokenError>
 }
 
 extension TokenImportable {
 
-    func importToken(ercToken: ErcToken) -> Token {
-        importToken(ercToken: ercToken, shouldUpdateBalance: true)
+    func importToken(ercToken: ErcToken) async -> Token {
+        await importToken(ercToken: ercToken, shouldUpdateBalance: true)
     }
 
     func importToken(for contract: AlphaWallet.Address) -> AnyPublisher<Token, ImportToken.ImportTokenError> {
@@ -119,38 +120,44 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
     }
 
     public func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<Token, ImportTokenError> {
-        return Just(server)
-            .receive(on: queue)
-            .setFailureType(to: ImportTokenError.self)
-            .flatMap { [tokensDataStore, queue, server] server -> AnyPublisher<Token, ImportTokenError> in
-                if let token = tokensDataStore.token(for: contract, server: server) {
-                    return .just(token)
-                } else {
-                    return self.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-                        .flatMap { tokenOrContract -> AnyPublisher<Token, ImportTokenError> in
-                            //FIXME: looks like blocking access to realm doesn't work well, after adding a new token and retrieving its value from bd it returns nil, adding delay in 1 sec helps to return a new token.
-                            let action = AddOrUpdateTokenAction(tokenOrContract)
-                            if let token = tokensDataStore.addOrUpdate(with: [action]).first {
-                                return .just(token)
-                                    .delay(for: .seconds(1), scheduler: queue)
-                                    .eraseToAnyPublisher()
-                            } else {
-                                return .fail(ImportTokenError.notContractOrFailed(tokenOrContract))
-                            }
-                        }.eraseToAnyPublisher()
-                }
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+        return asFutureThrowable { try await self.importTokenAsync(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) }.mapError { ImportTokenError(error: $0) } .eraseToAnyPublisher()
     }
 
-    public func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
-        let tokens = tokensDataStore.addOrUpdate(with: [.add(ercToken: ercToken, shouldUpdateBalance: shouldUpdateBalance)])
+    private func importTokenAsync(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) async throws -> Token {
+        if let token = await tokensDataStore.token(for: contract, server: server) {
+            return token
+        } else {
+            let tokenOrContract = try await self.fetchTokenOrContractAsync(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+            //FIXME: looks like blocking access to realm doesn't work well, after adding a new token and retrieving its value from bd it returns nil, adding delay in 1 sec helps to return a new token.
+            let action = AddOrUpdateTokenAction(tokenOrContract)
+            if let token = await tokensDataStore.addOrUpdate(with: [action]).first {
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                return token
+            } else {
+                throw ImportTokenError.notContractOrFailed(tokenOrContract)
+            }
+        }
+    }
 
+    public func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool = true) async -> Token {
+        let tokens = await tokensDataStore.addOrUpdate(with: [.add(ercToken: ercToken, shouldUpdateBalance: shouldUpdateBalance)])
         return tokens[0]
     }
 
     public func fetchContractData(for contract: AlphaWallet.Address) -> AnyPublisher<ContractData, Never> {
         return contractDataFetcher.fetchContractData(for: contract)
+    }
+
+    private func fetchTokenOrContractAsync(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) async throws -> TokenOrContract {
+        return try await withCheckedThrowingContinuation { continuation in
+            firstly {
+                self.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance).promise()
+            }.done {
+                continuation.resume(with: .success($0))
+            }.catch {
+                continuation.resume(with: .failure($0))
+            }
+        }
     }
 
     public func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<TokenOrContract, ImportTokenError> {

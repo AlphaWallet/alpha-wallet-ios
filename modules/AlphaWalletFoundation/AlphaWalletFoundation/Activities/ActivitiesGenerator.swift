@@ -37,7 +37,11 @@ class ActivitiesGenerator {
     func generateActivities() -> AnyPublisher<[ActivityTokenObjectTokenHolder], Never> {
         let tokens = sessionsProvider.sessions
             .receive(on: DispatchQueue.main)
-            .map { self.getTokensForActivities(servers: Array($0.keys)) }
+            .flatMap { sessions in
+                asFuture {
+                    await self.getTokensForActivities(servers: Array(sessions.keys))
+                }
+            }
 
         let eventsForActivities = sessionsProvider.sessions
             .receive(on: DispatchQueue.main)
@@ -47,14 +51,14 @@ class ActivitiesGenerator {
         return Publishers.CombineLatest(tokens, eventsForActivities)
             .map { self.getTokensAndXmlHandlers(tokens: $0.0) }
             .map { self.getContractsAndCards(contractServerXmlHandlers: $0) }
-            .map { self.getActivitiesAndTokens(contractsAndCards: $0) }
+            .flatMap { contractsAndCards in asFuture { await self.getActivitiesAndTokens(contractsAndCards: contractsAndCards) } }
             .eraseToAnyPublisher()
     }
 
-    private func getTokensForActivities(servers: [RPCServer]) -> [Token] {
+    private func getTokensForActivities(servers: [RPCServer]) async -> [Token] {
         switch transactionsFilterStrategy {
         case .all:
-            return tokensService.tokens(for: servers)
+            return await tokensService.tokens(for: servers)
         case .filter(_, let token):
             precondition(servers.contains(token.server), "fatal error, no session for server: \(token.server)")
             return [token]
@@ -113,11 +117,11 @@ class ActivitiesGenerator {
         return contractsAndCardsOptional.flatMap { $0 }
     }
 
-    private func getActivitiesAndTokens(contractsAndCards: ContractsAndCards) -> [ActivityTokenObjectTokenHolder] {
+    private func getActivitiesAndTokens(contractsAndCards: ContractsAndCards) async -> [ActivityTokenObjectTokenHolder] {
         var activitiesAndTokens: [ActivityTokenObjectTokenHolder] = .init()
         //NOTE: here is a lot of calculations, `contractsAndCards` could reach up of 1000 items, as well as recentEvents could reach 1000.Simply it call inner function 1 000 000 times
         for (contract, server, card, interpolatedFilter) in contractsAndCards {
-            let activities = getActivities(contract: contract, server: server, card: card, interpolatedFilter: interpolatedFilter)
+            let activities = await getActivities(contract: contract, server: server, card: card, interpolatedFilter: interpolatedFilter)
             //NOTE: filter activities to avoid: `Fatal error: Duplicate values for key: '<id>'`
             let filteredActivities = activities.filter { data in !activitiesAndTokens.contains(where: { $0.activity.id == data.activity.id }) }
             activitiesAndTokens.append(contentsOf: filteredActivities)
@@ -139,17 +143,13 @@ class ActivitiesGenerator {
         }
     }
 
-    private func getActivities(contract: AlphaWallet.Address,
-                               server: RPCServer,
-                               card: TokenScriptCard,
-                               interpolatedFilter: String) -> [ActivityTokenObjectTokenHolder] {
-
+    private func getActivities(contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) async -> [ActivityTokenObjectTokenHolder] {
         //NOTE: eventsActivityDataStore. getRecentEvents() returns only 100 events, that could cause error with creating activities (missing events)
         //replace with fetching only filtered event instances,
-        let events = eventsActivityDataStore.getRecentEventsSortedByBlockNumber(for: card.eventOrigin.contract, server: server, eventName: card.eventOrigin.eventName, interpolatedFilter: interpolatedFilter)
+        let events = await eventsActivityDataStore.getRecentEventsSortedByBlockNumber(for: card.eventOrigin.contract, server: server, eventName: card.eventOrigin.eventName, interpolatedFilter: interpolatedFilter)
 
-        let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent -> ActivityTokenObjectTokenHolder? in
-            guard let token = tokensService.token(for: contract, server: server) else { return nil }
+        let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = await events.asyncCompactMap { eachEvent -> ActivityTokenObjectTokenHolder? in
+            guard let token = await tokensService.token(for: contract, server: server) else { return nil }
             guard let session = sessionsProvider.session(for: token.server) else { return nil }
 
             let implicitAttributes = generateImplicitAttributesForToken(contract: contract, server: server, symbol: token.symbol)
@@ -183,7 +183,7 @@ class ActivitiesGenerator {
 
                     tokenHolders = [TokenHolder(tokens: [tokenScriptToken], contractAddress: token.contractAddress, hasAssetDefinition: true)]
                 } else {
-                    tokenHolders = session.tokenAdaptor.getTokenHolders(token: token)
+                    tokenHolders = await session.tokenAdaptor.getTokenHolders(token: token)
                 }
                 tokensAndTokenHolders[token.addressAndRPCServer] = tokenHolders
             }

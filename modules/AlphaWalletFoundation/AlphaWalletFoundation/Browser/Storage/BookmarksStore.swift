@@ -9,6 +9,7 @@ public final class BookmarksStore {
         return realm.objects(Bookmark.self)
             .sorted(byKeyPath: "order", ascending: true)
     }
+    //TODO should use a RealmStore.performInBackground or similar
     private let realm: Realm
 
     public var bookmarksChangeset: AnyPublisher<ChangeSet<[BookmarkObject]>, Never> {

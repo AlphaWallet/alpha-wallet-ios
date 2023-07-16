@@ -115,6 +115,18 @@ public func callSmartContract(withServer server: RPCServer, contract contractAdd
     })
 }
 
+public func callSmartContractAsync(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], shouldDelayIfCached: Bool = false) async throws -> [String: Any] {
+    return try await withCheckedThrowingContinuation { continuation in
+        firstly {
+            callSmartContract(withServer: server, contract: contractAddress, functionName: functionName, abiString: abiString, parameters: parameters)
+        }.done {
+            continuation.resume(returning: $0)
+        }.catch { error in
+            continuation.resume(throwing: error)
+        }
+    }
+}
+
 public func getSmartContractCallData(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = []) -> Data? {
     guard let web3 = try? Web3.instance(for: server, timeout: 60) else { return nil }
     guard let contract = try? Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress), options: web3.options) else { return nil }

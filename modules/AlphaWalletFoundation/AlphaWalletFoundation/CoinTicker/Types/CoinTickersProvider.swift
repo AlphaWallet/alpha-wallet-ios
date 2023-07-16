@@ -7,9 +7,9 @@ public protocol CoinTickersProvider: AnyObject {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
-    func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker?
+    func ticker(for key: AddressAndRPCServer, currency: Currency) async -> CoinTicker?
     func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
-    func chartHistories(for token: TokenMappedToTicker, currency: Currency) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
+    func chartHistories(for token: TokenMappedToTicker, currency: Currency) async -> [ChartHistoryPeriod: ChartHistory]
 }
 
 public struct AssignedCoinTickerId: Hashable, Codable {

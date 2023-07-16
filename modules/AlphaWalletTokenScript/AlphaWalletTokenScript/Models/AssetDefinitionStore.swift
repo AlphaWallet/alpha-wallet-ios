@@ -165,6 +165,14 @@ public class AssetDefinitionStore: NSObject {
             })
     }
 
+    public func fetchXMLAsync(forContract contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false) async -> Result {
+        return await withCheckedContinuation { continuation in
+            fetchXML(forContract: contract, server: server, useCacheAndFetch: useCacheAndFetch) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)

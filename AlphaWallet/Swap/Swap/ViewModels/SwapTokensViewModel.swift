@@ -163,59 +163,65 @@ final class SwapTokensViewModel: NSObject {
     }
 
     private func buildMaxFungibleAmount(for trigger: AnyPublisher<Void, Never>) -> AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never> {
-        trigger.compactMap { [tokensPipeline, configurator] _ -> AmountTextFieldViewModel.FungibleAmount? in
-            let token = configurator.swapPair.from
-            switch token.type {
-            case .nativeCryptocurrency:
-                guard let balance = tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
+        trigger.flatMap { [tokensPipeline, configurator] _ in
+            asFuture {
+                let token = configurator.swapPair.from
+                switch token.type {
+                case .nativeCryptocurrency:
+                    guard let balance = await tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
 
-                return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
-            case .erc20:
-                guard let balance = tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
+                    return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
+                case .erc20:
+                    guard let balance = await tokensPipeline.tokenViewModel(for: token)?.balance else { return nil }
 
-                return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
-            case .erc1155, .erc721, .erc875, .erc721ForTickets:
-                return nil
+                    return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
+                case .erc1155, .erc721, .erc875, .erc721ForTickets:
+                    return nil
+                }
             }
-        }.eraseToAnyPublisher()
+        }.compactMap { $0 }.eraseToAnyPublisher()
     }
 
     private func buildBigUIntValue(amount: AnyPublisher<FungibleAmount, Never>) -> AnyPublisher<BigUInt?, Never> {
         return Publishers.CombineLatest(amount, activeSession.combineLatest(swapPair))
-            .map { amount, sessionAndSwapPair -> BigUInt? in
-                switch amount {
-                case .amount(let amount):
-                    return Decimal(amount).toBigUInt(decimals: sessionAndSwapPair.1.from.decimals)
-                case .allFunds:
-                    guard let balance: BalanceViewModel = self.balance(for: sessionAndSwapPair.1.from, session: sessionAndSwapPair.0) else {
+            .flatMap { amount, sessionAndSwapPair in
+                asFuture {
+                    switch amount {
+                    case .amount(let amount):
+                        return Decimal(amount).toBigUInt(decimals: sessionAndSwapPair.1.from.decimals)
+                    case .allFunds:
+                        guard let balance: BalanceViewModel = await self.balance(for: sessionAndSwapPair.1.from, session: sessionAndSwapPair.0) else {
+                            return nil
+                        }
+                        return balance.value
+                    case .notSet:
                         return nil
                     }
-                    return balance.value
-                case .notSet:
-                    return nil
                 }
             }.eraseToAnyPublisher()
     }
 
     private func amountValidation(amountToSwap: AnyPublisher<FungibleAmount, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField.ErrorState, Never> {
         return Publishers.CombineLatest(amountToSwap, activeSession.combineLatest(swapPair))
-            .map { amountToSwap, sessionAndSwapPair -> AmountTextField.ErrorState in
-                let token = sessionAndSwapPair.1.from
-                guard let balance: BalanceViewModel = self.balance(for: token, session: sessionAndSwapPair.0) else {
-                    return .error
-                }
-
-                switch amountToSwap {
-                case .notSet:
-                    return .error
-                case .allFunds:
-                    return .none
-                case .amount(let amount):
-                    let greaterThanZero = useGreaterThanZeroValidation ? self.checkIfGreaterThanZero(for: token) : false
-                    guard greaterThanZero ? amount > 0 : true else {
+            .flatMap { amountToSwap, sessionAndSwapPair in
+                asFuture {
+                    let token = sessionAndSwapPair.1.from
+                    guard let balance: BalanceViewModel = await self.balance(for: token, session: sessionAndSwapPair.0) else {
                         return .error
                     }
-                    return balance.valueDecimal.doubleValue >= amount ? .none : .error
+
+                    switch amountToSwap {
+                    case .notSet:
+                        return .error
+                    case .allFunds:
+                        return .none
+                    case .amount(let amount):
+                        let greaterThanZero = useGreaterThanZeroValidation ? self.checkIfGreaterThanZero(for: token) : false
+                        guard greaterThanZero ? amount > 0 : true else {
+                            return .error
+                        }
+                        return balance.valueDecimal.doubleValue >= amount ? .none : .error
+                    }
                 }
             }.eraseToAnyPublisher()
     }
@@ -236,8 +242,8 @@ final class SwapTokensViewModel: NSObject {
         }
     }
 
-    private func balance(for token: Token, session: WalletSession) -> BalanceViewModel? {
-        return tokensPipeline.tokenViewModel(for: token)
+    private func balance(for token: Token, session: WalletSession) async -> BalanceViewModel? {
+        return await tokensPipeline.tokenViewModel(for: token)
             .flatMap { $0.balance }
     }
 }

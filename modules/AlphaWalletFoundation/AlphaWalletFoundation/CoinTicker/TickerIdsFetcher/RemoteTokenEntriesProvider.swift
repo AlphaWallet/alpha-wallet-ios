@@ -12,9 +12,7 @@ import AlphaWalletCore
 
 //TODO: Future impl for remote TokenEntries provider
 public final class RemoteTokenEntriesProvider: TokenEntriesProvider {
-    public func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
-        return .just([])
-            .share()
-            .eraseToAnyPublisher()
+    public func tokenEntries() async throws -> [TokenEntry] {
+        return []
     }
 }

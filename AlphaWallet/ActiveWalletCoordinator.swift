@@ -775,41 +775,45 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     }
 
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
-        guard let session = sessionsProvider.session(for: transaction.server) else { return }
-        guard let coordinator = ReplaceTransactionCoordinator(
-            analytics: analytics,
-            domainResolutionService: domainResolutionService,
-            keystore: keystore,
-            presentingViewController: viewController,
-            session: session,
-            transaction: transaction,
-            mode: .speedup,
-            tokensService: tokensPipeline,
-            networkService: networkService) else { return }
+        Task { @MainActor in
+            guard let transaction = await transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
+            guard let session = sessionsProvider.session(for: transaction.server) else { return }
+            guard let coordinator = ReplaceTransactionCoordinator(
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                presentingViewController: viewController,
+                session: session,
+                transaction: transaction,
+                mode: .speedup,
+                tokensService: tokensPipeline,
+                networkService: networkService) else { return }
 
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        }
     }
 
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
-        guard let session = sessionsProvider.session(for: transaction.server) else { return }
-        guard let coordinator = ReplaceTransactionCoordinator(
-            analytics: analytics,
-            domainResolutionService: domainResolutionService,
-            keystore: keystore,
-            presentingViewController: viewController,
-            session: session,
-            transaction: transaction,
-            mode: .cancel,
-            tokensService: tokensPipeline,
-            networkService: networkService) else { return }
+        Task { @MainActor in
+            guard let transaction = await transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
+            guard let session = sessionsProvider.session(for: transaction.server) else { return }
+            guard let coordinator = ReplaceTransactionCoordinator(
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                presentingViewController: viewController,
+                session: session,
+                transaction: transaction,
+                mode: .cancel,
+                tokensService: tokensPipeline,
+                networkService: networkService) else { return }
 
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        }
     }
 
     func goToTransaction(viewController: ActivityViewController) {

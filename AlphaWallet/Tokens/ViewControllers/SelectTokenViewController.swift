@@ -92,7 +92,7 @@ class SelectTokenViewController: UIViewController {
                 }
                 navigationItem.title = viewState.title
             }.store(in: &cancellable)
-    } 
+    }
 }
 
 extension SelectTokenViewController: StatefulViewController {
@@ -105,8 +105,10 @@ extension SelectTokenViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let token = viewModel.selectTokenViewModel(viewModel: dataSource.item(at: indexPath)) else { return }
-        delegate?.controller(self, didSelectToken: token)
+        Task { @MainActor in
+            guard let token = await viewModel.selectTokenViewModel(viewModel: dataSource.item(at: indexPath)) else { return }
+            delegate?.controller(self, didSelectToken: token)
+        }
     }
 }
 

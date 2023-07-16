@@ -32,23 +32,23 @@ public final class FileTokenEntriesProvider: TokenEntriesProvider {
         return url.path
     }
 
-    public func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
+    public func tokenEntries() async throws -> [TokenEntry] {
         if cachedTokenEntries.isEmpty {
             do {
                 guard let jsonData = try String(contentsOfFile: absoluteFilename).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
                 do {
                     cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
-                    return .just(cachedTokenEntries)
+                    return cachedTokenEntries
                 } catch DecodingError.dataCorrupted {
                     throw TokenJsonReader.error.fileCannotBeDecoded
                 } catch {
                     throw TokenJsonReader.error.unknown(error)
                 }
             } catch {
-                return .fail(.some(error: error))
+                throw error
             }
         } else {
-            return .just(cachedTokenEntries)
+            return cachedTokenEntries
         }
     }
 }
