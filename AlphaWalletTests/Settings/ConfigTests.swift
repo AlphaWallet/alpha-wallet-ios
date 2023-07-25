@@ -73,6 +73,7 @@ class ConfigTests: XCTestCase {
     func testTabBarItemTitle() {
         Config.setLocale(AppLocale.english)
         let app1 = Application(
+            name: "Test",
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(
                 wallets: [.make()],
