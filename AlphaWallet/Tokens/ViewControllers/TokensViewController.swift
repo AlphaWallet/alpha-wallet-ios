@@ -62,7 +62,11 @@ final class TokensViewController: UIViewController {
         let control = UIRefreshControl()
         return control
     }()
-    private (set) lazy var blockieImageView: BlockieImageView = BlockieImageView(viewSize: .init(width: 44, height: 44), imageSize: .init(width: 24, height: 24))
+    private (set) lazy var blockieImageView: BlockieImageView = {
+        let view = BlockieImageView(viewSize: .init(width: 44, height: 44), imageSize: .init(width: 24, height: 24))
+        view.isHidden = true
+        return view
+    }()
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.delegate = self
@@ -148,6 +152,7 @@ final class TokensViewController: UIViewController {
     private lazy var footerBar: ButtonsBarBackgroundView = {
         let result = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         result.backgroundColor = viewModel.buyButtonFooterBarBackgroundColor
+        result.isHidden = true
         return result
     }()
 
@@ -257,6 +262,7 @@ final class TokensViewController: UIViewController {
                 self?.showOrHideBackupWalletViewHolder()
 
                 walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, alignment: .center))
+                blockieImageView.isHidden = false
                 blockieImageView.set(blockieImage: state.blockiesImage)
 
                 navigationItem.title = state.title

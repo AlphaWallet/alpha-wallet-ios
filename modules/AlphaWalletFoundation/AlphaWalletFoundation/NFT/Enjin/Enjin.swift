@@ -39,8 +39,8 @@ public final class Enjin {
         }
     }
 
-    func token(tokenId: TokenId) -> EnjinToken? {
-        return storage.getEnjinToken(for: tokenId, server: server)
+    func token(tokenId: TokenId) async -> EnjinToken? {
+        return await storage.getEnjinToken(for: tokenId, server: server)
     }
 
     public func fetchTokens(wallet: Wallet) -> AnyPublisher<[EnjinToken], PromiseError> {

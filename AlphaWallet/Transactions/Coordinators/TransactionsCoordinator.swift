@@ -74,11 +74,13 @@ class TransactionsCoordinator: Coordinator {
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
         //Quite likely we should have the transaction already
         //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
-        guard let transaction = transactionsService.transaction(withTransactionId: transactionId, forServer: server) else { return }
-        if transaction.localizedOperations.count > 1 {
-            showTransaction(.group(transaction), inViewController: viewController)
-        } else {
-            showTransaction(.standalone(transaction), inViewController: viewController)
+        Task { @MainActor in
+            guard let transaction = await transactionsService.transaction(withTransactionId: transactionId, forServer: server) else { return }
+            if transaction.localizedOperations.count > 1 {
+                showTransaction(.group(transaction), inViewController: viewController)
+            } else {
+                showTransaction(.standalone(transaction), inViewController: viewController)
+            }
         }
     }
 }

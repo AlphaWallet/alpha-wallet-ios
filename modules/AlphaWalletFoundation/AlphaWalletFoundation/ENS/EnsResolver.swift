@@ -17,23 +17,21 @@ public class EnsResolver {
         self.storage = storage
     }
 
-    public func getENSAddressFromResolver(for name: String) -> AnyPublisher<AlphaWallet.Address, SmartContractError> {
-        if let cachedResult = cachedAddress(for: name) {
-            return .just(cachedResult)
+    public func getENSAddressFromResolver(for name: String) async throws -> AlphaWallet.Address {
+        if let cachedResult = await cachedAddress(for: name) {
+            return cachedResult
         }
-
-        return ens.getENSAddress(fromName: name)
-            .handleEvents(receiveOutput: { [server, storage] address in
-                let key = DomainNameLookupKey(nameOrAddress: name, server: server)
-                storage.addOrUpdate(record: .init(key: key, value: .address(address)))
-            }).eraseToAnyPublisher()
+        let address = try await ens.getENSAddress(fromName: name)
+        let key = DomainNameLookupKey(nameOrAddress: name, server: server)
+        await storage.addOrUpdate(record: .init(key: key, value: .address(address)))
+        return address
     }
 }
 
 extension EnsResolver: CachedDomainNameResolutionServiceType {
-    public func cachedAddress(for name: String) -> AlphaWallet.Address? {
+    public func cachedAddress(for name: String) async -> AlphaWallet.Address? {
         let key = DomainNameLookupKey(nameOrAddress: name, server: self.server)
-        switch storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
+        switch await storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
         case .address(let address):
             return address
         case .none, .record, .domainName:

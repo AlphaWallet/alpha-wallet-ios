@@ -16,10 +16,9 @@ public class GetWalletName {
         if let walletName = FileWalletStorage().name(for: address) {
             return .just(walletName)
         } else {
-            return domainResolutionService.reverseResolveDomainName(address: address, server: RPCServer.forResolvingDomainNames)
-                .map { ens -> DomainName? in return ens }
-                .replaceError(with: nil)
-                .eraseToAnyPublisher()
+            return asFuture {
+                (try? await self.domainResolutionService.reverseResolveDomainName(address: address, server: RPCServer.forResolvingDomainNames)) ?? nil
+            }.eraseToAnyPublisher()
         }
     }
 }

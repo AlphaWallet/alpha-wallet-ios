@@ -1,7 +1,7 @@
 ---
 os: osx
 language: objective-c
-osx_image: xcode14.2
+osx_image: xcode14.3
 cache:
   bundler: true
 branches:

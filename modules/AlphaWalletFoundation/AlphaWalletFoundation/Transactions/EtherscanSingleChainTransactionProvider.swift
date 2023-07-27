@@ -208,8 +208,10 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private func addOrUpdate(transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
 
-        transactionDataStore.addOrUpdate(transactions: transactions)
-        ercTokenDetector.detect(from: transactions)
+        Task { @MainActor in
+            await transactionDataStore.addOrUpdate(transactions: transactions)
+            ercTokenDetector.detect(from: transactions)
+        }
     }
 
     private func getSchedulerProvider(fetchType: TransactionFetchType) -> SchedulerProviderData? {
@@ -444,28 +446,32 @@ extension EtherscanSingleChainTransactionProvider {
                 return .empty()
             }
 
-            let startBlock: Int
-            let sortOrder: GetTransactions.SortOrder
+            let publisher = Future<[Transaction], PromiseError> { promise in
+                Task { @MainActor in
+                    let startBlock: Int
+                    let sortOrder: GetTransactions.SortOrder
+                    if let newestCachedTransaction = await self.transactionDataStore.transactionObjectsThatDoNotComeFromEventLogs(forServer: self.session.server) {
+                        startBlock = newestCachedTransaction.blockNumber + 1
+                        sortOrder = .asc
+                    } else {
+                        startBlock = 1
+                        sortOrder = .desc
+                    }
 
-            if let newestCachedTransaction = transactionDataStore.transactionObjectsThatDoNotComeFromEventLogs(forServer: session.server) {
-                startBlock = newestCachedTransaction.blockNumber + 1
-                sortOrder = .asc
-            } else {
-                startBlock = 1
-                sortOrder = .desc
+                    let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: 999_999_999)
+
+                    self.blockchainExplorer
+                        .normalTransactions(walletAddress: self.session.account.address, sortOrder: sortOrder, pagination: pagination)
+                        .handleEvents(receiveOutput: { [weak self] response in
+                            self?.handle(response: response.transactions)
+                            promise(Result.success(response.transactions))
+                        }, receiveCompletion: { [weak self] result in
+                            guard case .failure(let e) = result else { return }
+                            self?.handle(error: e)
+                        })
+                }
             }
-
-            let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: 999_999_999)
-
-            return blockchainExplorer
-                .normalTransactions(walletAddress: session.account.address, sortOrder: sortOrder, pagination: pagination)
-                .handleEvents(receiveOutput: { [weak self] response in
-                    self?.handle(response: response.transactions)
-                }, receiveCompletion: { [weak self] result in
-                    guard case .failure(let e) = result else { return }
-                    self?.handle(error: e)
-                }).map { $0.transactions }
-                .eraseToAnyPublisher()
+            return publisher.eraseToAnyPublisher()
         }
 
         private func handle(response: [Transaction]) {
@@ -521,20 +527,26 @@ extension EtherscanSingleChainTransactionProvider {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }
 
-            guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server) else { return .empty() }
+            let subject = PassthroughSubject<Void, PromiseError>()
+            Task { @MainActor in
+                guard let oldestCachedTransaction = await transactionDataStore.lastTransaction(forServer: session.server) else {
+                    subject.send()
+                    return
+                }
 
-            let pagination = BlockBasedPagination(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1)
+                let pagination = BlockBasedPagination(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1)
 
-            return blockchainExplorer
-                .normalTransactions(walletAddress: session.account.address, sortOrder: .desc, pagination: pagination)
-                .handleEvents(receiveOutput: { [weak self] response in
-                    self?.handle(response: response.transactions)
-                }, receiveCompletion: { [weak self] result in
-                    guard case .failure(let e) = result else { return }
-                    self?.handle(error: e)
-                })
-                .mapToVoid()
-                .eraseToAnyPublisher()
+                blockchainExplorer
+                    .normalTransactions(walletAddress: session.account.address, sortOrder: .desc, pagination: pagination)
+                    .handleEvents(receiveOutput: { [weak self] response in
+                        self?.handle(response: response.transactions)
+                        subject.send()
+                    }, receiveCompletion: { [weak self] result in
+                        guard case .failure(let e) = result else { return }
+                        self?.handle(error: e)
+                    })
+            }
+            return subject.eraseToAnyPublisher()
         }
 
         private func handle(response: [Transaction]) {

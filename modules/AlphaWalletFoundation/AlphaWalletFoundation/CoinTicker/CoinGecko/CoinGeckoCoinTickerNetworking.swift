@@ -13,16 +13,16 @@ import AlphaWalletLogger
 
 public class FakeCoinTickerNetworking: CoinTickerNetworking {
     public init() {}
-    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
-        Empty(completeImmediately: true).eraseToAnyPublisher()
+    public func fetchSupportedTickerIds() async throws -> [TickerId] {
+        return []
     }
 
-    public func fetchTickers(for tickerIds: [String], currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
-        Empty(completeImmediately: true).eraseToAnyPublisher()
+    public func fetchTickers(for tickerIds: [TickerIdString], currency: Currency) async throws -> [CoinTicker] {
+        return []
     }
 
-    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
-        Empty(completeImmediately: true).eraseToAnyPublisher()
+    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) async throws -> ChartHistory {
+        return ChartHistory.empty(currency: currency)
     }
 }
 
@@ -61,66 +61,49 @@ public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
         }
     }
 
-    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
-        transporter
-            .dataTaskPublisher(TokensThatHasPricesRequest())
-            .handleEvents(receiveOutput: { self.log(response: $0) })
-            .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
-            .mapError { PromiseError.some(error: $0) }
-            .share()
-            .eraseToAnyPublisher()
+    public func fetchSupportedTickerIds() async throws -> [TickerId] {
+        let response = try await transporter.dataTask(TokensThatHasPricesRequest())
+        log(response: response)
+        return try decoder.decode([TickerId].self, from: response.data)
     }
 
-    public func fetchTickers(for tickerIds: [TickerIdString], currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
+    public func fetchTickers(for tickerIds: [TickerIdString], currency: Currency) async throws -> [CoinTicker] {
         let ids = Set(tickerIds).joined(separator: ",")
         var page = 1
         var allResults: [CoinTicker] = .init()
-        func fetchPageImpl() -> AnyPublisher<[CoinTicker], PromiseError> {
-            fetchPricesPage(for: ids, page: page, currency: currency)
-                .flatMap { results -> AnyPublisher<[CoinTicker], PromiseError> in
-                    if results.isEmpty {
-                        return .just(allResults)
-                    } else {
-                        allResults.append(contentsOf: results)
-                        page += 1
-                        return fetchPageImpl()
-                    }
-                }.eraseToAnyPublisher()
-        }
-
-        return fetchPageImpl()
-            .share()
-            .eraseToAnyPublisher()
-    }
-
-    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
-        return transporter
-            .dataTaskPublisher(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
-            .handleEvents(receiveOutput: { self.log(response: $0) })
-            .tryMap { try ChartHistory(json: try JSON(data: $0.data), currency: currency) }
-            .mapError { PromiseError.some(error: $0) }
-            .share()
-            .eraseToAnyPublisher()
-    }
-
-    private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
-        return transporter
-            .dataTaskPublisher(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
-            .handleEvents(receiveOutput: { self.log(response: $0) })
-            .tryMap { [decoder] in
-                do {
-                    return try decoder.decode([CoinTicker].self, from: $0.data)
-                } catch {
-                    if let response = try? decoder.decode(CoinGeckoErrorResponse.self, from: $0.data) {
-                        throw PromiseError.some(error: response.status)
-                    } else {
-                        throw error
-                    }
-                }
+        func fetchPageImpl() async throws -> [CoinTicker] {
+            let results = try await fetchPricesPage(for: ids, page: page, currency: currency)
+            if results.isEmpty {
+                return allResults
+            } else {
+                allResults.append(contentsOf: results)
+                page += 1
+                return try await fetchPageImpl()
             }
-            .map { $0.map { $0.override(currency: currency) } }//NOTE: we re not able to set currency in init method, using `override(currency: )` instead
-            .mapError { PromiseError.some(error: $0) }
-            .eraseToAnyPublisher()
+        }
+        return try await fetchPageImpl()
+    }
+
+    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) async throws -> ChartHistory {
+        let response = try await transporter.dataTask(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
+        log(response: response)
+        return try ChartHistory(json: try JSON(data: response.data), currency: currency)
+    }
+
+    private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) async throws -> [CoinTicker] {
+        let response = try await transporter.dataTask(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
+        log(response: response)
+        do {
+            let coinTickers = try decoder.decode([CoinTicker].self, from: response.data)
+            //NOTE: we re not able to set currency in init method, using `override(currency: )` instead
+            return coinTickers.map { $0.override(currency: currency) }
+        } catch {
+            if let response = try? decoder.decode(CoinGeckoErrorResponse.self, from: response.data) {
+                throw response.status
+            } else {
+                throw error
+            }
+        }
     }
 
     private struct CoinGeckoErrorResponse: Decodable {

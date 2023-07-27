@@ -11,60 +11,64 @@ import Foundation
 import AlphaWalletENS
 
 class EnsRecordsStorageTests: XCTestCase {
-    func testIsStorageEmpty() throws {
+    func testIsStorageEmpty() async throws {
         let storage = FakeEnsRecordsStorage()
-        XCTAssertEqual(storage.allRecords, [], "Storage is empty")
+        let records = await storage.allRecords
+        XCTAssertEqual(records, [], "Storage is empty")
     }
 
-    func testAddRecord() {
+    func testAddRecord() async {
         let storage = FakeEnsRecordsStorage()
-        XCTAssertEqual(storage.allRecords, [], "Storage is empty")
+        let records = await storage.allRecords
+        XCTAssertEqual(records, [], "Storage is empty")
         let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
         let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
-        storage.addOrUpdate(record: r1)
+        await storage.addOrUpdate(record: r1)
 
-        XCTAssertEqual(storage.allRecords.count, 1)
+        let recordCount = await storage.allRecords.count
+        XCTAssertEqual(recordCount, 1)
     }
 
-    func testUpdateRecord() {
+    func testUpdateRecord() async {
         let storage = FakeEnsRecordsStorage()
-        XCTAssertEqual(storage.allRecords, [], "Storage is empty")
+        let records = await storage.allRecords
+        XCTAssertEqual(records, [], "Storage is empty")
 
         let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
         let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
-        storage.addOrUpdate(record: r1)
+        await storage.addOrUpdate(record: r1)
 
-        let r1_copy = storage.record(for: key, expirationTime: -120)
+        let r1_copy = await storage.record(for: key, expirationTime: -120)
         XCTAssertEqual(r1, r1_copy)
 
         let r10 = DomainNameRecord(key: key, value: .record("image"))
-        storage.addOrUpdate(record: r10)
+        await storage.addOrUpdate(record: r10)
 
-        let r10_copy = storage.record(for: key, expirationTime: -120)
+        let r10_copy = await storage.record(for: key, expirationTime: -120)
         XCTAssertEqual(r10_copy?.value, .record("image"))
         XCTAssertNotEqual(r1_copy, r10_copy)
     }
 
-    func testFetchExpiredRecord() {
+    func testFetchExpiredRecord() async {
         let storage = FakeEnsRecordsStorage()
 
         let key: DomainNameLookupKey = .init(nameOrAddress: "key", server: .main)
         let r1 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"))
-        storage.addOrUpdate(record: r1)
+        await storage.addOrUpdate(record: r1)
 
-        let r1_copy = storage.record(for: key, expirationTime: -120)
+        let r1_copy = await storage.record(for: key, expirationTime: -120)
         XCTAssertNotNil(r1_copy)
         XCTAssertEqual(r1, r1_copy, "Copy and initial value are queal")
 
         let dateThatExpired = Date(timeIntervalSinceNow: -600)
         let r10 = DomainNameRecord(key: key, value: .domainName("hello alpha wallet"), date: dateThatExpired)
-        storage.addOrUpdate(record: r10)
+        await storage.addOrUpdate(record: r10)
 
-        let r10_copy = storage.record(for: key, expirationTime: -120)
+        let r10_copy = await storage.record(for: key, expirationTime: -120)
         XCTAssertNil(r10_copy, "Updated value has expired")
-        XCTAssertEqual(storage.allRecords.count, 1, "Storage contains single value")
+        let recordCount = await storage.allRecords.count
+        XCTAssertEqual(recordCount, 1, "Storage contains single value")
 
-        storage.removeRecord(for: key)
+        await storage.removeRecord(for: key)
     }
-
 }

@@ -30,6 +30,8 @@ public struct TokenMappedToTicker {
             return "xdai"
         } else if server == .arbitrum && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "ethereum"
+        } else if server == .main && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "ethereum"
         } else {
             return nil
         }

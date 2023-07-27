@@ -10,14 +10,14 @@ import Combine
 import AlphaWalletWeb3
 
 public protocol TokensService {
-    var tokens: [Token] { get }
+    var tokens: [Token] { get async }
     var tokensPublisher: AnyPublisher<[Token], Never> { get }
     var addedTokensPublisher: AnyPublisher<[Token], Never> { get }
     var providersHasChanged: AnyPublisher<Void, Never> { get }
 
-    func token(for contract: AlphaWallet.Address) -> Token?
-    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
-    func tokens(for servers: [RPCServer]) -> [Token]
+    func token(for contract: AlphaWallet.Address) async -> Token?
+    func token(for contract: AlphaWallet.Address, server: RPCServer) async -> Token?
+    func tokens(for servers: [RPCServer]) async -> [Token]
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
     func tokensChangesetPublisher(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
 
@@ -30,12 +30,12 @@ public protocol TokensService {
     func addOrUpdateTokenTestsOnly(token: Token)
     func deleteTokenTestsOnly(token: Token)
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
-    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
+    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token]
     func update(token: TokenIdentifiable, value: TokenFieldUpdate)
-    @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
+    @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) async -> Bool?
 
-    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address]
-    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    func alreadyAddedContracts(for server: RPCServer) async -> [AlphaWallet.Address]
+    func deletedContracts(for server: RPCServer) async -> [AlphaWallet.Address]
+    func hiddenContracts(for server: RPCServer) async -> [AlphaWallet.Address]
+    func delegateContracts(for server: RPCServer) async -> [AlphaWallet.Address]
 }

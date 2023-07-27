@@ -79,10 +79,10 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         resolveScanResult(result, decodedValue: decodedValue)
     }
 
-    private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
+    private func availableActions(forContract contract: AlphaWallet.Address) async -> [ScanQRCodeAction] {
         switch usage {
         case .all(let tokensDataStore, _):
-            let isTokenFound = tokensDataStore.token(for: contract, server: .main) != nil
+            let isTokenFound = await tokensDataStore.token(for: contract, server: .main) != nil
             if isTokenFound {
                 return [.sendToAddress, .watchWallet, .openInEtherscan]
             } else {
@@ -104,7 +104,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 switch value {
                 case .address(let contract):
                     guard supportedResolutions.contains(.address) else { return }
-                    let actions = availableActions(forContract: contract)
+                    let actions = await availableActions(forContract: contract)
                     if actions.count == 1 {
                         delegate.coordinator(self, didResolve: .address(address: contract, action: actions[0]))
                     } else {

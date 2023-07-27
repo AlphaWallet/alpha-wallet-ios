@@ -158,17 +158,23 @@ public class TransactionsService {
             .eraseToAnyPublisher()
     }
 
-    public func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> Transaction? {
-        transactionDataStore.transaction(withTransactionId: transactionId, forServer: server)
+    public func transaction(withTransactionId transactionId: String, forServer server: RPCServer) async -> Transaction? {
+        await transactionDataStore.transaction(withTransactionId: transactionId, forServer: server)
     }
 
     public func addSentTransaction(_ transaction: SentTransaction) {
         guard let session = sessionsProvider.session(for: transaction.original.server) else { return }
 
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
-        let token = transaction.original.to.flatMap { tokensService.token(for: $0, server: transaction.original.server) }
-        let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
-
-        transactionDataStore.add(transactions: [transaction])
+        Task { @MainActor in
+            let token: Token?
+            if let address = transaction.original.to {
+                token = await tokensService.token(for: address, server: transaction.original.server)
+            } else {
+                token = nil
+            }
+            let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
+            await transactionDataStore.add(transactions: [transaction])
+        }
     }
 }

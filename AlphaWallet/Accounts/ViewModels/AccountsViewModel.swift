@@ -147,7 +147,7 @@ final class AccountsViewModel {
 
     private func buildAccountRowViewModel(wallet: Wallet) -> AnyPublisher<AccountRowViewModel, Never> {
         let balance = walletBalanceService.walletBalance(for: wallet)
-        let blockieImage = blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+        let blockieImage = asFuture { await self.blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage) }
             .handleEvents(receiveOutput: { [analytics] value in
                 guard value.isEnsAvatar else { return }
                 analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)

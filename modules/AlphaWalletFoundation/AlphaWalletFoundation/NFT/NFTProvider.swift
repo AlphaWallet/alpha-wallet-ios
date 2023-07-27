@@ -15,22 +15,19 @@ public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, 
 public protocol NFTProvider {
     func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError>
     func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never>
-    func enjinToken(tokenId: TokenId) -> EnjinToken?
+    func enjinToken(tokenId: TokenId) async -> EnjinToken?
 }
 
 extension OpenSea: NftAssetImageProvider {
-    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
-        fetchAsset(for: url)
-            .map { [$0.imageUrl, $0.thumbnailUrl, $0.imageOriginalUrl].compactMap { URL(string: $0) } }
-            .tryMap {
-                if let url = $0.first {
-                    return url
-                } else {
-                    struct AssetImageUrlNotFound: Error {}
-                    throw PromiseError(error: AssetImageUrlNotFound())
-                }
-            }.mapError { PromiseError(error: $0) }
-            .eraseToAnyPublisher()
+    public func assetImageUrl(for url: Eip155URL) async throws -> URL {
+        let asset = try await fetchAsset(for: url)
+        let imageUrls = [asset.imageUrl, asset.thumbnailUrl, asset.imageOriginalUrl].compactMap { URL(string: $0) }
+        if let url = imageUrls.first {
+            return url
+        } else {
+            struct AssetImageUrlNotFound: Error {}
+            throw PromiseError(error: AssetImageUrlNotFound())
+        }
     }
 }
 
@@ -73,8 +70,8 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             .eraseToAnyPublisher()
     }
 
-    public func enjinToken(tokenId: TokenId) -> EnjinToken? {
-        enjin.token(tokenId: tokenId)
+    public func enjinToken(tokenId: TokenId) async -> EnjinToken? {
+        await enjin.token(tokenId: tokenId)
     }
 
     public func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {

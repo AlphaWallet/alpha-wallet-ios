@@ -6,51 +6,55 @@ import Combine
 
 public protocol EventsActivityDataStoreProtocol {
     func recentEventsChangeset(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>
-
-    func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
-    func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
+    func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) async -> [EventActivityInstance]
+    func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) async -> EventActivityInstance?
     func addOrUpdate(events: [EventActivityInstance])
 }
 
 public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     private let store: RealmStore
-    
+    private var cancellables = Set<AnyCancellable>()
+
     public init(store: RealmStore) {
         self.store = store
     }
 
     public func recentEventsChangeset(servers: [RPCServer]) -> AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> {
-        var publisher: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>!
-
-        store.performSync { realm in
-            publisher = realm.objects(EventActivity.self)
-                .filter(EventsActivityDataStore.functional.chainIdPredicate(servers: servers))
-                .sorted(byKeyPath: "date", ascending: false)
-                .changesetPublisher
-                .freeze()
-                .receive(on: DispatchQueue.global())
-                .map { change in
-                    switch change {
-                    case .initial(let eventActivities):
-                        return .initial(Array(eventActivities.map { EventActivityInstance(event: $0) }))
-                    case .update(let eventActivities, let deletions, let insertions, let modifications):
-                        return .update(Array(eventActivities.map { EventActivityInstance(event: $0) }), deletions: deletions, insertions: insertions, modifications: modifications)
-                    case .error(let error):
-                        return .error(error)
-                    }
-                }
-                .eraseToAnyPublisher()
+        let publisher = PassthroughSubject<ChangeSet<[EventActivityInstance]>, Never>()
+        Task {
+            //Let the app start up and load Wallet tab quickly
+            try await Task.sleep(nanoseconds: 3_000_000_000)
+            await store.performSync { realm in
+                realm.objects(EventActivity.self)
+                        .filter(EventsActivityDataStore.functional.chainIdPredicate(servers: servers))
+                        .sorted(byKeyPath: "date", ascending: false)
+                        .changesetPublisher
+                        .freeze()
+                        .receive(on: DispatchQueue.global())
+                        .map { change in
+                            switch change {
+                            case .initial(let eventActivities):
+                                return .initial(Array(eventActivities.map { EventActivityInstance(event: $0) }))
+                            case .update(let eventActivities, let deletions, let insertions, let modifications):
+                                return .update(Array(eventActivities.map { EventActivityInstance(event: $0) }), deletions: deletions, insertions: insertions, modifications: modifications)
+                            case .error(let error):
+                                return .error(error)
+                            }
+                        }.sink { value in
+                            publisher.send(value)
+                        }.store(in: &self.cancellables)
+            }
         }
-        return publisher
+        return publisher.eraseToAnyPublisher()
     }
 
-    public func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance] {
+    public func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) async -> [EventActivityInstance] {
         let predicate = EventsActivityDataStore
             .functional
             .matchingEventPredicate(for: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
 
         var eventActivities: [EventActivityInstance] = []
-        store.performSync { realm in
+        await store.perform { realm in
             eventActivities = realm.objects(EventActivity.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "blockNumber", ascending: false)
@@ -60,13 +64,13 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         return eventActivities
     }
 
-    public func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance? {
+    public func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) async -> EventActivityInstance? {
         let predicate = EventsActivityDataStore
             .functional
             .matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
 
         var eventActivity: EventActivityInstance?
-        store.performSync { realm in
+        await store.perform { realm in
             eventActivity = realm.objects(EventActivity.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "blockNumber")
@@ -79,11 +83,13 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
 
     public func addOrUpdate(events: [EventActivityInstance]) {
         guard !events.isEmpty else { return }
-        
+
         let eventsToSave = events.map { EventActivity(value: $0) }
-        store.performSync { realm in
-            try? realm.safeWrite {
-                realm.add(eventsToSave, update: .all)
+        Task {
+            await store.perform { realm in
+                try? realm.safeWrite {
+                    realm.add(eventsToSave, update: .all)
+                }
             }
         }
     }

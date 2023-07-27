@@ -5,6 +5,7 @@ import RealmSwift
 import Combine
 
 public final class BrowserHistoryStorage {
+    //TODO should use a RealmStore.performInBackground or similar
     private let realm: Realm
     private let ignoreUrls: Set<URL>
 
@@ -23,7 +24,7 @@ public final class BrowserHistoryStorage {
                 }
             }.eraseToAnyPublisher()
     }
-    
+
     public var firstHistoryRecord: BrowserHistoryRecord? {
         histories.first
     }

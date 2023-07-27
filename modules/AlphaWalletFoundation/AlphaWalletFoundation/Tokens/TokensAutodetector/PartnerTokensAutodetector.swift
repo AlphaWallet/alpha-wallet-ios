@@ -34,22 +34,22 @@ class PartnerTokensAutodetector: TokensAutodetector {
     }
 
     func start() {
-        Just(contractToImportStorage.contractsToDetect)
-            .subscribe(on: queue)
-            .map { self.filter(contractsToDetect: $0) }
-            .flatMap { [importToken] contracts in
-                let publishers = contracts.map {
-                    return importToken.fetchTokenOrContract(
-                        for: $0.contract,
-                        onlyIfThereIsABalance: $0.onlyIfThereIsABalance).mapToResult()
-                }
-                return Publishers.MergeMany(publishers).collect()
-            }.receive(on: queue)
-            .map { $0.compactMap { try? $0.get() } }
-            .filter { !$0.isEmpty }
-            .multicast(subject: subject)
-            .connect()
-            .store(in: &cancellable)
+        Task { @MainActor in
+            let contracts = await filter(contractsToDetect: contractToImportStorage.contractsToDetect)
+            Just(contracts)
+                .subscribe(on: queue)
+                .flatMap { [importToken] contracts in
+                    let publishers = contracts.map {
+                        return importToken.fetchTokenOrContract(for: $0.contract, onlyIfThereIsABalance: $0.onlyIfThereIsABalance).mapToResult()
+                    }
+                    return Publishers.MergeMany(publishers).collect()
+                }.receive(on: queue)
+                .map { $0.compactMap { try? $0.get() } }
+                .filter { !$0.isEmpty }
+                .multicast(subject: subject)
+                .connect()
+                .store(in: &cancellable)
+        }
     }
 
     func stop() {
@@ -60,11 +60,14 @@ class PartnerTokensAutodetector: TokensAutodetector {
         //no-op
     }
 
-    private func filter(contractsToDetect: [ContractToImport]) -> [ContractToImport] {
+    private func filter(contractsToDetect: [ContractToImport]) async -> [ContractToImport] {
+        let tokens = await tokensDataStore.tokens(for: [server])
+        let deleted = await tokensDataStore.deletedContracts(forServer: server)
+        let hidden = await tokensDataStore.hiddenContracts(forServer: server)
         return contractsToDetect.filter { $0.server == server }.filter {
-            !tokensDataStore.tokens(for: [$0.server]).map { $0.contractAddress }.contains($0.contract) &&
-            !tokensDataStore.deletedContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract) &&
-            !tokensDataStore.hiddenContracts(forServer: $0.server).map { $0.contractAddress }.contains($0.contract)
+            !tokens.map { $0.contractAddress }.contains($0.contract) &&
+            !deleted.map { $0.contractAddress }.contains($0.contract) &&
+            !hidden.map { $0.contractAddress }.contains($0.contract)
         }
     }
 }

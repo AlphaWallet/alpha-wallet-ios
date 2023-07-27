@@ -18,12 +18,11 @@ public class InMemoryTickerIdsFetcher: TickerIdsFetcher {
     }
 
     /// Returns already defined, stored associated with token ticker id
-    public func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
+    public func tickerId(for token: TokenMappedToTicker) async -> TickerIdString? {
         if let id = token.knownCoinGeckoTickerId {
-            return .just(id)
+            return id
         } else {
-            let tickerId = storage.knownTickerId(for: token)
-            return .just(tickerId)
+            return await self.storage.knownTickerId(for: token)
         }
     }
 }

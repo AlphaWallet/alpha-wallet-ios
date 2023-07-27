@@ -11,11 +11,11 @@ import Combine
 import AlphaWalletENS
 
 public protocol DomainNameRecordsStorage: AnyObject {
-    var allRecords: [DomainNameRecord] { get }
+    var allRecords: [DomainNameRecord] { get async }
 
-    func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) -> DomainNameRecord?
-    func addOrUpdate(record: DomainNameRecord)
-    func removeRecord(for key: DomainNameLookupKey)
+    func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) async -> DomainNameRecord?
+    func addOrUpdate(record: DomainNameRecord) async
+    func removeRecord(for key: DomainNameLookupKey) async
 }
 
 extension DomainNameLookupKey {
@@ -33,21 +33,22 @@ extension DomainNameLookupKey {
 }
 
 extension RealmStore: DomainNameRecordsStorage {
-
     public var allRecords: [DomainNameRecord] {
-        var records: [DomainNameRecord] = []
-        performSync { realm in
-            records = realm.objects(EnsRecordObject.self).compactMap { DomainNameRecord(recordObject: $0) }
+        get async {
+            var records: [DomainNameRecord] = []
+            await perform { realm in
+                records = realm.objects(EnsRecordObject.self).compactMap { DomainNameRecord(recordObject: $0) }
+            }
+            return records
         }
-        return records
     }
 
-    public func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) -> DomainNameRecord? {
+    public func record(for key: DomainNameLookupKey, expirationTime: TimeInterval) async -> DomainNameRecord? {
         var record: DomainNameRecord?
         let expirationDate = NSDate(timeInterval: expirationTime, since: Date())
         let predicate = NSPredicate(format: "uid = %@ AND creatingDate > %@", key.description, expirationDate)
 
-        performSync { realm in
+        await perform { realm in
             record = realm.objects(EnsRecordObject.self)
                 .filter(predicate)
                 .first
@@ -57,8 +58,8 @@ extension RealmStore: DomainNameRecordsStorage {
         return record
     }
 
-    public func addOrUpdate(record: DomainNameRecord) {
-        performSync { realm in
+    public func addOrUpdate(record: DomainNameRecord) async {
+        await perform { realm in
             try? realm.safeWrite {
                 let object = EnsRecordObject(record: record)
 
@@ -67,9 +68,9 @@ extension RealmStore: DomainNameRecordsStorage {
         }
     }
 
-    public func removeRecord(for key: DomainNameLookupKey) {
+    public func removeRecord(for key: DomainNameLookupKey) async {
         let predicate = NSPredicate(format: "uid == '\(key.description)'")
-        performSync { realm in
+        await perform { realm in
             try? realm.safeWrite {
                 let objects = realm.objects(EnsRecordObject.self).filter(predicate)
                 realm.delete(objects)

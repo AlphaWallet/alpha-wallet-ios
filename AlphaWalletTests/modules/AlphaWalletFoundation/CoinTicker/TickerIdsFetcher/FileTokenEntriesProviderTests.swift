@@ -5,18 +5,11 @@ import Combine
 @testable import AlphaWalletFoundation
 
 class FileTokenEntriesProviderTests: XCTestCase {
-    func testLoadLocalJsonFile() {
-        var cancellables = Set<AnyCancellable>()
+    func testLoadLocalJsonFile() async {
         let expectation = self.expectation(description: "Wait for publisher")
-        FileTokenEntriesProvider().tokenEntries()
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { value in
-                    XCTAssertFalse(value.isEmpty)
-                    expectation.fulfill()
-                }
-            ).store(in: &cancellables)
-
-        wait(for: [expectation], timeout: 0.1)
+        let tokenEntries = try! await FileTokenEntriesProvider().tokenEntries()
+        XCTAssertFalse(tokenEntries.isEmpty)
+        expectation.fulfill()
+        await fulfillment(of: [expectation], timeout: 0.1)
     }
 }

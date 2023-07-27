@@ -13,7 +13,7 @@ import Combine
 ///This class performs (B)
 final class Erc1155BalanceFetcher {
     private let address: AlphaWallet.Address
-    private var inFlightPromises: [String: AnyPublisher<[BigInt: BigUInt], SessionTaskError>] = [:]
+    private var inFlightPromises: [String: Task<[BigInt: BigUInt], Error>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.erc1155BalanceFetcher")
     private let blockchainProvider: BlockchainProvider
 
@@ -26,28 +26,21 @@ final class Erc1155BalanceFetcher {
         inFlightPromises.removeAll()
     }
 
-    func getErc1155Balance(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) -> AnyPublisher<[BigInt: BigUInt], SessionTaskError> {
-        return Just(contract)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, address, blockchainProvider] contract -> AnyPublisher<[BigInt: BigUInt], SessionTaskError> in
-                let key = "\(contract.eip55String)-\(tokenIds.hashValue)"
-
-                if let promise = self?.inFlightPromises[key] {
-                    return promise
-                } else {
-                    //tokenIds must be unique (hence arg is a Set) so `Dictionary(uniqueKeysWithValues:)` wouldn't crash
-                    let promise = blockchainProvider
-                        .call(Erc1155BalanceOfBatchMethodCall(contract: contract, address: address, tokenIds: tokenIds))
-                        .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
-                        .share()
-                        .eraseToAnyPublisher()
-
-                    self?.inFlightPromises[key] = promise
-
-                    return promise
+    func getErc1155Balance(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) async throws -> [BigInt: BigUInt] {
+        return try await Task { @MainActor in
+            let key = "\(contract.eip55String)-\(tokenIds.hashValue)"
+            if let promise = inFlightPromises[key] {
+                return try await promise.value
+            } else {
+                //tokenIds must be unique (hence arg is a Set) so `Dictionary(uniqueKeysWithValues:)` wouldn't crash
+                let promise = Task<[BigInt: BigUInt], Error> {
+                    let result = try await blockchainProvider.callAsync(Erc1155BalanceOfBatchMethodCall(contract: contract, address: address, tokenIds: tokenIds))
+                    inFlightPromises[key] = nil
+                    return result
                 }
-            }.eraseToAnyPublisher()
+                inFlightPromises[key] = promise
+                return try await promise.value
+            }
+        }.value
     }
 }

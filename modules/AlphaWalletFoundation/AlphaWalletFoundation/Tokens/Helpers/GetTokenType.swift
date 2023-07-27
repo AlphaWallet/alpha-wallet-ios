@@ -11,7 +11,7 @@ import BigInt
 import Combine
 
 final class GetTokenType {
-    private var inFlightPromises: [String: AnyPublisher<TokenType, SessionTaskError>] = [:]
+    private var inFlightPromises: [String: Task<TokenType, Error>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getTokenType")
     private lazy var isErc1155Contract = IsErc1155Contract(blockchainProvider: blockchainProvider)
     private lazy var isErc875Contract = IsErc875Contract(blockchainProvider: blockchainProvider)
@@ -25,28 +25,29 @@ final class GetTokenType {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func getTokenType(for address: AlphaWallet.Address) -> AnyPublisher<TokenType, SessionTaskError> {
-        return Just(address)
-            .receive(on: queue)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue] address -> AnyPublisher<TokenType, SessionTaskError> in
-                let key = address.eip55String
-                if let promise = self?.inFlightPromises[key] {
-                    return promise
-                } else {
-                    let promise = Future<TokenType, SessionTaskError> { seal in
-                        self?.getTokenType(for: address) { tokenType in
-                            seal(.success(tokenType))
-                        }
-                    }.receive(on: queue)
-                    .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
-                    .eraseToAnyPublisher()
-
-                    self?.inFlightPromises[key] = promise
-
-                    return promise
+    public func getTokenType(for address: AlphaWallet.Address) async throws -> TokenType {
+        return try await Task { @MainActor in
+            let key = address.eip55String
+            if let promise = inFlightPromises[key] {
+                return try await promise.value
+            } else {
+                let promise = Task<TokenType, Error> {
+                    let tokenType = await getTokenTypeAsync(for: address)
+                    inFlightPromises[key] = nil
+                    return tokenType
                 }
-            }.eraseToAnyPublisher()
+                inFlightPromises[key] = promise
+                return try await promise.value
+            }
+        }.value
+    }
+
+    private func getTokenTypeAsync(for address: AlphaWallet.Address) async -> TokenType {
+        await withCheckedContinuation { continuation in
+            getTokenType(for: address) {
+                continuation.resume(returning: $0)
+            }
+        }
     }
 
     /// `getTokenType` doesn't return .nativeCryptoCurrency type, fallback to erc20. Maybe need to throw an error?

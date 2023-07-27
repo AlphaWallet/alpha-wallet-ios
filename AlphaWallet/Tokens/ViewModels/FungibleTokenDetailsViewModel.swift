@@ -54,15 +54,7 @@ final class FungibleTokenDetailsViewModel {
 
     var wallet: Wallet { session.account }
 
-    init(token: Token,
-         coinTickersProvider: CoinTickersProvider,
-         tokensService: TokensProcessingPipeline,
-         session: WalletSession,
-         assetDefinitionStore: AssetDefinitionStore,
-         tokenActionsProvider: SupportedTokenActionsProvider,
-         currencyService: CurrencyService,
-         tokenImageFetcher: TokenImageFetcher) {
-
+    init(token: Token, coinTickersProvider: CoinTickersProvider, tokensService: TokensProcessingPipeline, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService, tokenImageFetcher: TokenImageFetcher) {
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.tokenActionsProvider = tokenActionsProvider
@@ -75,7 +67,9 @@ final class FungibleTokenDetailsViewModel {
 
     func transform(input: FungibleTokenDetailsViewModelInput) -> FungibleTokenDetailsViewModelOutput {
         input.willAppear.flatMapLatest { [coinTickersProvider, token, currencyService] _ in
-            coinTickersProvider.chartHistories(for: .init(token: token), currency: currencyService.currency)
+            asFuture {
+                await coinTickersProvider.chartHistories(for: .init(token: token), currency: currencyService.currency)
+            }
         }.assign(to: \.value, on: chartHistoriesSubject)
         .store(in: &cancelable)
 
@@ -86,21 +80,21 @@ final class FungibleTokenDetailsViewModel {
             .map { FungibleTokenDetailsViewModel.ViewState(actionButtons: $0, views: $1) }
 
         let action = input.action
-            .compactMap { self.buildFungibleTokenAction(for: $0) }
+            .flatMap { action in asFuture { await self.buildFungibleTokenAction(for: action) } }.compactMap { $0 }
 
         return .init(
             viewState: viewState.eraseToAnyPublisher(),
             action: action.eraseToAnyPublisher())
     }
 
-    private func buildFungibleTokenAction(for action: TokenInstanceAction) -> FungibleTokenAction? {
+    private func buildFungibleTokenAction(for action: TokenInstanceAction) async -> FungibleTokenAction? {
         switch action.type {
         case .swap: return .swap(swapTokenFlow: .swapToken(token: token))
         case .erc20Send: return .erc20Transfer(token: token)
         case .erc20Receive: return .erc20Receive(token: token)
         case .nftRedeem, .nftSell, .nonFungibleTransfer: return nil
         case .tokenScript:
-            let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
+            let fungibleBalance = await tokensService.tokenViewModel(for: token)?.balance.value
             if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: fungibleBalance) {
                 guard case .warning(let string) = message else { return nil }
                 return .display(warning: string)
@@ -114,12 +108,12 @@ final class FungibleTokenDetailsViewModel {
 
     private func tokenActionButtonsPublisher() -> AnyPublisher<[ActionButton], Never> {
         let whenTokenHolderHasChanged = tokenHolder.objectWillChange
-            .map { [tokensService, token] _ in tokensService.tokenViewModel(for: token) }
+            .flatMap { [tokensService, token] _ in asFuture { await tokensService.tokenViewModel(for: token) } }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         let whenTokenActionsHasChanged = tokenActionsProvider.objectWillChange
-            .map { [tokensService, token] _ in tokensService.tokenViewModel(for: token) }
+            .flatMap { [tokensService, token] _ in asFuture { await tokensService.tokenViewModel(for: token) } }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
@@ -127,13 +121,12 @@ final class FungibleTokenDetailsViewModel {
 
         return Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChanged, whenTokenActionsHasChanged)
             .compactMap { _ in self.actionAdapter.availableActions() }
-            .map { [tokensService, token] actions in
-                let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
-                return actions.map {
-                    ActionButton(
-                        actionType: $0,
-                        name: $0.name,
-                        state: self.actionAdapter.state(for: $0, fungibleBalance: fungibleBalance))
+            .flatMap { [tokensService, token] actions in
+                asFuture {
+                    let fungibleBalance = await tokensService.tokenViewModel(for: token)?.balance.value
+                    return actions.map {
+                        ActionButton(actionType: $0, name: $0.name, state: self.actionAdapter.state(for: $0, fungibleBalance: fungibleBalance))
+                    }
                 }
             }.eraseToAnyPublisher()
     }

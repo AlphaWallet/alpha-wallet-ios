@@ -18,6 +18,10 @@ final class FakeApiTransporter: ApiTransporter {
         return .empty()
     }
 
+    func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response {
+        return (data: Data(), response: HTTPURLResponse())
+    }
+
     func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<Alamofire.DataResponsePublisher<Data>.Output, SessionTaskError> {
         return .empty()
     }

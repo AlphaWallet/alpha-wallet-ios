@@ -114,26 +114,12 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = token.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
 
-        let coordinator = FungibleTokenCoordinator(
-            token: token,
-            navigationController: navigationController,
-            session: session,
-            keystore: keystore,
-            assetDefinitionStore: assetDefinitionStore,
-            analytics: analytics,
-            tokenActionsProvider: tokenActionsProvider,
-            coinTickersProvider: coinTickersProvider,
-            activitiesService: activitiesService,
-            alertService: alertService,
-            tokensPipeline: tokensPipeline,
-            sessionsProvider: sessionsProvider,
-            currencyService: currencyService,
-            tokenImageFetcher: tokenImageFetcher,
-            tokensService: tokensService)
-
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start()
+        Task { @MainActor in
+            let coordinator = await FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersProvider: coinTickersProvider, activitiesService: activitiesService, alertService: alertService, tokensPipeline: tokensPipeline, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, tokensService: tokensService)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start()
+        }
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject token: Token, navigationController: UINavigationController) {

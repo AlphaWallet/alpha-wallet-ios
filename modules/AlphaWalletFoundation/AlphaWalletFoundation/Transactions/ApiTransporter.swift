@@ -10,8 +10,10 @@ import Alamofire
 import Combine
 
 public protocol ApiTransporter {
+    //TODO reduce usage and remove
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
-    func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<DataResponsePublisher<Data>.Output, SessionTaskError>
+    func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response
+    //TODO reduce usage and remove
     func responseTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<HTTPURLResponse, SessionTaskError>
 }
 
@@ -105,6 +107,15 @@ public class BaseApiTransporter: ApiTransporter {
             }.eraseToAnyPublisher()
     }
 
+    public func dataTask(_ request: URLRequestConvertible) async throws -> URLRequest.Response {
+        let response = try await session.request(request).serializingData().response
+        if let data = response.data, let response = response.response {
+            return (data, response)
+        } else {
+            throw SessionTaskError(error: NonHttpUrlResponseError(request: request))
+        }
+    }
+
     public func responseTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<HTTPURLResponse, SessionTaskError> {
         Just(request)
             .setFailureType(to: SessionTaskError.self)
@@ -120,17 +131,6 @@ public class BaseApiTransporter: ApiTransporter {
                         }
                     }.mapError { SessionTaskError(error: $0) }
 
-            }.eraseToAnyPublisher()
-    }
-
-    public func dataPublisher(_ request: URLRequestConvertible) -> AnyPublisher<DataResponsePublisher<Data>.Output, SessionTaskError> {
-        Just(request)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap(maxPublishers: .max(maxPublishers)) { [session, rootQueue] request in
-                session.request(request)
-                    .validate()
-                    .publishData(queue: rootQueue)
-                    .mapError { SessionTaskError(error: $0) }
             }.eraseToAnyPublisher()
     }
 }

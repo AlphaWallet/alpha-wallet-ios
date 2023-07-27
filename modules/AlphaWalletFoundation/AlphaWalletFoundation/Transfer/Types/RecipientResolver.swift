@@ -49,19 +49,19 @@ public class RecipientResolver {
         let message: String
     }
 
-    public func resolveRecipient() -> AnyPublisher<Loadable<BlockieAndAddressOrEnsResolution, Error>, Never> {
+    public func resolveRecipient() async -> Loadable<BlockieAndAddressOrEnsResolution, Error> {
         guard let address = address else {
-            return .just(.failure(RecipientResolutionError(message: "address not found")))
-                .prepend(.loading)
-                .eraseToAnyPublisher()
+            resolution = .failure(RecipientResolutionError(message: "address not found"))
+            return resolution
         }
 
-        return domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
-            .map { resolution -> Loadable<BlockieAndAddressOrEnsResolution, Error> in return .done(resolution) }
-            .catch { return Just(Loadable<BlockieAndAddressOrEnsResolution, Error>.failure($0)) }
-            .handleEvents(receiveOutput: { [weak self] in self?.resolution = $0 })
-            .prepend(.loading)
-            .eraseToAnyPublisher()
+        do {
+            let resolution = try await domainResolutionService.resolveEnsAndBlockie(address: address, server: server)
+            self.resolution = .done(resolution)
+        } catch {
+            self.resolution = .failure(error)
+        }
+        return resolution
     }
 
     public var value: String? {

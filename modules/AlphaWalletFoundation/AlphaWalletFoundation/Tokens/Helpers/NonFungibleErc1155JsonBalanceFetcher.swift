@@ -54,28 +54,25 @@ class NonFungibleErc1155JsonBalanceFetcher {
                 let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractsAndTokenIds
                     .mapValues { tokenIds -> [BigInt] in tokenIds.compactMap { BigInt($0) } }
 
-                let promises = contractsToTokenIds.map { contract, tokenIds in
-                    erc1155BalanceFetcher
-                        .getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))
-                        .map { (contract: contract, balances: $0 ) }
+                let subject = PassthroughSubject<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]], SessionTaskError>()
+
+                Task { @MainActor in
+                    let contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])] = await contractsToTokenIds.asyncCompactMap { contract, tokenIds in
+                        (try? await erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))).flatMap { (contract: contract, balances: $0 ) }
+                    }
+
+                    var contractToTokenIds: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]] = .init()
+                    for each in tokenIdMetaDatas {
+                        guard let data = each.jsonAndItsSource.value.data(using: .utf8) else { continue }
+                        guard let nonFungible = nonFungible(fromJsonData: data, tokenType: .erc1155) as? NonFungibleFromTokenUri else { continue }
+                        var nonFungibles = contractToTokenIds[each.contract] ?? .init()
+                        nonFungibles.append(.init(tokenId: each.jsonAndItsSource.tokenId, value: nonFungible, source: each.jsonAndItsSource.source))
+                        contractToTokenIds[each.contract] = nonFungibles
+                    }
+                    let contractToOpenSeaNonFungiblesWithUpdatedBalances: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]] = TokenBalanceFetcher.functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToTokenIds, contractsAndBalances: contractsAndBalances)
+                    subject.send(contractToOpenSeaNonFungiblesWithUpdatedBalances)
                 }
-
-                return Publishers.MergeMany(promises)
-                    .collect()
-                    .map { contractsAndBalances in
-                        var contractToTokenIds: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]] = .init()
-
-                        for each in tokenIdMetaDatas {
-                            guard let data = each.jsonAndItsSource.value.data(using: .utf8) else { continue }
-                            guard let nonFungible = nonFungible(fromJsonData: data, tokenType: .erc1155) as? NonFungibleFromTokenUri else { continue }
-                            var nonFungibles = contractToTokenIds[each.contract] ?? .init()
-                            nonFungibles.append(.init(tokenId: each.jsonAndItsSource.tokenId, value: nonFungible, source: each.jsonAndItsSource.source))
-                            contractToTokenIds[each.contract] = nonFungibles
-                        }
-                        let contractToOpenSeaNonFungiblesWithUpdatedBalances: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]] = TokenBalanceFetcher.functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToTokenIds, contractsAndBalances: contractsAndBalances)
-
-                        return contractToOpenSeaNonFungiblesWithUpdatedBalances
-                    }.eraseToAnyPublisher()
+                return subject.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
 
         //TODO: log error remotely

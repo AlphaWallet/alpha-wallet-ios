@@ -16,13 +16,11 @@ public protocol SupportedTickerIdsFetcherConfig {
 
 /// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
 public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
-    typealias TickerIdsPublisher = AnyPublisher<Void, PromiseError>
-
     private let networking: CoinTickerNetworking
     private let storage: TickerIdsStorage & CoinTickersStorage
     private var config: SupportedTickerIdsFetcherConfig
     private let pricesCacheLifetime: TimeInterval
-    private var fetchSupportedTickerIdsPublisher: TickerIdsPublisher?
+    private var fetchSupportedTickerIdsTask: Task<Void, Never>?
     private let queue = DispatchQueue(label: "org.alphawallet.swift.coinGeckoTicker.IdsFetcher")
 
     /// Init method
@@ -38,45 +36,37 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     }
 
     /// Searching for ticker id very havy operation, and takes to mutch time, we use cacing in `knownTickerIds` to store all know ticker ids
-    public func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
-        return Just(token)
-            .receive(on: queue)
-            .flatMap { [weak self, storage] token -> AnyPublisher<TickerIdString?, Never> in
-                guard let strongSelf = self else { return .empty() }
-
-                return strongSelf.fetchSupportedTickerIds()
-                    .map { storage.tickerId(for: token)?.id }
-                    .handleEvents(receiveOutput: { tickerId in
-                        guard let tickerId = tickerId else { return }
-                        storage.addOrUpdate(tickerId: tickerId, for: token)
-                    })
-                    .replaceError(with: nil)
-                    .eraseToAnyPublisher()
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+    public func tickerId(for token: TokenMappedToTicker) async -> TickerIdString? {
+        do {
+            try await fetchSupportedTickerIds()
+        } catch {
+            return nil
+        }
+        if let tickerId = await storage.tickerId(for: token)?.id {
+            storage.addOrUpdate(tickerId: tickerId, for: token)
+            return tickerId
+        } else {
+            return nil
+        }
     }
 
-    private func fetchSupportedTickerIds() -> TickerIdsPublisher {
-        if let lastFetchingDate = config.tickerIdsLastFetchedDate, Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime, storage.hasTickerIds() {
-            return .just(())
+    private func fetchSupportedTickerIds() async throws {
+        if let lastFetchingDate = config.tickerIdsLastFetchedDate, Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime, await storage.hasTickerIds() {
+           return
         } else {
-            if let publisher = fetchSupportedTickerIdsPublisher {
-                return publisher
+            if let task = fetchSupportedTickerIdsTask {
+                return await task.value
             } else {
-                let publisher = networking.fetchSupportedTickerIds()
-                    .receive(on: queue)
-                    .handleEvents(receiveOutput: { [storage, weak self] tickerIds in
+                let task: Task<Void, Never> = Task { () -> Void in
+                    do {
+                        let tickerIds = try await networking.fetchSupportedTickerIds()
                         storage.addOrUpdate(tickerIds: tickerIds)
-                        self?.config.tickerIdsLastFetchedDate = Date()
-                    }, receiveCompletion: { [weak self] _ in
-                        self?.fetchSupportedTickerIdsPublisher = .none
-                    }).share()
-                    .mapToVoid()
-                    .eraseToAnyPublisher()
-
-                fetchSupportedTickerIdsPublisher = publisher
-
-                return publisher
+                        config.tickerIdsLastFetchedDate = Date()
+                        self.fetchSupportedTickerIdsTask = nil
+                    } catch {}
+                }
+                fetchSupportedTickerIdsTask = task
+                return try await task.value
             }
         }
     }

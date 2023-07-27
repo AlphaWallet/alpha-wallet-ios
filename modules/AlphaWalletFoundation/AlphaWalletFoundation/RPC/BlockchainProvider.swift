@@ -13,6 +13,7 @@ import AlphaWalletWeb3
 import APIKit
 import BigInt
 import JSONRPCKit
+import PromiseKit
 
 public protocol BlockchainProvider: BlockchainCallable {
     var server: RPCServer { get }
@@ -23,8 +24,8 @@ public protocol BlockchainProvider: BlockchainCallable {
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
     func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError>
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
-    func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError>
-    func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
+    func block(by blockNumber: BigUInt) async throws -> Block
+    func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) async throws -> [EventParserResultProtocol]
     func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError>
     func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
     func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError>
@@ -94,6 +95,11 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
+    public func callAsync<R: ContractMethodCall>(_ method: R, block: BlockParameter) async throws -> R.Response {
+        let response = try await callSmartContractAsync(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
+        return try method.response(from: response)
+    }
+
     public func blockNumber() -> AnyPublisher<Int, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
 
@@ -112,10 +118,9 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError> {
+    public func block(by blockNumber: BigUInt) async throws -> Block {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockByNumberRequest(number: blockNumber)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+        return try await APIKitSession.sendPublisherAsync(request, server: server, analytics: analytics)
     }
 
     public func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError> {
@@ -125,11 +130,16 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
-    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
-        getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
-            .publisher()
-            .mapError { SessionTaskError.responseError($0.embedded) }
-            .eraseToAnyPublisher()
+    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) async throws -> [EventParserResultProtocol] {
+        return try await withCheckedThrowingContinuation { continuation in
+            firstly {
+                getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
+            }.done { result in
+                continuation.resume(returning: result)
+            }.catch {
+                continuation.resume(throwing: $0)
+            }
+        }
     }
 
     public func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {

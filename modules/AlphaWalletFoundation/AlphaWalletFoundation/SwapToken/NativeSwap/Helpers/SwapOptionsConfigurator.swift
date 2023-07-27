@@ -149,10 +149,10 @@ public final class SwapOptionsConfigurator {
         self.server = server
     }
 
-    public func isAvailable(server: RPCServer) -> Bool {
+    public func isAvailable(server: RPCServer) async -> Bool {
         switch tokenSwapper.supportState(for: server) {
         case .supports:
-            return hasAnySuportedToken(forServer: server)
+            return await hasAnySuportedToken(forServer: server)
         case .notSupports, .failure:
             return false
         }
@@ -231,29 +231,31 @@ public final class SwapOptionsConfigurator {
     }
 
     private func validateSwapPair(forServer server: RPCServer, isInitialServerValidation: Bool) {
-        do {
-            let tokens = try supportedTokens(forServer: server)
-            let token = try firstSupportedFromToken(forServer: server, tokens: tokens)
-            if isInitialServerValidation && swapPair.from.contractAddress != token.contractAddress {
-                let _ = try firstSupportedFromToken(forServer: server, tokens: [swapPair.from])
-                //NOTE: no changes needed as current swapPair.from supports
-            } else {
-                swapPair = SwapPair(from: token, to: nil)
+        Task { @MainActor in
+            do {
+                let tokens = try await supportedTokens(forServer: server)
+                let token = try firstSupportedFromToken(forServer: server, tokens: tokens)
+                if isInitialServerValidation && swapPair.from.contractAddress != token.contractAddress {
+                    let _ = try firstSupportedFromToken(forServer: server, tokens: [swapPair.from])
+                    //NOTE: no changes needed as current swapPair.from supports
+                } else {
+                    swapPair = SwapPair(from: token, to: nil)
+                }
+            } catch TokenSwapper.TokenSwapperError.fromTokenNotFound {
+                errorSubject.send(.fromTokenNotFound)
             }
-        } catch TokenSwapper.TokenSwapperError.fromTokenNotFound {
-            errorSubject.send(.fromTokenNotFound)
-        } catch { }
+        }
     }
 
-    private func hasAnySuportedToken(forServer server: RPCServer) -> Bool {
-        guard let tokens = try? supportedTokens(forServer: server) else { return false }
+    private func hasAnySuportedToken(forServer server: RPCServer) async -> Bool {
+        guard let tokens = try? await supportedTokens(forServer: server) else { return false }
         let token = try? firstSupportedFromToken(forServer: server, tokens: tokens)
         return token != nil
     }
 
-    private func supportedTokens(forServer server: RPCServer) throws -> [Token] {
+    private func supportedTokens(forServer server: RPCServer) async throws -> [Token] {
         guard swapPairs(for: server) != nil else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
-        return tokensService.tokens(for: [server])
+        return await tokensService.tokens(for: [server])
     }
 
     private func firstSupportedFromToken(forServer server: RPCServer, tokens: [Token]) throws -> Token {

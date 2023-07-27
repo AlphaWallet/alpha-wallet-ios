@@ -18,24 +18,19 @@ struct UnstoppableDomainsNetworkProvider {
         self.networkService = networkService
     }
 
-    func resolveAddress(forName name: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {
-        return networkService
-            .dataTaskPublisher(AddressRequest(name: name))
-            .receive(on: DispatchQueue.global())
-            .tryMap { response -> AlphaWallet.Address in
-                guard let json = try? JSON(data: response.data) else {
-                    throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
-                }
+    func resolveAddress(forName name: String) async throws -> AlphaWallet.Address {
+        let response = try await networkService.dataTask(AddressRequest(name: name))
+        guard let json = try? JSON(data: response.data) else {
+            throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
+        }
 
-                let value = try UnstoppableDomainsResolver.AddressResolution.Response(json: json)
-                if let owner = value.meta.owner {
-                    infoLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
-                    return owner
-                } else {
-                    throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
-                }
-            }.mapError { PromiseError.some(error: $0) }
-            .eraseToAnyPublisher()
+        let value = try UnstoppableDomainsResolver.AddressResolution.Response(json: json)
+        if let owner = value.meta.owner {
+            infoLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
+            return owner
+        } else {
+            throw UnstoppableDomainsApiError(localizedDescription: "Error calling \(Constants.unstoppableDomainsAPI.absoluteString) API isMainThread: \(Thread.isMainThread)")
+        }
     }
 
     private struct AddressRequest: URLRequestConvertible {

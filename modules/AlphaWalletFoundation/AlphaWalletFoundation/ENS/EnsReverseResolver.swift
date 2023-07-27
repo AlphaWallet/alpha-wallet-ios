@@ -17,23 +17,22 @@ class EnsReverseResolver {
     }
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
-    func getENSNameFromResolver(for address: AlphaWallet.Address) -> AnyPublisher<String, SmartContractError> {
-        if let cachedResult = cachedDomainName(for: address) {
-            return .just(cachedResult)
+    func getENSNameFromResolver(for address: AlphaWallet.Address) async throws -> String {
+        if let cachedResult = await cachedDomainName(for: address) {
+            return cachedResult
         }
 
-        return ens.getName(fromAddress: address)
-            .handleEvents(receiveOutput: { [server, storage] name in
-                let key = DomainNameLookupKey(nameOrAddress: address.eip55String, server: server)
-                storage.addOrUpdate(record: .init(key: key, value: .domainName(name)))
-            }).eraseToAnyPublisher()
+        let name = try await ens.getName(fromAddress: address)
+        let key = DomainNameLookupKey(nameOrAddress: address.eip55String, server: server)
+        await storage.addOrUpdate(record: .init(key: key, value: .domainName(name)))
+        return name
     }
 }
 
 extension EnsReverseResolver: CachedDomainNameReverseResolutionServiceType {
-    func cachedDomainName(for address: AlphaWallet.Address) -> String? {
+    func cachedDomainName(for address: AlphaWallet.Address) async -> String? {
         let key = DomainNameLookupKey(nameOrAddress: address.eip55String, server: server)
-        switch storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
+        switch await storage.record(for: key, expirationTime: Constants.DomainName.recordExpiration)?.value {
         case .domainName(let ens):
             return ens
         case .none, .record, .address:

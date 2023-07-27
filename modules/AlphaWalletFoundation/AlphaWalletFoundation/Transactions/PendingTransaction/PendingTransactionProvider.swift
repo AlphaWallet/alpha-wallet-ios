@@ -111,11 +111,13 @@ public final class PendingTransactionProvider {
 
         ercTokenDetector.detect(from: [transaction])
 
-        if let transaction = transactionDataStore.transaction(withTransactionId: transaction.id, forServer: transaction.server) {
-            completeTransactionSubject.send(.success(transaction))
-        }
+        Task { @MainActor in
+            if let transaction = await transactionDataStore.transaction(withTransactionId: transaction.id, forServer: transaction.server) {
+                completeTransactionSubject.send(.success(transaction))
+            }
 
-        cancelScheduler(transaction: transaction)
+            cancelScheduler(transaction: transaction)
+        }
     }
 
     private func cancelScheduler(transaction: Transaction) {
@@ -134,9 +136,11 @@ public final class PendingTransactionProvider {
                 transactionDataStore.delete(transactions: [transaction])
                 cancelScheduler(transaction: transaction)
             case .resultObjectParseError:
-                guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
-                transactionDataStore.delete(transactions: [transaction])
-                cancelScheduler(transaction: transaction)
+                Task { @MainActor in
+                    guard await transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
+                    transactionDataStore.delete(transactions: [transaction])
+                    cancelScheduler(transaction: transaction)
+                }
                 //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
             case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                 break

@@ -11,5 +11,5 @@ import AlphaWalletCore
 
 /// Provides tokens groups
 public protocol TokenEntriesProvider {
-    func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError>
+    func tokenEntries() async throws -> [TokenEntry]
 }

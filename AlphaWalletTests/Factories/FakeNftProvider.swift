@@ -11,8 +11,8 @@ import AlphaWalletFoundation
 import Combine
 
 final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
-    func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
-        return .fail(PromiseError(error: ProviderError()))
+    func assetImageUrl(for url: Eip155URL) async throws -> URL {
+        throw ProviderError()
     }
 
     struct ProviderError: Error {}
@@ -24,7 +24,7 @@ final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
     func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {
         return .just((openSea: [:], enjin: ()))
     }
-    
+
     func enjinToken(tokenId: TokenId) -> EnjinToken? {
         return nil
     }

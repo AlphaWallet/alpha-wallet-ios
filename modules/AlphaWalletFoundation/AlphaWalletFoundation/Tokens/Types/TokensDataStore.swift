@@ -15,29 +15,28 @@ public enum DataStoreError: Error {
 
 /// Multiple-chains tokens data store
 public protocol TokensDataStore: NSObjectProtocol {
-    func token(for contract: AlphaWallet.Address) -> Token?
-    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
+    func token(for contract: AlphaWallet.Address) async -> Token?
+    func token(for contract: AlphaWallet.Address, server: RPCServer) async -> Token?
     func tokensChangesetPublisher(for servers: [RPCServer], predicate: NSPredicate?) -> AnyPublisher<ChangeSet<[Token]>, Never>
-    func tokens(for servers: [RPCServer]) -> [Token]
+    func tokens(for servers: [RPCServer]) async -> [Token]
     func delegateContractsChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never>
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError>
-    func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
-    func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
-    func hiddenContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
+    func deletedContracts(forServer server: RPCServer) async -> [AddressAndRPCServer]
+    func delegateContracts(forServer server: RPCServer) async -> [AddressAndRPCServer]
+    func hiddenContracts(forServer server: RPCServer) async -> [AddressAndRPCServer]
     func addEthToken(forServer server: RPCServer)
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
-    func tokenBalancesTestsOnly() -> [TokenBalanceValue]
-    func contains(deletedContract: AddressAndRPCServer) -> Bool
-    @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
-    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
+    func tokenBalancesTestsOnly() async -> [TokenBalanceValue]
+    @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) async -> Bool?
+    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token]
 }
 
 extension TokensDataStore {
 
-    @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenFieldUpdate) -> Bool? {
+    @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenFieldUpdate) async -> Bool? {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: addressAndRpcServer.address, server: addressAndRpcServer.server)
-        return updateToken(primaryKey: primaryKey, action: action)
+        return await updateToken(primaryKey: primaryKey, action: action)
     }
 
     func initialOrNewTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
@@ -206,6 +205,7 @@ public enum TokenFieldUpdate {
 // swiftlint:disable type_body_length
 open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let store: RealmStore
+    private var cancellables = Set<AnyCancellable>()
 
     public init(store: RealmStore) {
         self.store = store
@@ -215,52 +215,59 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     }
 
     public func tokensChangesetPublisher(for servers: [RPCServer], predicate: NSPredicate?) -> AnyPublisher<ChangeSet<[Token]>, Never> {
-        var publisher: AnyPublisher<ChangeSet<[Token]>, Never>!
-        store.performSync { realm in
-            publisher = self.enabledTokenObjectResults(forServers: servers, predicate: predicate, realm: realm)
-                .changesetPublisher
-                .freeze()
-                .receive(on: DispatchQueue.global())
-                .map { change in
-                    switch change {
-                    case .initial(let tokenObjects):
-                        let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
-                        return .initial(tokens)
-                    case .update(let tokenObjects, let deletions, let insertions, let modifications):
-                        let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
-                        return .update(tokens, deletions: deletions, insertions: insertions, modifications: modifications)
-                    case .error(let error):
-                        return .error(error)
-                    }
-                }.eraseToAnyPublisher()
+        let publisher = PassthroughSubject<ChangeSet<[Token]>, Never>()
+        Task {
+            await store.performSync { realm in
+                self.enabledTokenObjectResults(forServers: servers, predicate: predicate, realm: realm)
+                    .changesetPublisher
+                    .freeze()
+                    .receive(on: DispatchQueue.global())
+                    .map { change in
+                        switch change {
+                        case .initial(let tokenObjects):
+                            let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
+                            return .initial(tokens)
+                        case .update(let tokenObjects, let deletions, let insertions, let modifications):
+                            let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
+                            return .update(tokens, deletions: deletions, insertions: insertions, modifications: modifications)
+                        case .error(let error):
+                            return .error(error)
+                        }
+                    }.sink { value in
+                        publisher.send(value)
+                    }.store(in: &self.cancellables)
+            }
         }
-
-        return publisher
+        return publisher.eraseToAnyPublisher()
     }
 
     public func delegateContractsChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never> {
-        var publisher: AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never>!
-        store.performSync { realm in
-            publisher = realm.objects(DelegateContract.self)
-                .filter(MultipleChainsTokensDataStore.functional.chainIdPredicate(servers: servers))
-                .changesetPublisher
-                .freeze()
-                .receive(on: DispatchQueue.global())
-                .map { change in
-                    switch change {
-                    case .initial(let contracts):
-                        let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
-                        return .initial(contracts)
-                    case .update(let contracts, let deletions, let insertions, let modifications):
-                        let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
-                        return .update(contracts, deletions: deletions, insertions: insertions, modifications: modifications)
-                    case .error(let error):
-                        return .error(error)
-                    }
-                }.eraseToAnyPublisher()
+        let publisher = PassthroughSubject<ChangeSet<[AddressAndRPCServer]>, Never>()
+        Task {
+            await store.performSync { realm in
+                realm.objects(DelegateContract.self)
+                    .filter(MultipleChainsTokensDataStore.functional.chainIdPredicate(servers: servers))
+                    .changesetPublisher
+                    .freeze()
+                    .receive(on: DispatchQueue.global())
+                    .map { change in
+                        switch change {
+                        case .initial(let contracts):
+                            let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
+                            return .initial(contracts)
+                        case .update(let contracts, let deletions, let insertions, let modifications):
+                            let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
+                            return .update(contracts, deletions: deletions, insertions: insertions, modifications: modifications)
+                        case .error(let error):
+                            return .error(error)
+                        }
+                    }.sink { value in
+                        publisher.send(value)
+                    }.store(in: &self.cancellables)
+            }
         }
 
-        return publisher
+        return publisher.eraseToAnyPublisher()
     }
 
     public func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError> {
@@ -269,38 +276,41 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .tokenPredicate(server: server, contract: contract)
 
         let publisher: CurrentValueSubject<Token?, DataStoreError> = .init(nil)
-        var notificationToken: NotificationToken?
 
-        store.performSync { realm in
-            guard let tokenObject = realm.objects(TokenObject.self).filter(predicate).first else {
-                publisher.send(completion: .failure(DataStoreError.objectNotFound))
-                return
-            }
+        Task {
+            var notificationToken: NotificationToken?
+            await store.perform { realm in
+                guard let tokenObject = realm.objects(TokenObject.self).filter(predicate).first else {
+                    publisher.send(completion: .failure(DataStoreError.objectNotFound))
+                    return
+                }
 
-            publisher.send(Token(tokenObject: tokenObject))
+                publisher.send(Token(tokenObject: tokenObject))
 
-            notificationToken = tokenObject.observe { change in
-                switch change {
-                case .change(let object, _):
-                    guard let token = object as? TokenObject else { return }
-                    publisher.send(Token(tokenObject: token))
-                case .deleted:
-                    publisher.send(completion: .failure(.objectDeleted))
-                case .error(let e):
-                    publisher.send(completion: .failure(.general(error: e)))
+                notificationToken = tokenObject.observe { change in
+                    switch change {
+                    case .change(let object, _):
+                        guard let token = object as? TokenObject else { return }
+                        publisher.send(Token(tokenObject: token))
+                    case .deleted:
+                        publisher.send(completion: .failure(.objectDeleted))
+                    case .error(let e):
+                        publisher.send(completion: .failure(.general(error: e)))
+                    }
                 }
             }
+            publisher.handleEvents(receiveCancel: {
+                //TODO verify observation and invalidation works correctly
+                notificationToken?.invalidate()
+            })
         }
 
-        return publisher
-            .handleEvents(receiveCancel: {
-                notificationToken?.invalidate()
-            }).eraseToAnyPublisher()
+        return publisher.eraseToAnyPublisher()
     }
 
-    public func tokens(for servers: [RPCServer]) -> [Token] {
+    public func tokens(for servers: [RPCServer]) async -> [Token] {
         var tokensToReturn: [Token] = []
-        store.performSync { realm in
+        await store.perform { realm in
             let tokens = Array(self.enabledTokenObjectResults(forServers: servers, predicate: nil, realm: realm).map { Token(tokenObject: $0) })
             tokensToReturn = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
         }
@@ -308,20 +318,9 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return tokensToReturn
     }
 
-    public func contains(deletedContract: AddressAndRPCServer) -> Bool {
-        var value: Bool = false
-        store.performSync { realm in
-            value = realm.objects(DeletedContract.self)
-                .filter("chainId = \(deletedContract.server.chainID) AND contract = '\(deletedContract.address.eip55String)'")
-                .isEmpty
-        }
-
-        return value
-    }
-
-    public func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer] {
+    public func deletedContracts(forServer server: RPCServer) async -> [AddressAndRPCServer] {
         var deletedContracts: [AddressAndRPCServer] = []
-        store.performSync { realm in
+        await store.perform { realm in
             deletedContracts = Array(realm.objects(DeletedContract.self).filter("chainId = \(server.chainID)"))
                 .map { .init(address: $0.contractAddress, server: $0.server) }
         }
@@ -329,18 +328,18 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return deletedContracts
     }
 
-    public func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer] {
+    public func delegateContracts(forServer server: RPCServer) async -> [AddressAndRPCServer] {
         var delegateContracts: [AddressAndRPCServer] = []
-        store.performSync { realm in
+        await store.perform { realm in
             delegateContracts = Array(realm.objects(DelegateContract.self).filter("chainId = \(server.chainID)"))
                 .map { .init(address: $0.contractAddress, server: $0.server) }
         }
         return delegateContracts
     }
 
-    public func hiddenContracts(forServer server: RPCServer) -> [AddressAndRPCServer] {
+    public func hiddenContracts(forServer server: RPCServer) async -> [AddressAndRPCServer] {
         var hiddenContracts: [AddressAndRPCServer] = []
-        store.performSync { realm in
+        await store.perform { realm in
             hiddenContracts = Array(realm.objects(HiddenContract.self).filter("chainId = \(server.chainID)"))
                 .map { .init(address: $0.contractAddress, server: $0.server) }
         }
@@ -348,22 +347,24 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     }
 
     public func addEthToken(forServer server: RPCServer) {
-        store.performSync { realm in
-            let etherToken = TokenObject(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
-            guard realm.object(ofType: TokenObject.self, forPrimaryKey: etherToken.primaryKey) == nil else { return }
-            try? realm.safeWrite {
-                self.addTokenWithoutCommitWrite(tokenObject: etherToken, realm: realm)
+        Task {
+            await store.perform { realm in
+                let etherToken = TokenObject(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
+                guard realm.object(ofType: TokenObject.self, forPrimaryKey: etherToken.primaryKey) == nil else { return }
+                try? realm.safeWrite {
+                    self.addTokenWithoutCommitWrite(tokenObject: etherToken, realm: realm)
+                }
             }
         }
     }
 
-    public func token(for contract: AlphaWallet.Address) -> Token? {
+    public func token(for contract: AlphaWallet.Address) async -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(contract: contract)
 
         var token: Token?
-        store.performSync { realm in
+        await store.perform { realm in
             token = realm.objects(TokenObject.self)
                 .filter(predicate)
                 .first
@@ -373,14 +374,14 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return token
     }
 
-    public func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+    public func token(for contract: AlphaWallet.Address, server: RPCServer) async -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(server: server, contract: contract)
 
         var token: Token?
 
-        store.performSync { realm in
+        await store.perform { realm in
             token = realm.objects(TokenObject.self)
                 .filter(predicate)
                 .first
@@ -403,17 +404,19 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     public func add(hiddenContracts: [AddressAndRPCServer]) {
         guard !hiddenContracts.isEmpty else { return }
 
-        store.performSync { realm in
-            try? realm.safeWrite {
-                let hiddenContracts = hiddenContracts.map { HiddenContract(contractAddress: $0.address, server: $0.server) }
-                realm.add(hiddenContracts, update: .all)
+        Task {
+            await store.perform { realm in
+                try? realm.safeWrite {
+                    let hiddenContracts = hiddenContracts.map { HiddenContract(contractAddress: $0.address, server: $0.server) }
+                    realm.add(hiddenContracts, update: .all)
+                }
             }
         }
     }
 
-    public func tokenBalancesTestsOnly() -> [TokenBalanceValue] {
+    public func tokenBalancesTestsOnly() async -> [TokenBalanceValue] {
         var balances: [TokenBalanceValue] = []
-        store.performSync { realm in
+        await store.perform { realm in
             balances = realm.objects(TokenBalance.self).map { TokenBalanceValue(balance: $0) }
         }
         return balances
@@ -422,19 +425,21 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     public func deleteTestsOnly(tokens: [Token]) {
         guard !tokens.isEmpty else { return }
 
-        store.performSync { realm in
-            try? realm.safeWrite {
-                let tokendToDelete = tokens.compactMap { realm.object(ofType: TokenObject.self, forPrimaryKey: $0.primaryKey) }
-                realm.delete(tokendToDelete)
+        Task {
+            await store.perform { realm in
+                try? realm.safeWrite {
+                    let tokendToDelete = tokens.compactMap { realm.object(ofType: TokenObject.self, forPrimaryKey: $0.primaryKey) }
+                    realm.delete(tokendToDelete)
+                }
             }
         }
     }
 
-    @discardableResult public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token] {
+    @discardableResult public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token] {
         guard !actions.isEmpty else { return [] }
 
         var tokens: [Token] = []
-        store.performSync { realm in
+        await store.perform { realm in
             try? realm.safeWrite {
                 for each in actions {
                     switch each {
@@ -466,7 +471,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                             return realm.object(ofType: DeletedContract.self, forPrimaryKey: pk)
                         }
                         guard !deletedContracts.isEmpty else { continue }
-                        
+
                         realm.add(deletedContracts, update: .all)
                     }
                 }
@@ -475,9 +480,9 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return tokens
     }
 
-    @discardableResult public func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool? {
+    @discardableResult public func updateToken(primaryKey: String, action: TokenFieldUpdate) async -> Bool? {
         var result: Bool?
-        store.performSync { realm in
+        await store.perform { realm in
             try? realm.safeWrite {
                 result = self.updateTokenWithoutCommitWrite(primaryKey: primaryKey, action: action, realm: realm)
             }
@@ -606,24 +611,6 @@ extension TokenObject {
     }
 }
 
-extension MultipleChainsTokensDataStore {
-    public func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        tokens(for: [server]).map { $0.contractAddress }
-    }
-
-    public func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        deletedContracts(forServer: server).map { $0.address }
-    }
-
-    public func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        hiddenContracts(forServer: server).map { $0.address }
-    }
-
-    public func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
-        delegateContracts(forServer: server).map { $0.address }
-    }
-}
-
 extension TokenObject {
     var addressAndRPCServer: AddressAndRPCServer {
         return .init(address: contractAddress, server: server)
@@ -732,14 +719,16 @@ extension MultipleChainsTokensDataStore.functional {
     }
 
     public static func recreateMissingInfoTokenObjects(for store: RealmStore) {
-        store.performSync { realm in
-            let predicate = NSPredicate(format: "_info == nil")
-            let nilInfoResult = realm.objects(TokenObject.self).filter(predicate)
-            guard !nilInfoResult.isEmpty else { return }
+        Task {
+            await store.perform { realm in
+                let predicate = NSPredicate(format: "_info == nil")
+                let nilInfoResult = realm.objects(TokenObject.self).filter(predicate)
+                guard !nilInfoResult.isEmpty else { return }
 
-            try? realm.safeWrite {
-                for each in nilInfoResult {
-                    each._info = realm.object(ofType: TokenInfoObject.self, forPrimaryKey: each.primaryKey) ?? TokenInfoObject(uid: each.primaryKey)
+                try? realm.safeWrite {
+                    for each in nilInfoResult {
+                        each._info = realm.object(ofType: TokenInfoObject.self, forPrimaryKey: each.primaryKey) ?? TokenInfoObject(uid: each.primaryKey)
+                    }
                 }
             }
         }

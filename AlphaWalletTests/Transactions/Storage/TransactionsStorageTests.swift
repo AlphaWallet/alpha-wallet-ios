@@ -6,76 +6,84 @@ import AlphaWalletFoundation
 
 class TransactionsStorageTests: XCTestCase {
 
-    func testInit() {
+    func testInit() async {
         let storage = FakeTransactionsStorage()
 
         XCTAssertNotNil(storage)
-        XCTAssertEqual(0, storage.transactionCount(forServer: .main))
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(0, transactionCount)
     }
 
-    func testAddItem() {
+    func testAddItem() async {
         let storage = FakeTransactionsStorage()
         let item: Transaction = .make()
 
-        storage.add(transactions: [item])
-
-        XCTAssertEqual(1, storage.transactionCount(forServer: .main))
+        await storage.add(transactions: [item])
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(1, transactionCount)
     }
 
-    func testAddItems() {
+    func testAddItems() async {
         let storage = FakeTransactionsStorage()
 
-        storage.add(transactions: [
+        await storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(2, transactionCount)
     }
 
-    func testAddItemsDuplicate() {
+    func testAddItemsDuplicate() async {
         let storage = FakeTransactionsStorage()
 
-        storage.add(transactions: [
+        await storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x1"),
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(2, transactionCount)
     }
 
-    func testDelete() {
+    func testDelete() async {
         let storage = FakeTransactionsStorage()
         let one: Transaction = .make(id: "0x1")
         let two: Transaction = .make(id: "0x2")
 
-        storage.add(transactions: [
+        await storage.add(transactions: [
             one,
             two,
         ])
 
-        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(2, transactionCount)
 
         storage.delete(transactions: [one])
 
-        XCTAssertEqual(1, storage.transactionCount(forServer: .main))
+        let transactionCount2 = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(1, transactionCount2)
 
-        XCTAssertEqual(two, storage.transactions(forServer: .main).first)
+        let transaction = await storage.transactions(forServer: .main).first
+        XCTAssertEqual(two, transaction)
     }
 
-    func testDeleteAll() {
+    func testDeleteAll() async {
         let storage = FakeTransactionsStorage()
 
-        storage.add(transactions: [
+        await storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
+        let transactionCount = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(2, transactionCount)
 
         storage.deleteAllForTestsOnly()
 
-        XCTAssertEqual(0, storage.transactionCount(forServer: .main))
+        let transactionCount2 = await storage.transactionCount(forServer: .main)
+        XCTAssertEqual(0, transactionCount2)
     }
 }

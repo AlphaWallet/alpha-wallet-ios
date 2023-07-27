@@ -48,11 +48,13 @@ class RLPTests: XCTestCase {
     }
 
     func testLists() {
-        XCTAssertEqual(RLP.encode([])!.hex(), "c0")
+        //Explicit empty array to make compiler happy
+        let emptyParams: [Any] = []
+        XCTAssertEqual(RLP.encode([] as [Any])!.hex(), "c0")
         XCTAssertEqual(RLP.encode([1, 2, 3])!.hex(), "c3010203")
         XCTAssertEqual(RLP.encode(["cat", "dog"])!.hex(), "c88363617483646f67")
-        XCTAssertEqual(RLP.encode([ [], [[]], [ [], [[]] ] ])!.hex(), "c7c0c1c0c3c0c1c0")
-        XCTAssertEqual(RLP.encode([1, 0xffffff, [4, 5, 5], "abc"])!.hex(), "cd0183ffffffc304050583616263")
+        XCTAssertEqual(RLP.encode([ emptyParams, [emptyParams], [ [], [emptyParams] ] ] as [Any])!.hex(), "c7c0c1c0c3c0c1c0")
+        XCTAssertEqual(RLP.encode([1, 0xffffff, [4, 5, 5], "abc"] as [Any])!.hex(), "cd0183ffffffc304050583616263")
         let encoded = RLP.encode([Int](repeating: 0, count: 1024))!
         XCTAssert(encoded.hex().hasPrefix("f90400"))
     }

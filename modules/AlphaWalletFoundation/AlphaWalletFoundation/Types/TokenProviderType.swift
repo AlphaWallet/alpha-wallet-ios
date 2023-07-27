@@ -11,10 +11,15 @@ import Combine
 
 // NOTE: Think about the name, more fittable name is needed
 public protocol TokenProviderType: AnyObject {
+    //TODO reduce usage and remove
     func getContractName(for address: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError>
     func getContractSymbol(for address: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError>
     func getDecimals(for address: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func getTokenType(for address: AlphaWallet.Address) -> AnyPublisher<TokenType, SessionTaskError>
+    func getContractNameAsync(for address: AlphaWallet.Address) async throws -> String
+    func getContractSymbolAsync(for address: AlphaWallet.Address) async throws -> String
+    func getDecimalsAsync(for address: AlphaWallet.Address) async throws -> Int
+    func getTokenTypeAsync(for address: AlphaWallet.Address) async throws -> TokenType
     func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError>
     func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
     func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
@@ -40,19 +45,35 @@ public class TokenProvider: TokenProviderType {
     }
 
     public func getContractName(for address: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError> {
-        getContractName.getName(for: address)
+        asFutureThrowable { try await self.getContractName.getName(for: address) }.mapError { SessionTaskError(error: $0) }.eraseToAnyPublisher()
     }
 
     public func getContractSymbol(for address: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError> {
-        getContractSymbol.getSymbol(for: address)
+        asFutureThrowable { try await self.getContractSymbol.getSymbol(for: address) }.mapError { SessionTaskError(error: $0) }.eraseToAnyPublisher()
     }
 
     public func getDecimals(for address: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
-        getContractDecimals.getDecimals(for: address)
+        asFutureThrowable { try await self.getContractDecimals.getDecimals(for: address) }.mapError { SessionTaskError(error: $0) }.eraseToAnyPublisher()
     }
 
     public func getTokenType(for address: AlphaWallet.Address) -> AnyPublisher<TokenType, SessionTaskError> {
-        getTokenType.getTokenType(for: address)
+        asFutureThrowable { try await self.getTokenType.getTokenType(for: address) }.mapError { SessionTaskError(error: $0) }.eraseToAnyPublisher()
+    }
+
+    public func getContractNameAsync(for address: AlphaWallet.Address) async throws -> String {
+        try await self.getContractName.getName(for: address)
+    }
+
+    public func getContractSymbolAsync(for address: AlphaWallet.Address) async throws -> String {
+        try await getContractSymbol.getSymbol(for: address)
+    }
+
+    public func getDecimalsAsync(for address: AlphaWallet.Address) async throws -> Int {
+        try await getContractDecimals.getDecimals(for: address)
+    }
+
+    public func getTokenTypeAsync(for address: AlphaWallet.Address) async throws -> TokenType {
+        try await getTokenType.getTokenType(for: address)
     }
 
     public func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError> {

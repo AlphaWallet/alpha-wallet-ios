@@ -9,14 +9,14 @@ import Foundation
 import RealmSwift
 
 public protocol EnjinStorage {
-    func getEnjinToken(for tokenId: TokenId, server: RPCServer) -> EnjinToken?
+    func getEnjinToken(for tokenId: TokenId, server: RPCServer) async -> EnjinToken?
     func addOrUpdate(enjinTokens tokens: [EnjinToken], server: RPCServer)
 }
 
 extension RealmStore: EnjinStorage {
-    public func getEnjinToken(for tokenId: TokenId, server: RPCServer) -> EnjinToken? {
+    public func getEnjinToken(for tokenId: TokenId, server: RPCServer) async -> EnjinToken? {
         var token: EnjinToken?
-        performSync { realm in
+        await perform { realm in
             let primaryKey = EnjinTokenObject.generatePrimaryKey(
                 server: server,
                 tokenId: TokenIdConverter.toTokenIdSubstituted(string: tokenId.description))
@@ -30,12 +30,14 @@ extension RealmStore: EnjinStorage {
     public func addOrUpdate(enjinTokens tokens: [EnjinToken], server: RPCServer) {
         guard !tokens.isEmpty else { return }
 
-        performSync { realm in
-            try? realm.safeWrite {
-                realm.delete(realm.objects(EnjinTokenObject.self))
+        Task {
+            await perform { realm in
+                try? realm.safeWrite {
+                    realm.delete(realm.objects(EnjinTokenObject.self))
 
-                let tokens = tokens.map { EnjinTokenObject(token: $0, server: server) }
-                realm.add(tokens, update: .all)
+                    let tokens = tokens.map { EnjinTokenObject(token: $0, server: server) }
+                    realm.add(tokens, update: .all)
+                }
             }
         }
     }

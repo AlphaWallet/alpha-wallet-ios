@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletCore
 
 public protocol CoinTickerNetworking {
-    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError>
-    func fetchTickers(for tickerIds: [TickerIdString], currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError>
-    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError>
+    func fetchSupportedTickerIds() async throws -> [TickerId]
+    func fetchTickers(for tickerIds: [TickerIdString], currency: Currency) async throws -> [CoinTicker]
+    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) async throws -> ChartHistory
 }

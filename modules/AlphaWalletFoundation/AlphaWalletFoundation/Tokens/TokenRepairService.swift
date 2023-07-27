@@ -109,19 +109,19 @@ final class TokenRepairService {
                 case .delegateContracts:
                     break // no-op
                 case .ercToken, .deletedContracts:
-                    
-                    var actions: [AddOrUpdateTokenAction] = []
-                    switch tokenOrContract {
-                    case .ercToken(let ercToken):
-                        actions += [.add(ercToken: ercToken, shouldUpdateBalance: false)]
-                    case .delegateContracts(let delegateContracts):
-                        actions += [.addOrUpdateDelegateContracts(delegateContracts: delegateContracts)]
-                    case .deletedContracts(let deletedContracts):
-                        actions += [.addOrUpdateDeletedContracts(deletedContracts: deletedContracts)]
+                    Task {
+                        var actions: [AddOrUpdateTokenAction] = []
+                        switch tokenOrContract {
+                        case .ercToken(let ercToken):
+                            actions += [.add(ercToken: ercToken, shouldUpdateBalance: false)]
+                        case .delegateContracts(let delegateContracts):
+                            actions += [.addOrUpdateDelegateContracts(delegateContracts: delegateContracts)]
+                        case .deletedContracts(let deletedContracts):
+                            actions += [.addOrUpdateDeletedContracts(deletedContracts: deletedContracts)]
+                        }
+                        actions += [.deleteDeletedContracts(deletedContracts: [delegateContract])]
+                        await tokensDataStore.addOrUpdate(with: actions)
                     }
-
-                    actions += [.deleteDeletedContracts(deletedContracts: [delegateContract])]
-                    tokensDataStore.addOrUpdate(with: actions)
                 }
             })
     }

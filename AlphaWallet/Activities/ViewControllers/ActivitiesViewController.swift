@@ -21,14 +21,7 @@ class ActivitiesViewController: UIViewController {
     private var activitiesView: ActivitiesView
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger,
-         keystore: Keystore,
-         wallet: Wallet,
-         viewModel: ActivitiesViewModel,
-         sessionsProvider: SessionsProvider,
-         assetDefinitionStore: AssetDefinitionStore,
-         tokenImageFetcher: TokenImageFetcher) {
-
+    init(analytics: AnalyticsLogger, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessionsProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore, tokenImageFetcher: TokenImageFetcher) {
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
         activitiesView = ActivitiesView(
@@ -159,7 +152,7 @@ extension ActivitiesViewController {
     private func configureSearchBarOnce() {
         guard !isSearchBarConfigured else { return }
         isSearchBarConfigured = true
-        
+
         UISearchBar.configure(searchBar: searchController.searchBar)
     }
 }

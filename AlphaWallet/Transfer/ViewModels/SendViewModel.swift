@@ -44,18 +44,20 @@ final class SendViewModel: TransactionTypeSupportable {
     /// TokenViewModel updates once we receive a new token, might be when scan qr code or initially. Ask to refresh token balance when received. Only for supported transaction types tokens
     private lazy var tokenViewModel: AnyPublisher<TokenViewModel?, Never> = {
         return transactionTypeSubject
-            .map { [tokensService] transactionType -> Token? in
-                switch transactionType {
-                case .nativeCryptocurrency:
-                    //NOTE: looks like we can use transactionType.tokenObject, for nativeCryptocurrency it might contains incorrect contract value
-                    return tokensService.token(for: transactionType.contract, server: transactionType.server)
-                case .erc20Token:
-                    return transactionType.tokenObject
-                case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-                    return nil
+            .flatMap { [tokensService] transactionType in
+                asFuture {
+                    switch transactionType {
+                    case .nativeCryptocurrency:
+                        //NOTE: looks like we can use transactionType.tokenObject, for nativeCryptocurrency it might contains incorrect contract value
+                        return await tokensService.token(for: transactionType.contract, server: transactionType.server)
+                    case .erc20Token:
+                        return transactionType.tokenObject
+                    case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+                        return nil
+                    }
                 }
             }.removeDuplicates()
-            .flatMapLatest { [tokensPipeline, tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
+            .flatMapLatest { [tokensPipeline, tokensService] (token: Token?) -> AnyPublisher<TokenViewModel?, Never> in
                 guard let token = token else { return .just(nil) }
 
                 tokensService.refreshBalance(updatePolicy: .token(token: token))
@@ -157,7 +159,7 @@ final class SendViewModel: TransactionTypeSupportable {
             .eraseToAnyPublisher()
 
         let viewState = Publishers.CombineLatest(tokenViewModel, scanQrCode.mapToVoid().prepend(()))
-            .map { self.buildViewState(tokenViewModel: $0.0) }
+            .flatMap { tokenViewModel, _ in asFuture { await self.buildViewState(tokenViewModel: tokenViewModel) } }
             .eraseToAnyPublisher()
 
         return .init(
@@ -173,14 +175,14 @@ final class SendViewModel: TransactionTypeSupportable {
 
     private func buildAmountTextFieldState(qrCode: AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never>, allFunds: AnyPublisher<Void, Never>) -> AnyPublisher<AmountTextFieldState, Never> {
 
-        func buildAmountTextFieldState(for transactionType: TransactionType) -> AmountTextFieldState? {
+        func buildAmountTextFieldState(for transactionType: TransactionType) async -> AmountTextFieldState? {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, let amount), .erc20Token(let token, _, let amount):
                 switch amount {
                 case .notSet:
                     return nil
                 case .allFunds:
-                    guard let amount = tokensPipeline.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
+                    guard let amount = await tokensPipeline.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
 
                     return AmountTextFieldState(amount: .allFunds(amount.doubleValue))
                 case .amount(let amount):
@@ -191,36 +193,41 @@ final class SendViewModel: TransactionTypeSupportable {
             }
         }
 
-        let initialAmount = Just(transactionType)
-            .compactMap { buildAmountTextFieldState(for: $0) }
+        let initialAmount = asFuture { await buildAmountTextFieldState(for: self.transactionType) }.compactMap { $0 }.eraseToAnyPublisher()
+
+        let amountFromQrCode: AnyPublisher<AmountTextFieldState, Never> = qrCode
+            .flatMap { result in
+                asFuture { () -> AmountTextFieldState? in
+                    if let transactionType = result.value {
+                        return await buildAmountTextFieldState(for: transactionType)
+                    } else {
+                        return nil
+                    }
+                }
+            }.compactMap { $0 }
             .eraseToAnyPublisher()
 
-        let amountFromQrCode = qrCode
-            .compactMap { $0.value.flatMap { buildAmountTextFieldState(for: $0) } }
-            .eraseToAnyPublisher()
+        let allFundsAmount = allFunds.flatMap { [tokensPipeline, transactionTypeSubject] _ in
+            asFuture { () -> AmountTextFieldState? in
+                switch transactionTypeSubject.value {
+                case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _):
+                    guard let amount = await tokensPipeline.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
 
-        let allFundsAmount = allFunds.compactMap { [tokensPipeline, transactionTypeSubject] _ -> AmountTextFieldState? in
-            switch transactionTypeSubject.value {
-            case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _):
-                guard let amount = tokensPipeline.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
-
-                return AmountTextFieldState(amount: .allFunds(amount.doubleValue))
-            case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
-                return nil
+                    return AmountTextFieldState(amount: .allFunds(amount.doubleValue))
+                case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
+                    return nil
+                }
             }
-        }.eraseToAnyPublisher()
+        }.compactMap { $0 }.eraseToAnyPublisher()
 
         return Publishers.MergeMany(initialAmount, amountFromQrCode, allFundsAmount)
             .eraseToAnyPublisher()
     }
 
-    private func buildViewState(tokenViewModel: TokenViewModel?) -> SendViewModel.ViewState {
-        return .init(
-            title: title,
-            selectCurrencyButtonState: buildSelectCurrencyButtonState(for: tokenViewModel, transactionType: transactionType),
-            amountStatusLabelState: SendViewModel.AmountStatuLabelState(text: availableLabelText, isHidden: availableTextHidden),
-            rate: tokenViewModel.flatMap { $0.balance.ticker.flatMap { AmountTextFieldViewModel.CurrencyRate(value: $0.price_usd, currency: $0.currency) } } ?? .init(value: nil, currency: .USD),
-            recipientTextFieldState: buildRecipientTextFieldState(for: transactionType))
+    private func buildViewState(tokenViewModel: TokenViewModel?) async -> SendViewModel.ViewState {
+        let amountStatusLabelHidden = await availableTextHidden
+        let state = await SendViewModel.ViewState(title: title, selectCurrencyButtonState: buildSelectCurrencyButtonState(for: tokenViewModel, transactionType: transactionType), amountStatusLabelState: SendViewModel.AmountStatuLabelState(text: availableLabelText, isHidden: amountStatusLabelHidden), rate: tokenViewModel.flatMap { $0.balance.ticker.flatMap { AmountTextFieldViewModel.CurrencyRate(value: $0.price_usd, currency: $0.currency) } } ?? .init(value: nil, currency: .USD), recipientTextFieldState: buildRecipientTextFieldState(for: transactionType))
+        return state
     }
 
     private func buildUnconfirmedTransaction(send: AnyPublisher<Void, Never>) -> AnyPublisher<Result<UnconfirmedTransaction, InputsValidationError>, Never> {
@@ -286,27 +293,31 @@ final class SendViewModel: TransactionTypeSupportable {
     }
 
     private var availableLabelText: String? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            return tokensPipeline.tokenViewModel(for: etherToken)
-                .flatMap { return R.string.localizable.sendAvailable($0.balance.amountShort) }
-        case .erc20Token(let token, _, _):
-            return tokensPipeline.tokenViewModel(for: token)
-                .flatMap { R.string.localizable.sendAvailable("\($0.balance.amountShort) \(transactionType.symbol)") }
-        case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
-            return nil
+        get async {
+            switch transactionType {
+            case .nativeCryptocurrency:
+                let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+                return await tokensPipeline.tokenViewModel(for: etherToken)
+                    .flatMap { return R.string.localizable.sendAvailable($0.balance.amountShort) }
+            case .erc20Token(let token, _, _):
+                return await tokensPipeline.tokenViewModel(for: token)
+                    .flatMap { R.string.localizable.sendAvailable("\($0.balance.amountShort) \(transactionType.symbol)") }
+            case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
+                return nil
+            }
         }
     }
 
     private var availableTextHidden: Bool {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            return false
-        case .erc20Token(let token, _, _):
-            return tokensPipeline.tokenViewModel(for: token)?.balance == nil
-        case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
-            return true
+        get async {
+            switch transactionType {
+            case .nativeCryptocurrency:
+                return false
+            case .erc20Token(let token, _, _):
+                return await tokensPipeline.tokenViewModel(for: token)?.balance == nil
+            case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
+                return true
+            }
         }
     }
 

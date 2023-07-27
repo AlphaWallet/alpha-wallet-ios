@@ -91,8 +91,10 @@ public class TransactionProvider: SingleChainTransactionProvider {
     private func handle(response: Result<[Transaction], PromiseError>, provider: SchedulerProvider) {
         switch response {
         case .success(let transactions):
-            let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
-            ercTokenDetector.detect(from: newOrUpdatedTransactions)
+            Task { @MainActor in
+                let newOrUpdatedTransactions = await transactionDataStore.addOrUpdate(transactions: transactions)
+                ercTokenDetector.detect(from: newOrUpdatedTransactions)
+            }
         case .failure(let error):
             if case BlockchainExplorerError.methodNotSupported = error.embedded {
                 if let data = schedulerProviders.first(where: { $0.schedulerProvider === provider }) {

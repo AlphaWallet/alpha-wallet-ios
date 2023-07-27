@@ -47,4 +47,19 @@ extension APIKitSession {
         return publisher
             .eraseToAnyPublisher()
     }
+
+    class func sendPublisherAsync<Request: APIKit.Request>(_ request: Request, server: RPCServer, analytics: AnalyticsLogger, callbackQueue: CallbackQueue? = nil) async throws -> Request.Response {
+        try await Task.retrying(times: 2) { @MainActor in
+            return try await withCheckedThrowingContinuation { continuation in
+                var sessionTask: SessionTask? = APIKitSession.send(request, callbackQueue: callbackQueue) { result in
+                    switch result {
+                    case .success(let result):
+                        continuation.resume(returning: result)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+        }.value
+    }
 }

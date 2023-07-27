@@ -119,12 +119,14 @@ final class AddHideTokensViewModel {
     }
 
     func add(token: Token) {
-        guard let token = tokenCollection.tokenViewModel(for: token) else { return }
-        if !tokens.contains(token) {
-            tokens.append(token)
-        }
+        Task { @MainActor in
+            guard let token = await tokenCollection.tokenViewModel(for: token) else { return }
+            if !tokens.contains(token) {
+                tokens.append(token)
+            }
 
-        addToken.send(())
+            addToken.send(())
+        }
     }
 
     private func mark(token: TokenViewModel, isHidden: Bool) {
@@ -156,19 +158,23 @@ final class AddHideTokensViewModel {
             let publisher = session.importToken
                 .importToken(for: token.contractAddress, onlyIfThereIsABalance: false)
                 .flatMap { [tokensService, tokenCollection] _token -> AnyPublisher<TokenWithIndexToInsert?, ImportToken.ImportTokenError> in
-                    guard let token = tokenCollection.tokenViewModel(for: _token) else {
-                        return .fail(ImportToken.ImportTokenError.notContractOrFailed(.delegateContracts([_token.addressAndRPCServer])))
+                    asFutureThrowable {
+                        guard let token = await tokenCollection.tokenViewModel(for: _token) else {
+                            throw ImportToken.ImportTokenError.notContractOrFailed(.delegateContracts([_token.addressAndRPCServer]))
+                        }
+                        self.popularTokens.remove(at: indexPath.row)
+                        self.displayedTokens.append(token)
+
+                        if let sectionIndex = self.sections.firstIndex(of: .displayedTokens) {
+                            tokensService.mark(token: token, isHidden: false)
+
+                            return (token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex)))
+                        }
+
+                        return nil
                     }
-                    self.popularTokens.remove(at: indexPath.row)
-                    self.displayedTokens.append(token)
-
-                    if let sectionIndex = self.sections.firstIndex(of: .displayedTokens) {
-                        tokensService.mark(token: token, isHidden: false)
-
-                        return .just((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
-                    }
-
-                    return .just(nil)
+                        .mapError { ImportToken.ImportTokenError.internal(error: $0) }
+                        .eraseToAnyPublisher()
                 }.eraseToAnyPublisher()
 
             return .publisher(publisher)

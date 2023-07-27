@@ -87,22 +87,23 @@ public final class TransactionBuilder {
     }
 
     private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<TransactionBuilder.ContractData, SessionTaskError> {
-        return Just(contract)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { [tokensDataStore, ercTokenProvider, server] contract -> AnyPublisher<TransactionBuilder.ContractData, SessionTaskError> in
-                if let token = tokensDataStore.token(for: contract, server: server) {
-                    return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
-                } else {
-                    let getContractName = ercTokenProvider.getContractName(for: contract)
-                    let getContractSymbol = ercTokenProvider.getContractSymbol(for: contract)
-                    let getDecimals = ercTokenProvider.getDecimals(for: contract)
-                    let getTokenType = ercTokenProvider.getTokenType(for: contract)
-
-                    return Publishers.CombineLatest4(getContractName, getContractSymbol, getDecimals, getTokenType)
-                        .map { (name: $0, symbol: $1, decimals: $2, tokenType: $3) }
-                        .eraseToAnyPublisher()
+        let subject = PassthroughSubject<TransactionBuilder.ContractData, SessionTaskError>()
+        Task { @MainActor in
+            if let token = await tokensDataStore.token(for: contract, server: server) {
+                subject.send((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
+            } else {
+                do {
+                    let contractName = try await self.ercTokenProvider.getContractNameAsync(for: contract)
+                    let contractSymbol = try await self.ercTokenProvider.getContractSymbolAsync(for: contract)
+                    let decimals = try await self.ercTokenProvider.getDecimalsAsync(for: contract)
+                    let tokenType = try await self.ercTokenProvider.getTokenTypeAsync(for: contract)
+                    subject.send((name: contractName, symbol: contractSymbol, decimals: decimals, tokenType: tokenType))
+                } catch {
+                    subject.send(completion: .failure(SessionTaskError(error: error)))
                 }
-            }.eraseToAnyPublisher()
+            }
+        }
+        return subject.eraseToAnyPublisher()
     }
 
     private func buildOperationForTokenTransfer(for transaction: NormalTransaction) -> AnyPublisher<[LocalizedOperation], Never> {

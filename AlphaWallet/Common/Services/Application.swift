@@ -44,6 +44,7 @@ class Application: WalletDependenciesProvidable {
     private let donationUserActivityHandler: DonationUserActivityHandler
     private let systemSettingsRequestableDelegate: SystemSettingsRequestableDelegate
     private let notificationHandler: NotificationHandler
+    private let name: String
 
     let config: Config
     let legacyFileBasedKeystore: LegacyFileBasedKeystore
@@ -83,7 +84,7 @@ class Application: WalletDependenciesProvidable {
 
     static let shared: Application = try! Application()
 
-    convenience init() throws {
+    convenience init(name: String = "Default") throws {
         crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
 
         let analytics = AnalyticsService()
@@ -106,12 +107,8 @@ class Application: WalletDependenciesProvidable {
     }
 
     // swiftlint:disable function_body_length
-    init(analytics: AnalyticsServiceType,
-         keystore: Keystore,
-         securedStorage: SecuredPasswordStorage & SecuredStorage,
-         legacyFileBasedKeystore: LegacyFileBasedKeystore,
-         config: Config = Config()) {
-
+    init(name: String = "Default", analytics: AnalyticsServiceType, keystore: Keystore, securedStorage: SecuredPasswordStorage & SecuredStorage, legacyFileBasedKeystore: LegacyFileBasedKeystore, config: Config = Config()) {
+        self.name = name
         self.config = config
         let addressStorage = FileAddressStorage()
         AlphaWalletAddress.register(addressStorage: addressStorage)

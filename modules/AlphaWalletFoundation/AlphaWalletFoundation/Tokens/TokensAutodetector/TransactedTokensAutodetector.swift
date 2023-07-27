@@ -20,12 +20,7 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
         subject.eraseToAnyPublisher()
     }
 
-    init(tokensDataStore: TokensDataStore,
-         importToken: TokenImportable & TokenOrContractFetchable,
-         session: WalletSession,
-         blockchainExplorer: BlockchainExplorer,
-         tokenTypes: [Eip20TokenType]) {
-
+    init(tokensDataStore: TokensDataStore, importToken: TokenImportable & TokenOrContractFetchable, session: WalletSession, blockchainExplorer: BlockchainExplorer, tokenTypes: [Eip20TokenType]) {
         self.session = session
         self.tokensDataStore = tokensDataStore
 
@@ -45,7 +40,11 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
 
         Publishers.MergeMany(providers.map { $0.publisher })
             .compactMap { try? $0.get() }
-            .compactMap { [weak self] in self?.filter(detectedContracts: $0) }
+            .flatMap { contracts in
+                asFuture {
+                    await self.filter(detectedContracts: contracts)
+                }
+            }
             .flatMap { [importToken] contracts in
                 let publishers = contracts.map {
                     importToken.fetchTokenOrContract(for: $0, onlyIfThereIsABalance: false).mapToResult()
@@ -74,11 +73,11 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
         schedulers.forEach { $0.restart() }
     }
 
-    private func filter(detectedContracts: [AlphaWallet.Address]) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = tokensDataStore.tokens(for: [session.server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: session.server).map { $0.contractAddress }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: session.server).map { $0.contractAddress }
-        let delegateContracts = tokensDataStore.delegateContracts(forServer: session.server).map { $0.contractAddress }
+    private func filter(detectedContracts: [AlphaWallet.Address]) async -> [AlphaWallet.Address] {
+        let alreadyAddedContracts = await tokensDataStore.tokens(for: [session.server]).map { $0.contractAddress }
+        let deletedContracts = await tokensDataStore.deletedContracts(forServer: session.server).map { $0.contractAddress }
+        let hiddenContracts = await tokensDataStore.hiddenContracts(forServer: session.server).map { $0.contractAddress }
+        let delegateContracts = await tokensDataStore.delegateContracts(forServer: session.server).map { $0.contractAddress }
 
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
@@ -178,3 +177,4 @@ extension TransactedTokensAutodetector {
         }
     }
 }
+

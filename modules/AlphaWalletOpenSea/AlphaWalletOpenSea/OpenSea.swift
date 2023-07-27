@@ -36,14 +36,12 @@ extension OpenSeaApiError {
     }
 }
 
-extension URLRequest {
-    public typealias Response = (data: Data, response: HTTPURLResponse)
-}
-
 public typealias Request = Alamofire.URLRequestConvertible
 
 public protocol Networking {
+    //TODO reduce usage and remove
     func send(request: Request) -> AnyPublisher<URLRequest.Response, PromiseError>
+    func sendAsync(request: Request) async throws -> URLRequest.Response
 }
 
 final class OpenSeaRetryPolicy: RetryPolicy {
@@ -51,7 +49,7 @@ final class OpenSeaRetryPolicy: RetryPolicy {
     init() {
         super.init(retryableHTTPStatusCodes: Set([429, 408, 500, 502, 503, 504]))
     }
-    
+
     override func retry(_ request: Alamofire.Request,
                         for session: Session,
                         dueTo error: Error,
@@ -136,6 +134,16 @@ public class OpenSeaNetworking: Networking {
                         }
                     }.mapError { PromiseError(error: $0) }
             }.eraseToAnyPublisher()
+    }
+
+    //TODO there was a maximum of 3 concurrent requests in the non-async implementation
+    public func sendAsync(request: Request) async throws -> URLRequest.Response {
+        let response = try await session.request(request).serializingData().response
+        if let data = response.data, let httpResponse = response.response {
+            return (data: data, response: httpResponse)
+        } else {
+            throw NonHttpUrlResponseError(request: request)
+        }
     }
 }
 
@@ -230,24 +238,14 @@ public class OpenSea {
         return apiKeys[chainId]
     }
 
-    public func fetchAsset(asset: String,
-                           chainId: ChainId) -> AnyPublisher<NftAsset, PromiseError> {
-        
-        let request = AssetRequest(
-            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
-            apiKey: openSeaKey(forChainId: chainId) ?? "",
-            chainId: chainId,
-            asset: asset)
-
-        return send(request: request, chainId: chainId)
-            .mapError { PromiseError(error: $0) }
-            .flatMap { json -> AnyPublisher<NftAsset, PromiseError> in
-                if let asset = NftAsset(json: json) {
-                    return .just(asset)
-                } else {
-                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
-                }
-            }.eraseToAnyPublisher()
+    public func fetchAsset(asset: String, chainId: ChainId) async throws -> NftAsset {
+        let request = AssetRequest(baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId), apiKey: openSeaKey(forChainId: chainId) ?? "", chainId: chainId, asset: asset)
+        let json = try await sendAsync(request: request, chainId: chainId)
+        if let asset = NftAsset(json: json) {
+            return asset
+        } else {
+            throw OpenSeaApiError.invalidJson
+        }
     }
 
     public func collectionStats(collectionId: String,
@@ -319,12 +317,18 @@ public class OpenSea {
         }
     }
 
+    //TODO reduce usage and remove
     private func send(request: Alamofire.URLRequestConvertible, chainId: ChainId) -> AnyPublisher<JSON, OpenSeaApiError> {
         networking.networking(for: chainId)
             .send(request: request)
             .tryMap { try JsonDecoder().decode(data: $0) }
             .mapError { OpenSeaApiError(error: $0) }
             .eraseToAnyPublisher()
+    }
+
+    private func sendAsync(request: Alamofire.URLRequestConvertible, chainId: ChainId) async throws -> JSON {
+        let response = try await networking.networking(for: chainId).sendAsync(request: request)
+        return try JsonDecoder().decode(data: response)
     }
 
     private func fetchAssets(owner: AlphaWallet.Address,

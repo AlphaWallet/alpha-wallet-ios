@@ -34,8 +34,10 @@ class RequestViewModel {
     }
 
     func transform(input: RequestViewModelInput) -> RequestViewModelOutput {
-        let ensName = resolveEns()
-        let viewState = Publishers.CombineLatest(generateQrCode(), resolveEns())
+        let ensName = asFuture {
+            await self.resolveEns()
+        }
+        let viewState = Publishers.CombineLatest(generateQrCode(), ensName)
             .map { [account] qrCode, ensName -> RequestViewModel.ViewState in
                 let address = account.address.eip55String
                 return .init(title: R.string.localizable.aSettingsContentsMyWalletAddress(), ensName: ensName, address: address, qrCode: qrCode)
@@ -56,12 +58,12 @@ class RequestViewModel {
         return .init(copiedToClipboard: copiedToClipboard, viewState: viewState)
     }
 
-    private func resolveEns() -> AnyPublisher<String?, Never> {
-        domainResolutionService.reverseResolveDomainName(address: account.address, server: RPCServer.forResolvingDomainNames)
-            .map { ens -> DomainName? in return ens }
-            .replaceError(with: nil)
-            .prepend(nil)
-            .eraseToAnyPublisher()
+    private func resolveEns() async -> String? {
+        do {
+            return try await domainResolutionService.reverseResolveDomainName(address: account.address, server: RPCServer.forResolvingDomainNames)
+        } catch {
+            return nil
+        }
     }
 
     private func generateQrCode() -> AnyPublisher<UIImage?, Never> {
