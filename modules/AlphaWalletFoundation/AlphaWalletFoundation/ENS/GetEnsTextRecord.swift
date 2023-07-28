@@ -11,7 +11,7 @@ import Combine
 /// https://eips.ethereum.org/EIPS/eip-634
 final class GetEnsTextRecord {
     private let storage: DomainNameRecordsStorage
-    private lazy var ens = ENS(delegate: ensDelegate, chainId: server.chainID)
+    private lazy var ens = ENS(delegate: ensDelegate, server: server)
     private let server: RPCServer
     private let ensReverseLookup: EnsReverseResolver
     private let ensDelegate: ENSDelegateImpl
