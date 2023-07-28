@@ -97,12 +97,11 @@ public enum AttestationPropertyValue: Codable, Hashable {
 
 public struct Attestation: Codable, Hashable {
     typealias SchemaUid = String
-    public typealias ChainId = Int
 
     //Redefine here so reduce dependencies
     static var vitaliklizeConstant: UInt8 = 27
 
-    public static var callSmartContract: ((ChainId, AlphaWallet.Address, String, String, [AnyObject]) async throws -> [String: Any])!
+    public static var callSmartContract: ((RPCServer, AlphaWallet.Address, String, String, [AnyObject]) async throws -> [String: Any])!
     public static var isLoggingEnabled = false
 
     public struct TypeValuePair: Codable, Hashable {
@@ -149,9 +148,9 @@ public struct Attestation: Codable, Hashable {
     enum AttestationError: Error {
         case extractAttestationFailed(AttestationInternalError)
         case ecRecoverFailed(AttestationInternalError)
-        case validateSignatureFailed(chainId: ChainId, signerAddress: AlphaWallet.Address, error: AttestationInternalError)
-        case schemaRecordNotFound(ChainId, AttestationInternalError)
-        case chainNotSupported(chainId: ChainId, error: AttestationInternalError)
+        case validateSignatureFailed(server: RPCServer, signerAddress: AlphaWallet.Address, error: AttestationInternalError)
+        case schemaRecordNotFound(RPCServer, AttestationInternalError)
+        case chainNotSupported(server: RPCServer, error: AttestationInternalError)
         case ecRecoveredSignerDoesNotMatch
         case parseAttestationUrlFailed(String)
     }
@@ -161,14 +160,14 @@ public struct Attestation: Codable, Hashable {
         case decodeAttestationArrayStringFailed(zipped: String)
         case decodeEasAttestationFailed(zipped: String)
         case extractAttestationDataFailed(attestation: EasAttestation)
-        case validateSignatureFailed(chainId: ChainId, signerAddress: AlphaWallet.Address)
+        case validateSignatureFailed(server: RPCServer, signerAddress: AlphaWallet.Address)
         case generateEip712Failed(attestation: EasAttestation)
         case reconstructSignatureFailed(attestation: EasAttestation, v: UInt8, r: [UInt8], s: [UInt8])
-        case schemaRecordNotFound(keySchemaUid: Attestation.SchemaUid, chainId: ChainId)
-        case keySchemaUidNotFound(chainId: ChainId)
-        case easSchemaContractNotFound(chainId: ChainId)
-        case rootKeyUidNotFound(chainId: ChainId)
-        case easContractNotFound(chainId: ChainId)
+        case schemaRecordNotFound(keySchemaUid: Attestation.SchemaUid, server: RPCServer)
+        case keySchemaUidNotFound(server: RPCServer)
+        case easSchemaContractNotFound(server: RPCServer)
+        case rootKeyUidNotFound(server: RPCServer)
+        case easContractNotFound(server: RPCServer)
     }
 
     public let data: [TypeValuePair]
@@ -189,7 +188,7 @@ public struct Attestation: Codable, Hashable {
     }
 
     public var verifyingContract: AlphaWallet.Address? { AlphaWallet.Address(string: easAttestation.verifyingContract) }
-    public var chainId: Int { easAttestation.chainId }
+    public var server: RPCServer { easAttestation.server }
     //TODO not hardcode
     public var name: String { "EAS Attestation" }
 
@@ -228,14 +227,14 @@ public struct Attestation: Codable, Hashable {
             switch error {
             case .unzipAttestationFailed, .decodeAttestationArrayStringFailed, .decodeEasAttestationFailed, .extractAttestationDataFailed:
                 throw AttestationError.extractAttestationFailed(error)
-            case .validateSignatureFailed(let chainId, let signerAddress):
-                throw AttestationError.validateSignatureFailed(chainId: chainId, signerAddress: signerAddress, error: error)
+            case .validateSignatureFailed(let server, let signerAddress):
+                throw AttestationError.validateSignatureFailed(server: server, signerAddress: signerAddress, error: error)
             case .generateEip712Failed, .reconstructSignatureFailed:
                 throw AttestationError.ecRecoverFailed(error)
-            case .schemaRecordNotFound(_, let chainId):
-                throw AttestationError.schemaRecordNotFound(chainId, error)
-            case .keySchemaUidNotFound(let chainId), .easSchemaContractNotFound(let chainId), .rootKeyUidNotFound(let chainId), .easContractNotFound(let chainId):
-                throw AttestationError.chainNotSupported(chainId: chainId, error: error)
+            case .schemaRecordNotFound(_, let server):
+                throw AttestationError.schemaRecordNotFound(server, error)
+            case .keySchemaUidNotFound(let server), .easSchemaContractNotFound(let server), .rootKeyUidNotFound(let server), .easContractNotFound(let server):
+                throw AttestationError.chainNotSupported(server: server, error: error)
             }
         } catch {
             throw error
@@ -289,47 +288,47 @@ fileprivate extension Attestation.functional {
         let schema: String
     }
 
-    static func getKeySchemaUid(chainId: Attestation.ChainId) throws -> Attestation.SchemaUid {
-        switch chainId {
-        case 11155111:
+    static func getKeySchemaUid(server: RPCServer) throws -> Attestation.SchemaUid {
+        switch server {
+        case .sepolia:
             return "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1"
         default:
-            throw Attestation.AttestationInternalError.keySchemaUidNotFound(chainId: chainId)
+            throw Attestation.AttestationInternalError.keySchemaUidNotFound(server: server)
         }
     }
 
-    static func getEasSchemaContract(chainId: Attestation.ChainId) throws -> AlphaWallet.Address {
-        switch chainId {
-        case 1:
+    static func getEasSchemaContract(server: RPCServer) throws -> AlphaWallet.Address {
+        switch server {
+        case .main:
             return AlphaWallet.Address(string: "0xA7b39296258348C78294F95B872b282326A97BDF")!
-        case 42161:
+        case .arbitrum:
             return AlphaWallet.Address(string: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB")!
-        case 11155111:
+        case .sepolia:
             return AlphaWallet.Address(string: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0")!
         default:
-            throw Attestation.AttestationInternalError.easSchemaContractNotFound(chainId: chainId)
+            throw Attestation.AttestationInternalError.easSchemaContractNotFound(server: server)
         }
     }
 
-    static func getRootKeyUid(chainId: Attestation.ChainId) throws -> Attestation.SchemaUid {
-        switch chainId {
-        case 11155111:
+    static func getRootKeyUid(server: RPCServer) throws -> Attestation.SchemaUid {
+        switch server {
+        case .sepolia:
             return "0xee99de42f544fa9a47caaf8d4a4426c1104b6d7a9df7f661f892730f1b5b1e23"
         default:
-            throw Attestation.AttestationInternalError.rootKeyUidNotFound(chainId: chainId)
+            throw Attestation.AttestationInternalError.rootKeyUidNotFound(server: server)
         }
     }
 
-    static func getEasContract(chainId: Attestation.ChainId) throws -> AlphaWallet.Address {
-        switch chainId {
-        case 1:
+    static func getEasContract(server: RPCServer) throws -> AlphaWallet.Address {
+        switch server {
+        case .main:
             return AlphaWallet.Address(string: "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587")!
-        case 42161:
+        case .arbitrum:
             return AlphaWallet.Address(string: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458")!
-        case 11155111:
+        case .sepolia:
             return AlphaWallet.Address(string: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e")!
         default:
-            throw Attestation.AttestationInternalError.easContractNotFound(chainId: chainId)
+            throw Attestation.AttestationInternalError.easContractNotFound(server: server)
         }
     }
 
@@ -347,13 +346,13 @@ fileprivate extension Attestation.functional {
     }
 
     static func checkIsValidAttestationIssuer(attestation: EasAttestation) async throws -> Bool {
-        let chainId = attestation.chainId
-        let keySchemaUid = try getKeySchemaUid(chainId: chainId)
-        let customResolverContractAddress = try await getSchemaResolverContract(keySchemaUid: keySchemaUid, chainId: chainId)
+        let server = attestation.server
+        let keySchemaUid = try getKeySchemaUid(server: server)
+        let customResolverContractAddress = try await getSchemaResolverContract(keySchemaUid: keySchemaUid, server: server)
         verboseLog("[Attestation] customResolverContractAddress: \(customResolverContractAddress)")
 
         let signerAddress = attestation.signer
-        let isValidated = try await validateSigner(customResolverContractAddress: customResolverContractAddress, signerAddress: signerAddress, chainId: chainId)
+        let isValidated = try await validateSigner(customResolverContractAddress: customResolverContractAddress, signerAddress: signerAddress, server: server)
         verboseLog("[Attestation] Signer: \(signerAddress.eip55String) isValidated? \(isValidated)")
         return isValidated
     }
@@ -387,7 +386,7 @@ fileprivate extension Attestation.functional {
     }
 
     static func extractAttestationData(attestation: EasAttestation) async throws -> [Attestation.TypeValuePair] {
-        let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, chainId: attestation.chainId)
+        let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server))
         verboseLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
         guard let types: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
             throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
@@ -436,8 +435,8 @@ fileprivate extension Attestation.functional {
         }
     }
 
-    static func validateSigner(customResolverContractAddress: AlphaWallet.Address, signerAddress: AlphaWallet.Address, chainId: Attestation.ChainId) async throws -> Bool {
-        let rootKeyUID = try getRootKeyUid(chainId: chainId)
+    static func validateSigner(customResolverContractAddress: AlphaWallet.Address, signerAddress: AlphaWallet.Address, server: RPCServer) async throws -> Bool {
+        let rootKeyUID = try getRootKeyUid(server: server)
         let abiString = """
                         [ 
                           { 
@@ -455,28 +454,28 @@ fileprivate extension Attestation.functional {
         let parameters = [rootKeyUID, EthereumAddress(address: signerAddress)] as [AnyObject]
         let result: [String: Any]
         do {
-            result = try await Attestation.callSmartContract(chainId, customResolverContractAddress, "validateSignature", abiString, parameters)
+            result = try await Attestation.callSmartContract(server, customResolverContractAddress, "validateSignature", abiString, parameters)
         } catch {
-            throw Attestation.AttestationInternalError.validateSignatureFailed(chainId: chainId, signerAddress: signerAddress)
+            throw Attestation.AttestationInternalError.validateSignatureFailed(server: server, signerAddress: signerAddress)
         }
         let boolResult = result["0"] as? Bool
         if let result = boolResult {
             return result
         } else {
             verboseLog("[Attestation] can't extract signer validation result (with `validateSignature()`) as bool: \(String(describing: result["0"]))")
-            throw Attestation.AttestationInternalError.validateSignatureFailed(chainId: chainId, signerAddress: signerAddress)
+            throw Attestation.AttestationInternalError.validateSignatureFailed(server: server, signerAddress: signerAddress)
         }
     }
 
-    static func getSchemaResolverContract(keySchemaUid: Attestation.SchemaUid, chainId: Attestation.ChainId) async throws -> AlphaWallet.Address {
-        let schemaRecord = try await getSchemaRecord(keySchemaUid: keySchemaUid, chainId: chainId)
+    static func getSchemaResolverContract(keySchemaUid: Attestation.SchemaUid, server: RPCServer) async throws -> AlphaWallet.Address {
+        let schemaRecord = try await getSchemaRecord(keySchemaUid: keySchemaUid, server: server)
         return schemaRecord.resolver
     }
 
     //TODO improve caching. Current implementation doesn't reduce duplicate inflight calls or failures
     static var cachedSchemaRecords: [String: SchemaRecord] = .init()
-    static func getSchemaRecord(keySchemaUid: Attestation.SchemaUid, chainId: Attestation.ChainId) async throws -> SchemaRecord {
-        let registryContract = try getEasSchemaContract(chainId: chainId)
+    static func getSchemaRecord(keySchemaUid: Attestation.SchemaUid, server: RPCServer) async throws -> SchemaRecord {
+        let registryContract = try getEasSchemaContract(server: server)
         let abiString = """
                         [ 
                           { 
@@ -501,15 +500,15 @@ fileprivate extension Attestation.functional {
                         """
         let parameters = [keySchemaUid] as [AnyObject]
         let functionName = "getSchema"
-        let cacheKey = "\(registryContract).\(functionName) \(parameters) \(chainId) \(abiString)"
+        let cacheKey = "\(registryContract).\(functionName) \(parameters) \(server.chainID) \(abiString)"
         if let cached = cachedSchemaRecords[cacheKey] {
             return cached
         }
         let result: [String: Any]
         do {
-            result = try await Attestation.callSmartContract(chainId, registryContract, functionName, abiString, parameters)
+            result = try await Attestation.callSmartContract(server, registryContract, functionName, abiString, parameters)
         } catch {
-            throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, chainId: chainId)
+            throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, server: server)
         }
         if let uid = ((result["0"] as? [AnyObject])?[0] as? Data)?.toHexString(),
            let resolver = (result["0"] as? [AnyObject])?[1] as? EthereumAddress,
@@ -520,7 +519,13 @@ fileprivate extension Attestation.functional {
             return record
         } else {
             verboseLog("[Attestation] can't convert to schema record: \(String(describing: result["0"])) for keySchemaUid: \(keySchemaUid)")
-            throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, chainId: chainId)
+            throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, server: server)
         }
+    }
+}
+
+extension EasAttestation {
+    var server: RPCServer {
+        return RPCServer(chainID: chainId)
     }
 }

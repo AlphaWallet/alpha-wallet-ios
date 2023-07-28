@@ -15,8 +15,8 @@ public class ConfigureApp: Initializer {
         AlphaWalletOpenSea.OpenSea.isLoggingEnabled = true
 
         Attestation.isLoggingEnabled = true
-        Attestation.callSmartContract = { chainId, contract, functionName, abiString, parameters in
-            return try await callSmartContractAsync(withServer: RPCServer(chainID: chainId), contract: contract, functionName: functionName, abiString: abiString, parameters: parameters)
+        Attestation.callSmartContract = { server, contract, functionName, abiString, parameters in
+            return try await callSmartContractAsync(withServer: server, contract: contract, functionName: functionName, abiString: abiString, parameters: parameters)
         }
     }
 }
