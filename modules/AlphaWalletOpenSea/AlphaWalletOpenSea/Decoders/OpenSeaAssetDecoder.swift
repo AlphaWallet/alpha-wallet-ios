@@ -7,13 +7,14 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
 import SwiftyJSON
 
 struct NftAssetsFilter {
     let assets: [AlphaWallet.Address: [NftAsset]]
 
-    func assets(excluding excludeContracts: [(AlphaWallet.Address, ChainId)]) -> [AlphaWallet.Address: [NftAsset]] {
+    func assets(excluding excludeContracts: [(AlphaWallet.Address, RPCServer)]) -> [AlphaWallet.Address: [NftAsset]] {
         let excludeContracts = excludeContracts.map { $0.0 }
         return assets.filter { asset in !excludeContracts.contains(asset.key) }
     }
@@ -47,7 +48,7 @@ public struct NftAssetsPageDecoder {
         return dateFormatter
     }()
     let assets: [AlphaWallet.Address: [NftAsset]]
-    
+
     func decode(json: JSON) -> NftAssetsPage {
         var assets = assets
         let results = (json["assets"].array ?? json["results"].array ?? [])

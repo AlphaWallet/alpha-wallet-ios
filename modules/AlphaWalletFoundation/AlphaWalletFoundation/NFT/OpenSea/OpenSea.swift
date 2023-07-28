@@ -16,8 +16,8 @@ public final class OpenSea {
     private let server: RPCServer
     private let openSea: AlphaWalletOpenSea.OpenSea
 
-    private let excludeContracts: [(AlphaWallet.Address, ChainId)] = [
-        (AlphaWalletTokenScript.Constants.uefaMainnet.0, AlphaWalletTokenScript.Constants.uefaMainnet.1.chainID)
+    private let excludeContracts: [(AlphaWallet.Address, RPCServer)] = [
+        (AlphaWalletTokenScript.Constants.uefaMainnet.0, AlphaWalletTokenScript.Constants.uefaMainnet.1)
     ]
 
     public init(analytics: AnalyticsLogger, server: RPCServer, config: Config) {
@@ -46,7 +46,7 @@ public final class OpenSea {
             return .just([:])
         }
 
-        return openSea.fetchAssetsCollections(owner: wallet.address, chainId: server.chainID, excludeContracts: excludeContracts)
+        return openSea.fetchAssetsCollections(owner: wallet.address, server: server, excludeContracts: excludeContracts)
             .map { [weak storage] result -> OpenSeaAddressesToNonFungibles in
                 if result.hasError {
                     let merged = (storage?.value[key] ?? [:])
@@ -71,25 +71,25 @@ public final class OpenSea {
         struct DisabledError: Error {}
         guard !config.development.isOpenSeaFetchingDisabled else { throw DisabledError() }
 
-        return try await openSea.fetchAsset(asset: value.path, chainId: server.chainID)
+        return try await openSea.fetchAsset(asset: value.path, server: server)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {
         guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
 
-        return openSea.collectionStats(collectionId: collectionId, chainId: server.chainID)
+        return openSea.collectionStats(collectionId: collectionId, server: server)
     }
 
-    private static func openSeaApiKeys(config: Config) -> [Int: String] {
+    private static func openSeaApiKeys(config: Config) -> [RPCServer: String] {
         guard !config.development.isOpenSeaFetchingDisabled else { return [:] }
-        var results: [Int: String] = [:]
+        var results: [RPCServer: String] = [:]
 
-        results[RPCServer.main.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.polygon.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.arbitrum.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.avalanche.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.klaytnCypress.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.optimistic.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.main] = Constants.Credentials.openseaKey
+        results[RPCServer.polygon] = Constants.Credentials.openseaKey
+        results[RPCServer.arbitrum] = Constants.Credentials.openseaKey
+        results[RPCServer.avalanche] = Constants.Credentials.openseaKey
+        results[RPCServer.klaytnCypress] = Constants.Credentials.openseaKey
+        results[RPCServer.optimistic] = Constants.Credentials.openseaKey
 
         return results
     }
