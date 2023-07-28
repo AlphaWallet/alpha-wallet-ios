@@ -386,7 +386,7 @@ fileprivate extension Attestation.functional {
     }
 
     static func extractAttestationData(attestation: EasAttestation) async throws -> [Attestation.TypeValuePair] {
-        let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server))
+        let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server)
         verboseLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
         guard let types: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
             throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
