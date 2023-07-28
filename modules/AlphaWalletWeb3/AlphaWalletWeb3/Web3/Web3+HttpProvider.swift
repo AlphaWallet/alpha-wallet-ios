@@ -97,9 +97,6 @@ public class Web3HttpProvider: Web3RequestProvider {
                 case .success(let data):
                     do {
                         let parsedResponse = try JSONDecoder().decode(JSONRPCresponse.self, from: data)
-                        if let message = parsedResponse.error {
-                            throw Web3Error.nodeError("Received an error message from node\n" + String(describing: message))
-                        }
                         return parsedResponse
                     } catch {
                         throw Web3Error.responseError(error)
@@ -121,9 +118,6 @@ public class Web3HttpProvider: Web3RequestProvider {
                     } catch {
                         do {
                             let parsedResponse = try JSONDecoder().decode(JSONRPCresponse.self, from: data)
-                            if let message = parsedResponse.error {
-                                throw Web3Error.nodeError(message.message)
-                            }
                             return JSONRPCresponseBatch(responses: [parsedResponse])
                         } catch {
                             throw Web3Error.responseError(error)
