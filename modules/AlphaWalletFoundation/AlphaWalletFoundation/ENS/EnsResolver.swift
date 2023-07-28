@@ -8,7 +8,7 @@ import Combine
 public class EnsResolver {
     private let storage: DomainNameRecordsStorage
     private let server: RPCServer
-    private lazy var ens = ENS(delegate: ensDelegate, chainId: server.chainID)
+    private lazy var ens = ENS(delegate: ensDelegate, server: server)
     private let ensDelegate: ENSDelegateImpl
 
     public init(storage: DomainNameRecordsStorage, blockchainProvider: BlockchainProvider) {

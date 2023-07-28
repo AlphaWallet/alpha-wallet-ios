@@ -11,7 +11,6 @@ import SwiftyJSON
 import Alamofire
 import Combine
 
-public typealias ChainId = Int
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [NftAsset]]
 
 public protocol OpenSeaDelegate: AnyObject {
@@ -148,7 +147,7 @@ public class OpenSeaNetworking: Networking {
 }
 
 public protocol OpenSeaNetworkingFactory {
-    func networking(for chainId: ChainId) -> Networking
+    func networking(for server: RPCServer) -> Networking
 }
 
 public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
@@ -158,12 +157,12 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
     public static let shared = BaseOpenSeaNetworkingFactory()
     private init() { }
 
-    public func networking(for chainId: ChainId) -> Networking {
+    public func networking(for server: RPCServer) -> Networking {
         var networking: Networking!
 
         dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync { [unowned self] in
-            let baseUrl = OpenSea.getBaseUrlForOpenSea(forChainId: chainId)
+            let baseUrl = OpenSea.getBaseUrlForOpenSea(forServer: server)
             if let _networking = self.networkings[baseUrl] {
                 networking = _networking
             } else {
@@ -179,19 +178,16 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
 public class OpenSea {
     public static var isLoggingEnabled = false
     private let networking: OpenSeaNetworkingFactory
-    private let apiKeys: [ChainId: String]
+    private let apiKeys: [RPCServer: String]
 
     weak public var delegate: OpenSeaDelegate?
 
-    public init(apiKeys: [ChainId: String], networking: OpenSeaNetworkingFactory = BaseOpenSeaNetworkingFactory.shared) {
+    public init(apiKeys: [RPCServer: String], networking: OpenSeaNetworkingFactory = BaseOpenSeaNetworkingFactory.shared) {
         self.apiKeys = apiKeys
         self.networking = networking
     }
 
-    public func fetchAssetsCollections(owner: AlphaWallet.Address,
-                                       chainId: ChainId,
-                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
-
+    public func fetchAssetsCollections(owner: AlphaWallet.Address, server: RPCServer, excludeContracts: [(AlphaWallet.Address, RPCServer)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
         //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identifyto each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
         func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [CollectionKey: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
             return collections[.address(address)] ?? collections[.collectionId(asset.collectionId)]
@@ -200,8 +196,8 @@ public class OpenSea {
         //NOTE: Due to OpenSea's policy of sending requests, (we are not able to sent multiple requests, the request trottled, and 1 sec delay is needed)
         //to send a new one. First we send fetch assets requests and then fetch collections requests
 
-        let assets = fetchAssets(owner: owner, chainId: chainId, excludeContracts: excludeContracts)
-        let collections = fetchCollections(owner: owner, chainId: chainId)
+        let assets = fetchAssets(owner: owner, server: server, excludeContracts: excludeContracts)
+        let collections = fetchCollections(owner: owner, server: server)
 
         return Publishers.CombineLatest(assets, collections)
             .map { assets, collections in
@@ -223,24 +219,22 @@ public class OpenSea {
             }.eraseToAnyPublisher()
     }
 
-    static func getBaseUrlForOpenSea(forChainId chainId: ChainId) -> URL {
-        switch chainId {
-        case 1:
+    static func getBaseUrlForOpenSea(forServer server: RPCServer) -> URL {
+        switch server {
+        case .main:
             return URL(string: "https://api.opensea.io")!
-        case 4:
-            return URL(string: "https://rinkeby-api.opensea.io")!
         default:
             return URL(string: "https://api.opensea.io")!
         }
     }
 
-    private func openSeaKey(forChainId chainId: ChainId) -> String? {
-        return apiKeys[chainId]
+    private func openSeaKey(forServer server: RPCServer) -> String? {
+        return apiKeys[server]
     }
 
-    public func fetchAsset(asset: String, chainId: ChainId) async throws -> NftAsset {
-        let request = AssetRequest(baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId), apiKey: openSeaKey(forChainId: chainId) ?? "", chainId: chainId, asset: asset)
-        let json = try await sendAsync(request: request, chainId: chainId)
+    public func fetchAsset(asset: String, server: RPCServer) async throws -> NftAsset {
+        let request = AssetRequest(baseUrl: Self.getBaseUrlForOpenSea(forServer: server), apiKey: openSeaKey(forServer: server) ?? "", server: server, asset: asset)
+        let json = try await sendAsync(request: request, server: server)
         if let asset = NftAsset(json: json) {
             return asset
         } else {
@@ -248,15 +242,13 @@ public class OpenSea {
         }
     }
 
-    public func collectionStats(collectionId: String,
-                                chainId: ChainId) -> AnyPublisher<NftCollectionStats, PromiseError> {
-
+    public func collectionStats(collectionId: String, server: RPCServer) -> AnyPublisher<NftCollectionStats, PromiseError> {
         let request = CollectionStatsRequest(
-            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
-            apiKey: openSeaKey(forChainId: chainId) ?? "",
+            baseUrl: Self.getBaseUrlForOpenSea(forServer: server),
+            apiKey: openSeaKey(forServer: server) ?? "",
             collectionId: collectionId)
 
-        return send(request: request, chainId: chainId)
+        return send(request: request, server: server)
             .mapError { PromiseError(error: $0) }
             .flatMap { json -> AnyPublisher<NftCollectionStats, PromiseError> in
                 if json["stats"] != .null {
@@ -267,21 +259,17 @@ public class OpenSea {
             }.eraseToAnyPublisher()
     }
 
-    private func fetchCollections(owner: AlphaWallet.Address,
-                                  chainId: ChainId,
-                                  offset: Int = 0,
-                                  collections: [CollectionKey: NftCollection] = [:]) -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> {
-
+    private func fetchCollections(owner: AlphaWallet.Address, server: RPCServer, offset: Int = 0, collections: [CollectionKey: NftCollection] = [:]) -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> {
         let request = CollectionsRequest(
-            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
-            apiKey: openSeaKey(forChainId: chainId) ?? "",
-            chainId: chainId,
+            baseUrl: Self.getBaseUrlForOpenSea(forServer: server),
+            apiKey: openSeaKey(forServer: server) ?? "",
+            server: server,
             offset: offset,
             owner: owner)
 
         let decoder = OpenSeaCollectionDecoder(collections: collections)
 
-        return send(request: request, chainId: chainId)
+        return send(request: request, server: server)
             .map { decoder.decode(json: $0) }
             .catch { error -> AnyPublisher<NftCollectionsPage, Never> in
                 return .just(.init(collections: [:], count: 0, hasNextPage: false, error: error))
@@ -289,7 +277,7 @@ public class OpenSea {
                 guard let strongSelf = self else { return .empty() }
 
                 if result.hasNextPage {
-                    return strongSelf.fetchCollections(owner: owner, chainId: chainId, offset: offset + result.count, collections: result.collections)
+                    return strongSelf.fetchCollections(owner: owner, server: server, offset: offset + result.count, collections: result.collections)
                 } else {
                     return .just(.init(hasError: result.error != nil, result: result.collections))
                 }
@@ -318,41 +306,36 @@ public class OpenSea {
     }
 
     //TODO reduce usage and remove
-    private func send(request: Alamofire.URLRequestConvertible, chainId: ChainId) -> AnyPublisher<JSON, OpenSeaApiError> {
-        networking.networking(for: chainId)
+    private func send(request: Alamofire.URLRequestConvertible, server: RPCServer) -> AnyPublisher<JSON, OpenSeaApiError> {
+        networking.networking(for: server)
             .send(request: request)
             .tryMap { try JsonDecoder().decode(data: $0) }
             .mapError { OpenSeaApiError(error: $0) }
             .eraseToAnyPublisher()
     }
 
-    private func sendAsync(request: Alamofire.URLRequestConvertible, chainId: ChainId) async throws -> JSON {
-        let response = try await networking.networking(for: chainId).sendAsync(request: request)
+    private func sendAsync(request: Alamofire.URLRequestConvertible, server: RPCServer) async throws -> JSON {
+        let response = try await networking.networking(for: server).sendAsync(request: request)
         return try JsonDecoder().decode(data: response)
     }
 
-    private func fetchAssets(owner: AlphaWallet.Address,
-                             chainId: ChainId,
-                             next: String? = nil,
-                             assets: OpenSeaAddressesToNonFungibles = [:],
-                             excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
-
+    private func fetchAssets(owner: AlphaWallet.Address, server: RPCServer, next: String? = nil, assets: OpenSeaAddressesToNonFungibles = [:], excludeContracts: [(AlphaWallet.Address, RPCServer)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
         let request: Alamofire.URLRequestConvertible
         if let cursorUrl = next {
             request = AssetsCursorRequest(
-                apiKey: openSeaKey(forChainId: chainId) ?? "",
+                apiKey: openSeaKey(forServer: server) ?? "",
                 cursorUrl: cursorUrl)
         } else {
             request = AssetsRequest(
-                baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
+                baseUrl: Self.getBaseUrlForOpenSea(forServer: server),
                 owner: owner,
-                apiKey: openSeaKey(forChainId: chainId) ?? "",
-                chainId: chainId)
+                apiKey: openSeaKey(forServer: server) ?? "",
+                server: server)
         }
 
         let decoder = NftAssetsPageDecoder(assets: assets)
 
-        return send(request: request, chainId: chainId)
+        return send(request: request, server: server)
             .map { decoder.decode(json: $0) }
             .catch { error -> AnyPublisher<NftAssetsPage, Never> in
                 let assetsExcluding = NftAssetsFilter(assets: assets).assets(excludeing: excludeContracts)
@@ -363,7 +346,7 @@ public class OpenSea {
                 if let next = result.next {
                     return strongSelf.fetchAssets(
                         owner: owner,
-                        chainId: chainId,
+                        server: server,
                         next: next,
                         assets: result.assets,
                         excludeContracts: excludeContracts)
@@ -378,7 +361,7 @@ public class OpenSea {
     private struct NftAssetsFilter {
         let assets: [AlphaWallet.Address: [NftAsset]]
 
-        func assets(excludeing excludeContracts: [(AlphaWallet.Address, ChainId)]) -> [AlphaWallet.Address: [NftAsset]] {
+        func assets(excludeing excludeContracts: [(AlphaWallet.Address, RPCServer)]) -> [AlphaWallet.Address: [NftAsset]] {
             let excludeContracts = excludeContracts.map { $0.0 }
             return assets.filter { asset in !excludeContracts.contains(asset.key) }
         }
@@ -433,36 +416,36 @@ extension OpenSea {
     private struct AssetRequest: Alamofire.URLRequestConvertible {
         let baseUrl: URL
         let apiKey: String
-        let chainId: ChainId
+        let server: RPCServer
         let asset: String
 
-        private func apiVersion(chainId: ChainId) throws -> ApiVersion {
-            switch chainId {
-            case 1, 4: return .v1
-            case 137: return .v2
-            case 42161: return .v2
-            case 0xa86a: return .v2
-            case 8217: return .v2
-            case 10: return .v2
+        private func apiVersion(server: RPCServer) throws -> ApiVersion {
+            switch server {
+            case .main: return .v1
+            case .polygon: return .v2
+            case .arbitrum: return .v2
+            case .avalanche: return .v2
+            case .klaytnCypress: return .v2
+            case .optimistic: return .v2
             default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func pathToPlatform(chainId: ChainId) throws -> String {
-            switch chainId {
-            case 1, 4: return "/asset/"
-            case 137: return "/metadata/matic/"
-            case 42161: return "/metadata/arbitrum/"
-            case 0xa86a: return "/metadata/avalanche/"
-            case 8217: return "/metadata/klaytn/"
-            case 10: return "/metadata/optimism/"
+        private func pathToPlatform(server: RPCServer) throws -> String {
+            switch server {
+            case .main: return "/asset/"
+            case .polygon: return "/metadata/matic/"
+            case .arbitrum: return "/metadata/arbitrum/"
+            case .avalanche: return "/metadata/avalanche/"
+            case .klaytnCypress: return "/metadata/klaytn/"
+            case .optimistic: return "/metadata/optimism/"
             default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            components.path = "/api/\(try apiVersion(chainId: chainId))\(try pathToPlatform(chainId: chainId))\(asset)"
+            components.path = "/api/\(try apiVersion(server: server))\(try pathToPlatform(server: server))\(asset)"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
@@ -490,7 +473,7 @@ extension OpenSea {
     private struct CollectionsRequest: Alamofire.URLRequestConvertible {
         let baseUrl: URL
         let apiKey: String
-        let chainId: ChainId
+        let server: RPCServer
         let limit: Int = 300
         let offset: Int
         let owner: AlphaWallet.Address
@@ -517,53 +500,53 @@ extension OpenSea {
         let orderDirection: String = "asc"
         let limit: Int = 50
         let apiKey: String
-        let chainId: ChainId
+        let server: RPCServer
 
-        private func apiVersion(chainId: ChainId) throws -> ApiVersion {
-            switch chainId {
-            case 1, 4: return .v1
-            case 137: return .v2
-            case 42161: return .v2
-            case 0xa86a: return .v2
-            case 8217: return .v2
-            case 10: return .v2
+        private func apiVersion(server: RPCServer) throws -> ApiVersion {
+            switch server {
+            case .main: return .v1
+            case .polygon: return .v2
+            case .arbitrum: return .v2
+            case .avalanche: return .v2
+            case .klaytnCypress: return .v2
+            case .optimistic: return .v2
             default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func pathToPlatform(chainId: ChainId) throws -> String {
-            switch chainId {
-            case 1, 4: return ""
-            case 137: return "matic"
-            case 42161: return "arbitrum"
-            case 0xa86a: return "avalanche"
-            case 8217: return "klaytn"
-            case 10: return "optimism"
+        private func pathToPlatform(server: RPCServer) throws -> String {
+            switch server {
+            case .main: return ""
+            case .polygon: return "matic"
+            case .arbitrum: return "arbitrum"
+            case .avalanche: return "avalanche"
+            case .klaytnCypress: return "klaytn"
+            case .optimistic: return "optimism"
             default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func ownerParamKey(chainId: ChainId) throws -> String {
-            switch chainId {
-            case 1, 4: return "owner"
-            case 137: return "owner_address"
-            case 42161: return "owner_address"
-            case 0xa86a: return "owner_address"
-            case 8217: return "owner_address"
-            case 10: return "owner_address"
+        private func ownerParamKey(server: RPCServer) throws -> String {
+            switch server {
+            case .main: return "owner"
+            case .polygon: return "owner_address"
+            case .arbitrum: return "owner_address"
+            case .avalanche: return "owner_address"
+            case .klaytnCypress: return "owner_address"
+            case .optimistic: return "owner_address"
             default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            components.path = "/api/\(try apiVersion(chainId: chainId))/assets/\(try pathToPlatform(chainId: chainId))"
+            components.path = "/api/\(try apiVersion(server: server))/assets/\(try pathToPlatform(server: server))"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
 
             return try URLEncoding().encode(request, with: [
-                ownerParamKey(chainId: chainId): owner.eip55String,
+                ownerParamKey(server: server): owner.eip55String,
                 "order_by": orderBy,
                 "order_direction": orderDirection,
                 "limit": String(limit)
