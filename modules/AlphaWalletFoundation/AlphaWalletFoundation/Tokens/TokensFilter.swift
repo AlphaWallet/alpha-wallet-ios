@@ -36,36 +36,43 @@ public extension TokenSortable {
 public class TokensFilter {
     private enum FilterKeys {
         case all
-        case swap
-        case erc20
-        case erc721
-        case erc875
-        case erc1155
-        case development(Development)
-        case tokenscript
-        case custom(string: String)
+        case swap(isNegate: Bool)
+        case erc20(isNegate: Bool)
+        case erc721(isNegate: Bool)
+        case erc875(isNegate: Bool)
+        case erc1155(isNegate: Bool)
+        case development(Development, isNegate: Bool)
+        case tokenscript(isNegate: Bool)
+        case custom(string: String, isNegate: Bool)
 
         init(keyword: String) {
-            let lowercasedKeyword = keyword.trimmed.lowercased()
+            var lowercasedKeyword = keyword.trimmed.lowercased()
+            let isNegate: Bool
+            if lowercasedKeyword.hasPrefix("-") {
+                lowercasedKeyword = String(lowercasedKeyword.dropFirst())
+                isNegate = true
+            } else {
+                isNegate = false
+            }
 
             if lowercasedKeyword.isEmpty {
                 self = .all
             } else if lowercasedKeyword == "erc20" || lowercasedKeyword == "erc 20" {
-                self = .erc20
+                self = .erc20(isNegate: isNegate)
             } else if lowercasedKeyword == "erc721" || lowercasedKeyword == "erc 721" {
-                self = .erc721
+                self = .erc721(isNegate: isNegate)
             } else if lowercasedKeyword == "erc875" || lowercasedKeyword == "erc 875" {
-                self = .erc875
+                self = .erc875(isNegate: isNegate)
             } else if lowercasedKeyword == "erc1155" || lowercasedKeyword == "erc 1155" {
-                self = .erc1155
+                self = .erc1155(isNegate: isNegate)
             } else if let value = FilterKeys.Development(rawValue: lowercasedKeyword) {
-                self = .development(value)
+                self = .development(value, isNegate: isNegate)
             } else if lowercasedKeyword == "tokenscript" {
-                self = .tokenscript
+                self = .tokenscript(isNegate: isNegate)
             } else if lowercasedKeyword == "swap" {
-                self = .swap
+                self = .swap(isNegate: isNegate)
             } else {
-                self = .custom(string: lowercasedKeyword)
+                self = .custom(string: lowercasedKeyword, isNegate: isNegate)
             }
         }
 
@@ -123,33 +130,37 @@ public class TokensFilter {
             switch FilterKeys(keyword: keyword) {
             case .all:
                 filteredTokens = tokens
-            case .swap:
-                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: $0) }
-            case .erc20:
-                filteredTokens = tokens.filter { $0.type == .erc20 }
-            case .erc721:
-                filteredTokens = tokens.filter { $0.type == .erc721 }
-            case .erc875:
-                filteredTokens = tokens.filter { $0.type == .erc875 }
-            case .erc1155:
-                filteredTokens = tokens.filter { $0.type == .erc1155 }
-            case .development(let value):
+            case .swap(let isNegate):
+                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: $0).toggleIf(isNegate: isNegate) }
+            case .erc20(let isNegate):
+                filteredTokens = tokens.filter { ($0.type == .erc20).toggleIf(isNegate: isNegate) }
+            case .erc721(let isNegate):
+                filteredTokens = tokens.filter { ($0.type == .erc721).toggleIf(isNegate: isNegate) }
+            case .erc875(let isNegate):
+                filteredTokens = tokens.filter { ($0.type == .erc875).toggleIf(isNegate: isNegate) }
+            case .erc1155(let isNegate):
+                filteredTokens = tokens.filter { ($0.type == .erc1155).toggleIf(isNegate: isNegate) }
+            case .development(let value, isNegate: let isNegate):
                 switch value {
                 case .fiat:
-                    filteredTokens = tokens.filter { $0.balance.ticker != nil }
+                    filteredTokens = tokens.filter { ($0.balance.ticker != nil).toggleIf(isNegate: isNegate) }
                 case .fiatAndBalance, .balanceAndFiat:
-                    filteredTokens = tokens.filter { $0.hasNonZeroBalance && $0.balance.ticker != nil }
+                    filteredTokens = tokens.filter { ($0.hasNonZeroBalance && $0.balance.ticker != nil).toggleIf(isNegate: isNegate) }
                 case .balance:
-                    filteredTokens = tokens.filter { $0.hasNonZeroBalance }
+                    filteredTokens = tokens.filter { ($0.hasNonZeroBalance).toggleIf(isNegate: isNegate) }
                 }
-            case .tokenscript:
-                filteredTokens = tokens.filter {
-                    guard let overrides = $0.tokenScriptOverrides else { return false }
-                    return overrides.hasNoBaseAssetDefinition && (overrides.server?.matches(server: $0.server) ?? false)
+            case .tokenscript(let isNegate):
+                filteredTokens = tokens.filter { each in
+                    let result: Bool = {
+                        guard let overrides = each.tokenScriptOverrides else { return false }
+                        return overrides.hasNoBaseAssetDefinition && (overrides.server?.matches(server: each.server) ?? false)
+                    }()
+                    return result.toggleIf(isNegate: isNegate)
                 }
-            case .custom(string: let string):
+            case .custom(string: let string, isNegate: let isNegate):
                 filteredTokens = tokens.filter {
-                    hasMatchingInTitle(token: $0, string: string) || hasMatchingInNftBalance(token: $0, string: string)
+                    let result = hasMatchingInTitle(token: $0, string: string) || hasMatchingInNftBalance(token: $0, string: string)
+                    return result.toggleIf(isNegate: isNegate)
                 }
             }
         }
@@ -257,6 +268,16 @@ fileprivate extension TokenFilterable {
             return valueBI.signum() != .zero
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return !nonZeroBalance.isEmpty
+        }
+    }
+}
+
+fileprivate extension Bool {
+    func toggleIf(isNegate: Bool) -> Bool {
+        if isNegate {
+            return !self
+        } else {
+            return self
         }
     }
 }
