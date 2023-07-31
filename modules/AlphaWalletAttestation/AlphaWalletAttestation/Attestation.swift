@@ -456,6 +456,7 @@ fileprivate extension Attestation.functional {
         do {
             result = try await Attestation.callSmartContract(server, customResolverContractAddress, "validateSignature", abiString, parameters)
         } catch {
+            verboseLog("[Attestation] call validateSignature() failure: \(error)")
             throw Attestation.AttestationInternalError.validateSignatureFailed(server: server, signerAddress: signerAddress)
         }
         let boolResult = result["0"] as? Bool

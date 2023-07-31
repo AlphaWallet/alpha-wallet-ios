@@ -424,19 +424,23 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         case .privateKey(let privateKey):
             handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
         case .attestation(let attestation):
-            infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient))")
-
             //TODO prompt user to import the attestation?
             if let recipient = attestation.recipient {
                 if recipient.isNull {
+                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is null address. Importing…")
                     importAttestation(attestation, intoWallet: wallet.address)
                 } else if recipient == wallet.address {
+                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches current wallet. Importing…")
                     importAttestation(attestation, intoWallet: wallet.address)
                 } else if keystore.wallets.contains(where: { $0.address == recipient }) {
+                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches inactive wallet. Importing…")
                     //TODO have a better UX, show user that it's imported, but to another wallet?
                     importAttestation(attestation, intoWallet: wallet.address)
+                } else {
+                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
                 }
             } else {
+                infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
                 importAttestation(attestation, intoWallet: wallet.address)
             }
         }
