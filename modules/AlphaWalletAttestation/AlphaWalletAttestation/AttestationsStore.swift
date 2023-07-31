@@ -8,22 +8,22 @@ import AlphaWalletLogger
 
 fileprivate typealias AttestationsStorage = [AlphaWallet.Address: [Attestation]]
 
-class AttestationsStore {
+public class AttestationsStore {
     static private let filename: String = "attestations.json"
     static private var fileUrl: URL = {
         let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
         return documentsDirectory.appendingPathComponent(filename)
     }()
 
-    @Published var attestations: [Attestation]
+    @Published public var attestations: [Attestation]
     private let wallet: AlphaWallet.Address
 
-    init(wallet: AlphaWallet.Address) {
+    public init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
         self.attestations = functional.readAttestations(forWallet: wallet, from: Self.fileUrl)
     }
 
-    func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
+    public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
             var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
@@ -41,7 +41,7 @@ class AttestationsStore {
         }
     }
 
-    func removeAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
+    public func removeAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
             var attestationsForWallet: [Attestation] = allAttestations[address] ?? []

@@ -276,7 +276,6 @@
 		5E7C76D28BB14C7685296BEF /* DappsHomeEmptyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B424FB5DE3A4D6A2F4 /* DappsHomeEmptyViewModel.swift */; };
 		5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A1D9A35D86A3DE31989 /* ActivitiesViewController.swift */; };
 		5E7C76F8CB67466725C590CE /* FungibleTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79ED9F842D3FC102AC54 /* FungibleTokenViewCellViewModel.swift */; };
-		5E7C7700D969F10D4E9D683A /* AttestationsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73EC893F716C80AE5238 /* AttestationsStore.swift */; };
 		5E7C7705B09D780E84E2FDA5 /* XMLHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C702300BB7DB0FD7788EF /* XMLHandlerTest.swift */; };
 		5E7C772EC476993A170C840B /* GenerateSellMagicLinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7892A9FC3F53B13498D9 /* GenerateSellMagicLinkViewController.swift */; };
 		5E7C773E3E3BBEB65C51DF2A /* UIStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D2C43C15D0762C7F374 /* UIStackView.swift */; };
@@ -1147,7 +1146,6 @@
 		5E7C73D55C366BCC53208686 /* BrowserHistoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryCell.swift; sourceTree = "<group>"; };
 		5E7C73DE68212B06BAE705C1 /* AcceptAuthRequestCoordinatorBridgeToPromise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcceptAuthRequestCoordinatorBridgeToPromise.swift; sourceTree = "<group>"; };
 		5E7C73E57ADDF29E0A5FB87E /* OpenSeaNonFungibleTokenCardRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenCardRowView.swift; sourceTree = "<group>"; };
-		5E7C73EC893F716C80AE5238 /* AttestationsStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttestationsStore.swift; sourceTree = "<group>"; };
 		5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Array.swift"; sourceTree = "<group>"; };
 		5E7C73EFA9494B31C683A287 /* TimeEntryField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeEntryField.swift; sourceTree = "<group>"; };
 		5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
@@ -2197,7 +2195,6 @@
 				2977CAF01F7E0C2E009682A0 /* Views */,
 				5E7C74CB1950B1EC558685A4 /* TokenScriptOverrides+Extensions.swift */,
 				873D110929B07FC700AEF23B /* NftCollectionDisplayHelper.swift */,
-				5E7C73EC893F716C80AE5238 /* AttestationsStore.swift */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -5879,7 +5876,6 @@
 				5E7C7E1E558A98B1B0D8A996 /* AttestationsViewController.swift in Sources */,
 				5E7C7F69EBFEEBFBDB381F6E /* AttestationViewCellViewModel.swift in Sources */,
 				5E7C7C6CCD56211F6F4F6362 /* AttestationViewCell.swift in Sources */,
-				5E7C7700D969F10D4E9D683A /* AttestationsStore.swift in Sources */,
 				5E7C7A8106F96477D1F66954 /* AcceptAuthRequestViewModel.swift in Sources */,
 				5E7C7081EF1F78FC609265A0 /* AcceptProposalCoordinatorBridgeToPromise.swift in Sources */,
 				5E7C74E53BBB1B451D683F9A /* AcceptAuthRequestCoordinatorBridgeToPromise.swift in Sources */,
