@@ -3,8 +3,6 @@
 import Combine
 import Foundation
 import AlphaWalletAddress
-import AlphaWalletAttestation
-import AlphaWalletLogger
 
 fileprivate typealias AttestationsStorage = [AlphaWallet.Address: [Attestation]]
 
