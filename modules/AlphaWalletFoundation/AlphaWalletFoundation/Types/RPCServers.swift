@@ -420,7 +420,7 @@ extension RPCServer: Hashable, CaseIterable {
             case .optimismGoerli: return "https://optimism-goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .arbitrumGoerli: return "https://arbitrum-goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .okx: return "https://exchainrpc.okex.org/"
-            case .sepolia: return "https://rpc.sepolia.org"
+            case .sepolia: return "https://sepolia.infura.io/v3/\(Constants.Credentials.infuraKey)"
             }
         }()
         return URL(string: urlString)!
