@@ -28,14 +28,14 @@ class AttestationsStore {
         do {
             var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
             guard !attestations.contains(attestation) else {
-                verboseLog("[Attestation] Attestation already exist. Skipping")
+                infoLog("[Attestation] Attestation already exist. Skipping")
                 return
             }
             attestationsForWallet.append(attestation)
             allAttestations[address] = attestationsForWallet
             try saveAttestations(attestations: allAttestations)
             attestations = attestationsForWallet
-            verboseLog("[Attestation] Imported attestation")
+            infoLog("[Attestation] Imported attestation")
         } catch {
             errorLog("[Attestation] failed to encode attestations while adding attestation to: \(Self.fileUrl.absoluteString) error: \(error)")
         }

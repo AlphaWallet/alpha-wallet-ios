@@ -2,7 +2,7 @@
 
 import Foundation
 
-func verboseLog(_ message: Any, callerFunctionName: String = #function) {
+func infoLog(_ message: Any, callerFunctionName: String = #function) {
     guard Attestation.isLoggingEnabled else { return }
     NSLog("\(message) from: \(callerFunctionName)")
 }

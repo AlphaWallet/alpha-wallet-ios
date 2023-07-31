@@ -248,7 +248,7 @@ public struct Attestation: Codable, Hashable {
         guard let attestationArrayString = String(data: encodedAttestationData, encoding: .utf8) else {
             throw AttestationInternalError.decodeAttestationArrayStringFailed(zipped: scannedValue)
         }
-        verboseLog("[Attestation] Decompressed attestation: \(attestationArrayString)")
+        infoLog("[Attestation] Decompressed attestation: \(attestationArrayString)")
 
         guard let attestationArrayData = attestationArrayString.data(using: .utf8), let attestationFromArrayString = try? JSONDecoder().decode(EasAttestationFromArrayString.self, from: attestationArrayData) else {
             throw AttestationInternalError.decodeEasAttestationFailed(zipped: scannedValue)
@@ -256,16 +256,16 @@ public struct Attestation: Codable, Hashable {
         let attestation = EasAttestation(fromAttestationArrayString: attestationFromArrayString)
 
         let isEcRecoveredSignerMatches = try functional.checkEcRecoveredSignerMatches(attestation: attestation)
-        verboseLog("[Attestation] ec-recovered signer matches: \(isEcRecoveredSignerMatches)")
+        infoLog("[Attestation] ec-recovered signer matches: \(isEcRecoveredSignerMatches)")
         guard isEcRecoveredSignerMatches else {
             throw AttestationError.ecRecoveredSignerDoesNotMatch
         }
 
         let isValidAttestationIssuer = try await functional.checkIsValidAttestationIssuer(attestation: attestation)
-        verboseLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
+        infoLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
 
         let results: [TypeValuePair] = try await functional.extractAttestationData(attestation: attestation)
-        verboseLog("[Attestation] decoded attestation data: \(results) isValidAttestationIssuer: \(isValidAttestationIssuer)")
+        infoLog("[Attestation] decoded attestation data: \(results) isValidAttestationIssuer: \(isValidAttestationIssuer)")
 
         return Attestation(data: results, easAttestation: attestation, isValidAttestationIssuer: isValidAttestationIssuer, source: source)
     }
@@ -340,7 +340,7 @@ fileprivate extension Attestation.functional {
         do {
             return try compressed.gunzipped()
         } catch {
-            verboseLog("[Attestation] Failed to unzip attestation: \(error)")
+            infoLog("[Attestation] Failed to unzip attestation: \(error)")
             throw Attestation.AttestationInternalError.unzipAttestationFailed(zipped: zipped)
         }
     }
@@ -349,18 +349,18 @@ fileprivate extension Attestation.functional {
         let server = attestation.server
         let keySchemaUid = try getKeySchemaUid(server: server)
         let customResolverContractAddress = try await getSchemaResolverContract(keySchemaUid: keySchemaUid, server: server)
-        verboseLog("[Attestation] customResolverContractAddress: \(customResolverContractAddress)")
+        infoLog("[Attestation] customResolverContractAddress: \(customResolverContractAddress)")
 
         let signerAddress = attestation.signer
         let isValidated = try await validateSigner(customResolverContractAddress: customResolverContractAddress, signerAddress: signerAddress, server: server)
-        verboseLog("[Attestation] Signer: \(signerAddress.eip55String) isValidated? \(isValidated)")
+        infoLog("[Attestation] Signer: \(signerAddress.eip55String) isValidated? \(isValidated)")
         return isValidated
     }
 
     static func checkEcRecoveredSignerMatches(attestation: EasAttestation) throws -> Bool {
         let address = try ecrecoverSignerAddress(fromAttestation: attestation)
         if let address = address {
-            verboseLog("[Attestation] Comparing EC-recovered signer: \(address.eip55String) vs attestation.signer: \(attestation.signer)")
+            infoLog("[Attestation] Comparing EC-recovered signer: \(address.eip55String) vs attestation.signer: \(attestation.signer)")
             return address == attestation.signer
         } else {
             return false
@@ -374,10 +374,10 @@ fileprivate extension Attestation.functional {
         let r = attestation.r
         let s = attestation.s
         let v = attestation.v >= Attestation.vitaliklizeConstant ? attestation.v - Attestation.vitaliklizeConstant : attestation.v
-        verboseLog("[Attestation] v: \(v)")
-        verboseLog("[Attestation] r: \(attestation.r) size: \(r.count)")
-        verboseLog("[Attestation] s: \(attestation.s) size: \(s.count)")
-        verboseLog("[Attestation] EIP712 digest: \(eip712.digest.hexString)")
+        infoLog("[Attestation] v: \(v)")
+        infoLog("[Attestation] r: \(attestation.r) size: \(r.count)")
+        infoLog("[Attestation] s: \(attestation.s) size: \(s.count)")
+        infoLog("[Attestation] EIP712 digest: \(eip712.digest.hexString)")
         guard let sig: Data = Web3.Utils.marshalSignature(v: v, r: r, s: s) else {
             throw Attestation.AttestationInternalError.reconstructSignatureFailed(attestation: attestation, v: v, r: r, s: s)
         }
@@ -387,11 +387,11 @@ fileprivate extension Attestation.functional {
 
     static func extractAttestationData(attestation: EasAttestation) async throws -> [Attestation.TypeValuePair] {
         let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server)
-        verboseLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
+        infoLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
         guard let types: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
             throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
         }
-        verboseLog("[Attestation] types: \(types) data: \(attestation.data)")
+        infoLog("[Attestation] types: \(types) data: \(attestation.data)")
         if let decoded = ABIv2Decoder.decode(types: types, data: Data(hex: attestation.data)) {
             //We don't want a dictionary because we want to preserve the order as defined in the schema
             let raw: [(type: ABIv2.Element.InOut, value: AnyObject)] = Array(zip(types, decoded))
@@ -424,7 +424,7 @@ fileprivate extension Attestation.functional {
             if let type = try? ABIv2TypeParser.parseTypeString(typeString) {
                 return ABIv2.Element.InOut(name: name, type: type)
             } else {
-                verboseLog("[Attestation] can't parse type: \(typeString) from schema: \(schema)")
+                infoLog("[Attestation] can't parse type: \(typeString) from schema: \(schema)")
                 return nil
             }
         }
@@ -456,14 +456,14 @@ fileprivate extension Attestation.functional {
         do {
             result = try await Attestation.callSmartContract(server, customResolverContractAddress, "validateSignature", abiString, parameters)
         } catch {
-            verboseLog("[Attestation] call validateSignature() failure: \(error)")
+            infoLog("[Attestation] call validateSignature() failure: \(error)")
             throw Attestation.AttestationInternalError.validateSignatureFailed(server: server, signerAddress: signerAddress)
         }
         let boolResult = result["0"] as? Bool
         if let result = boolResult {
             return result
         } else {
-            verboseLog("[Attestation] can't extract signer validation result (with `validateSignature()`) as bool: \(String(describing: result["0"]))")
+            infoLog("[Attestation] can't extract signer validation result (with `validateSignature()`) as bool: \(String(describing: result["0"]))")
             throw Attestation.AttestationInternalError.validateSignatureFailed(server: server, signerAddress: signerAddress)
         }
     }
@@ -519,7 +519,7 @@ fileprivate extension Attestation.functional {
             cachedSchemaRecords[cacheKey] = record
             return record
         } else {
-            verboseLog("[Attestation] can't convert to schema record: \(String(describing: result["0"])) for keySchemaUid: \(keySchemaUid)")
+            infoLog("[Attestation] can't convert to schema record: \(String(describing: result["0"])) for keySchemaUid: \(keySchemaUid)")
             throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, server: server)
         }
     }
