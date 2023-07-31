@@ -26,7 +26,6 @@ s.public_header_files = "AlphaWalletAttestation/**/*.{h}"
 s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 
 s.dependency 'AlphaWalletFoundation'
-s.dependency 'AlphaWalletTokenScript'
 s.dependency 'AlphaWalletWeb3'
 s.dependency 'BigInt'
 s.dependency 'GzipSwift'
