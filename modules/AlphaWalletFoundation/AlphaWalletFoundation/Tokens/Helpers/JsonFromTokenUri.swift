@@ -21,7 +21,6 @@ final class JsonFromTokenUri {
     private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
     private var inFlightPublishers: [String: Publisher] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let transporter: ApiTransporter
     private let uriMapper: TokenUriMapper
@@ -50,9 +49,8 @@ final class JsonFromTokenUri {
                                address: AlphaWallet.Address) -> Publisher {
 
         return Just(tokenId)
-            .receive(on: queue)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, queue, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
+            .flatMap { [weak self, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
                 guard let strongSelf = self, let getTokenUri = getTokenUri else { return .empty() }
                 let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
 
@@ -60,7 +58,6 @@ final class JsonFromTokenUri {
                     return publisher
                 } else {
                     let publisher = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
-                        .receive(on: queue)
                         .flatMap { strongSelf.handleUriData(data: $0, tokenId: tokenId, tokenType: tokenType, address: address) }
                         .catch { _ in return strongSelf.generateTokenJsonFallback(for: tokenId, tokenType: tokenType, address: address) }
                         .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPublishers[key] = .none })
