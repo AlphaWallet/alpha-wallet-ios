@@ -51,6 +51,10 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     }
 
     private func fetchSupportedTickerIds() async throws {
+        //TODO pass in Config instance instead
+        if Config().development.isAutoFetchingDisabled {
+            return
+        }
         if let lastFetchingDate = config.tickerIdsLastFetchedDate, Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime, await storage.hasTickerIds() {
            return
         } else {
