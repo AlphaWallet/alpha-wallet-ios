@@ -29,6 +29,8 @@ extension RPCServer {
         case .fantom_testnet: return R.string.localizable.blockchainFantomTest()
         case .avalanche: return R.string.localizable.blockchainAvalanche()
         case .avalanche_testnet: return R.string.localizable.blockchainAvalancheTest()
+        case .rootstock: return R.string.localizable.blockchainRootstock()
+        case .rootstock_testnet: return R.string.localizable.blockchainRootstockTest()
         case .polygon: return R.string.localizable.blockchainPolygon()
         case .mumbai_testnet: return R.string.localizable.blockchainMumbai()
         case .optimistic: return R.string.localizable.blockchainOptimistic()
@@ -62,6 +64,7 @@ extension RPCServer {
         case .heco_testnet: return R.image.hthecoTestnet()
         case .fantom, .fantom_testnet: return R.image.iconsTokensFantom()
         case .avalanche, .avalanche_testnet: return R.image.iconsTokensAvalanche()
+        case .rootstock, .rootstock_testnet: return R.image.iconsTokensRootstock()
         case .polygon, .mumbai_testnet: return R.image.iconsTokensPolygon()
         case .optimistic: return R.image.iconsTokensOptimistic()
         case .arbitrum: return R.image.arbitrum()
@@ -91,6 +94,8 @@ extension RPCServer {
         case .fantom_testnet: return Configuration.Color.Semantic.blockChainFantomTestnet
         case .avalanche: return Configuration.Color.Semantic.blockChainAvalanche
         case .avalanche_testnet: return Configuration.Color.Semantic.blockChainAvalancheTestnet
+        case .rootstock: return Configuration.Color.Semantic.blockChainRootstock
+        case .rootstock_testnet: return Configuration.Color.Semantic.blockChainRootstockTestnet
         case .polygon, .mumbai_testnet: return Configuration.Color.Semantic.blockChainPolygon
         case .optimistic: return Configuration.Color.Semantic.blockChainOptimistic
         case .cronosMainnet: return Configuration.Color.Semantic.blockChainCronosMainnet
@@ -122,6 +127,7 @@ extension RPCServer {
         case .cronosMainnet: return R.image.iconsNetworkCronos()
         case .fantom, .fantom_testnet: return R.image.iconsNetworkFantom()
         case .avalanche, .avalanche_testnet: return R.image.iconsNetworkAvalanche()
+        case .rootstock, .rootstock_testnet: return R.image.iconsNetworkRootstock()
         case .polygon: return R.image.iconsNetworkPolygon()
         case .mumbai_testnet: return nil
         case .optimistic: return R.image.iconsNetworkOptimism()
