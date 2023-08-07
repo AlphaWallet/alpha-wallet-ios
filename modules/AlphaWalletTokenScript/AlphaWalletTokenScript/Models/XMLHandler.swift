@@ -111,6 +111,29 @@ public enum TokenLevelTokenScriptDisplayStatus {
 //  Interface to extract data from non fungible token
 // swiftlint:disable type_body_length
 public class PrivateXMLHandler {
+    enum Target {
+        case token(AlphaWallet.Address)
+        //TODO: attestations+TokenScript to implement. Is the key the script's URL?
+        case attestation(URL)
+
+        var isFifaTicketContract: Bool {
+            switch self {
+            case .token(let contractAddress):
+                return contractAddress.isFifaTicketContract
+            case .attestation:
+                return false
+            }
+        }
+        var isUEFATicketContract: Bool {
+            switch self {
+            case .token(let contractAddress):
+                return contractAddress.isUEFATicketContract
+            case .attestation:
+                return false
+            }
+        }
+    }
+
     private static let emptyXMLString = "<tbml:token xmlns:tbml=\"http://attestation.id/ns/tbml\"></tbml:token>"
     private static let emptyXML = try! Kanna.XML(xml: emptyXMLString, encoding: .utf8)
     fileprivate static let tokenScriptNamespace = TokenScript.supportedTokenScriptNamespace
@@ -120,7 +143,7 @@ public class PrivateXMLHandler {
     private let signatureNamespacePrefix = "ds:"
     private let xhtmlNamespacePrefix = "xhtml:"
     private let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
-    private let contractAddress: AlphaWallet.Address
+    private let target: Target
     var server: RPCServerOrAny?
     //Explicit type so that the variable autocompletes with AppCode
     private lazy var selections = extractSelectionsForToken()
@@ -235,7 +258,13 @@ public class PrivateXMLHandler {
                     let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
                         self.selections.first { $0.id == id }
                     }
-                    results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
+                    switch target {
+                    case .token(let contractAddress):
+                        results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
+                    case .attestation:
+                        //TODO: attestations+TokenScript to implement support for `actions
+                        break
+                    }
                 }
             }
             if fromActionAsTopLevel.isEmpty {
@@ -277,7 +306,13 @@ public class PrivateXMLHandler {
                     let addressElements = XMLHandler.getAddressElements(fromContractElement: eventSourceContractElement, xmlContext: xmlContext)
                     optionalContract = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) })
                 } else {
-                    optionalContract = contractAddress
+                    switch target {
+                    case .token(let contractAddress):
+                        optionalContract = contractAddress
+                    case .attestation:
+                        //TODO: attestations+TokenScript to implement support for `activityCards`
+                        optionalContract = nil
+                    }
                 }
                 guard let contract = optionalContract, let origin = Origin(forEthereumEventElement: ethereumEventElement, asnModuleNamedTypeElement: asnModuleNamedElement, contract: contract, xmlContext: xmlContext) else { return nil }
                 switch origin {
@@ -319,10 +354,14 @@ public class PrivateXMLHandler {
     }()
 
     private lazy var _labelInSingularForm: String? = {
-        if contractAddress.sameContract(as: Constants.katContractAddress) {
-            return Constants.katNameFallback
+        switch target {
+        case .token(let contractAddress):
+            if contractAddress.sameContract(as: Constants.katContractAddress) {
+                return Constants.katNameFallback
+            }
+        case .attestation:
+            break
         }
-
         if let labelStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let label = labelStringElement.text {
             return label
         } else {
@@ -341,11 +380,15 @@ public class PrivateXMLHandler {
     lazy var labelInPluralForm: String? = {
         var labelInPluralForm: String?
         threadSafe.performSync {
-            if contractAddress.sameContract(as: Constants.katContractAddress) {
-                labelInPluralForm = Constants.katNameFallback
-                return
+            switch target {
+            case .token(let contractAddress):
+                if contractAddress.sameContract(as: Constants.katContractAddress) {
+                    labelInPluralForm = Constants.katNameFallback
+                    return
+                }
+            case .attestation:
+                break
             }
-
             if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
                 labelInPluralForm = name
             } else {
@@ -383,7 +426,7 @@ public class PrivateXMLHandler {
 
     private init(contract: AlphaWallet.Address, xmlString: String?, baseTokenType: TokenType?, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStoreProtocol) {
         let xmlString = xmlString ?? ""
-        self.contractAddress = contract
+        self.target = Target.token(contract)
         self.isOfficial = isOfficial
         self.isCanonicalized = isCanonicalized
         self.baseTokenType = baseTokenType
@@ -439,6 +482,58 @@ public class PrivateXMLHandler {
         self.tokenScriptStatus = _tokenScriptStatus
         self.hasValidTokenScriptFile = _hasValidTokenScriptFile!
         self.server = _server
+    }
+
+    private init(forAttestationURL url: URL, xmlString: String?, assetDefinitionStore: AssetDefinitionStoreProtocol) {
+        let xmlString = xmlString ?? ""
+        self.target = Target.attestation(url)
+        self.isOfficial = false
+        self.isCanonicalized = false
+        self.baseTokenType = nil
+        self.features = assetDefinitionStore.features
+
+        var _xml: XMLDocument!
+        var _tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>!
+        var _hasValidTokenScriptFile: Bool!
+        var _server: RPCServerOrAny?
+        let _xmlContext = xmlContext
+        let features = self.features
+
+        threadSafe.performSync {
+            //We still compute the TokenScript status even if xmlString is empty because it might be considered empty because there's a conflict
+            let tokenScriptStatusPromise = assetDefinitionStore.computeTokenScriptStatus(forAttestationURL: url, xmlString: xmlString)
+            _tokenScriptStatus = tokenScriptStatusPromise
+            if let tokenScriptStatus = tokenScriptStatusPromise.value {
+                let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus, features: features)
+                _xml = xml
+                _hasValidTokenScriptFile = hasValidTokenScriptFile
+                //TODO: attestations+TokenScript no specific server in TokenScript for attestation right?
+                _server = .any
+            } else {
+                _xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
+                _hasValidTokenScriptFile = true
+                //TODO: attestations+TokenScript is there a specific server for attestation's TokenScript?
+                _server = .any
+                tokenScriptStatusPromise.done { tokenScriptStatus in
+                    let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus, features: features)
+                    _xml = xml
+                    _hasValidTokenScriptFile = hasValidTokenScriptFile
+                    //TODO: attestations+TokenScript no specific server in TokenScript for attestation right?
+                    _server = .any
+                    //TODO: attestations+TokenScript is there a need to invalidate the signature status here?
+                }.cauterize()
+            }
+        }
+
+        self.xml = _xml
+        self.tokenScriptStatus = _tokenScriptStatus
+        self.hasValidTokenScriptFile = _hasValidTokenScriptFile!
+        self.server = _server
+    }
+
+    convenience init(forAttestationURL url: URL, assetDefinitionStore: AssetDefinitionStoreProtocol) {
+        let xmlString = assetDefinitionStore[url]
+        self.init(forAttestationURL: url, xmlString: xmlString, assetDefinitionStore: assetDefinitionStore)
     }
 
     private func extractHtml(fromViewElement element: XMLElement) -> (html: String, style: String) {
@@ -546,13 +641,13 @@ public class PrivateXMLHandler {
         case .erc20:
             actions = [.erc20Send, .erc20Receive]
         case .erc721:
-            if contractAddress.isUEFATicketContract {
+            if target.isUEFATicketContract {
                 actions = [.nftRedeem, .nonFungibleTransfer]
             } else {
                 actions = [.nonFungibleTransfer]
             }
         case .erc875:
-            if contractAddress.isFifaTicketContract {
+            if target.isFifaTicketContract {
                 actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
             } else {
                 actions = [.nftSell, .nonFungibleTransfer]
@@ -569,13 +664,13 @@ public class PrivateXMLHandler {
         case .erc20, .nativeCryptocurrency:
             actions = [.erc20Send, .erc20Receive]
         case .erc721, .erc721ForTickets:
-            if contractAddress.isUEFATicketContract {
+            if target.isUEFATicketContract {
                 actions = [.nftRedeem, .nonFungibleTransfer]
             } else {
                 actions = [.nonFungibleTransfer]
             }
         case .erc875:
-            if contractAddress.isFifaTicketContract {
+            if target.isFifaTicketContract {
                 actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
             } else {
                 actions = [.nftSell, .nonFungibleTransfer]
@@ -635,14 +730,24 @@ public class PrivateXMLHandler {
     }
 
     private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
-        var fields = [AttributeId: AssetAttribute]()
-        for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
-            guard let name = each["name"] else { continue }
-            //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, tokenContract: contractAddress, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
-            fields[name] = attribute
+        switch target {
+        case .token(let contractAddress):
+            var fields = [AttributeId: AssetAttribute]()
+            for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
+                guard let name = each["name"] else { continue }
+                //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
+                guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, tokenContract: contractAddress, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
+                fields[name] = attribute
+            }
+            return fields
+        case .attestation:
+            //TODO: attestations+TokenScript to implement support for extractFields
+            var fields = [AttributeId: AssetAttribute]()
+            for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
+                guard let name = each["name"] else { continue }
+            }
+            return fields
         }
-        return fields
     }
 
     //TODOis it still necessary to sanitize? Maybe we still need to strip a, button, html?
@@ -910,6 +1015,47 @@ public struct XMLHandler {
 
     public init(contract: AlphaWallet.Address, tokenType: TokenType, assetDefinitionStore: AssetDefinitionStoreProtocol) {
         self.init(contract: contract, optionalTokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+    }
+
+    public init(forAttestationURL url: URL, assetDefinitionStore: AssetDefinitionStoreProtocol) {
+        let features = assetDefinitionStore.features
+        var privateXMLHandler: PrivateXMLHandler
+        var baseXMLHandler: PrivateXMLHandler?
+        if let handler = assetDefinitionStore.getXmlHandler(forAttestationAtURL: url) {
+            privateXMLHandler = handler
+        } else {
+            privateXMLHandler = PrivateXMLHandler(forAttestationURL: url, assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore.set(xmlHandler: privateXMLHandler, forAttestationAtURL: url)
+        }
+
+        //TODO: attestations+TokenScript tokenType not used? Relevant?
+        let tokenType: TokenType? = nil
+        if features.isActivityEnabled, let tokenType = tokenType {
+            //let tokenTypeForBaseXml: TokenType
+            //if privateXMLHandler.hasValidTokenScriptFile, let tokenTypeInXml = privateXMLHandler.tokenType.flatMap({ TokenType(tokenInterfaceType: $0) }) {
+            //    tokenTypeForBaseXml = tokenTypeInXml
+            //} else {
+            //    tokenTypeForBaseXml = tokenType
+            //}
+
+            ////Key cannot be just `contract`, because the type can change (from the overriding TokenScript file)
+            //let key = "\(contract.eip55String)-\(tokenTypeForBaseXml.rawValue)"
+            //if let handler = assetDefinitionStore.getBaseXmlHandler(for: key) {
+            //    baseXMLHandler = handler
+            //} else {
+            //    if let xml = assetDefinitionStore.baseTokenScriptFile(for: tokenTypeForBaseXml) {
+            //        baseXMLHandler = PrivateXMLHandler(contract: contract, baseXml: xml, baseTokenType: tokenTypeForBaseXml, assetDefinitionStore: assetDefinitionStore)
+            //        assetDefinitionStore.setBaseXmlHandler(for: key, baseXmlHandler: baseXMLHandler)
+            //    } else {
+            //        baseXMLHandler = nil
+            //    }
+            //}
+        } else {
+            baseXMLHandler = nil
+        }
+
+        self.baseXMLHandler = baseXMLHandler
+        self.privateXMLHandler = privateXMLHandler
     }
 
     //private because we don't want client code creating XMLHandler(s) to be able to accidentally pass in a nil TokenType

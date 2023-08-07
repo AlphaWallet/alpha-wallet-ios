@@ -191,6 +191,21 @@ public struct Attestation: Codable, Hashable {
     public var server: RPCServer { easAttestation.server }
     //TODO not hardcode
     public var name: String { "EAS Attestation" }
+    public var scriptUri: URL? {
+        let url: URL? = data.compactMap { each in
+            if each.type.name == "scriptURI" {
+                switch each.value {
+                case .string(let value):
+                    return URL(string: value)
+                case .address, .bool, .bytes, .int, .uint:
+                    return nil
+                }
+            } else {
+                return nil
+            }
+        }.first
+        return url
+    }
 
     private init(data: [TypeValuePair], easAttestation: EasAttestation, isValidAttestationIssuer: Bool, source: String) {
         self.data = data

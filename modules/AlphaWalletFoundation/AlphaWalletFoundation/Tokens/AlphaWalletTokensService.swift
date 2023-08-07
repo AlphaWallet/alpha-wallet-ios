@@ -58,23 +58,14 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }()
 
-    public init(sessionsProvider: SessionsProvider,
-                tokensDataStore: TokensDataStore,
-                analytics: AnalyticsLogger,
-                transactionsStorage: TransactionDataStore,
-                assetDefinitionStore: AssetDefinitionStore,
-                transporter: ApiTransporter) {
-
+    public init(sessionsProvider: SessionsProvider, tokensDataStore: TokensDataStore, analytics: AnalyticsLogger, transactionsStorage: TransactionDataStore, assetDefinitionStore: AssetDefinitionStore, fetchTokenScriptFiles: FetchTokenScriptFiles, transporter: ApiTransporter) {
         self.transporter = transporter
         self.sessionsProvider = sessionsProvider
         self.tokensDataStore = tokensDataStore
         self.analytics = analytics
         self.transactionsStorage = transactionsStorage
         self.assetDefinitionStore = assetDefinitionStore
-        self.fetchTokenScriptFiles = FetchTokenScriptFiles(
-            assetDefinitionStore: assetDefinitionStore,
-            tokensDataStore: tokensDataStore,
-            sessionsProvider: sessionsProvider)
+        self.fetchTokenScriptFiles = fetchTokenScriptFiles
     }
 
     public func tokens(for servers: [RPCServer]) async -> [Token] {

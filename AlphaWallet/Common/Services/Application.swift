@@ -432,13 +432,12 @@ class Application: WalletDependenciesProvidable {
 
         sessionsProvider.start()
 
-        let tokensService = AlphaWalletTokensService(
-            sessionsProvider: sessionsProvider,
-            tokensDataStore: tokensDataStore,
-            analytics: analytics,
-            transactionsStorage: transactionsDataStore,
+        let fetchTokenScriptFiles = FetchTokenScriptFilesImpl(
             assetDefinitionStore: assetDefinitionStore,
-            transporter: BaseApiTransporter())
+            tokensDataStore: tokensDataStore,
+            sessionsProvider: sessionsProvider)
+
+        let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, transactionsStorage: transactionsDataStore, assetDefinitionStore: assetDefinitionStore, fetchTokenScriptFiles: fetchTokenScriptFiles, transporter: BaseApiTransporter())
 
         let tokensPipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
