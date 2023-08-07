@@ -10,6 +10,7 @@ public final class BrowserHistoryStorage {
     private let ignoreUrls: Set<URL>
 
     public var historiesChangeset: AnyPublisher<ChangeSet<[BrowserHistoryRecord]>, Never> {
+        //TODO speed up. why doesn't this use performSync?
         return realm.objects(History.self)
             .sorted(byKeyPath: "createdAt", ascending: false)
             .changesetPublisher

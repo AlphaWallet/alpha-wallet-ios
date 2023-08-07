@@ -23,6 +23,9 @@ public class FetchTokenScriptFilesImpl: FetchTokenScriptFiles {
     }
 
     public func start() {
+        if TokenScript.shouldDisableFetchTokenScriptXMLFiles {
+            return
+        }
         fetchForTokens()
         fetchForAttestations()
     }

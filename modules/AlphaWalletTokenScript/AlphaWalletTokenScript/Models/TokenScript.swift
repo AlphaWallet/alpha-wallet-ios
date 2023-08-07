@@ -7,6 +7,9 @@ public typealias TokenId = BigUInt
 public typealias AttributeId = String
 
 public enum TokenScript {
+    public static var shouldDisableTokenScriptXMLFileWrites = false
+    public static var shouldDisableTokenScriptXMLFileReads = false
+    public static var shouldDisableFetchTokenScriptXMLFiles = false
 }
 
 extension TokenScript {

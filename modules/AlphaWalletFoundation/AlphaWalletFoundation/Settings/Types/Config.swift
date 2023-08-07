@@ -15,6 +15,16 @@ public struct Config {
         public let isOpenSeaFetchingDisabled = false
         public let isRunLoopThreadLoggingEnabled = false
         public let shouldReadClipboardForQRCode = false
+        public let shouldDisableBlockieGeneration = false
+        public let shouldDisableActivities = false
+        public let shouldDisableRefreshAllTokensBalance = false
+        public let shouldDisableRefreshTokensBalance = false
+        public let shouldDisableTokenScriptXMLFileReads = false
+        public let shouldDisableTokenScriptXMLFileWrites = false
+        public let shouldDisableTokenScriptEffects = false
+        public let shouldDisableApplyingTickers = false
+        public let shouldDisableENSResolution = false
+        public let shouldDisableFetchTokenScriptXMLFiles = false
 
         public init() {}
     }
