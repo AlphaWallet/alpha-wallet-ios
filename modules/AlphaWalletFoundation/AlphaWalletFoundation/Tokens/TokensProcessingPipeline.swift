@@ -57,11 +57,20 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 }
             }
 
+        let whenAttestationXMLChanged = assetDefinitionStore.attestationXMLChange
+                .receive(on: queue)
+                .flatMap { [tokensService] _ in
+                    asFuture {
+                        await tokensService.tokens
+                    }
+                }
+
         let whenTokensHasChanged = tokensService.tokensPublisher
             .dropFirst()
             .receive(on: queue)
 
-        let whenCollectionHasChanged = Publishers.Merge4(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged, whenCurrencyChanged)
+        let whenCollectionHasChanged = Publishers.Merge5(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged, whenAttestationXMLChanged, whenCurrencyChanged)
+                //TODO: attestations+TokenScript to verify attestationXMLChange triggers reloading
                 .map { $0.map { TokenViewModel(token: $0) } }
                 .flatMapLatest { tokenViewModels in asFuture { await self.applyTickers(tokens: tokenViewModels) ?? [] } }
                 .flatMap { self.applyTokenScriptOverrides(tokens: $0) }

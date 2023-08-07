@@ -5,4 +5,5 @@ import PromiseKit
 
 public protocol TokenScriptStatusResolver {
     func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool) -> Promise<TokenLevelTokenScriptDisplayStatus>
+    func computeTokenScriptStatus(forAttestationURL url: URL, xmlString: String) -> Promise<TokenLevelTokenScriptDisplayStatus>
 }

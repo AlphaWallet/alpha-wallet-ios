@@ -34,10 +34,14 @@ public class AssetDefinitionStore: NSObject {
 
     private var lastContractInPasteboard: String?
     private var backingStore: AssetDefinitionBackingStore
+    private var tokenScriptForAttestationStore = TokenScriptForAttestationStore()
+    //TODO: attestations+TokenScript rename to be for tokens (only)?
     private let xmlHandlers: AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler> = .init()
+    private let xmlHandlersForAttestations: AtomicDictionary<URL, PrivateXMLHandler> = .init()
     private let baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+    private var attestationXmlChangeSubject: PassthroughSubject<URL, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
     private let networking: AssetDefinitionNetworking
     private let tokenScriptStatusResolver: TokenScriptStatusResolver
@@ -63,6 +67,10 @@ public class AssetDefinitionStore: NSObject {
 
     public var bodyChange: AnyPublisher<AlphaWallet.Address, Never> {
         bodyChangeSubject.eraseToAnyPublisher()
+    }
+
+    public var attestationXMLChange: AnyPublisher<URL, Never> {
+        attestationXmlChangeSubject.eraseToAnyPublisher()
     }
 
     public var assetsSignatureOrBodyChange: AnyPublisher<AlphaWallet.Address, Never> {
@@ -173,6 +181,48 @@ public class AssetDefinitionStore: NSObject {
         }
     }
 
+    public func fetchXMLForAttestation(withScriptURL url: URL) async {
+        let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url.rewrittenIfIpfs, lastModifiedDate: nil)
+
+        return await withCheckedContinuation { continuation in
+            networking.fetchXml(request: request)
+                    .sinkAsync(receiveCompletion: { _ in
+                        //no-op
+                    }, receiveValue: { [weak self] response in
+                        guard let strongSelf = self else {
+                            continuation.resume(returning: ())
+                            return
+                        }
+
+                        switch response {
+                        case .error:
+                            continuation.resume(returning: ())
+                            return
+                        case .unmodified:
+                            continuation.resume(returning: ())
+                            return
+                        case .xml(let xml):
+                            //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
+                            //TODO: attestations+TokenScript to implement persistance for attestations' TokenScript files
+                            if xml == strongSelf.tokenScriptForAttestationStore[url] {
+                                continuation.resume(returning: ())
+                                return
+                            } else if functional.isTruncatedXML(xml: xml) {
+                                continuation.resume(returning: ())
+                                return
+                            } else {
+                                strongSelf.tokenScriptForAttestationStore[url] = xml
+                                //TODO: attestations+TokenScript do we enforce they must be IPFS before downloading?
+                                //We do not invalidate (by removing the downloaded XML for the URL) like we do for TokenScript for tokens because the contents are on iPFS and thus immutable
+                                strongSelf.triggerAttestationXMLChangedSubscribers(forURL: url)
+
+                                continuation.resume(returning: ())
+                            }
+                        }
+                    })
+        }
+    }
+
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
@@ -209,6 +259,10 @@ public class AssetDefinitionStore: NSObject {
 
     private func triggerBodyChangedSubscribers(forContract contract: AlphaWallet.Address) {
         bodyChangeSubject.send(contract)
+    }
+
+    private func triggerAttestationXMLChangedSubscribers(forURL url: URL) {
+        attestationXmlChangeSubject.send(url)
     }
 
     private func triggerSignatureChangedSubscribers(forContract contract: AlphaWallet.Address) {
@@ -254,7 +308,7 @@ public class AssetDefinitionStore: NSObject {
     }
 
     public subscript(url: URL) -> String? {
-        return tokenScriptForAttestationStore [url]
+        return tokenScriptForAttestationStore[url]
     }
 }
 
@@ -280,6 +334,14 @@ extension AssetDefinitionStore: AssetDefinitionStoreProtocol {
         xmlHandlers[key] = xmlHandler
     }
 
+    public func getXmlHandler(forAttestationAtURL url: URL) -> PrivateXMLHandler? {
+        return xmlHandlersForAttestations[url]
+    }
+
+    public func set(xmlHandler: PrivateXMLHandler?, forAttestationAtURL url: URL) {
+        xmlHandlersForAttestations[url] = xmlHandler
+    }
+
     public func getBaseXmlHandler(for key: String) -> PrivateXMLHandler? {
         baseXmlHandlers[key]
     }
@@ -296,6 +358,11 @@ extension AssetDefinitionStore: AssetDefinitionStoreProtocol {
 extension AssetDefinitionStore: TokenScriptStatusResolver {
     public func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool) -> Promise<TokenLevelTokenScriptDisplayStatus> {
         tokenScriptStatusResolver.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial)
+    }
+
+    public func computeTokenScriptStatus(forAttestationURL url: URL, xmlString: String) -> Promise<TokenLevelTokenScriptDisplayStatus> {
+        //TODO: attestations+TokenScript to implement computeTokenScriptStatus
+        return Promise { _ in }
     }
 }
 

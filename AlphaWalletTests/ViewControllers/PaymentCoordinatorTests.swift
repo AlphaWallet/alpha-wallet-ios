@@ -55,6 +55,7 @@ extension WalletDataProcessingPipeline {
             analytics: fas,
             transactionsStorage: transactionsDataStore,
             assetDefinitionStore: .make(),
+            fetchTokenScriptFiles: FakeFetchTokenScriptFiles(),
             transporter: FakeApiTransporter())
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(

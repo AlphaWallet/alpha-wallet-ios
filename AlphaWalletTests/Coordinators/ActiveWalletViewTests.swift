@@ -549,6 +549,12 @@ class ActiveWalletViewTests: XCTestCase {
 }
 // swiftlint:enable type_body_length
 
+class FakeFetchTokenScriptFiles: FetchTokenScriptFiles {
+    func start() {
+        //no-op
+    }
+}
+
 import AlphaWalletNotifications
 
 extension BasePushNotificationsService {

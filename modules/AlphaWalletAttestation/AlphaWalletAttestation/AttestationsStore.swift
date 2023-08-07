@@ -21,21 +21,27 @@ public class AttestationsStore {
         self.attestations = functional.readAttestations(forWallet: wallet, from: Self.fileUrl)
     }
 
-    public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
+    public static func allAttestations() -> [Attestation] {
+        return functional.readAttestations(from: fileUrl).flatMap { $0.value }
+    }
+
+    public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) -> Bool {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
             var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
             guard !attestations.contains(attestation) else {
                 infoLog("[Attestation] Attestation already exist. Skipping")
-                return
+                return false
             }
             attestationsForWallet.append(attestation)
             allAttestations[address] = attestationsForWallet
             try saveAttestations(attestations: allAttestations)
             attestations = attestationsForWallet
             infoLog("[Attestation] Imported attestation")
+            return true
         } catch {
             errorLog("[Attestation] failed to encode attestations while adding attestation to: \(Self.fileUrl.absoluteString) error: \(error)")
+            return false
         }
     }
 

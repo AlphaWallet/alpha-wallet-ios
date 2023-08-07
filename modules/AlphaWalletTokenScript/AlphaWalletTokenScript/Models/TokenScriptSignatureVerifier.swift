@@ -70,6 +70,11 @@ public class BaseTokenScriptStatusResolver: TokenScriptStatusResolver {
         }
     }
 
+    public func computeTokenScriptStatus(forAttestationURL url: URL, xmlString: String) -> Promise<TokenLevelTokenScriptDisplayStatus> {
+        //TODO: attestations+TokenScript to implement computeTokenScriptStatus
+        return Promise { _ in }
+    }
+
     private func verificationType(forXml xmlString: String) -> PromiseKit.Promise<TokenScriptSignatureVerificationType> {
         if let cachedVerificationType = backingStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString) {
             return .value(cachedVerificationType)
