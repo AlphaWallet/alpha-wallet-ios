@@ -52,6 +52,10 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
     }
 
     public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool = false, currency: Currency) {
+        //TODO pass in Config instance instead
+        if Config().development.isAutoFetchingDisabled {
+            return
+        }
         //NOTE: cancel all previous requests for prev currency
         inflightFetchers.removeAll { $0.currency != currency }
 
@@ -103,6 +107,10 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
 
     /// Returns cached chart history if its not expired otherwise download a new version of history, if ticker id has found
     public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod], currency: Currency) async -> [ChartHistoryPeriod: ChartHistory] {
+        //TODO pass in an instance instead
+        if Config().development.isAutoFetchingDisabled {
+            return [:]
+        }
         let unorderedHistoryToPeriods = await periods.asyncMap { await fetchChartHistory(force: force, period: $0, for: token, currency: currency) }
         let historyToPeriods = unorderedHistoryToPeriods.reorder(by: periods)
         var values: [ChartHistoryPeriod: ChartHistory] = [:]
