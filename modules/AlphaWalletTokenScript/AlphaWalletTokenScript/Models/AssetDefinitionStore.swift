@@ -192,7 +192,7 @@ public class AssetDefinitionStore: NSObject {
                     //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
                     if xml == strongSelf[contract] {
                         completionHandler?(.unmodified)
-                    } else if strongSelf.isTruncatedXML(xml: xml) {
+                    } else if functional.isTruncatedXML(xml: xml) {
                         strongSelf.fetchXML(forContract: contract, server: server, useCacheAndFetch: false) { result in
                             completionHandler?(result)
                         }
@@ -205,11 +205,6 @@ public class AssetDefinitionStore: NSObject {
                     }
                 }
             })
-    }
-
-    private func isTruncatedXML(xml: String) -> Bool {
-        //Safety check against a truncated file download
-        return !xml.trimmed.hasSuffix(">")
     }
 
     private func triggerBodyChangedSubscribers(forContract contract: AlphaWallet.Address) {
@@ -256,6 +251,10 @@ public class AssetDefinitionStore: NSObject {
 
     public func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
         backingStore.forEachContractWithXML(body)
+    }
+
+    public subscript(url: URL) -> String? {
+        return tokenScriptForAttestationStore [url]
     }
 }
 
@@ -353,11 +352,16 @@ extension AssetDefinitionStore {
     enum functional {}
 }
 
-extension AssetDefinitionStore.functional {
-    public static func urlToFetchFromTokenScriptRepo(contract: AlphaWallet.Address) -> URL? {
+fileprivate extension AssetDefinitionStore.functional {
+    static func urlToFetchFromTokenScriptRepo(contract: AlphaWallet.Address) -> URL? {
         let name = contract.eip55String
         let url = URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
         return url
+    }
+
+    static func isTruncatedXML(xml: String) -> Bool {
+        //Safety check against a truncated file download
+        return !xml.trimmed.hasSuffix(">")
     }
 }
 
