@@ -5,7 +5,7 @@
 source "https://rubygems.org"
 
 gem 'fastlane'
-gem 'cocoapods', '1.11.3'
+gem 'cocoapods', git: 'https://github.com/CocoaPods/CocoaPods.git', ref: '0d9380c1443bcfc96b5c78b50b73d376031c1a9c'
 #guard against rubyzip vulnerability
 gem "rubyzip", ">= 1.3.0"
 gem "excon", ">= 0.71.0"

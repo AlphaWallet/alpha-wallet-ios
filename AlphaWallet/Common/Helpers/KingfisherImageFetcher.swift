@@ -12,7 +12,7 @@ import AlphaWalletFoundation
 class KingfisherImageFetcher: ImageFetcher {
 
     func retrieveImage(with url: URL) async throws -> UIImage {
-        let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
+        let resource = Kingfisher.ImageResource(downloadURL: url, cacheKey: url.absoluteString)
 
         return try await withUnsafeThrowingContinuation { continuation in
             KingfisherManager.shared.retrieveImage(with: resource) { result in
