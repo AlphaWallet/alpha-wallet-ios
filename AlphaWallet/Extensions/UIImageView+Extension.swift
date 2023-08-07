@@ -12,7 +12,7 @@ extension UIImageView {
 
     func setImage(url urlValue: URL?, placeholder: UIImage? = .none) {
         if let url = urlValue {
-            let resource = ImageResource(downloadURL: url)
+            let resource = Kingfisher.ImageResource(downloadURL: url)
             var options: KingfisherOptionsInfo = []
 
             if let value = placeholder {
