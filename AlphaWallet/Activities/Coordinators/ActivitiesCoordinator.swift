@@ -68,6 +68,9 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
 
     func subscribeForActivitiesUpdates() {
+        if Config().development.shouldDisableActivities {
+            return
+        }
         activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
             .sink { [weak rootViewController] activities in

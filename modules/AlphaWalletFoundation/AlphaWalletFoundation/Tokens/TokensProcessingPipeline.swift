@@ -36,7 +36,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let whenTickersChanged = coinTickersProvider.tickersDidUpdate.dropFirst()
             .receive(on: queue)
             .flatMap { [tokensService] _ in
-                asFuture {
+                return asFuture {
                     await tokensService.tokens
                 }
             }
@@ -44,15 +44,17 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let whenCurrencyChanged = currencyService.$currency.dropFirst()
             .receive(on: queue)
             .flatMap { [tokensService] _ in
-                asFuture {
+                return asFuture {
                     await tokensService.tokens
                 }
             }
 
         let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
             .receive(on: queue)
+            //Essential to not block the UI because this publisher emits values too frequently, especially at launch
+            .throttle(for: .seconds(10), scheduler: queue, latest: true)
             .flatMap { [tokensService] _ in
-                asFuture {
+                return asFuture {
                     await tokensService.tokens
                 }
             }
@@ -60,7 +62,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let whenAttestationXMLChanged = assetDefinitionStore.attestationXMLChange
                 .receive(on: queue)
                 .flatMap { [tokensService] _ in
-                    asFuture {
+                    return asFuture {
                         await tokensService.tokens
                     }
                 }
@@ -237,6 +239,9 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     private func applyTokenScriptOverrides(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {
+        if Config().development.shouldDisableTokenScriptEffects {
+            return .just(tokens)
+        }
         let overrides = tokens.map { token -> TokenViewModel in
             guard let session = sessionsProvider.session(for: token.server) else { return token }
             let overrides = session.tokenAdaptor.tokenScriptOverrides(token: token)
@@ -254,6 +259,9 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     private func applyTickers(tokens: [TokenViewModel]) async -> [TokenViewModel] {
+        if Config().development.shouldDisableApplyingTickers {
+            return tokens
+        }
         return await tokens.asyncCompactMap { await applyTicker(token: $0) }
     }
 

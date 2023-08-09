@@ -156,12 +156,18 @@ public class AlphaWalletTokensService: TokensService {
             provider.refreshBalance(for: [token])
         case .all:
             for provider in providers.value.values {
+                if Config().development.shouldDisableRefreshAllTokensBalance {
+                    return
+                }
                 Task { @MainActor in
                     let tokens = await provider.getTokens()
                     provider.refreshBalance(for: tokens)
                 }
             }
         case .tokens(let tokens):
+            if Config().development.shouldDisableRefreshTokensBalance {
+                return
+            }
             for token in tokens {
                 guard let provider = providers.value[safe: token.server] else { return }
                 provider.refreshBalance(for: [token])

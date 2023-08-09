@@ -13,6 +13,7 @@ public final class BookmarksStore {
     private let realm: Realm
 
     public var bookmarksChangeset: AnyPublisher<ChangeSet<[BookmarkObject]>, Never> {
+        //TODO speed up. why doesn't this use performSync?
         return realm.objects(Bookmark.self)
             .sorted(byKeyPath: "order", ascending: true)
             .changesetPublisher

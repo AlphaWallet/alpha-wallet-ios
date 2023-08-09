@@ -23,6 +23,7 @@ public class BlockiesGenerator {
     }
 
     private let queue = DispatchQueue(label: "org.alphawallet.swift.blockies.generator")
+    private var cachedBlockieForPerformanceDevelopment: BlockiesImage?
 
     /// Address related icons cache with image size and scale
     private var cache: [String: BlockiesImage] = [:]
@@ -49,6 +50,7 @@ public class BlockiesGenerator {
         }
     }
 
+    //TODO speed up. Callers block if we want for generation at launch, without a default?
     public func getBlockieOrEnsAvatarImage(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) async throws -> BlockiesImage {
         if let cached = self.cachedBlockie(address: address, size: .sized(size: size, scale: scale)) {
             return cached
@@ -58,6 +60,13 @@ public class BlockiesGenerator {
             let blockie = try await createBlockieImage(address: address, size: size, scale: scale)
             self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
             return blockie
+        }
+
+        if Config().development.shouldDisableBlockieGeneration {
+            if cachedBlockieForPerformanceDevelopment == nil {
+                cachedBlockieForPerformanceDevelopment = BlockiesImage.image(image: UIImage(), isEnsAvatar: false)
+            }
+            return cachedBlockieForPerformanceDevelopment!
         }
 
         do {

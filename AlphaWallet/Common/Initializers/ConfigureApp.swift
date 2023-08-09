@@ -6,6 +6,7 @@ import AlphaWalletENS
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletOpenSea
+import AlphaWalletTokenScript
 import PromiseKit
 
 public class ConfigureApp: Initializer {
@@ -13,6 +14,10 @@ public class ConfigureApp: Initializer {
     public func perform() {
         ENS.isLoggingEnabled = true
         AlphaWalletOpenSea.OpenSea.isLoggingEnabled = true
+
+        TokenScript.shouldDisableTokenScriptXMLFileWrites = Config().development.shouldDisableTokenScriptXMLFileWrites
+        TokenScript.shouldDisableTokenScriptXMLFileReads = Config().development.shouldDisableTokenScriptXMLFileReads
+        TokenScript.shouldDisableFetchTokenScriptXMLFiles = Config().development.shouldDisableFetchTokenScriptXMLFiles
 
         Attestation.isLoggingEnabled = true
         Attestation.callSmartContract = { server, contract, functionName, abiString, parameters in

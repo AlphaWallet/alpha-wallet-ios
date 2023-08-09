@@ -147,11 +147,14 @@ final class AccountsViewModel {
 
     private func buildAccountRowViewModel(wallet: Wallet) -> AnyPublisher<AccountRowViewModel, Never> {
         let balance = walletBalanceService.walletBalance(for: wallet)
-        let blockieImage = asFuture { await self.blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage) }
-            .handleEvents(receiveOutput: { [analytics] value in
-                guard value.isEnsAvatar else { return }
-                analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
-            })
+        let blockieImage: CurrentValueSubject<BlockiesImage, Never> = CurrentValueSubject(BlockiesImage.defaulBlockieImage)
+        Task {
+            blockieImage.value = await self.blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+        }
+        _ = blockieImage.handleEvents(receiveOutput: { [analytics] value in
+            guard value.isEnsAvatar else { return }
+            analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+        })
 
         let addressOrEnsName = getWalletName.assignedNameOrEns(for: wallet.address)
             .map { [wallet] ensOrName in

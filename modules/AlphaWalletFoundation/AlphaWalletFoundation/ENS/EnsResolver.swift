@@ -17,7 +17,11 @@ public class EnsResolver {
         self.storage = storage
     }
 
+    ///TODO speed up by having a default at the caller
     public func getENSAddressFromResolver(for name: String) async throws -> AlphaWallet.Address {
+        if Config().development.shouldDisableENSResolution {
+            return Constants.nullAddress
+        }
         if let cachedResult = await cachedAddress(for: name) {
             return cachedResult
         }

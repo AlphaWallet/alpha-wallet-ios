@@ -258,6 +258,7 @@ final class TokensViewController: UIViewController {
             }.store(in: &cancellable)
 
         output.viewState
+            .receive(on: RunLoop.main)
             .sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
                 self?.showOrHideBackupWalletViewHolder()
 
@@ -320,6 +321,9 @@ final class TokensViewController: UIViewController {
     }
 
     @objc private func enterSearchMode() {
+        //TODO enable search again
+        return;
+
         let searchController = searchController
         navigationItem.searchController = searchController
 

@@ -123,6 +123,9 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     public subscript(contract: AlphaWallet.Address) -> String? {
         get {
+            if TokenScript.shouldDisableTokenScriptXMLFileReads {
+                return nil
+            }
             guard var xmlContents = xml(forContract: contract) else { return nil }
             guard let fileName = tokenScriptFileIndices.nonConflictingFileName(forContract: contract) else { return xmlContents }
             guard let entities = tokenScriptFileIndices.contractsToEntities[fileName] else { return xmlContents }
@@ -136,6 +139,9 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             return xmlContents
         }
         set(xml) {
+            if TokenScript.shouldDisableTokenScriptXMLFileWrites {
+                return
+            }
             guard let xml = xml else { return }
             let path = localURLOfXML(for: contract)
             try? xml.write(to: path, atomically: true, encoding: .utf8)

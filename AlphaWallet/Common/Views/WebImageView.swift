@@ -59,13 +59,9 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         return imageView
     }()
 
-    private lazy var svgImageView: SvgImageView = {
-        let imageView = SvgImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.rounding = rounding
-        imageView.backgroundColor = backgroundColor
-        return imageView
-    }()
+    //We always use the optional version unless we want to assign an image to it, that's when the lazy-var creation (needs to) kicks in; because it's a web view
+    private var svgImageView: SvgImageView?
+    private var videoPlayerView: AVPlayerView?
 
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
@@ -75,23 +71,16 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         return indicator
     }()
 
-    private lazy var videoPlayerView: AVPlayerView = {
-        let view = AVPlayerView(
-            edgeInsets: .zero,
-            playButtonPositioning: playButtonPositioning,
-            viewModel: viewModel.avPlayerViewModel)
-
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-        return view
-    }()
-
     override var contentMode: UIView.ContentMode {
         didSet { imageView.fixedContentMode = contentMode }
     }
 
     var rounding: ViewRounding = .none {
-        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; videoPlayerView.rounding = rounding; }
+        didSet {
+            imageView.rounding = rounding
+            svgImageView?.rounding = rounding
+            videoPlayerView?.rounding = rounding
+        }
     }
 
     var placeholderRounding: ViewRounding = .none {
@@ -107,11 +96,10 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     private let setContentSubject = PassthroughSubject<WebImageViewModel.SetContentEvent, Never>()
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: WebImageViewModel
+    private let edgeInsets: UIEdgeInsets
 
-    init(edgeInsets: UIEdgeInsets = .zero,
-         playButtonPositioning: AVPlayerView.PlayButtonPositioning,
-         viewModel: WebImageViewModel = .init()) {
-
+    init(edgeInsets: UIEdgeInsets = .zero, playButtonPositioning: AVPlayerView.PlayButtonPositioning, viewModel: WebImageViewModel = .init()) {
+        self.edgeInsets = edgeInsets
         self.viewModel = viewModel
         self.playButtonPositioning = playButtonPositioning
         super.init(frame: .zero)
@@ -123,14 +111,10 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         isUserInteractionEnabled = true
 
         addSubview(imageView)
-        addSubview(svgImageView)
         addSubview(placeholderImageView)
-        addSubview(videoPlayerView)
         addSubview(loadingIndicator)
 
         NSLayoutConstraint.activate([
-            videoPlayerView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            svgImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             placeholderImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
 
@@ -152,7 +136,6 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
 
     func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         placeholderImageView.image = placeholder
-
         setContentSubject.send(.url(url?.url))
     }
 
@@ -180,48 +163,72 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     private func reload(viewState: WebImageViewModel.ViewState) {
         switch viewState {
         case .loading:
-            svgImageView.alpha = 0
+            svgImageView?.alpha = 0
             imageView.image = nil
-            videoPlayerView.alpha = 0
+            videoPlayerView?.alpha = 0
             placeholderImageView.isHidden = false
-            videoPlayerView.cancel()
+            videoPlayerView?.cancel()
             loadingIndicator.startAnimating()
         case .noContent:
-            svgImageView.alpha = 0
+            svgImageView?.alpha = 0
             imageView.image = nil
-            videoPlayerView.alpha = 0
+            videoPlayerView?.alpha = 0
 
             placeholderImageView.isHidden = false
-            videoPlayerView.cancel()
+            videoPlayerView?.cancel()
             loadingIndicator.stopAnimating()
         case .content(let data):
             loadingIndicator.stopAnimating()
             switch data {
             case .svg(let svg):
                 imageView.image = nil
-                svgImageView.setImage(svg: svg)
+                createSvgImageView()
+                svgImageView?.setImage(svg: svg)
                 placeholderImageView.isHidden = true
-                videoPlayerView.cancel()
+                videoPlayerView?.cancel()
             case .image(let image):
                 imageView.image = image
-
-                svgImageView.alpha = 0
-                videoPlayerView.alpha = 0
+                svgImageView?.alpha = 0
+                videoPlayerView?.alpha = 0
                 placeholderImageView.isHidden = true
-                videoPlayerView.cancel()
+                videoPlayerView?.cancel()
             case .video(let video):
-                svgImageView.alpha = 0
-                videoPlayerView.alpha = 1
+                svgImageView?.alpha = 0
+                createVideoPlayerView()
+                videoPlayerView?.alpha = 1
 
                 imageView.image = video.preview
                 placeholderImageView.isHidden = video.preview != nil
 
-                videoPlayerView.play(url: video.url)
+                videoPlayerView?.play(url: video.url)
             }
         }
     }
 
     func cancel() {
         setContentSubject.send(.cancel)
+    }
+
+    private func createSvgImageView() {
+        let imageView = SvgImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = backgroundColor
+        imageView.rounding = rounding
+        addSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+        ])
+        svgImageView = imageView
+    }
+
+    private func createVideoPlayerView() {
+        let view = AVPlayerView(edgeInsets: .zero, playButtonPositioning: playButtonPositioning, viewModel: viewModel.avPlayerViewModel)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.rounding = rounding
+        addSubview(view)
+        NSLayoutConstraint.activate([
+            view.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+        ])
+        videoPlayerView = view
     }
 }

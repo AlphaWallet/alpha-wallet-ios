@@ -58,6 +58,7 @@ final class TokensViewModel {
     private let domainResolutionService: DomainNameResolutionServiceType
     private let blockiesGenerator: BlockiesGenerator
     private let sectionViewModelsSubject = CurrentValueSubject<[TokensViewModel.SectionViewModel], Never>([])
+    private let sectionViewModelsImmediateSubject = CurrentValueSubject<[TokensViewModel.SectionViewModel], Never>([])
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -197,7 +198,7 @@ final class TokensViewModel {
             .receive(on: RunLoop.main)
             .sink { [weak self] sessions in
                 self?.walletConnectSessions = sessions.count
-                self?.reloadData()
+                self?.reloadData(immediately: true)
             }.store(in: &cancellable)
 
         tokensPipeline.tokenViewModels
@@ -213,10 +214,22 @@ final class TokensViewModel {
         let selection = selection(trigger: input.selection)
 
         let titleWithListOfBadTokenScriptFiles = Publishers.CombineLatest(title, assetDefinitionStore.listOfBadTokenScriptFiles)
-        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, titleWithListOfBadTokenScriptFiles)
+        let firstNonZeroTokens = sectionViewModelsSubject.filter { sections in
+            if let s = sections.first(where: { $0.section == .tokens }) {
+                return !s.views.isEmpty
+            } else {
+                return false
+            }
+            //Completely empirical because prefix(1) wasn't fast enough at launch
+        }.prefix(2)
+        //Throttle heavily so we don't freeze the UI for a few seconds after first launch and tokens are displayed
+        //let throttledTokensSubject = sectionViewModelsSubject.throttle(for: .seconds(60), scheduler: DispatchQueue.main, latest: true)
+        let throttledTokensSubject = sectionViewModelsSubject.throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
+        let compositeSectionViewModelsSubject = Publishers.Merge3(firstNonZeroTokens, throttledTokensSubject, sectionViewModelsImmediateSubject)
+
+        let viewState = Publishers.CombineLatest4(compositeSectionViewModelsSubject, walletSummary, blockieImage, titleWithListOfBadTokenScriptFiles)
             .map { [weak self] sections, summary, blockiesImage, data -> TokensViewModel.ViewState in
                 let isConsoleButtonHidden = data.1.isEmpty
-
                 return TokensViewModel.ViewState(
                     title: data.0,
                     summary: summary,
@@ -232,7 +245,7 @@ final class TokensViewModel {
         attestationsStore.$attestations
             .sink {
                 self._attestations = $0
-                self.reloadData()
+                self.reloadData(immediately: true)
             }
             .store(in: &cancellable)
 
@@ -256,9 +269,11 @@ final class TokensViewModel {
 
     private func blockieImage(input appear: AnyPublisher<Void, Never>) -> AnyPublisher<BlockiesImage, Never> {
         return appear.flatMap { [blockiesGenerator, wallet] _ in
-            asFuture {
-                await blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+            let result: CurrentValueSubject<BlockiesImage, Never> = CurrentValueSubject(BlockiesImage.defaulBlockieImage)
+            Task {
+                result.value = await blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
             }
+            return result
         }.eraseToAnyPublisher()
     }
 
@@ -339,9 +354,9 @@ final class TokensViewModel {
     }
 
     func set(filter: WalletFilter) {
+        //TODO possible that layout will be broken due to `filter` and refresh not in sync?
         self.filter = filter
-
-        reloadData()
+        reloadData(immediately: true)
     }
 
     private func tokenOrServer(at indexPath: IndexPath) -> TokenOrRpcServer {
@@ -524,12 +539,16 @@ final class TokensViewModel {
         }
     }
 
-    private func reloadData() {
+    private func reloadData(immediately: Bool = false) {
         filteredTokens = filteredAndSortedTokens()
         refreshSections(walletConnectSessions: walletConnectSessions)
 
         let sections = buildSectionViewModels()
-        sectionViewModelsSubject.send(sections)
+        if immediately {
+            sectionViewModelsImmediateSubject.send(sections)
+        } else {
+            sectionViewModelsSubject.send(sections)
+        }
     }
 
     private func buildSectionViewModels() -> [TokensViewModel.SectionViewModel] {
