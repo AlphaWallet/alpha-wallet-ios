@@ -226,8 +226,7 @@ public struct Attestation: Codable, Hashable {
                   let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
                   let queryItems = urlComponents.queryItems,
                   let ticketItem = queryItems.first(where: { $0.name == "ticket" }), let encodedAttestation = ticketItem.value {
-            let replacedAttestationValue = encodedAttestation.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+")
-            let attestation = try await Attestation.extract(fromEncodedValue: String(replacedAttestationValue), source: urlString)
+            let attestation = try await Attestation.extract(fromEncodedValue: encodedAttestation, source: urlString)
             return attestation
         } else {
             throw AttestationError.parseAttestationUrlFailed(urlString)
@@ -348,8 +347,11 @@ fileprivate extension Attestation.functional {
     }
 
     static func unzipAttestation(_ zipped: String) throws -> Data {
+        //Instead of the usual use of / and +, it might use _ and - instead. So we need to normalize it for parsing
+        let normalizedZipped = zipped.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+")
+
         //Can't check `zipped.isGzipped`, it's false (sometimes?), but it works, so just don't check
-        guard let compressed = Data(base64Encoded: zipped) else {
+        guard let compressed = Data(base64Encoded: normalizedZipped) else {
             throw Attestation.AttestationInternalError.unzipAttestationFailed(zipped: zipped)
         }
         do {
