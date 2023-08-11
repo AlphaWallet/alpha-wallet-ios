@@ -216,6 +216,21 @@ public struct Attestation: Codable, Hashable {
         self.source = source
     }
 
+    public func stringProperty(withName name: String) -> String? {
+        return data.compactMap { each in
+            if each.type.name == name {
+                switch each.value {
+                case .string(let value):
+                    return value
+                case .address, .bool, .bytes, .int, .uint:
+                    return nil
+                }
+            } else {
+                return nil
+            }
+        }.first
+    }
+
     public static func extract(fromUrlString urlString: String) async throws -> Attestation {
         if let url = URL(string: urlString),
            let fragment = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment,
