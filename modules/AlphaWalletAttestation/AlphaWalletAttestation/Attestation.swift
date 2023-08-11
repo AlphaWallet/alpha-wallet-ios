@@ -408,8 +408,8 @@ fileprivate extension Attestation.functional {
         let types: [ABIv2.Element.InOut]
         if attestation.schema == "" || attestation.schema == "0x0000000000000000000000000000000000000000000000000000000000000000" || attestation.schema == "0x0" || attestation.schema == "0" {
             types = [
-                ABIv2.Element.InOut(name: "devconId", type: ABIv2.Element.ParameterType.string),
-                ABIv2.Element.InOut(name: "ticketIdString", type: ABIv2.Element.ParameterType.string),
+                ABIv2.Element.InOut(name: "eventId", type: ABIv2.Element.ParameterType.string),
+                ABIv2.Element.InOut(name: "ticketId", type: ABIv2.Element.ParameterType.string),
                 ABIv2.Element.InOut(name: "ticketClass", type: ABIv2.Element.ParameterType.uint(bits: 8)),
                 ABIv2.Element.InOut(name: "commitment", type: ABIv2.Element.ParameterType.dynamicBytes),
             ]
