@@ -32,7 +32,4 @@ class AttestationTest: XCTestCase {
         let value = "eNrFk0uKGzAMhu-SdSh6WK_lzKS5ROnCluUDlBZ6_FHSIwSmWhhj5O-XhP4fF_hGerkiokgf1wv8_SC1OO83ti2D3T9qBN_x9m7CBDdiLXSUujyS0zdmlK-IhSPHnlDJmWvg9CmmQGmBM_jo8Mwq1YMDZO-0mf8gNjp0dh4dMK6TGHQaAZty79PYM9IQqFpGzLbxMifYdk5gXK7kD05DugdwjTfZKre76XL5Tnnzte63_UY5tcZ-ikYECSymvQAAuQsPHZMwwRllzGJn0jqhYPN0o77ID8xWOWb8hMCL8YD09NUjQFDpCs-H37_-1Ot4f7G4fLU7_I-_HzGFxx4oJKNXEyWGCMHXRTAy8GBhZWPqG3-hOrR_2oUzNIpotC9pmUQl9jykF34oRFtzD6FzxKlN1eM6BrDbVRZqcyFONjg-eZV426XSFntFjVyuosQmm-Y-qph4pkpCAa-Jqw7rq_aAn5_SXALd"
         _ = try await Attestation.extract(fromEncodedValue: value, source: "")
     }
-
-
-
 }
