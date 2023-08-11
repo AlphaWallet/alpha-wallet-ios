@@ -403,10 +403,22 @@ fileprivate extension Attestation.functional {
     }
 
     static func extractAttestationData(attestation: EasAttestation) async throws -> [Attestation.TypeValuePair] {
-        let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server)
-        infoLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
-        guard let types: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
-            throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
+        let types: [ABIv2.Element.InOut]
+        if attestation.schema == "" || attestation.schema == "0x0000000000000000000000000000000000000000000000000000000000000000" || attestation.schema == "0x0" || attestation.schema == "0" {
+            types = [
+                ABIv2.Element.InOut(name: "devconId", type: ABIv2.Element.ParameterType.string),
+                ABIv2.Element.InOut(name: "ticketIdString", type: ABIv2.Element.ParameterType.string),
+                ABIv2.Element.InOut(name: "ticketClass", type: ABIv2.Element.ParameterType.uint(bits: 8)),
+                ABIv2.Element.InOut(name: "commitment", type: ABIv2.Element.ParameterType.dynamicBytes),
+            ]
+            infoLog("[Attestation] schema UID not provided: \(attestation.schema), so we assume stock ticket schema: \(types)")
+        } else {
+            let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server)
+            infoLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
+            guard let localTypes: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
+                throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
+            }
+            types = localTypes
         }
         infoLog("[Attestation] types: \(types) data: \(attestation.data)")
         if let decoded = ABIv2Decoder.decode(types: types, data: Data(hex: attestation.data)) {

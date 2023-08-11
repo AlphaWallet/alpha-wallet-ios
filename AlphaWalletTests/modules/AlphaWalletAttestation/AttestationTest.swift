@@ -22,4 +22,17 @@ class AttestationTest: XCTestCase {
         let url = "http://localhost:3002/?type=eas&id=test%40test.com&secret=0x1592bc27c9c5257dcb5eae2fe7e69fefe91a19afe3d34b317e94cb18d7af7d4c&ticket=eNrFU0uuGzAIvEvWUcXHYFg2L-klqi5sMAeoWqnHfyQ9QhYPWTaSYZixPD8v8I30ckVEkd6uF_j3QTq9bneeKYPNPs5w_oH32xQmuBPrQUM5l2exZ-7kzbgO2FTLcqIuSQdXdzF0UNp0DBwF_cRxqwMLfEUNeIFMmA6xQOciULWTYw0wxZAAt_SSip0rw82ajJb7cZGElJPVTGg-cc5UfGw9Rn5_DM-zbgCGBJM58MHyPWrO--01VE9ktVAJh7OHnsWNiki4XaghVghEFVNCkDmSR6ECEfoc_J_50Dl3s9qJMGs2I07kFoYHxQ5b4TZSAcpkLJu72EbgMrNWFE-Qfn01NR-t_ZW6gXb6vPnz--95zoG3wt5rh3izH-itbnx3PCArfGUIIxMzD5avGD-wl1FV1p4xwjTbXQNyoy7yOZsYnVSUqBWjvPc9Qvro328ythsld0e7umAM0YLK0VYlacMfw2mn5s65RhC5Vm1sxy9fyC5qK99TcLnCr082VwjX"
         _ = try await Attestation.extract(fromUrlString: url)
     }
+
+    func testEnsureParsingForEasInSmartLayerPassMagicLink() async throws {
+        let url = "https://smart-layer.vercel.app/pass?type=eas&ticket=eNrFk0uOHDEIhu9S61bE23g5M5W-RDQLY8MBRomU48fVVyhpwgJbNv4Bi-_XAT_Ijgciqm73OODvB1nr9X5yWyrs_pHS-Ynne1MmOIkt0VHzuIIzqttw4hwllGZzqDRLG0w6tTdRnaDAiwcZ7DDP5rOKR8uCeokgzVEQWwhDHHBEOHfk1ZMwymoRD-aYjIGjtmvTp0k20OBFx4PapSNiuwdw62-6TM9ns3D9SfP0iOe53nYeS1mvpORTGUIbglCfgC6m4oqyK2XDYaEu-958QUTVnFAcHRNtIcBLBG7aJbJ_3zqK-a7jAa-D319_8r683yxu3u0O_-Pry4ayLEElFZl77XsYCb7PNgMM3Fm4se89bi_fl172ZCNabGII-CLRrM8OilXeyteGQYta2cVMtFErBwcHkhSO0bM7EHm0zXsLGJi8No7iF8te2hdTDvHqK6MJcY2VNXEZx1gOhXkXD_j8B3LDA5Y%3D&secret=0x1638d5d84e16749d3daf01795c8cad3adfc9b3b58baa6881246920b840798eed&id=weihong1hu%40shifudao.com"
+        _ = try await Attestation.extract(fromUrlString: url)
+    }
+
+    func testEnsureParsingForEasInSmartLayerPassAttestation() async throws {
+        let value = "eNrFk0uKGzAMhu-SdSh6WK_lzKS5ROnCluUDlBZ6_FHSIwSmWhhj5O-XhP4fF_hGerkiokgf1wv8_SC1OO83ti2D3T9qBN_x9m7CBDdiLXSUujyS0zdmlK-IhSPHnlDJmWvg9CmmQGmBM_jo8Mwq1YMDZO-0mf8gNjp0dh4dMK6TGHQaAZty79PYM9IQqFpGzLbxMifYdk5gXK7kD05DugdwjTfZKre76XL5Tnnzte63_UY5tcZ-ikYECSymvQAAuQsPHZMwwRllzGJn0jqhYPN0o77ID8xWOWb8hMCL8YD09NUjQFDpCs-H37_-1Ot4f7G4fLU7_I-_HzGFxx4oJKNXEyWGCMHXRTAy8GBhZWPqG3-hOrR_2oUzNIpotC9pmUQl9jykF34oRFtzD6FzxKlN1eM6BrDbVRZqcyFONjg-eZV426XSFntFjVyuosQmm-Y-qph4pkpCAa-Jqw7rq_aAn5_SXALd"
+        _ = try await Attestation.extract(fromEncodedValue: value, source: "")
+    }
+
+
+
 }
