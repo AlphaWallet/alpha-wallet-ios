@@ -202,6 +202,7 @@
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
 		5E7C72CEFE98436DB8EC0E05 /* BrowserHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D55C366BCC53208686 /* BrowserHistoryCell.swift */; };
 		5E7C72CF145240C816BB12E2 /* DappsHomeViewControllerHeaderViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7375430F36C549EA8748 /* DappsHomeViewControllerHeaderViewViewModel.swift */; };
+		5E7C72CFCF7C74331AF8B0A4 /* SmartLayerPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CC0A386C81A824CC853 /* SmartLayerPass.swift */; };
 		5E7C72E1D4B4B4C8443F3DA1 /* FungibleTokenHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7828BD821B6F04B71C00 /* FungibleTokenHeaderView.swift */; };
 		5E7C72EECA8154CEB7D9F46C /* ContainerViewWithShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C728B3CA6A429AB5EE5DF /* ContainerViewWithShadow.swift */; };
 		5E7C7307FAE6F7E0BC1FE6A3 /* Donations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E654FD9501D83F355C1 /* Donations.swift */; };
@@ -1295,6 +1296,7 @@
 		5E7C7C8CA3706DC14167786C /* BrowserURLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserURLParserTests.swift; sourceTree = "<group>"; };
 		5E7C7CAA3D0C19444005EA83 /* TokenCardRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C7CBEBF984CFCA29D6866 /* ServersViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersViewModel.swift; sourceTree = "<group>"; };
+		5E7C7CC0A386C81A824CC853 /* SmartLayerPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmartLayerPass.swift; sourceTree = "<group>"; };
 		5E7C7CC48CA7A1EA7D539C87 /* VerifiableStatusViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifiableStatusViewController.swift; sourceTree = "<group>"; };
 		5E7C7CCFEBEAABC14F655095 /* ConfigureApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureApp.swift; sourceTree = "<group>"; };
 		5E7C7CD1FB7D353704EF3389 /* DateEntryField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateEntryField.swift; sourceTree = "<group>"; };
@@ -3380,6 +3382,7 @@
 		5E7C7CA7694367E5D9D8DE99 /* Attestation */ = {
 			isa = PBXGroup;
 			children = (
+				5E7C7CC0A386C81A824CC853 /* SmartLayerPass.swift */,
 			);
 			path = Attestation;
 			sourceTree = "<group>";
@@ -5896,6 +5899,7 @@
 				5E7C7270C6A83CC1ADC106DC /* AcceptAuthRequestViewController.swift in Sources */,
 				5E7C7F776D272AC23213B3BA /* ImportedTypes.swift in Sources */,
 				5E7C7C7C7B62A23FA7C3669B /* FetchTokenScriptFiles.swift in Sources */,
+				5E7C72CFCF7C74331AF8B0A4 /* SmartLayerPass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

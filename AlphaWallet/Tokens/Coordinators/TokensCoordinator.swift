@@ -250,6 +250,7 @@ class TokensCoordinator: Coordinator {
     private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) {
         let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
         if isSuccessful {
+            SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
             //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
         }
     }
