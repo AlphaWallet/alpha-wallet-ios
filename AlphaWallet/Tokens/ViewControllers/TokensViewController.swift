@@ -253,7 +253,7 @@ final class TokensViewController: UIViewController {
 
         dataSource.numberOfRowsInSection
             .sink { [weak self, viewModel] section in
-                guard viewModel.sections[section] == .tokens || viewModel.sections[section] == .collectiblePairs else { return }
+                guard viewModel.filteredTokensAndSections.sections[section] == .tokens || viewModel.filteredTokensAndSections.sections[section] == .collectiblePairs else { return }
                 self?.handleTokensCountChange(rows: viewModel.numberOfItems(for: section))
             }.store(in: &cancellable)
 
@@ -321,9 +321,6 @@ final class TokensViewController: UIViewController {
     }
 
     @objc private func enterSearchMode() {
-        //TODO enable search again
-        return;
-
         let searchController = searchController
         navigationItem.searchController = searchController
 
@@ -359,7 +356,7 @@ extension TokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        switch viewModel.sections[section] {
+        switch viewModel.filteredTokensAndSections.sections[section] {
         case .walletSummary:
             let header: TokensViewController.GeneralTableViewSectionHeader<WalletSummaryView> = tableView.dequeueReusableHeaderFooterView()
             header.subview = walletSummaryView
@@ -436,7 +433,7 @@ extension TokensViewController {
 
     private func tableHeight() -> CGFloat? {
         guard let delegate = tableView.delegate else { return nil }
-        let sectionCount = viewModel.sections.count
+        let sectionCount = viewModel.filteredTokensAndSections.sections.count
         var height: CGFloat = 0
         for sectionIndex in 0..<sectionCount {
             let rows = viewModel.numberOfItems(for: sectionIndex)
