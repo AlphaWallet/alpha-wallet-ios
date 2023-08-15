@@ -314,6 +314,12 @@ final class TokensViewController: UIViewController {
             }.store(in: &cancellable)
     }
 
+    func selectTab(withFilter filter: WalletFilter) {
+        guard let signedIndex = WalletFilter.orderedTabs.firstIndex(of: filter), signedIndex >= 0 else { return }
+        let index = UInt(signedIndex)
+        apply(filter: filter, withSegmentAtSelection: .selected(index))
+    }
+
     private func adjustTableViewHeaderHeightToFitContents() {
         let size = tableViewHeader.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         tableViewHeader.bounds.size.height = size.height

@@ -251,6 +251,9 @@ class TokensCoordinator: Coordinator {
         let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
         if isSuccessful {
             SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [tokensViewController] in
+                tokensViewController.selectTab(withFilter: .attestations)
+            }
             //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
         }
     }
