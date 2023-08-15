@@ -911,3 +911,4 @@
 "attestations.attributes" = "Attributes";
 "attestations.validFrom" = "Valid From";
 "attestations.validUntil" = "Valid Until";
+"attestations.smartLayerPass" = "Smart Layer Pass";
