@@ -20,6 +20,9 @@
 		<string>applinks:goerli.aw.app</string>
 		<string>applinks:binance.aw.app</string>
 		<string>applinks:test-binance.aw.app</string>
+		<string>applinks:www.smartlayer.network</string>
+		<string>applinks:smartlayer.network</string>
+		<string>applinks:smart-layer.vercel.app</string>
 	</array>
 	<key>com.apple.developer.default-data-protection</key>
 	<string>NSFileProtectionComplete</string>
