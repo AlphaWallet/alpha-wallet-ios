@@ -24,6 +24,7 @@ public protocol UniversalLinkNavigatable: AnyObject {
     func showServerUnavailable(server: RPCServer)
     func showWalletApi(action: DeepLink.WalletApi)
     func openUrlInDappBrowser(url: URL, animated: Bool)
+    func importAttestation(url: URL)
 }
 
 public final class ApplicationNavigationHandler {
@@ -102,7 +103,6 @@ public class BaseUniversalLinkService: UniversalLinkService {
     @discardableResult public func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
         if let universalLink = DeepLink(url: url) {
             logDeeplinkUsage(source: source, universalLink: universalLink, url: url)
-
             if canHandleUniversalLink {
                 handle(url: universalLink)
             } else {
@@ -116,6 +116,7 @@ public class BaseUniversalLinkService: UniversalLinkService {
     }
 
     private func handlePendingUniversalLink() {
+        NSLog("xxx handlePendingUniversalLink with: \(pendingUniversalLinkUrl)")
         guard let url = pendingUniversalLinkUrl else { return }
 
         handle(url: url)
@@ -179,6 +180,8 @@ public class BaseUniversalLinkService: UniversalLinkService {
             }
         case .walletApi(let action):
             navigation?.showWalletApi(action: action)
+        case .attestation(let url):
+            navigation?.importAttestation(url: url)
         }
     }
 }
@@ -225,6 +228,8 @@ extension BaseUniversalLinkService {
                 ])
             case .shareContentAction, .magicLink, .maybeFileUrl:
                 break
+            case .attestation(let url):
+                analytics.log(action: Analytics.Action.attestationMagicLink)
             }
         case .customUrlScheme:
             analytics.log(action: Analytics.Action.customUrlSchemeVisited, properties: [

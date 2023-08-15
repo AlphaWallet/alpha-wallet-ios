@@ -90,6 +90,7 @@ public enum Analytics {
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
         case deepLinkCancel = "DeepLink Cancel"
         case deeplinkVisited = "DeepLink Visit"
+        case attestationMagicLink = "Attestation MagicLink Visit"
         case customUrlSchemeVisited = "Custom URL Scheme Visit"
         case deepLinkWalletApiCall = "Deep Link Wallet API Call"
     }

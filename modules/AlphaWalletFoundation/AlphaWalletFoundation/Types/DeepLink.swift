@@ -27,6 +27,7 @@ public enum DeepLink {
     case magicLink(signedOrder: SignedOrder, server: RPCServer, url: URL)
     case maybeFileUrl(url: URL)
     case walletApi(DeepLink.WalletApi)
+    case attestation(url: URL)
 
     public init?(url: URL, supportedServers: [RPCServer] = [.main]) {
         if url.isFileURL {
@@ -43,6 +44,9 @@ public enum DeepLink {
             self = .magicLink(signedOrder: signedOrder, server: server, url: url)
         } else if let value = functional.extractEmbeddedWalletApiCall(url: url, supportedServers: []) {
             self = .walletApi(value)
+        } else if url.absoluteString.contains("attestation=") || url.absoluteString.contains("ticket=") {
+            //TODO we are cheating here. Because AlphaWalletAttestation depends on AlphaWalletFoundation, we can't use the former to decode and verify the URL does include an attestation. Improve this
+            self = .attestation(url: url)
         } else {
             return nil
         }
