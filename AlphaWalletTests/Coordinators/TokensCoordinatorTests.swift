@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Combine
+import AlphaWalletAttestation
 import AlphaWalletFoundation
 
 final class FakeSwapTokenService: TokenActionsService {
@@ -46,7 +47,8 @@ class TokensCoordinatorTests: XCTestCase {
             tokensFilter: .make(),
             currencyService: .make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            attestationsStore: AttestationsStore(wallet: .make()))
 
         coordinator.start()
 

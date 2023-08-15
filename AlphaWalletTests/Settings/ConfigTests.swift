@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Combine
+import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletFoundation
 
@@ -62,7 +63,8 @@ class ConfigTests: XCTestCase {
             tokensFilter: .make(),
             currencyService: .make(),
             tokenImageFetcher: FakeTokenImageFetcher(),
-            serversProvider: BaseServersProvider())
+            serversProvider: BaseServersProvider(),
+            attestationsStore: AttestationsStore(wallet: .make()))
 
         coordinator.start()
         coordinator.tokensViewController.viewWillAppear(false)
