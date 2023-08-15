@@ -8,7 +8,7 @@ struct AttestationViewCellViewModel {
     private let attestation: Attestation
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: R.string.localizable.attestationsEas(), attributes: [
+        return NSAttributedString(string: attestation.name, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title
         ])

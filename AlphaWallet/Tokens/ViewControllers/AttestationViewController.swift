@@ -19,7 +19,7 @@ class AttestationViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.attestationsEas()
+        title = attestation.name
         view.backgroundColor = Configuration.Color.Semantic.searchBarBackground
 
         var subviews: [UIView] = []
