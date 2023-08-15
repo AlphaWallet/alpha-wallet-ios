@@ -22,6 +22,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
 
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
     func viewWillAppearOnce(in coordinator: TokensCoordinator)
+    func importAttestation(_ attestation: Attestation) -> Bool
 }
 
 class TokensCoordinator: Coordinator {
@@ -79,7 +80,7 @@ class TokensCoordinator: Coordinator {
     private var cancellable = Set<AnyCancellable>()
     private let serversProvider: ServersProvidable
     private let tokensService: TokensService
-    private lazy var attestationsStore: AttestationsStore = AttestationsStore(wallet: wallet.address)
+    private let attestationsStore: AttestationsStore
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -107,8 +108,8 @@ class TokensCoordinator: Coordinator {
          tokensFilter: TokensFilter,
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher,
-         serversProvider: ServersProvidable) {
-
+         serversProvider: ServersProvidable,
+         attestationsStore: AttestationsStore) {
         self.tokensService = tokensService
         self.serversProvider = serversProvider
         self.tokenImageFetcher = tokenImageFetcher
@@ -130,6 +131,7 @@ class TokensCoordinator: Coordinator {
         self.walletBalanceService = walletBalanceService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
+        self.attestationsStore = attestationsStore
 
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
@@ -248,25 +250,8 @@ class TokensCoordinator: Coordinator {
         navigationController.pushViewController(vc, animated: true)
     }
 
-    private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) {
-        let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
-        if isSuccessful {
-            SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
-            ensureServerEnabled(attestation.server)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [tokensViewController] in
-                tokensViewController.selectTab(withFilter: .attestations)
-            }
-            //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
-        }
-    }
-
-    private func ensureServerEnabled(_ server: AlphaWalletCore.RPCServer) {
-        if serversProvider.enabledServers.contains(server) {
-            //no-op
-        } else {
-            let servers = serversProvider.enabledServers + [server]
-            serversProvider.enabledServers = servers
-        }
+    private func importAttestation(_ attestation: Attestation) {
+        _ = delegate?.importAttestation(attestation)
     }
 }
 
@@ -443,24 +428,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
         case .attestation(let attestation):
             //TODO prompt user to import the attestation?
-            if let recipient = attestation.recipient {
-                if recipient.isNull {
-                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is null address. Importing…")
-                    importAttestation(attestation, intoWallet: wallet.address)
-                } else if recipient == wallet.address {
-                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches current wallet. Importing…")
-                    importAttestation(attestation, intoWallet: wallet.address)
-                } else if keystore.wallets.contains(where: { $0.address == recipient }) {
-                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches inactive wallet. Importing…")
-                    //TODO have a better UX, show user that it's imported, but to another wallet?
-                    importAttestation(attestation, intoWallet: wallet.address)
-                } else {
-                    infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
-                }
-            } else {
-                infoLog("Scanned attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
-                importAttestation(attestation, intoWallet: wallet.address)
-            }
+            importAttestation(attestation)
         }
 
         removeCoordinator(coordinator)

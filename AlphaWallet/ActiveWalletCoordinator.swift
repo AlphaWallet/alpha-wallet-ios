@@ -1,6 +1,7 @@
 import UIKit
 import PromiseKit
 import Combine
+import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
@@ -67,6 +68,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private let transactionsService: TransactionsService
     private let tokensPipeline: TokensProcessingPipeline
     private let pushNotificationsService: PushNotificationsService
+    private lazy var attestationsStore: AttestationsStore = AttestationsStore(wallet: wallet.address)
 
     var transactionCoordinator: TransactionsCoordinator? {
         return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
@@ -322,7 +324,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             tokensFilter: tokensFilter,
             currencyService: currencyService,
             tokenImageFetcher: tokenImageFetcher,
-            serversProvider: serversProvider)
+            serversProvider: serversProvider,
+            attestationsStore: attestationsStore)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
@@ -533,6 +536,30 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         } else {
             showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: navigationController)
         }
+    }
+
+    private func ensureServerEnabled(_ server: AlphaWalletCore.RPCServer) {
+        if serversProvider.enabledServers.contains(server) {
+            //no-op
+        } else {
+            let servers = serversProvider.enabledServers + [server]
+            serversProvider.enabledServers = servers
+        }
+    }
+
+    private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) -> Bool {
+        //We allow importing an attestation into a wallet (as long as the attestation receiver logic allows it) even if the wallet is not active
+        let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
+        if isSuccessful {
+            SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
+            ensureServerEnabled(attestation.server)
+            //TODO shouldn't switch tabs if imported to a wallet that is different from active wallet. Just let user know
+            //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.tokensCoordinator?.rootViewController.selectTab(withFilter: .attestations)
+            }
+        }
+        return isSuccessful
     }
 }
 
@@ -1037,6 +1064,28 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
         guard self.wallet != account else { return }
         restartUI(withReason: .walletChange, account: account)
+    }
+
+    func importAttestation(_ attestation: Attestation) -> Bool {
+        if let recipient = attestation.recipient {
+            if recipient.isNull {
+                infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is null address. Importing…")
+                return importAttestation(attestation, intoWallet: wallet.address)
+            } else if recipient == wallet.address {
+                infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches current wallet. Importing…")
+                return importAttestation(attestation, intoWallet: wallet.address)
+            } else if keystore.wallets.contains(where: { $0.address == recipient }) {
+                infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches inactive wallet. Importing…")
+                //TODO have a better UX, show user that it's imported, but to another wallet?
+                return importAttestation(attestation, intoWallet: recipient)
+            } else {
+                infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
+                return false
+            }
+        } else {
+            infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
+            return importAttestation(attestation, intoWallet: wallet.address)
+        }
     }
 }
 

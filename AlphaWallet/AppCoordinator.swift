@@ -3,6 +3,7 @@
 import Combine
 import UIKit
 import AlphaWalletAddress
+import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
@@ -265,6 +266,17 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     func openUrlInDappBrowser(url: URL, animated: Bool) {
         guard let coordinator = showActiveWallet() else { return }
         coordinator.openUrlInBrowser(url: url, animated: animated)
+    }
+
+    func importAttestation(url: URL) {
+        Task {
+            NSLog("xxx import with Magic 1")
+            if let attestation = try? await Attestation.extract(fromUrlString: url.absoluteString) {
+                NSLog("xxx import with Magic 2 activeWalletCoordinator: \(String(describing: activeWalletCoordinator))")
+                let isSuccessful = activeWalletCoordinator?.importAttestation(attestation)
+                NSLog("xxx import with magiclink is successfull: \(String(describing: isSuccessful))")
+            }
+        }
     }
 
     func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl) {
