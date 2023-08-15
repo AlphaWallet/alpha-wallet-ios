@@ -556,6 +556,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             //TODO shouldn't switch tabs if imported to a wallet that is different from active wallet. Just let user know
             //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.showTab(.tokens)
                 self?.tokensCoordinator?.rootViewController.selectTab(withFilter: .attestations)
             }
         }

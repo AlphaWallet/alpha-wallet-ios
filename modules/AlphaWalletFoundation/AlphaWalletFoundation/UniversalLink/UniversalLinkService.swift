@@ -116,7 +116,6 @@ public class BaseUniversalLinkService: UniversalLinkService {
     }
 
     private func handlePendingUniversalLink() {
-        NSLog("xxx handlePendingUniversalLink with: \(pendingUniversalLinkUrl)")
         guard let url = pendingUniversalLinkUrl else { return }
 
         handle(url: url)

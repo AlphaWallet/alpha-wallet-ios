@@ -270,11 +270,8 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
 
     func importAttestation(url: URL) {
         Task {
-            NSLog("xxx import with Magic 1")
             if let attestation = try? await Attestation.extract(fromUrlString: url.absoluteString) {
-                NSLog("xxx import with Magic 2 activeWalletCoordinator: \(String(describing: activeWalletCoordinator))")
-                let isSuccessful = activeWalletCoordinator?.importAttestation(attestation)
-                NSLog("xxx import with magiclink is successfull: \(String(describing: isSuccessful))")
+                _ = activeWalletCoordinator?.importAttestation(attestation)
             }
         }
     }
