@@ -3,6 +3,7 @@
 import UIKit
 import AlphaWalletAttestation
 import AlphaWalletAddress
+import AlphaWalletCore
 import AlphaWalletLogger
 import Combine
 import AlphaWalletFoundation
@@ -251,10 +252,20 @@ class TokensCoordinator: Coordinator {
         let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
         if isSuccessful {
             SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
+            ensureServerEnabled(attestation.server)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [tokensViewController] in
                 tokensViewController.selectTab(withFilter: .attestations)
             }
             //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
+        }
+    }
+
+    private func ensureServerEnabled(_ server: AlphaWalletCore.RPCServer) {
+        if serversProvider.enabledServers.contains(server) {
+            //no-op
+        } else {
+            let servers = serversProvider.enabledServers + [server]
+            serversProvider.enabledServers = servers
         }
     }
 }
