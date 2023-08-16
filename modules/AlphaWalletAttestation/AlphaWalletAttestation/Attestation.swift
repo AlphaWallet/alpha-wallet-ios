@@ -303,8 +303,15 @@ public struct Attestation: Codable, Hashable {
             throw AttestationError.ecRecoveredSignerDoesNotMatch
         }
 
-        let isValidAttestationIssuer = try await functional.checkIsValidAttestationIssuer(attestation: attestation)
-        infoLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
+        let isValidAttestationIssuer: Bool
+        do {
+            isValidAttestationIssuer = try await functional.checkIsValidAttestationIssuer(attestation: attestation)
+            infoLog("[Attestation] is signer verified: \(isValidAttestationIssuer)")
+        } catch {
+            //Important to catch this and not fail attestation parsing, otherwise and RPC node error can break attestations
+            infoLog("[Attestation] is signer verified failed with error: \(error)")
+            isValidAttestationIssuer = false
+        }
 
         let results: [TypeValuePair] = try await functional.extractAttestationData(attestation: attestation)
         infoLog("[Attestation] decoded attestation data: \(results) isValidAttestationIssuer: \(isValidAttestationIssuer)")
