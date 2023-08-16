@@ -339,6 +339,8 @@ fileprivate extension Attestation.functional {
 
     static func getKeySchemaUid(server: RPCServer) throws -> Attestation.SchemaUid {
         switch server {
+        case .main, .arbitrum:
+            return "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4"
         case .sepolia:
             return "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1"
         default:
@@ -363,6 +365,8 @@ fileprivate extension Attestation.functional {
         switch server {
         case .sepolia:
             return "0xee99de42f544fa9a47caaf8d4a4426c1104b6d7a9df7f661f892730f1b5b1e23"
+        case .arbitrum:
+            return "0xe5c2bfd98a1b35573610b4e5a367bbcb5c736e42508a33fd6046bad63eaf18f9"
         default:
             throw Attestation.AttestationInternalError.rootKeyUidNotFound(server: server)
         }
@@ -543,6 +547,7 @@ fileprivate extension Attestation.functional {
     private static var hardcodedSchemaRecords: [Attestation.SchemaUid: SchemaRecord] = [
         //KeyDecription is verbatim from the schema definition
         "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1": SchemaRecord(uid: "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1", resolver: AlphaWallet.Address(string: "0x0Ed88b8AF0347fF49D7e09AA56bD5281165225B6")!, revocable: true, schema: "string KeyDecription,bytes ASN1Key,bytes PublicKey"),
+        "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4": SchemaRecord(uid: "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4", resolver: AlphaWallet.Address(string: "0xF0768c269b015C0A246157c683f9377eF571dCD3")!, revocable: true, schema: "string KeyDescription,bytes ASN1Key,bytes PublicKey"),
         "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd": SchemaRecord(uid: "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment"),
         "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247": SchemaRecord(uid: "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247", resolver: Constants.nullAddress, revocable: true, schema: "string devconId,string ticketIdString,uint8 ticketClass,bytes commitment"),
     ]
