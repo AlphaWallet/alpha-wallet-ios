@@ -264,6 +264,7 @@ public struct Attestation: Codable, Hashable {
         do {
             return try await _extractFromEncoded(value, source: source)
         } catch let error as AttestationInternalError {
+            infoLog("[Attestation] Caught internal error: \(error)")
             //Wraps with public errors
             switch error {
             case .unzipAttestationFailed, .decodeAttestationArrayStringFailed, .decodeEasAttestationFailed, .extractAttestationDataFailed:
@@ -578,6 +579,7 @@ fileprivate extension Attestation.functional {
         do {
             result = try await Attestation.callSmartContract(server, registryContract, functionName, abiString, parameters)
         } catch {
+            //TODO figure out why this fails on device, but works on simulator
             throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, server: server)
         }
         if let uid = ((result["0"] as? [AnyObject])?[0] as? Data)?.toHexString(),
