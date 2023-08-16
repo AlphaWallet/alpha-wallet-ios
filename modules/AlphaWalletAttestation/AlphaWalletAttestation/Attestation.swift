@@ -538,7 +538,7 @@ fileprivate extension Attestation.functional {
                           { 
                             "constant": false, 
                             "inputs": [ 
-                              {"keySchemaUid": "","type": "bytes32"}, 
+                              {"name": "keySchemaUid", "type": "bytes32"}, 
                             ], 
                             "name": "getSchema", 
                             "outputs": [{"components":
