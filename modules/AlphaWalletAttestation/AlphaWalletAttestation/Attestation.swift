@@ -538,21 +538,23 @@ fileprivate extension Attestation.functional {
                           { 
                             "constant": false, 
                             "inputs": [ 
-                              {"keySchemaUid": "","type": "bytes32"}, 
+                              {"name": "keySchemaUid", "type": "bytes32"}, 
                             ], 
                             "name": "getSchema", 
-                            "outputs": [{"components":
-                                [
-                                    {"name": "uid", "type": "bytes32"},
-                                    {"name": "resolver", "type": "address"}, 
-                                    {"name": "revocable", "type": "bool"}, 
-                                    {"name": "schema", "type": "string"},
-                                ],
-                                "name": "",
-                                "type": "tuple",
-                            }],
+                            "outputs": [
+                                {
+                                    "components": [
+                                        {"name": "uid", "type": "bytes32"},
+                                        {"name": "resolver", "type": "address"}, 
+                                        {"name": "revocable", "type": "bool"}, 
+                                        {"name": "schema", "type": "string"},
+                                    ],
+                                    "name": "",
+                                    "type": "tuple",
+                                }
+                            ],
                             "type": "function" 
-                          },
+                          }
                         ]
                         """
         let parameters = [keySchemaUid] as [AnyObject]
