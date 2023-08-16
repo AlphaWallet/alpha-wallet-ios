@@ -531,7 +531,18 @@ fileprivate extension Attestation.functional {
 
     //TODO improve caching. Current implementation doesn't reduce duplicate inflight calls or failures
     static var cachedSchemaRecords: [String: SchemaRecord] = .init()
+    //Schema the schema pointed to by a schema UID can't change, we can hardcode some
+    private static var hardcodedSchemaRecords: [Attestation.SchemaUid: SchemaRecord] = [
+        //KeyDecription is verbatim from the schema definition
+        "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1": SchemaRecord(uid: "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1", resolver: AlphaWallet.Address(string: "0x0Ed88b8AF0347fF49D7e09AA56bD5281165225B6")!, revocable: true, schema: "string KeyDecription,bytes ASN1Key,bytes PublicKey"),
+        "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd": SchemaRecord(uid: "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment"),
+        "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247": SchemaRecord(uid: "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247", resolver: Constants.nullAddress, revocable: true, schema: "string devconId,string ticketIdString,uint8 ticketClass,bytes commitment"),
+    ]
     static func getSchemaRecord(keySchemaUid: Attestation.SchemaUid, server: RPCServer) async throws -> SchemaRecord {
+        if let hardcoded = hardcodedSchemaRecords[keySchemaUid] {
+            infoLog("[Attestation] Using hardcoded schema record and skipping JSON-RPC call for keySchemaUid: \(keySchemaUid) returning schemaRecord: \(hardcoded)")
+            return hardcoded
+        }
         let registryContract = try getEasSchemaContract(server: server)
         let abiString = """
                         [ 
