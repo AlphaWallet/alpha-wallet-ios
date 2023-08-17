@@ -193,7 +193,8 @@ extension ABIv2Decoder {
         } else {
             guard data.count >= pointer + type.memoryUsage else { return (nil, nil) }
             let dataSlice = data[pointer ..< pointer + type.memoryUsage]
-            let bn = BigUInt(dataSlice)
+            //As of 20230817, BigUInt(dataSlice) is 128 for simulator but 30908073767555757564674611020836101937632168520744469592719525047292692541121 on device for dataSlice = 0x0000000000000000000000000000000000000000000000000000000000000080. 0x0000000000000000000000000000000000000000000000000000000000000020 works as expected. The additional `Data()` conversion/cast fixes this
+            let bn = BigUInt(Data(dataSlice))
             if bn > UINT64_MAX || bn >= data.count {
                 // there are ERC20 contracts that use bytes32 intead of string. Let's be optimistic and return some data
                 if case .string = type {
