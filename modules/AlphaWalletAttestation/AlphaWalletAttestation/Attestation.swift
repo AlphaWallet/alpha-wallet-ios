@@ -550,6 +550,7 @@ fileprivate extension Attestation.functional {
         "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4": SchemaRecord(uid: "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4", resolver: AlphaWallet.Address(string: "0xF0768c269b015C0A246157c683f9377eF571dCD3")!, revocable: true, schema: "string KeyDescription,bytes ASN1Key,bytes PublicKey"),
         "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd": SchemaRecord(uid: "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment"),
         "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247": SchemaRecord(uid: "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247", resolver: Constants.nullAddress, revocable: true, schema: "string devconId,string ticketIdString,uint8 ticketClass,bytes commitment"),
+        "0xba8aaaf91d1f63d998fb7da69449d9a314bef480e9555710c77d6e594e73ca7a": SchemaRecord(uid: "0xba8aaaf91d1f63d998fb7da69449d9a314bef480e9555710c77d6e594e73ca7a", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment,string scriptUri"),
     ]
     static func getSchemaRecord(keySchemaUid: Attestation.SchemaUid, server: RPCServer) async throws -> SchemaRecord {
         if let hardcoded = hardcodedSchemaRecords[keySchemaUid] {
