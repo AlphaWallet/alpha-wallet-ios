@@ -43,6 +43,10 @@ class SmartLayerPass {
             infoLog("[SmartLayerPass] Not a Smart Layer pass attestation, as eventId: \(String(describing: optionalEventId)) so no-op")
             return
         }
+        guard !attestation.server.isTestnet else {
+            infoLog("[SmartLayerPass] Smart Layer pass attestation is on testnet: \(attestation.server), so no-op")
+            return
+        }
         guard let domain = functional.extractSmartLayerPassDomain(fromAttestation: attestation) else {
             infoLog("[SmartLayerPass] Not a Smart Layer pass attestation because domain extracted doesn't match expected, so no-op")
             return
