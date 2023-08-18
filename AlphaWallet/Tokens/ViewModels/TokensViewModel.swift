@@ -336,8 +336,7 @@ final class TokensViewModel {
 
     func set(isSearchActive: Bool) {
         self.isSearchActive = isSearchActive
-
-        reloadData()
+        reloadData(immediately: true)
     }
 
     func set(filter: WalletFilter) {
