@@ -508,6 +508,17 @@ extension TokensViewModel {
         case rpcServer(RPCServer)
         case attestation(Attestation)
 
+        var debugName: String {
+            switch self {
+            case .rpcServer:
+                return "rpcServer"
+            case .token:
+                return "token"
+            case .attestation:
+                return "attestation"
+            }
+        }
+
         var token: TokenViewModel? {
             switch self {
             case .rpcServer:
@@ -567,6 +578,25 @@ extension TokensViewModel {
         case rpcServer(TokenListServerTableViewCellViewModel)
         case attestation(AttestationViewCellViewModel)
         case undefined
+
+        var debugName: String {
+            switch self {
+            case .nftCollection:
+                return "nftCollection"
+            case .nonFungible:
+                return "nonFungible"
+            case .fungibleToken:
+                return "fungibleToken"
+            case .nativeCryptocurrency:
+                return "nativeCryptocurrency"
+            case .rpcServer:
+                return "rpcServer"
+            case .attestation:
+                return "attestation"
+            case .undefined:
+                return "undefined"
+            }
+        }
     }
 
     struct SectionViewModel {
