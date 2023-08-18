@@ -259,6 +259,8 @@ final class TokensViewController: UIViewController {
 
         output.viewState
             .receive(on: RunLoop.main)
+            //Throttle with a small interval so that we only handle the last value in a bursts of updates. This is because each update might have changed `TokensViewModel.filteredTokensAndSections` and we don't want to use an outdated value of it and crash
+            .throttle(for: 0.01, scheduler: RunLoop.main, latest: true)
             .sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
                 self?.showOrHideBackupWalletViewHolder()
 

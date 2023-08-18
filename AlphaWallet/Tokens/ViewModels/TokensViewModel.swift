@@ -211,6 +211,8 @@ final class TokensViewModel {
 
         //TODO might have cyclic references
         let viewState = Publishers.CombineLatest4(compositeSectionViewModelsSubject, walletSummary, blockieImage, titleWithListOfBadTokenScriptFiles)
+            //Prevent crash, keeping updates serialized so receiving end can update with atomic state
+            .receive(on: RunLoop.main)
             .map { [tokenImageFetcher] _, summary, blockiesImage, data -> TokensViewModel.ViewState in
                 self.filteredTokensAndSections = (tokens: functional.filteredAndSortedTokens(tokens: self.tokens, attestations: self.attestations, tokensFilter: self.tokensFilter, filter: self.filter), sections: functional.refreshSections(walletConnectSessions: self.walletConnectSessions, isSearchActive: self.isSearchActive, filter: self.filter))
                 let sections = functional.buildSectionViewModels(sections: self.filteredTokensAndSections.sections, filteredTokens: self.filteredTokensAndSections.tokens, collectiblePairs: functional.collectiblePairs(filteredTokens: self.filteredTokensAndSections.tokens), filter: self.filter, tokenImageFetcher: tokenImageFetcher)
