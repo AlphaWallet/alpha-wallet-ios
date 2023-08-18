@@ -718,6 +718,7 @@ fileprivate extension TokensViewModel.functional {
     }
 
     static func filteredAndSortedTokens(tokens: [TokenViewModel], attestations: [Attestation], tokensFilter: TokensFilter, filter: WalletFilter) -> [TokensViewModel.TokenOrRpcServer] {
+        //TODO include filtering attestations too
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
