@@ -57,5 +57,5 @@ public final class SwapTokenSelectionProvider: TokenFilterProtocol {
 
             return containsInToTokens && nonSameAsFrom
         }
-    } 
+    }
 }
