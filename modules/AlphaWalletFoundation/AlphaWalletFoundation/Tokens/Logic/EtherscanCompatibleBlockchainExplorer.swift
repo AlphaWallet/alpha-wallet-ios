@@ -489,7 +489,6 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
 
     static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: Eip20TokenType) -> [Transaction] {
         let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
-
         let transactions: [Transaction] = filteredResult.compactMap { result -> Transaction? in
             let transactionJson = result.1
                 //Blockscout (and compatible like Polygon's) includes ERC721 transfers
@@ -497,13 +496,13 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
 
             switch tokenType {
             case .erc20:
-                guard json["tokenID"].stringValue.isEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
+                guard transactionJson["tokenID"].stringValue.isEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
                 operationType = .erc20TokenTransfer
             case .erc721:
-                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.isEmpty else { return nil }
+                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
                 operationType = .erc721TokenTransfer
             case .erc1155:
-                guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.nonEmpty else { return nil }
+                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.nonEmpty else { return nil }
                 operationType = .erc1155TokenTransfer
             }
 
