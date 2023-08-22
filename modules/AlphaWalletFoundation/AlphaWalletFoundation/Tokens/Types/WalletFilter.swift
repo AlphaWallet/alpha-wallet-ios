@@ -3,15 +3,38 @@
 import Foundation
 import Combine
 
-public enum WalletFilter: Equatable {
+public enum WalletFilter: Equatable, Hashable {
 	case all
     case attestations
-    case filter(TokenFilterProtocol)
+    case filter(any TokenFilterProtocol)
     case defi
     case governance
     case assets
 	case collectiblesOnly
 	case keyword(String)
+
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .all:
+            hasher.combine(0)
+        case .attestations:
+            hasher.combine(1)
+        case .filter:
+            //The associated value doesn't need to be checked
+            hasher.combine(2)
+        case .defi:
+            hasher.combine(3)
+        case .governance:
+            hasher.combine(4)
+        case .assets:
+            hasher.combine(5)
+        case .collectiblesOnly:
+            hasher.combine(6)
+        case .keyword(let keyword):
+            hasher.combine(7)
+            hasher.combine(keyword)
+        }
+    }
 }
 
 public protocol TokenFilterProtocol {

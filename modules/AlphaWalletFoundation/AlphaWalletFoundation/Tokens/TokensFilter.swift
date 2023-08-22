@@ -33,6 +33,7 @@ public extension TokenSortable {
     }
 }
 
+//TODO rename. This name is misleading. It contains filtering logic, but it's not the filter like `WalletFilter` (which is for both tabs and search keyword). Or we rename `WalletFilter` to tabs? But it represent the search keyword too
 public class TokensFilter {
     private enum FilterKeys {
         case all
