@@ -243,6 +243,7 @@ class TokensCoordinator: Coordinator {
     }
 
     private func displayAttestation(_ attestation: Attestation) {
+        infoLog("[Attestation] Display attestation: \(attestation)")
         let vc = AttestationViewController(attestation: attestation)
         vc.delegate = self
         vc.hidesBottomBarWhenPushed = true
