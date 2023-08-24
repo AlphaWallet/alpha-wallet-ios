@@ -13,8 +13,18 @@ class AttestationTest: XCTestCase {
         XCTAssertNil(Attestation.functional.extractTypesFromSchemaForTesting(""))
     }
 
-    func testEnsureParsingForEas() async throws {
+    func testEnsureParsingForEasPreMessageVersion1() async throws {
         let url = "https://sepolia.easscan.org/offchain/url/#attestation=eNrFUzmOGzAM%2FItrI%2BBNqsyukU8EKUiJekCQAHl%2BZLvYJp2BDQWoEDSjGYrz%2FQJfyC5XRFQ92%2FUCf97JfOy3G%2FtS4Yj3lsHf8PbmygQ3YmsM1L7cL%2FvkEAi1EmudXE2IhT6Apw0LogQ8JLZqsli0WWR58w7YJONBghhsZhM2JykKaRFwQwdZD53ZK%2FbglYzd3Lhyj3MwdFXGzENCcef5StB7ytvQo508576BEhwqRtxuZAQmdHs8mud9k9lVdYxm4szllSawTGsRxgzNoBGJTQpuS4nFxTEc8WlfzL3miFoIvl0X8EKeW7BRozk21jGhQGsx7vDap18TMyJmrflU8pRdH7LXv2Sv8012GkUUqlc4yMv118%2FffaeAlypeg8N8EQ%2F4H9H3ShFTN2Pb1gRqMmTA55UxMTwWnoh9egmC0Jk67jqZDMkYQeo660xyAe2h4nti9LLqfQITLpg%2Bc1JN2njCicmtXHg6lwNLtu%2FAqOIz5SgyZnUR1iMvPLTPPI97mDvTT5pfdH25wo%2B%2FVjYULA%3D%3D"
+        _ = try await Attestation.extract(fromUrlString: url)
+    }
+
+    func testEnsureParsingForEasWithVersion1_1() async throws {
+        let url = "https://easscan.org/offchain/url/#attestation=eNqlkUGOG0EIRe%2FSaysCCihYtt32JaJZUBR1gFEi5fhTnjlCYIfg%2FQ%2F8PuAX6XHD2wH%2FTiTor3a%2FBxE%2FKT1b6iXx0nZBDRSjR4n1491cygtqOsbqHXjZ9DYspudgHriaCUk33WmzBK0GJaFDcusu%2FA3h1QSCwScRCbhmxFrBsdVmDl%2BSPCCa8Syv1oyoQDrtEhr7OG5kbw6BuJnCFb3LthvV5YmPi%2FIJFyvd7fEsfvw4D4UMLxewaQUjgamsAiQsZzEDKVB23ItZL%2FMtlbioiUbkWN%2BQFCcVRWFA5Ka2917VG7CG075dl3Sf3ouT2GCfqMlABB40K36crPPlfr7GEOkKpyYgTFApx37eO%2Fhj81hq%2F0e3nANhu8GePG5%2FPv%2FWGwH%2FF3hsHn58AWLAf5Y%3D"
+        _ = try await Attestation.extract(fromUrlString: url)
+    }
+
+    func testEnsureParsingForEasWithVersion1_2() async throws {
+        let url = "https://easscan.org/offchain/url/#attestation=eNrFVEuuEzAMvEvXFfIn%2FmT5%2Bsq7BGLh2PEBEEgcn7xyAyqVySJeeDyTyJpvF%2FhCerni9QK%2F35DAPvh2C6LxlXImp94lPpTvsBeK0%2FsWt8tnc%2B8Szcmh1YUBtYomT8FNy61bvQMzVrRkM5av6b5Ie8xdWPkYMjgzA9bOcFsrizAsmZpoExBXeDlgeoU5byRXsQKt0dRjH%2BNkD%2BcEu3PcprAVWWTfQQiANyO2KSmBDro%2FRDd7aLuN3mMqYqHobBllXrUiNlkJ9iyYc5r49ib107G4jXX%2FdT52CglGHc8oOcmnZo8ljHtRZ0dq%2BU7PiCFYLdQQJAHkMuQx5B3U3oRzIomvEGSQOXF%2BBb45vn9MbrG3PB%2BOOslM0OwKh3m5%2Fvzxa3%2BOgOeAz9Hzv6oDjif5%2FiT%2FyfcDnIUdNfBs0hA4NwvDKzEZmZh5HGFlGzjwpfo%2BWPucJDgV2oDXwpF4iJpPiBM%2Fu1%2BsbzoNVI05Tuj9g%2Frl5AF%2B%2FwMoPDxj"
         _ = try await Attestation.extract(fromUrlString: url)
     }
 
