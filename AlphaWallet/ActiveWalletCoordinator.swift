@@ -1080,8 +1080,13 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
                 //TODO have a better UX, show user that it's imported, but to another wallet?
                 return importAttestation(attestation, intoWallet: recipient)
             } else {
-                infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
-                return false
+                if config.development.shouldIgnoreAttestationRecipientAndImportToCurrentWallet {
+                    infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Importing because overridden by development flag…")
+                    return importAttestation(attestation, intoWallet: wallet.address)
+                } else {
+                    infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
+                    return false
+                }
             }
         } else {
             infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
