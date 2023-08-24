@@ -252,7 +252,7 @@ public struct Attestation: Codable, Hashable {
         } else if let url = URL(string: urlString),
                   let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
                   let queryItems = urlComponents.queryItems,
-                  let ticketItem = queryItems.first(where: { $0.name == "ticket" }), let encodedAttestation = ticketItem.value {
+                  let ticketItem = queryItems.first(where: { $0.name == "ticket" }) ?? queryItems.first(where: { $0.name == "attestation" }), let encodedAttestation = ticketItem.value {
             let attestation = try await Attestation.extract(fromEncodedValue: encodedAttestation, source: urlString)
             return attestation
         } else {
