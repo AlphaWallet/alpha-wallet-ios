@@ -26,8 +26,13 @@ struct AttestationViewCellViewModel {
     }
 
     var iconImage: TokenImagePublisher {
-        let programmaticallyGeneratedImage = UIImage.tokenSymbolBackgroundImage(backgroundColor: attestation.server.blockChainNameColor)
-        return Just(TokenImage(image: ImageOrWebImageUrl.image(RawImage.loaded(image: programmaticallyGeneratedImage)), isFinal: true, overlayServerIcon: nil)).eraseToAnyPublisher()
+        switch attestation.attestationType {
+        case .smartLayerPass:
+            return Just(TokenImage(image: ImageOrWebImageUrl.image(RawImage.loaded(image: R.image.smartLayerPass()!)), isFinal: true, overlayServerIcon: nil)).eraseToAnyPublisher()
+        case .others:
+            let programmaticallyGeneratedImage = UIImage.tokenSymbolBackgroundImage(backgroundColor: attestation.server.blockChainNameColor)
+            return Just(TokenImage(image: ImageOrWebImageUrl.image(RawImage.loaded(image: programmaticallyGeneratedImage)), isFinal: true, overlayServerIcon: nil)).eraseToAnyPublisher()
+        }
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
