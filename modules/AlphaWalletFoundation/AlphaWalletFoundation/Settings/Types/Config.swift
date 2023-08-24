@@ -25,6 +25,7 @@ public struct Config {
         public let shouldDisableApplyingTickers = false
         public let shouldDisableENSResolution = false
         public let shouldDisableFetchTokenScriptXMLFiles = false
+        public let shouldIgnoreAttestationRecipientAndImportToCurrentWallet = false
 
         public init() {}
     }
