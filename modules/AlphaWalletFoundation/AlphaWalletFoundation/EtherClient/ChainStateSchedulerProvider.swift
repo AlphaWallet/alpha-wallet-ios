@@ -10,6 +10,7 @@ import Combine
 import AlphaWalletCore
 import CombineExt
 
+//TODO move and use more, including in RpcBlockchainProvider and BlockNumberRequest
 public typealias BlockNumber = Int
 
 public final class BlockNumberSchedulerProvider: SchedulerProvider {

@@ -34,6 +34,30 @@ public protocol BlockchainProvider: BlockchainCallable {
 }
 
 public final class RpcBlockchainProvider: BlockchainProvider {
+    //TODO move block number fetching support code?
+    private enum BlockNumbers {
+        static var lastFetchedBlockTimes = [RPCServer: (blockNumber: Int, fetchedTime: Date)]()
+        static var inflightBlockTimesFetchers: [RPCServer: PassthroughSubject<Int, SessionTaskError>] = .init()
+        static let averageBlockTimes: [RPCServer: TimeInterval] = [
+            //TODO should we move these numbers one of the RPCServer definitions? Or is more suitable here?
+            //Those that are very low (~1s) are set to 2s to reduce unnecessary RPC node requests
+            .main: 12,
+            .sepolia: 12,
+            .xDai: 5,
+            .binance_smart_chain: 13,
+            .heco: 3,
+            .polygon: 2,
+            .optimistic: 2,
+            .arbitrum: 2,
+            .avalanche: 2,
+            .avalanche_testnet: 2,
+            .mumbai_testnet: 2,
+            .optimismGoerli: 2,
+        ]
+        //Not too low to avoid unnecessary RPC node requests
+        static let fallBackAverageBlockTime: TimeInterval = 60
+    }
+
     private let getEventLogs: GetEventLogs
     private let analytics: AnalyticsLogger
     private let config: Config = Config()
@@ -101,9 +125,22 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     }
 
     public func blockNumber() -> AnyPublisher<Int, SessionTaskError> {
+        if let inflight = BlockNumbers.inflightBlockTimesFetchers[server] {
+            return inflight.eraseToAnyPublisher()
+        }
+        if let (blockNumber, fetchedTime) = BlockNumbers.lastFetchedBlockTimes[server], Date().timeIntervalSince(fetchedTime) < (BlockNumbers.averageBlockTimes[server] ?? BlockNumbers.fallBackAverageBlockTime) {
+            return Just(blockNumber).setFailureType(to: SessionTaskError.self).eraseToAnyPublisher()
+        }
+        let inflight = PassthroughSubject<Int, SessionTaskError>()
+        BlockNumbers.inflightBlockTimesFetchers[server] = inflight
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+        let result = APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+        return result.handleEvents(receiveOutput: { [server] response in
+                    inflight.send(response)
+                    BlockNumbers.lastFetchedBlockTimes[server] = (blockNumber: response, fetchedTime: Date())
+                    verboseLog("Fetched block number server: \(server) number: \(response)")
+                    BlockNumbers.inflightBlockTimesFetchers[server] = nil
+        }).eraseToAnyPublisher()
     }
 
     public func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError> {
