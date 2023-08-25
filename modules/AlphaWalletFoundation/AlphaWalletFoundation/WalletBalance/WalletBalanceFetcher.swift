@@ -86,7 +86,7 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private class ReloadTokensSchedulerProvider: SchedulerProvider {
         private let tokensService: TokensService
 
-        let name: String = ""
+        let name: String = "ReloadTokensSchedulerProvider"
         let interval: TimeInterval = 60
 
         var operation: AnyPublisher<Void, PromiseError> {

@@ -188,7 +188,7 @@ extension LegacyGasPriceEstimator {
         private let blockchainProvider: BlockchainProvider
         private let networking: BlockchainExplorer
 
-        let name: String = ""
+        var name: String { "LegacyEstimatesSchedulerProvider.\(blockchainProvider.server)" }
         let interval: TimeInterval
         var operation: AnyPublisher<Void, PromiseError> {
             estimateGasPrice()

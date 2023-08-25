@@ -90,10 +90,9 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
-        switch server {
-        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
-            break
-        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
+        if functional.serverSupportsFetchingErc1155Transactions(server) {
+            //no-op
+        } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
         }
 
@@ -221,6 +220,12 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
+        if functional.serverSupportsFetchingErc1155Transactions(server) {
+            //no-op
+        } else {
+            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
+        }
+
         switch server {
         case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
             break
@@ -288,6 +293,12 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private func getErc1155Transactions(walletAddress: AlphaWallet.Address,
                                         server: RPCServer,
                                         startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+        if functional.serverSupportsFetchingErc1155Transactions(server) {
+            //no-op
+        } else {
+            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
+        }
+
         let request = Request(
             baseUrl: baseUrl,
             startBlock: startBlock,
@@ -572,5 +583,14 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
             }
         }
         return results
+    }
+
+    static func serverSupportsFetchingErc1155Transactions(_ server: RPCServer) -> Bool {
+        switch server {
+        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet:
+            return true
+        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia:
+            return false
+        }
     }
 }

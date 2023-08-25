@@ -254,7 +254,7 @@ extension Eip1559GasPriceEstimator {
         private let blockchainProvider: BlockchainProvider
         private let oracleProvider: Eip1559FeeOracle
 
-        let name: String = ""
+        var name: String { "Eip1559GasPriceEstimatorProvider.\(blockchainProvider.server)" }
         let interval: TimeInterval
         var operation: AnyPublisher<Void, PromiseError> {
             estimateGasPrice()

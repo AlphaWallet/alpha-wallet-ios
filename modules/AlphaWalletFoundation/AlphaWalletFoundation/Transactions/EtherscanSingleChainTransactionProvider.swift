@@ -297,7 +297,7 @@ extension EtherscanSingleChainTransactionProvider {
         private let transferType: TransactionFetchType
 
         let interval: TimeInterval
-        var name: String = ""
+        var name: String { "LatestTransferTransactionsSchedulerProvider.\(session.account.address.eip55String).\(session.server)" }
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
                 .mapToVoid()
@@ -308,16 +308,9 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession,
-             blockchainExplorer: BlockchainExplorer,
-             transferType: TransactionFetchType,
-             interval: TimeInterval = 0,
-             stateProvider: SchedulerStateProvider,
-             name: String = "") {
-
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transferType: TransactionFetchType, interval: TimeInterval = 0, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.transferType = transferType
-            self.name = name
             self.interval = interval
             self.session = session
             self.blockchainExplorer = blockchainExplorer
@@ -409,7 +402,7 @@ extension EtherscanSingleChainTransactionProvider {
         private let transactionDataStore: TransactionDataStore
 
         let interval: TimeInterval
-        let name: String
+        var name: String { "LatestTransactionsSchedulerProvider.\(session.account.address.eip55String)" }
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
                 .mapToVoid()
@@ -420,16 +413,9 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession,
-             blockchainExplorer: BlockchainExplorer,
-             transactionDataStore: TransactionDataStore,
-             interval: TimeInterval = 0,
-             name: String = "",
-             stateProvider: SchedulerStateProvider) {
-
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, interval: TimeInterval = 0, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.transactionDataStore = transactionDataStore
-            self.name = name
             self.interval = interval
             self.session = session
             self.blockchainExplorer = blockchainExplorer
@@ -497,7 +483,7 @@ extension EtherscanSingleChainTransactionProvider {
         private let stateProvider: SchedulerStateProvider
 
         let interval: TimeInterval
-        let name: String
+        var name: String { "OldestTransactionsSchedulerProvider.\(session.account.address.eip55String)" }
         var operation: AnyPublisher<Void, PromiseError> {
             return fetchPublisher()
         }
@@ -506,16 +492,9 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession,
-             blockchainExplorer: BlockchainExplorer,
-             transactionDataStore: TransactionDataStore,
-             stateProvider: SchedulerStateProvider,
-             interval: TimeInterval = 0.3,
-             name: String = "") {
-
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, stateProvider: SchedulerStateProvider, interval: TimeInterval = 0.3) {
             self.stateProvider = stateProvider
             self.transactionDataStore = transactionDataStore
-            self.name = name
             self.interval = interval
             self.session = session
             self.blockchainExplorer = blockchainExplorer
