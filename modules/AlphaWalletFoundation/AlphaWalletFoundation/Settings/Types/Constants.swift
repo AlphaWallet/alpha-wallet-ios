@@ -83,7 +83,7 @@ public struct Constants {
     ]
 
     public static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .polygon]
-    public static let defaultEnabledTestnetServers: [RPCServer] = [.goerli]
+    public static let defaultEnabledTestnetServers: [RPCServer] = [.goerli, .sepolia]
 
     enum Enjin {
         static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
