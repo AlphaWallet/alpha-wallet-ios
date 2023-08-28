@@ -88,7 +88,7 @@ extension RPCServer: Hashable, CaseIterable {
             case .heco_testnet: return "https://testnet.hecoinfo.com"
             case .heco: return "https://hecoinfo.com"
             case .fantom: return "https://ftmscan.com"
-            case .xDai: return "https://blockscout.com/poa/dai"
+            case .xDai: return "https://gnosis.blockscout.com"
             case .classic: return "https://blockscout.com/etc/mainnet"
             case .callisto: return "https://explorer.callisto.network"
             case .binance_smart_chain: return "https://bscscan.com"
@@ -175,7 +175,7 @@ extension RPCServer: Hashable, CaseIterable {
             guard let url = URL(string: "https://blockscout.com/etc/mainnet/api") else { return .unknown }
             return .blockscout(apiKey: nil, apiUrl: url)
         case .xDai:
-            guard let url = URL(string: "https://blockscout.com/poa/xdai/api") else { return .unknown }
+            guard let url = URL(string: "https://gnosis.blockscout.com/api") else { return .unknown }
             return .blockscout(apiKey: Constants.Credentials.xDaiExplorerKey, apiUrl: url)
         case .callisto:
             guard let url = URL(string: "https://explorer.callisto.network/api") else { return .unknown }
