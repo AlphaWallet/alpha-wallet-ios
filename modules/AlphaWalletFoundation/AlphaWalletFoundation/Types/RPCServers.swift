@@ -137,7 +137,7 @@ extension RPCServer: Hashable, CaseIterable {
             return .etherscan(apiKey: nil, apiUrl: url)
         case .optimistic:
             guard let url = URL(string: "https://api-optimistic.etherscan.io/api") else { return .unknown }
-            return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
+            return .etherscan(apiKey: Constants.Credentials.optimisticExplorerKey, apiUrl: url)
         case .binance_smart_chain:
             guard let url = URL(string: "https://api.bscscan.com/api") else { return .unknown }
             return .etherscan(apiKey: Constants.Credentials.binanceSmartChainExplorerApiKey, apiUrl: url)
