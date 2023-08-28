@@ -133,7 +133,7 @@ extension RPCServer: Hashable, CaseIterable {
             guard let url = URL(string: "https://api.hecoinfo.com/api") else { return .unknown }
             return .etherscan(apiKey: nil, apiUrl: url)
         case .heco_testnet:
-            guard let url = URL(string: "https://api-testnet.hecoinfo.com/api") else { return .unknown }
+            guard let url = URL(string: "https://api-testnet.hecoinfo.com/api/") else { return .unknown }
             return .etherscan(apiKey: nil, apiUrl: url)
         case .optimistic:
             guard let url = URL(string: "https://api-optimistic.etherscan.io/api") else { return .unknown }
