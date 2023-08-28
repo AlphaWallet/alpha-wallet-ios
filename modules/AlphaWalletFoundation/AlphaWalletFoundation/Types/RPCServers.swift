@@ -169,7 +169,7 @@ extension RPCServer: Hashable, CaseIterable {
             guard let url = URL(string: "https://goerli-rollup-explorer.arbitrum.io/api") else { return .unknown }
             return .blockscout(apiKey: nil, apiUrl: url)
         case .optimismGoerli:
-            guard let url = URL(string: "https://blockscout.com/optimism/goerli/api") else { return .unknown }
+            guard let url = URL(string: "https://optimism-goerli.blockscout.com/api") else { return .unknown }
             return .blockscout(apiKey: nil, apiUrl: url)
         case .classic:
             guard let url = URL(string: "https://blockscout.com/etc/mainnet/api") else { return .unknown }
