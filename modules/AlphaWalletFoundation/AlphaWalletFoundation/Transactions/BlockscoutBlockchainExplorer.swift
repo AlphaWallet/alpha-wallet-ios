@@ -297,7 +297,11 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
         case .failure:
             let json = try? JSON(response.data)
             infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
-            let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            var properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            //Take `message` instead of `result` (different from Etherscan-compatible)
+            if let message = json?["message"].stringValue, !message.isEmpty {
+                properties[Analytics.Properties.message.rawValue] = message
+            }
             analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
             break
