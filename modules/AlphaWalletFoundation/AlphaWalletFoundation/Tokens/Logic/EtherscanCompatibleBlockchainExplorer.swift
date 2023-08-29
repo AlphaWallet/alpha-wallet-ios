@@ -353,13 +353,24 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         case .failure:
             let json = try? JSON(response.data)
             infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
-            let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            var properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+            //Taking the `result` is intentional for Etherscan-compatible, since message is probably "NOTOK"
+            if let message = json?["result"].stringValue, !message.isEmpty {
+                properties[Analytics.Properties.message.rawValue] = message
+            }
             analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
-            if let json = try? JSON(response.data), json["result"].stringValue == "Max rate limit reached" {
-                infoLog("[API] request rate limited with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
-                let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
-                analytics.log(error: Analytics.WebApiErrors.blockchainExplorerRateLimited, properties: properties)
+            if let json = try? JSON(response.data) {
+                if json["result"].stringValue == "Max rate limit reached" {
+                    infoLog("[API] request rate limited with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+                    let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+                    analytics.log(error: Analytics.WebApiErrors.blockchainExplorerRateLimited, properties: properties)
+                } else if json["message"].stringValue == "NOTOK" {
+                    //TODO this prints the API key, maybe we can mask it, but it's not critical since it isn't user data and is easy to pull from the app binary
+                    infoLog("[API] request NOTOK with json: \(json.rawString()), server: \(server) url: \(response.response.url?.absoluteString)", callerFunctionName: caller)
+                    let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode, Analytics.Properties.message.rawValue: json["result"].stringValue]
+                    analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
+                }
             }
         }
     }

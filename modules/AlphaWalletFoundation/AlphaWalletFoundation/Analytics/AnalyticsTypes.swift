@@ -144,6 +144,7 @@ public enum Analytics {
         case domainName
         case scheme
         case code
+        case message
     }
 
     public enum EmbeddedDeepLinkType: String {
