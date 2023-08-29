@@ -70,7 +70,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             session: session,
             blockchainExplorer: session.blockchainExplorer,
             transactionDataStore: transactionDataStore,
-            stateProvider: oldestTransactionsStateProvider)
+            stateProvider: oldestTransactionsStateProvider,
+            interval: 5)
 
         oldestTransferTransactionsScheduler = Scheduler(provider: oldestTransactionsProvider)
 
@@ -494,7 +495,7 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, stateProvider: SchedulerStateProvider, interval: TimeInterval = 0.3) {
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, stateProvider: SchedulerStateProvider, interval: TimeInterval) {
             self.stateProvider = stateProvider
             self.transactionDataStore = transactionDataStore
             self.interval = interval
