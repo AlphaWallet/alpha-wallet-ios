@@ -8,6 +8,7 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
+// swiftlint:disable type_body_length
 class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private let server: RPCServer
     private let transporter: ApiTransporter
@@ -58,10 +59,9 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
-        switch server {
-        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
-            break
-        case .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
+        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+            //no-op
+        } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
         }
 
@@ -71,7 +71,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             endBlock: pagination.endBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
-            action: .txlist)
+            action: .tokennfttx)
         let analytics = analytics
         let domainName = baseUrl.host!
 
@@ -226,13 +226,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
         }
 
-        switch server {
-        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
-            break
-        case .heco, .heco_testnet:
-            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
-        }
-
         return getErc1155Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
                 let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
@@ -272,6 +265,11 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private func getErc721Transactions(walletAddress: AlphaWallet.Address,
                                        server: RPCServer,
                                        startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+            //no-op
+        } else {
+            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
+        }
 
         let request = Request(
             baseUrl: baseUrl,
@@ -366,6 +364,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension EtherscanCompatibleBlockchainExplorer {
 
@@ -585,11 +584,21 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
         return results
     }
 
+    //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
     static func serverSupportsFetchingErc1155Transactions(_ server: RPCServer) -> Bool {
         switch server {
-        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet:
+        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .avalanche, .avalanche_testnet:
             return true
-        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia:
+        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
+            return false
+        }
+    }
+    //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
+    static func serverSupportsFetchingNftTransactions(_ server: RPCServer) -> Bool {
+        switch server {
+        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet:
+            return true
+        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
             return false
         }
     }

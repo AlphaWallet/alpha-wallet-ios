@@ -57,10 +57,9 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
-        switch server {
-        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
-            break
-        case .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
+        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+            //no-op
+        } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
         }
 
@@ -69,7 +68,8 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
             startBlock: pagination.startBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
-            action: .txlist)
+            //TODO do we need to fallback to .txlist if it .tokennfttx is not supported?
+            action: .tokennfttx)
         let analytics = analytics
         let domainName = baseUrl.host!
 
@@ -81,35 +81,8 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
             .eraseToAnyPublisher()
     }
 
-    func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
-                                  pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
-        guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
-            return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
-        }
-
-        switch server {
-        case .main, .classic, .goerli, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .sepolia:
-            break
-        case .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx:
-            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
-        }
-
-        let request = Request(
-            baseUrl: baseUrl,
-            startBlock: pagination.startBlock,
-            apiKey: apiKey,
-            walletAddress: walletAddress,
-            action: .txlist)
-        let analytics = analytics
-        let domainName = baseUrl.host!
-
-        return transporter
-            .dataTaskPublisher(request)
-            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-            .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc1155) }
-            .mapError { PromiseError.some(error: $0) }
-            .eraseToAnyPublisher()
+    func erc1155TokenInteractions(walletAddress: AlphaWallet.Address, pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
+        return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
@@ -250,16 +223,23 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
             .eraseToAnyPublisher()
     }
 
-    private func getErc721Transactions(walletAddress: AlphaWallet.Address,
-                                       server: RPCServer,
-                                       startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+    private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
+        let tokenAction: BlockscoutBlockchainExplorer.Action
+        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+            tokenAction = .tokennfttx
+            //no-op
+        } else {
+            //TODO does falling back to tokentx help? Does it include ERC-721 transactions?
+            tokenAction = .tokentx
+            return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
+        }
 
         let request = Request(
             baseUrl: baseUrl,
             startBlock: startBlock,
             apiKey: apiKey,
             walletAddress: walletAddress,
-            action: .tokentx)
+            action: tokenAction)
         let analytics = analytics
         let domainName = baseUrl.host!
 
@@ -330,6 +310,7 @@ extension BlockscoutBlockchainExplorer {
     private enum Action: String {
         case txlist
         case tokentx
+        case tokennfttx
     }
 
     private struct Request: URLRequestConvertible {
