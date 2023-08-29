@@ -109,7 +109,7 @@ extension RPCServer: Hashable, CaseIterable {
             case .klaytnBaobabTestnet: return "https://baobab.scope.klaytn.com"
             case .ioTeX: return "https://iotexscan.io"
             case .ioTeXTestnet: return "https://testnet.iotexscan.io"
-            case .optimismGoerli: return "https://blockscout.com/optimism/goerli"
+            case .optimismGoerli: return "https://optimism-goerli.blockscout.com/optimism/goerli"
             case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io"
             case .okx: return "https://www.oklink.com/okc"
             case .sepolia: return "https://sepolia.etherscan.io"
