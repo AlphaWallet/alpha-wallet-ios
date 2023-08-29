@@ -107,13 +107,7 @@ extension TransactedTokensAutodetector {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession,
-             blockchainExplorer: BlockchainExplorer,
-             storage: PaginationStorage,
-             tokenType: Eip20TokenType,
-             interval: TimeInterval = 0,
-             stateProvider: SchedulerStateProvider) {
-
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, storage: PaginationStorage, tokenType: Eip20TokenType, interval: TimeInterval, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.interval = interval
             self.tokenType = tokenType
