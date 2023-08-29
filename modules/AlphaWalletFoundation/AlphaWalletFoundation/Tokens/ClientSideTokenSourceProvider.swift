@@ -92,7 +92,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
             .store(in: &cancelable)
 
         //NOTE: disabled as delating instances from db caused crash
-        //tokensAutodetector.start()
+        tokensAutodetector.start()
 
         balanceFetcher.delegate = self
     }
