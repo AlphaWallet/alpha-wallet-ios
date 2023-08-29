@@ -97,7 +97,7 @@ extension RPCServer: Hashable, CaseIterable {
             case .mumbai_testnet: return "https://mumbai.polygonscan.com"
             case .optimistic: return "https://optimistic.etherscan.io"
             case .cronosMainnet: return "https://cronoscan.com"
-            case .cronosTestnet: return "https://cronos-explorer.crypto.org"
+            case .cronosTestnet: return "https://cronos.crypto.org/explorer"
             case .custom: return nil
             case .fantom_testnet: return "https://testnet.ftmscan.com"
             case .avalanche: return "https://snowtrace.io"
@@ -110,7 +110,7 @@ extension RPCServer: Hashable, CaseIterable {
             case .ioTeX: return "https://iotexscan.io"
             case .ioTeXTestnet: return "https://testnet.iotexscan.io"
             case .optimismGoerli: return "https://optimism-goerli.blockscout.com/optimism/goerli"
-            case .arbitrumGoerli: return "https://goerli-rollup-explorer.arbitrum.io"
+            case .arbitrumGoerli: return "https://testnet.arbiscan.io"
             case .okx: return "https://www.oklink.com/okc"
             case .sepolia: return "https://sepolia.etherscan.io"
             }
@@ -166,7 +166,8 @@ extension RPCServer: Hashable, CaseIterable {
             guard let url = URL(string: "https://api-sepolia.etherscan.io/api") else { return .unknown }
             return .etherscan(apiKey: Constants.Credentials.etherscanKey, apiUrl: url)
         case .arbitrumGoerli:
-            guard let url = URL(string: "https://goerli-rollup-explorer.arbitrum.io/api") else { return .unknown }
+            guard let url = URL(string: "https://testnet.arbiscan.io/api") else { return .unknown }
+            //TODO testnet.arbiscan.io should be .etherscan instead?
             return .blockscout(apiKey: nil, apiUrl: url)
         case .optimismGoerli:
             guard let url = URL(string: "https://optimism-goerli.blockscout.com/api") else { return .unknown }
@@ -176,12 +177,13 @@ extension RPCServer: Hashable, CaseIterable {
             return .blockscout(apiKey: nil, apiUrl: url)
         case .xDai:
             guard let url = URL(string: "https://gnosis.blockscout.com/api") else { return .unknown }
+            //TODO doesn't look like API key is needed for https://gnosis.blockscout.com/api as of 20230828
             return .blockscout(apiKey: Constants.Credentials.xDaiExplorerKey, apiUrl: url)
         case .callisto:
             guard let url = URL(string: "https://explorer.callisto.network/api") else { return .unknown }
             return .blockscout(apiKey: nil, apiUrl: url)
         case .cronosTestnet:
-            guard let url = URL(string: "https://cronos-explorer.crypto.org/api") else { return .unknown }
+            guard let url = URL(string: "https://cronos.crypto.org/explorer/api") else { return .unknown }
             return .blockscout(apiKey: nil, apiUrl: url)
         case .palm:
             guard let url = URL(string: "https://explorer.palm.io/api") else { return .unknown }
