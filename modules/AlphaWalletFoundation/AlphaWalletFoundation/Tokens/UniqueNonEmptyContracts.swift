@@ -58,6 +58,7 @@ extension UniqueNonEmptyContracts {
                 guard json["tokenID"].stringValue.nonEmpty && json["tokenValue"].stringValue.nonEmpty else { return nil }
             }
 
+            //Check for Blockscout's input == "deprecated" isn't needed because it will match != "0x" too
             if json["input"] != "0x" {
                 //every transaction that has input is by default a transaction to a contract
                 //Note: etherscan API only returns contractAddress for this call

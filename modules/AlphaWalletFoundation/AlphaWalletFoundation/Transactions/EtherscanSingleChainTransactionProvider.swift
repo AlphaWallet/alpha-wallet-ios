@@ -47,7 +47,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     interval: 15,
                     stateProvider: PersistantSchedulerStateProvider(
                         sessionID: session.sessionID,
-                        prefix: EtherscanCompatibleSchedulerStatePrefix.normalTransactions.rawValue))
+                        prefix: fetchType.rawValue))
             case .erc20, .erc721, .erc1155:
                 schedulerProvider = LatestTransferTransactionsSchedulerProvider(
                     session: session,
@@ -56,7 +56,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     interval: 15,
                     stateProvider: PersistantSchedulerStateProvider(
                         sessionID: session.sessionID,
-                        prefix: EtherscanCompatibleSchedulerStatePrefix.erc721LatestTransactions.rawValue))
+                        prefix: fetchType.rawValue))
             }
 
             return SchedulerProviderData(fetchType: fetchType, schedulerProvider: schedulerProvider)
@@ -385,6 +385,8 @@ extension EtherscanSingleChainTransactionProvider {
 
         private func handle(error: PromiseError) {
             if case BlockchainExplorerError.methodNotSupported = error.embedded {
+                //We mark as "stopped" (the wording is not right, it should just be "notSupported") and persist it, so we wouldn't attempt to use it for that type of transaction fetching on that particular chain
+                //TODO we didn't track the API service (e.g Etherscan vs Blockscout) used, so it's possible that it's not supported on one and then we switch to one that supports it and we wouldn't know to use it
                 stateProvider.state = .stopped
             } else {
                 stateProvider.state = .failured
