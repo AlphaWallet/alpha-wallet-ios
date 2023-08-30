@@ -280,13 +280,19 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
         switch URLRequest.validate(statusCode: 200..<300, response: response.response) {
         case .failure:
             let json = try? JSON(response.data)
-            infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
-            var properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
-            //Take `message` instead of `result` (different from Etherscan-compatible)
-            if let message = json?["message"].stringValue, !message.isEmpty {
-                properties[Analytics.Properties.message.rawValue] = message
+            if response.response.statusCode == 429 {
+                infoLog("[API] request rate limited with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+                let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+                analytics.log(error: Analytics.WebApiErrors.blockchainExplorerRateLimited, properties: properties)
+            } else {
+                infoLog("[API] request failure with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
+                var properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
+                //Take `message` instead of `result` (different from Etherscan-compatible)
+                if let message = json?["message"].stringValue, !message.isEmpty {
+                    properties[Analytics.Properties.message.rawValue] = message
+                }
+                analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
             }
-            analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
             break
         }
