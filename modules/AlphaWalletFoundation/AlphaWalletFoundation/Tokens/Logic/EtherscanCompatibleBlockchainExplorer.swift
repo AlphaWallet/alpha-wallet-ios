@@ -598,19 +598,26 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
     //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
     static func serverSupportsFetchingErc1155Transactions(_ server: RPCServer) -> Bool {
         switch server {
-        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .avalanche, .avalanche_testnet:
+        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .avalanche, .avalanche_testnet:
             return true
-        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
+        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli, .custom:
             return false
         }
     }
     //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
     static func serverSupportsFetchingNftTransactions(_ server: RPCServer) -> Bool {
         switch server {
-        case .main, .classic, .xDai, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .callisto, .optimistic, .cronosMainnet, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet:
+        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet:
             return true
         case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
             return false
+        case .custom(let customRpc):
+            switch customRpc.etherscanCompatibleType {
+            case .etherscan:
+                return true
+            case .blockscout, .unknown:
+                return false
+            }
         }
     }
 }
