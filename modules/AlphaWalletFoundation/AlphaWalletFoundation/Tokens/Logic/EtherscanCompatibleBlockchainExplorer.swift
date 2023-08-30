@@ -338,6 +338,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             analytics.log(error: Analytics.WebApiErrors.blockchainExplorerError, properties: properties)
         case .success:
             if let json = try? JSON(response.data) {
+                //Etherscan doesn't return 429
                 if json["result"].stringValue == "Max rate limit reached" {
                     infoLog("[API] request rate limited with status code: \(response.response.statusCode), json: \(json), server: \(server)", callerFunctionName: caller)
                     let properties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName, Analytics.Properties.code.rawValue: response.response.statusCode]
