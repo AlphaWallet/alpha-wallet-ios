@@ -308,7 +308,7 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transferType: TransactionFetchType, interval: TimeInterval = 0, stateProvider: SchedulerStateProvider) {
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transferType: TransactionFetchType, interval: TimeInterval, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.transferType = transferType
             self.interval = interval
@@ -415,7 +415,7 @@ extension EtherscanSingleChainTransactionProvider {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, interval: TimeInterval = 0, stateProvider: SchedulerStateProvider) {
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, transactionDataStore: TransactionDataStore, interval: TimeInterval, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.transactionDataStore = transactionDataStore
             self.interval = interval
