@@ -256,6 +256,8 @@ final class EventSourceForActivities {
         private class TokenEventsForActivitiesWorker {
             private var request: FetchRequest
             private let timer = CombineTimer(interval: 65)
+            //TODO longer interval now so we don't hit Infura so much, especially for Polygon. But need to improve in other ways
+            private let timer = CombineTimer(interval: 185)
             private let subject = PassthroughSubject<FetchRequest, Never>()
             private var cancellable: AnyCancellable?
             private let debounce: TimeInterval = 60
@@ -313,9 +315,14 @@ final class EventSourceForActivities {
 
         func fetchEvents(token: Token) async {
             let cards = getActivityCards(token: token)
+            //For avoid excessive calls even though Infura doesn't rate limit us. This is especially so in Polygon where there's a event block range limit and small block times
+            var delay = UInt64(0)
             for card in cards {
                 let eventOrigin = card.eventOrigin
                 let oldEvent = await eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+                //TODO instead of (only?) delay calls, we should fetch events from the latest blocks and catch up the older ones like we do for ERC-1155. This might mean we ignore the built-in TokenScript events for ERC-20 and ERC-721. But we still want the activity views in those TokenScript files
+                delay += (UInt64.random(in: 2...10) + 2) * 1_000_000_000
+                try? await Task.sleep(nanoseconds: delay)
                 let events = (try? await eventFetcher.fetchEvents(token: token, card: card, oldEventBlockNumber: oldEvent?.blockNumber)) ?? []
                 eventsDataStore.addOrUpdate(events: events)
             }
