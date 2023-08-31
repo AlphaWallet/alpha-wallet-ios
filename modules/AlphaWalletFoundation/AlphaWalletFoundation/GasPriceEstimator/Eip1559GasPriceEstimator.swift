@@ -19,7 +19,7 @@ public final class Eip1559GasPriceEstimator: NSObject, GasPriceEstimator {
     private let initialMaxFeePerGas: BigUInt?
     private let initialMaxPriorityFeePerGas: BigUInt?
     private var cancellable = Set<AnyCancellable>()
-    private lazy var scheduler = Scheduler(provider: estimatesProvider, useCountdownTimer: true)
+    private lazy var scheduler = Scheduler(provider: estimatesProvider, refreshAggressively: true)
     private let estimatesProvider: Eip1559GasPriceEstimatorProvider
 
     public private(set) var selectedGasSpeed: GasSpeed = .standard

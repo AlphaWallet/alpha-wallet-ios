@@ -22,7 +22,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
     private let estimatesSubject: CurrentValueSubject<LegacyGasEstimates, Never>
     private let initialGasPrice: BigUInt?
     private var cancellable = Set<AnyCancellable>()
-    private lazy var scheduler = Scheduler(provider: estimatesProvider, useCountdownTimer: true)
+    private lazy var scheduler = Scheduler(provider: estimatesProvider, refreshAggressively: true)
     private let estimatesProvider: LegacyEstimatesSchedulerProvider
 
     public private(set) var selectedGasSpeed: GasSpeed = .standard

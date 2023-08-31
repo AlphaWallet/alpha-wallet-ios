@@ -47,7 +47,7 @@ enum SchedulerError: Error {
 
 final class Scheduler: SchedulerProtocol {
     private lazy var timer = CombineTimer(interval: provider.interval)
-    private var countdownTimer: CombineTimer?
+    private var refreshAggressivelyTimer: CombineTimer?
     private let reachability: ReachabilityManagerProtocol
     private lazy var queue = RunLoop.main
     private var cancelable = Set<AnyCancellable>()
@@ -58,16 +58,13 @@ final class Scheduler: SchedulerProtocol {
     @Published var state: Scheduler.State = .idle
     let provider: SchedulerProvider
 
-    init(provider: SchedulerProvider,
-         reachability: ReachabilityManagerProtocol = ReachabilityManager(),
-         useCountdownTimer: Bool = false) {
-
+    init(provider: SchedulerProvider, reachability: ReachabilityManagerProtocol = ReachabilityManager(), refreshAggressively: Bool = false) {
         self.reachability = reachability
         self.provider = provider
 
-        if useCountdownTimer {
+        if refreshAggressively {
             let timer = CombineTimer(interval: 1)
-            countdownTimer = timer
+            refreshAggressivelyTimer = timer
             timer.publisher
                 .compactMap { _ -> Scheduler.State? in
                     guard case .tick(let value) = self.state, value - 1 >= 0 else { return nil }
@@ -90,7 +87,7 @@ final class Scheduler: SchedulerProtocol {
 
     private func resetCountdownCounter() {
         self.state = .tick(Int(provider.interval))
-        countdownTimer?.interval = 1
+        refreshAggressivelyTimer?.interval = 1
     }
 
     func restart(force: Bool = false) {
