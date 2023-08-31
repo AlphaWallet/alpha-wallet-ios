@@ -29,9 +29,6 @@ final class EventForActivitiesFetcher {
             throw SessionTaskError(error: FetcherError.sessionNotFound)
         }
 
-        //Just(token)
-        //    .flatMap { [sessionsProvider] token -> AnyPublisher<[EventActivityInstance], SessionTaskError> in
-
         let eventOrigin = card.eventOrigin
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin.parameters
