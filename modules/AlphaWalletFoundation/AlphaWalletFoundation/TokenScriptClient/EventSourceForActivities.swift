@@ -258,15 +258,14 @@ final class EventSourceForActivities {
             private let timer = CombineTimer(interval: 65)
             private let subject = PassthroughSubject<FetchRequest, Never>()
             private var cancellable: AnyCancellable?
-
-            var debouce: TimeInterval = 60
+            private let debounce: TimeInterval = 60
 
             init(request: FetchRequest, eventsFetcher: TokenEventsForActivitiesTickersFetcher) {
                 self.request = request
 
                 let timedFetch = timer.publisher.map { _ in self.request }.share()
                 let timedOrWaitForCurrent = Publishers.Merge(timedFetch, subject.filter { $0.policy == .waitForCurrent })
-                    .debounce(for: .seconds(debouce), scheduler: RunLoop.main)
+                    .debounce(for: .seconds(debounce), scheduler: RunLoop.main)
                 let force = subject.filter { $0.policy == .force }
                 let initial = Just(request)
 
