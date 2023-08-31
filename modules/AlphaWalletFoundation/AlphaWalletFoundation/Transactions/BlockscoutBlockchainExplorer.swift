@@ -300,7 +300,6 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
 
     //For avoid being rate limited
     private func randomDelay() -> Int {
-        //TODO delay doesn't seem necessary because we aren't rate limited like by Etherscan
         return Int.random(in: 2...10)
     }
 }
