@@ -255,7 +255,6 @@ final class EventSourceForActivities {
 
         private class TokenEventsForActivitiesWorker {
             private var request: FetchRequest
-            private let timer = CombineTimer(interval: 65)
             //TODO longer interval now so we don't hit Infura so much, especially for Polygon. But need to improve in other ways
             private let timer = CombineTimer(interval: 185)
             private let subject = PassthroughSubject<FetchRequest, Never>()
