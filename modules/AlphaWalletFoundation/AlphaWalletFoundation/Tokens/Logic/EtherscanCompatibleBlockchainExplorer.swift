@@ -8,7 +8,6 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
-// swiftlint:disable type_body_length
 class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private let server: RPCServer
     private let transporter: ApiTransporter
@@ -358,7 +357,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         Int.random(in: 4...30)
     }
 }
-// swiftlint:enable type_body_length
 
 extension EtherscanCompatibleBlockchainExplorer {
 
