@@ -7,7 +7,7 @@ import AlphaWalletLogger
 import Alamofire
 
 class SmartLayerPass {
-    static let typeFieldName = "eventId"
+    static let typeFieldName = "orgId"
 
     private func authHeaderValue(forDomain domain: String) -> String? {
         if domain == "www.smartlayer.network" || domain == "smartlayer.network" {
