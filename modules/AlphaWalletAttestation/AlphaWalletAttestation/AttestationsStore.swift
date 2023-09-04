@@ -25,24 +25,47 @@ public class AttestationsStore {
         return functional.readAttestations(from: fileUrl).flatMap { $0.value }
     }
 
-    public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) -> Bool {
+    //TODO we pass in `identifyingFieldNames` and `collectionIdFieldNames` to compare because this code is in AlphaWalletAttestation and we don't have access to TokenScript here. Leaky, or good?
+    public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address, collectionIdFieldNames: [String], identifyingFieldNames: [String]) async -> Bool {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
             var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
-            guard !attestations.contains(attestation) else {
+            if attestations.contains(attestation) {
                 infoLog("[Attestation] Attestation already exist. Skipping")
                 return false
+            } else if let attestationToReplace = await findAttestationWithSameIdentity(attestation, collectionIdFieldNames: collectionIdFieldNames, identifyingFieldNames: identifyingFieldNames, inAttestations: attestationsForWallet) {
+                attestationsForWallet = functional.arrayReplacingAttestation(array: attestationsForWallet, old: attestationToReplace, replacement: attestation)
+                allAttestations[address] = attestationsForWallet
+                try saveAttestations(attestations: allAttestations)
+                attestations = attestationsForWallet
+                infoLog("[Attestation] Imported attestation and replaced previous")
+                return true
+            } else {
+                attestationsForWallet.append(attestation)
+                allAttestations[address] = attestationsForWallet
+                try saveAttestations(attestations: allAttestations)
+                attestations = attestationsForWallet
+                infoLog("[Attestation] Imported attestation")
+                return true
             }
-            attestationsForWallet.append(attestation)
-            allAttestations[address] = attestationsForWallet
-            try saveAttestations(attestations: allAttestations)
-            attestations = attestationsForWallet
-            infoLog("[Attestation] Imported attestation")
-            return true
         } catch {
             errorLog("[Attestation] failed to encode attestations while adding attestation to: \(Self.fileUrl.absoluteString) error: \(error)")
             return false
         }
+    }
+
+    private func findAttestationWithSameIdentity(_ attestation: Attestation, collectionIdFieldNames: [String], identifyingFieldNames: [String], inAttestations attestations: [Attestation]) async -> Attestation? {
+        let attestationIdFields: [AttestationAttribute] = identifyingFieldNames.map { AttestationAttribute(label: $0, path: $0) }
+        let collectionIdFields: [AttestationAttribute] = collectionIdFieldNames.map { AttestationAttribute(label: $0, path: $0) }
+        guard !attestationIdFields.isEmpty && !collectionIdFields.isEmpty else { return nil }
+        let identityForNewAttestation = functional.computeIdentity(forAttestation: attestation, collectionIdFields: collectionIdFields, attestationIdFields: attestationIdFields)
+        for each in attestations {
+            let identityForExistingAttestation = functional.computeIdentity(forAttestation: each, collectionIdFields: collectionIdFields, attestationIdFields: attestationIdFields)
+            if identityForExistingAttestation == identityForNewAttestation {
+                return each
+            }
+        }
+        return nil
     }
 
     public func removeAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
@@ -84,5 +107,22 @@ fileprivate extension AttestationsStore.functional {
         let allAttestations = readAttestations(from: fileUrl)
         let result: [Attestation] = allAttestations[address] ?? []
         return result
+    }
+
+    static func arrayReplacingAttestation(array: [Attestation], old: Attestation, replacement: Attestation) -> [Attestation] {
+        var result = array
+        if let index = result.firstIndex(of: old) {
+            result[index] = replacement
+        }
+        return result
+    }
+
+    //TODO better in AlphaWalletTokenScript. But we can't move it due to dependency
+    static func computeIdentity(forAttestation attestation: Attestation, collectionIdFields: [AttestationAttribute], attestationIdFields: [AttestationAttribute]) -> String {
+        let idFieldsData = Attestation.resolveAttestationAttributes(forAttestation: attestation, withAttestationFields: attestationIdFields)
+        let collectionId = Attestation.computeAttestationCollectionId(forAttestation: attestation, collectionIdFields: collectionIdFields)
+        let identity = String(attestation.chainId) + collectionId + idFieldsData.map { $0.value.stringValue }.joined()
+        //We should hash too, but exclude it because it introduces a dependency on CryptoSwift and we don't need it as we can compare pre-hash
+        return identity
     }
 }

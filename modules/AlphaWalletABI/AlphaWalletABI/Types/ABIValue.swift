@@ -7,6 +7,7 @@
 import Foundation
 import AlphaWalletAddress
 import BigInt
+//TODO remove AlphaWalletABI's dependency on TrustKeystore
 import TrustKeystore
 
 public indirect enum ABIValue: Equatable {

@@ -2,40 +2,37 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletAttestation
 
 public class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     private var xmls = [AlphaWallet.Address: String]()
 
     public weak var delegate: AssetDefinitionBackingStoreDelegate?
-    public var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+    public weak var resolver: TokenScriptResolver?
+    public var badTokenScriptFileNames: [Filename] {
         return .init()
     }
-    public var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
+    public var conflictingTokenScriptFileNames: (official: [Filename], overrides: [Filename], all: [Filename]) {
         return (official: [], overrides: [], all: [])
     }
 
-    public var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
-        return .init()
-    }
     public init() { }
-    public subscript(contract: AlphaWallet.Address) -> String? {
-        get {
-            return xmls[contract]
-        }
-        set(xml) {
-            //TODO validate XML signature first
-            xmls[contract] = xml
-        }
+
+    public func debugGetPathToScriptUriFile(url: URL) -> URL? {
+        return nil
+    }
+
+    public func getXml(byContract contract: AlphaWallet.Address) -> String? {
+        return xmls[contract]
+    }
+
+    public func storeOfficialXmlForToken(_ contract: AlphaWallet.Address, xml: String, fromUrl url: URL) {
+        //TODO validate XML signature first
+        xmls[contract] = xml
     }
 
     public func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         return nil
-    }
-
-    public func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
-        xmls.forEach { contract, _ in
-            body(contract)
-        }
     }
 
     public func isOfficial(contract: AlphaWallet.Address) -> Bool {
@@ -50,10 +47,6 @@ public class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         return false
     }
 
-    public func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
-        return false
-    }
-
     public func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
         return nil
     }
@@ -62,7 +55,18 @@ public class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         //do nothing
     }
 
-    public func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address) {
+    public func deleteXmlFileDownloadedFromOfficialRepo(forContract contract: AlphaWallet.Address) {
         xmls[contract] = nil
+    }
+
+    public func storeOfficialXmlForAttestation(_ attestation: Attestation, withURL url: URL, xml: String) {
+    }
+
+    public func getXml(byScriptUri url: URL) -> String? {
+        return nil
+    }
+
+    public func getXmls(bySchemaId schemaUid: Attestation.SchemaUid) -> [String] {
+        return []
     }
 }

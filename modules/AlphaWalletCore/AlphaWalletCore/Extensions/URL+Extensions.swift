@@ -34,6 +34,16 @@ extension URL {
         }
     }
 
+    public var isIpfs: Bool {
+        if scheme == "ipfs" {
+            return true
+        }
+        if host == "alphawallet.infura-ipfs.io" {
+            return true
+        }
+        return false
+    }
+
     public var rewrittenIfIpfs: URL {
         return rewriteIfIpfsOrNil ?? self
     }

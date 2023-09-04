@@ -130,7 +130,7 @@ public struct AssetAttribute {
 
     private static func getContract(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, forTokenContract contract: AlphaWallet.Address, server: RPCServerOrAny, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) -> AlphaWallet.Address? {
         if let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty {
-            return XMLHandler.functional.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses)
+            return XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses)
         } else {
             //TODO falling back to the token contract should only be for activity cards
             return contract

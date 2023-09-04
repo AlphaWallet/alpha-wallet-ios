@@ -95,7 +95,33 @@ public enum AttestationPropertyValue: Codable, Hashable {
 }
 
 public struct Attestation: Codable, Hashable {
-    typealias SchemaUid = String
+    public struct SchemaUid: Hashable, Codable, ExpressibleByStringLiteral {
+        public let value: String
+
+        public init(stringLiteral value: StringLiteralType) {
+            self.value = value
+        }
+
+        public init(value: String) {
+            self.value = value
+        }
+    }
+
+    public struct Schema: ExpressibleByStringLiteral {
+        public let value: String
+
+        public init(stringLiteral value: StringLiteralType) {
+            self.value = value
+        }
+
+        public init(value: String) {
+            self.value = value
+        }
+    }
+
+    public struct AttestationId: Hashable {
+        public let value: String
+    }
 
     //Redefine here so reduce dependencies
     static var vitaliklizeConstant: UInt8 = 27
@@ -106,6 +132,11 @@ public struct Attestation: Codable, Hashable {
     public struct TypeValuePair: Codable, Hashable {
         public let type: ABIv2.Element.InOut
         public let value: AttestationPropertyValue
+
+        public init(type: ABIv2.Element.InOut, value: AttestationPropertyValue) {
+            self.type = type
+            self.value = value
+        }
 
         static func mapValue(of output: ABIv2.Element.ParameterType, for value: AnyObject) -> AttestationPropertyValue {
             switch output {
@@ -174,6 +205,12 @@ public struct Attestation: Codable, Hashable {
     private let easAttestation: EasAttestation
     public let isValidAttestationIssuer: Bool
 
+    public var easAttestationData: String { easAttestation.data }
+    public var easAttestationTime: Int { easAttestation.time }
+    public var easAttestationExpirationTime: Int { easAttestation.expirationTime }
+    public var attestationId: AttestationId {
+        AttestationId(value: easAttestation.uid)
+    }
     public var recipient: AlphaWallet.Address? {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: easAttestation.recipient)
     }
@@ -191,6 +228,12 @@ public struct Attestation: Codable, Hashable {
     public var server: RPCServer { easAttestation.server }
     //Good for debugging, in case converting to `RPCServer` is done wrongly
     public var chainId: Int { easAttestation.chainId }
+    public var version: String { easAttestation.version }
+    public var refUID: String { easAttestation.refUID }
+    public var revocable: Bool { easAttestation.revocable }
+    //EAS's schema here *does* refer to the schema UID
+    public var schemaUid: SchemaUid { SchemaUid(value: easAttestation.schema) }
+    public var easMessageVersion: Int? { easAttestation.messageVersion }
     public var scriptUri: URL? {
         let url: URL? = data.compactMap { each in
             if each.type.name == "scriptURI" {
@@ -206,6 +249,14 @@ public struct Attestation: Codable, Hashable {
         }.first
         return url
     }
+    public var signature: Data {
+        //This expects `v` to be 0x1b/0x1c, so do not implement -27
+        if let result: Data = Web3.Utils.marshalSignature(v: easAttestation.v, r: easAttestation.r, s: easAttestation.s) {
+            return result
+        } else {
+            return Data()
+        }
+    }
 
     private init(data: [TypeValuePair], easAttestation: EasAttestation, isValidAttestationIssuer: Bool, source: String) {
         self.data = data
@@ -220,7 +271,13 @@ public struct Attestation: Codable, Hashable {
                 switch each.value {
                 case .string(let value):
                     return value
-                case .address, .bool, .bytes, .int, .uint:
+                case .int(let value):
+                    return String(value)
+                case .uint(let value):
+                    return String(value)
+                case .address(let value):
+                    return value.eip55String
+                case .bool, .bytes:
                     return nil
                 }
             } else {
@@ -230,21 +287,27 @@ public struct Attestation: Codable, Hashable {
     }
 
     public static func extract(fromUrlString urlString: String) async throws -> Attestation {
+        if let rawAttestation = extractRawAttestation(fromUrlString: urlString) {
+            return try await Attestation.extract(fromEncodedValue: rawAttestation, source: urlString)
+        } else {
+            throw AttestationError.parseAttestationUrlFailed(urlString)
+        }
+    }
+
+    public static func extractRawAttestation(fromUrlString urlString: String) -> String? {
         if let url = URL(string: urlString),
            let fragment = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment,
            let components = Optional(fragment.split(separator: "=", maxSplits: 1)),
            components.first == "attestation" {
             let encodedAttestation = components[1]
-            let attestation = try await Attestation.extract(fromEncodedValue: String(encodedAttestation), source: urlString)
-            return attestation
+            return String(encodedAttestation)
         } else if let url = URL(string: urlString),
                   let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
                   let queryItems = urlComponents.queryItems,
                   let ticketItem = queryItems.first(where: { $0.name == "ticket" }) ?? queryItems.first(where: { $0.name == "attestation" }), let encodedAttestation = ticketItem.value {
-            let attestation = try await Attestation.extract(fromEncodedValue: encodedAttestation, source: urlString)
-            return attestation
+            return encodedAttestation
         } else {
-            throw AttestationError.parseAttestationUrlFailed(urlString)
+            return nil
         }
     }
 
@@ -307,22 +370,90 @@ public struct Attestation: Codable, Hashable {
         return Attestation(data: results, easAttestation: attestation, isValidAttestationIssuer: isValidAttestationIssuer, source: source)
     }
 
+    public static func computeAttestationCollectionId(forAttestation attestation: Attestation, collectionIdFields: [AttestationAttribute]) -> String {
+        var results: [String] = [
+            convertSignerAddressToFormatForComputingCollectionId(signer: attestation.signer)
+        ]
+        let collectionIdFieldsData = Attestation.resolveAttestationAttributes(forAttestation: attestation, withAttestationFields: collectionIdFields)
+        for each in collectionIdFieldsData {
+            results.append(each.value.stringValue)
+        }
+        let collectionId = results.joined()
+        let hash = collectionId.sha3(.keccak256)
+        return hash
+    }
+
+    public static func convertSignerAddressToFormatForComputingCollectionId(signer: AlphaWallet.Address?) -> String {
+        //We drop both the 0x, and the leading 04
+        signer?.eip55String.lowercased().drop0x.dropLeading04 ?? ""
+    }
+
     enum functional {}
+}
+
+fileprivate var attestationDateFormatter = Date.formatter(with: "dd MMM yyyy h:mm:ss a")
+extension Attestation {
+    public static func resolveAttestationAttributes(forAttestation attestation: Attestation, withAttestationFields attestationFields: [AttestationAttribute]) -> [Attestation.TypeValuePair] {
+        return attestationFields.compactMap { eachField -> Attestation.TypeValuePair? in
+            let label = eachField.label
+            let path = eachField.path
+            if path.hasPrefix("data.") {
+                let dataFieldName = path.dropDataPrefix
+                let match = attestation.data.first { each in
+                    return each.type.name == dataFieldName
+                }
+                return match.flatMap { Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: $0.type.type), value: $0.value) }
+            } else {
+                switch path {
+                case "name":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string("EAS Attestation"))
+                case "version":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.version))
+                case "chainId":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .uint(bits: 256)), value: AttestationPropertyValue.uint(BigUInt(attestation.chainId)))
+                case "signer":
+                    //We need signer for computation of collectionId or attestation ID (for re-issue, replacements)
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.signer.eip55String))
+                case "verifyingContract":
+                    //TODO be much better if we can specify optionals for types such as Address so when we display in the UI, we can format them better (eg. "0x0000000…") is useless when displayed, it'd be better if we middle truncate them
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.verifyingContract?.eip55String ?? ""))
+                case "recipient":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.recipient?.eip55String ?? ""))
+                case "refUID":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.refUID))
+                case "revocable":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .bool), value: AttestationPropertyValue.bool(attestation.revocable))
+                case "schema":
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(attestation.schemaUid.value))
+                case "time":
+                    //TODO not good to convert to string here, but type constraints
+                    let string = attestationDateFormatter.string(from: attestation.time)
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(string))
+                case "expirationTime":
+                    //TODO not good to convert to string here, but type constraints
+                    let string = attestation.expirationTime.map { attestationDateFormatter.string(from: $0) } ?? "—"
+                    return Attestation.TypeValuePair(type: ABIv2.Element.InOut(name: label, type: .string), value: AttestationPropertyValue.string(string))
+                default:
+                    return nil
+                }
+            }
+        }
+    }
 }
 
 //For testing
 extension Attestation.functional {
-    internal static func extractTypesFromSchemaForTesting(_ schema: String) -> [ABIv2.Element.InOut]? {
+    internal static func extractTypesFromSchemaForTesting(_ schema: Attestation.Schema) -> [ABIv2.Element.InOut]? {
         return extractTypesFromSchema(schema)
     }
 }
 
 fileprivate extension Attestation.functional {
     struct SchemaRecord {
-        let uid: String
+        let uid: Attestation.SchemaUid
         let resolver: AlphaWallet.Address
         let revocable: Bool
-        let schema: String
+        let schema: Attestation.Schema
     }
 
     static func getKeySchemaUid(server: RPCServer) throws -> Attestation.SchemaUid {
@@ -376,11 +507,8 @@ fileprivate extension Attestation.functional {
     static func unzipAttestation(_ zipped: String) throws -> Data {
         //Instead of the usual use of / and +, it might use _ and - instead. So we need to normalize it for parsing
         let normalizedZipped = zipped.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+").paddedForBase64Encoded
-
         //Can't check `zipped.isGzipped`, it's false (sometimes?), but it works, so just don't check
-        guard let compressed = Data(base64Encoded: normalizedZipped) else {
-            throw Attestation.AttestationInternalError.unzipAttestationFailed(zipped: zipped)
-        }
+        guard let compressed = Data(base64Encoded: normalizedZipped) else { throw Attestation.AttestationInternalError.unzipAttestationFailed(zipped: zipped) }
         do {
             return try compressed.gunzipped()
         } catch {
@@ -426,7 +554,9 @@ fileprivate extension Attestation.functional {
             throw Attestation.AttestationInternalError.reconstructSignatureFailed(attestation: attestation, v: v, r: r, s: s)
         }
         let ethereumAddress = Web3.Utils.hashECRecover(hash: eip712.digest, signature: sig)
-        return ethereumAddress.flatMap { AlphaWallet.Address(address: $0) }
+        return ethereumAddress.flatMap {
+            AlphaWallet.Address(address: $0)
+        }
     }
 
     static func extractAttestationData(attestation: EasAttestation) async throws -> [Attestation.TypeValuePair] {
@@ -440,7 +570,8 @@ fileprivate extension Attestation.functional {
             ]
             infoLog("[Attestation] schema UID not provided: \(attestation.schema), so we assume stock ticket schema: \(types)")
         } else {
-            let schemaRecord = try await getSchemaRecord(keySchemaUid: attestation.schema, server: attestation.server)
+            //EAS's schema here *does* refer to the schema UID
+            let schemaRecord = try await getSchemaRecord(keySchemaUid: Attestation.SchemaUid(value: attestation.schema), server: attestation.server)
             infoLog("[Attestation] Found schemaRecord: \(schemaRecord) with schema: \(schemaRecord.schema)")
             guard let localTypes: [ABIv2.Element.InOut] = extractTypesFromSchema(schemaRecord.schema) else {
                 throw Attestation.AttestationInternalError.extractAttestationDataFailed(attestation: attestation)
@@ -460,12 +591,16 @@ fileprivate extension Attestation.functional {
         }
     }
 
-    static func extractTypesFromSchema(_ schema: String) -> [ABIv2.Element.InOut]? {
-        let rawList = schema
-            .components(separatedBy: ",")
-            .map { $0.components(separatedBy: " ") }
+    static func extractTypesFromSchema(_ schema: Attestation.Schema) -> [ABIv2.Element.InOut]? {
+        let rawList = schema.value
+                .components(separatedBy: ",")
+                .map {
+                    $0.components(separatedBy: " ")
+                }
         let result: [ABIv2.Element.InOut] = rawList.compactMap { each in
-            guard each.count == 2 else { return nil }
+            guard each.count == 2 else {
+                return nil
+            }
             let typeString = {
                 //See https://github.com/AlphaWallet/alpha-wallet-android/blob/86692639f2bef2acb890524645d80b3910141148/app/src/main/java/com/alphawallet/app/service/AssetDefinitionService.java#L3051
                 if each[0].hasPrefix("uint") || each[0].hasPrefix("int") {
@@ -494,20 +629,20 @@ fileprivate extension Attestation.functional {
     static func validateSigner(customResolverContractAddress: AlphaWallet.Address, signerAddress: AlphaWallet.Address, server: RPCServer) async throws -> Bool {
         let rootKeyUID = try getRootKeyUid(server: server)
         let abiString = """
-                        [ 
-                          { 
-                            "constant": false, 
-                            "inputs": [ 
-                              {"name": "rootKeyUID","type": "bytes32"}, 
+                        [
+                          {
+                            "constant": false,
+                            "inputs": [
+                              {"name": "rootKeyUID","type": "bytes32"},
                               {"name": "signerAddress","type": "address"}
-                            ], 
-                            "name": "validateSignature", 
-                            "outputs": [{"name": "", "type": "bool"}], 
-                            "type": "function" 
+                            ],
+                            "name": "validateSignature",
+                            "outputs": [{"name": "", "type": "bool"}],
+                            "type": "function"
                           }
                         ]
                         """
-        let parameters = [rootKeyUID, EthereumAddress(address: signerAddress)] as [AnyObject]
+        let parameters = [rootKeyUID.value, EthereumAddress(address: signerAddress)] as [AnyObject]
         let result: [String: Any]
         do {
             result = try await Attestation.callSmartContract(server, customResolverContractAddress, "validateSignature", abiString, parameters)
@@ -534,12 +669,13 @@ fileprivate extension Attestation.functional {
     //Schema the schema pointed to by a schema UID can't change, we can hardcode some
     private static var hardcodedSchemaRecords: [Attestation.SchemaUid: SchemaRecord] = [
         //KeyDecription is verbatim from the schema definition
-        "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1": SchemaRecord(uid: "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1", resolver: AlphaWallet.Address(string: "0x0Ed88b8AF0347fF49D7e09AA56bD5281165225B6")!, revocable: true, schema: "string KeyDecription,bytes ASN1Key,bytes PublicKey"),
-        "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4": SchemaRecord(uid: "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4", resolver: AlphaWallet.Address(string: "0xF0768c269b015C0A246157c683f9377eF571dCD3")!, revocable: true, schema: "string KeyDescription,bytes ASN1Key,bytes PublicKey"),
+        Attestation.SchemaUid("0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1"): SchemaRecord(uid: Attestation.SchemaUid("0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1"), resolver: AlphaWallet.Address(string: "0x0Ed88b8AF0347fF49D7e09AA56bD5281165225B6")!, revocable: true, schema: Attestation.Schema("string KeyDecription,bytes ASN1Key,bytes PublicKey")),
+        "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4": SchemaRecord(uid: Attestation.SchemaUid("0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4"), resolver: AlphaWallet.Address(string: "0xF0768c269b015C0A246157c683f9377eF571dCD3")!, revocable: true, schema: "string KeyDescription,bytes ASN1Key,bytes PublicKey"),
         "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd": SchemaRecord(uid: "0x7f6fb09beb1886d0b223e9f15242961198dd360021b2c9f75ac879c0f786cafd", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment"),
         "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247": SchemaRecord(uid: "0x0630f3342772bf31b669bdbc05af0e9e986cf16458f292dfd3b57564b3dc3247", resolver: Constants.nullAddress, revocable: true, schema: "string devconId,string ticketIdString,uint8 ticketClass,bytes commitment"),
         "0xba8aaaf91d1f63d998fb7da69449d9a314bef480e9555710c77d6e594e73ca7a": SchemaRecord(uid: "0xba8aaaf91d1f63d998fb7da69449d9a314bef480e9555710c77d6e594e73ca7a", resolver: Constants.nullAddress, revocable: true, schema: "string eventId,string ticketId,uint8 ticketClass,bytes commitment,string scriptUri"),
     ]
+
     static func getSchemaRecord(keySchemaUid: Attestation.SchemaUid, server: RPCServer) async throws -> SchemaRecord {
         if let hardcoded = hardcodedSchemaRecords[keySchemaUid] {
             infoLog("[Attestation] Using hardcoded schema record and skipping JSON-RPC call for keySchemaUid: \(keySchemaUid) returning schemaRecord: \(hardcoded)")
@@ -547,30 +683,30 @@ fileprivate extension Attestation.functional {
         }
         let registryContract = try getEasSchemaContract(server: server)
         let abiString = """
-                        [ 
-                          { 
-                            "constant": false, 
-                            "inputs": [ 
-                              {"name": "keySchemaUid", "type": "bytes32"}, 
-                            ], 
-                            "name": "getSchema", 
+                        [
+                          {
+                            "constant": false,
+                            "inputs": [
+                              {"name": "keySchemaUid", "type": "bytes32"},
+                            ],
+                            "name": "getSchema",
                             "outputs": [
                                 {
                                     "components": [
                                         {"name": "uid", "type": "bytes32"},
-                                        {"name": "resolver", "type": "address"}, 
-                                        {"name": "revocable", "type": "bool"}, 
+                                        {"name": "resolver", "type": "address"},
+                                        {"name": "revocable", "type": "bool"},
                                         {"name": "schema", "type": "string"},
                                     ],
                                     "name": "",
                                     "type": "tuple",
                                 }
                             ],
-                            "type": "function" 
+                            "type": "function"
                           }
                         ]
                         """
-        let parameters = [keySchemaUid] as [AnyObject]
+        let parameters = [keySchemaUid.value] as [AnyObject]
         let functionName = "getSchema"
         let cacheKey = "\(registryContract).\(functionName) \(parameters) \(server.chainID) \(abiString)"
         if let cached = cachedSchemaRecords[cacheKey] {
@@ -583,11 +719,12 @@ fileprivate extension Attestation.functional {
             //TODO figure out why this fails on device, but works on simulator
             throw Attestation.AttestationInternalError.schemaRecordNotFound(keySchemaUid: keySchemaUid, server: server)
         }
-        if let uid = ((result["0"] as? [AnyObject])?[0] as? Data)?.toHexString(),
+        if let uidString = ((result["0"] as? [AnyObject])?[0] as? Data)?.toHexString(),
            let resolver = (result["0"] as? [AnyObject])?[1] as? EthereumAddress,
            let revocable = (result["0"] as? [AnyObject])?[2] as? Bool,
            let schema = (result["0"] as? [AnyObject])?[3] as? String {
-            let record = SchemaRecord(uid: uid, resolver: AlphaWallet.Address(address: resolver), revocable: revocable, schema: schema)
+            let uid = Attestation.SchemaUid(value: uidString)
+            let record = SchemaRecord(uid: uid, resolver: AlphaWallet.Address(address: resolver), revocable: revocable, schema: Attestation.Schema(value: schema))
             cachedSchemaRecords[cacheKey] = record
             return record
         } else {
@@ -611,5 +748,14 @@ fileprivate extension Data {
     //TODO: Duplicated here. Move to Core
     var hexString: String {
         return map({ String(format: "%02x", $0) }).joined()
+    }
+}
+
+fileprivate extension String {
+    public var dropDataPrefix: String {
+        if count > 5 && substring(with: 0..<5) == "data." {
+            return String(dropFirst(5))
+        }
+        return self
     }
 }

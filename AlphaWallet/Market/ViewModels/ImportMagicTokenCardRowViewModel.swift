@@ -91,7 +91,7 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
 
     var tokenScriptHtml: String {
         guard let tokenHolder = viewModel.tokenHolder else { return "" }
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType)
         let (html: html, style: style) = xmlHandler.tokenViewIconifiedHtml
 
         return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0])

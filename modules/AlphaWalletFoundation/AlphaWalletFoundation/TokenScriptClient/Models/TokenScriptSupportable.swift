@@ -23,7 +23,7 @@ public protocol TokenScriptSupportable {
 public extension TokenAdaptor {
 
     func title(token: TokenScriptSupportable) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: token.name)
+        let localizedNameFromAssetDefinition = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getLabel(fallback: token.name)
         return title(token: token, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition, symbol: token.symbol)
     }
 
@@ -33,7 +33,7 @@ public extension TokenAdaptor {
     }
 
     func titleInPluralForm(token: TokenScriptSupportable) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: token.name)
+        let localizedNameFromAssetDefinition = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm(fallback: token.name)
         return title(token: token, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition, symbol: token.symbol)
     }
 
@@ -75,7 +75,7 @@ public extension TokenAdaptor {
                 return "\(token.valueBI) (\(symbol))".uppercased()
             }
         }
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token)
 
         func _compositeTokenName(fallback: String = "") -> String {
             let localizedNameFromAssetDefinition = xmlHandler.getNameInPluralForm(fallback: fallback)
@@ -124,7 +124,7 @@ public extension TokenAdaptor {
                 return "\(token.valueBI) (\(symbol))".uppercased()
             }
         }
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token)
 
         func _compositeTokenName(fallback: String = "") -> String {
             let localizedNameFromAssetDefinition = xmlHandler.getNameInPluralForm(fallback: fallback)
@@ -160,7 +160,7 @@ public extension TokenAdaptor {
     }
 
     func symbolInPluralForm2(token: TokenScriptSupportable) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: token.name)
+        let localizedNameFromAssetDefinition = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm(fallback: token.name)
         return symbol(token: token, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 
@@ -223,8 +223,8 @@ public func compositeTokenName(forContract contract: AlphaWallet.Address, fromCo
     return compositeName
 }
 
-extension XMLHandler {
-    public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStoreProtocol) {
-        self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+extension TokenScriptResolver {
+    public func xmlHandler(forTokenScriptSupportable token: TokenScriptSupportable) -> XMLHandler {
+        xmlHandler(forContract: token.contractAddress, tokenType: token.type)
     }
 }

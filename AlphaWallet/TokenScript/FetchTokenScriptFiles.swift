@@ -7,16 +7,15 @@ import AlphaWalletFoundation
 import AlphaWalletTokenScript
 
 public class FetchTokenScriptFilesImpl: FetchTokenScriptFiles {
+    private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensDataStore: TokensDataStore
     private let sessionsProvider: SessionsProvider
     private let queue = DispatchQueue(label: "com.FetchAssetDefinitions.UpdateQueue")
     private var cancellable = Set<AnyCancellable>()
 
-    public init(assetDefinitionStore: AssetDefinitionStore,
-                tokensDataStore: TokensDataStore,
-                sessionsProvider: SessionsProvider) {
-
+    public init(wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensDataStore: TokensDataStore, sessionsProvider: SessionsProvider) {
+        self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.tokensDataStore = tokensDataStore
         self.sessionsProvider = sessionsProvider
@@ -49,21 +48,15 @@ public class FetchTokenScriptFilesImpl: FetchTokenScriptFiles {
                     }
                 }.map { AddressAndOptionalRPCServer(address: $0.contractAddress, server: $0.server) }
             }.sink { [assetDefinitionStore] contractsInDatabase in
-                let contractsWithTokenScriptFileFromOfficialRepo = assetDefinitionStore.contractsWithTokenScriptFileFromOfficialRepo.map { AddressAndOptionalRPCServer(address: $0, server: nil) }
-
-                let contractsAndServers = Array(Set(contractsInDatabase + contractsWithTokenScriptFileFromOfficialRepo))
-                assetDefinitionStore.fetchXMLs(forContractsAndServers: contractsAndServers)
+                assetDefinitionStore.fetchXMLs(forContractsAndServers: contractsInDatabase)
             }.store(in: &cancellable)
     }
 
     private func fetchForAttestations() {
-        let attestations = AttestationsStore.allAttestations()
+        let attestations = AttestationsStore(wallet: wallet.address).attestations
         for each in attestations {
-            if let url = each.scriptUri {
-                Task { @MainActor in
-                    await assetDefinitionStore.fetchXMLForAttestation(withScriptURL: url)
-                    //TODO: attestations+TokenScript to implement
-                }
+            Task { @MainActor in
+                await assetDefinitionStore.fetchXMLForAttestationIfScriptURL(each)
             }
         }
     }

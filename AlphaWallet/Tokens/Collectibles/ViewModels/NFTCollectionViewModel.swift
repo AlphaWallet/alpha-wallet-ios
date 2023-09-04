@@ -28,7 +28,7 @@ final class NFTCollectionViewModel {
     private let tokensService: TokensProcessingPipeline
     private let nftProvider: NFTProvider
     private let config: Config
-    private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+    private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token)
     private let tokenImageFetcher: TokenImageFetcher
 
     let activitiesService: ActivitiesServiceType

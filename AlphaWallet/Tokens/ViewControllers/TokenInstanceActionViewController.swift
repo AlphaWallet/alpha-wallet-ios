@@ -135,6 +135,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated
         //TODO rename this. Not actually `existingAttributeValues`, but token attributes
         let existingAttributeValues = tokenHolder.values
+        //TODO why does this resolution not go through an XMLHandler?
         let cardLevelAttributeValues = assetDefinitionStore
             .assetAttributeResolver
             .resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent,

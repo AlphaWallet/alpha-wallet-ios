@@ -78,12 +78,14 @@ PODS:
   - AlphaWalletTokenScript (1.0.0):
     - AlphaWalletABI
     - AlphaWalletAddress
+    - AlphaWalletAttestation
     - AlphaWalletCore
     - AlphaWalletLogger
     - AlphaWalletOpenSea
     - AlphaWalletWeb3
     - APIKit
     - BigInt
+    - CryptoSwift
     - Kanna
     - PromiseKit/CorePromise
   - AlphaWalletTrackAPICalls (1.0.0)
@@ -453,7 +455,7 @@ SPEC CHECKSUMS:
   AlphaWalletNotifications: 6e6a5f1cf0fc598c1c917dfb527a608b049a0a96
   AlphaWalletOpenSea: e6ee4efb03db0dfebc69dfe23db33fa33bba8918
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
-  AlphaWalletTokenScript: b4e5d7acdc85ed6915d8bf07c82abf20836cee50
+  AlphaWalletTokenScript: f28807083e5c625dc415349a710eda2677a64105
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
   AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
   AlphaWalletWeb3: 6112b8d749368d3a8208bbec4220b13e003e4f40

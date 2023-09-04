@@ -18,7 +18,7 @@ public enum OpenSeaBackedNonFungibleTokenHandling {
     public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, tokenViewType: TokenView) {
         self = {
             if !token.balanceNft.isEmpty && token.balanceNft[0].balance.hasPrefix("{") {
-                let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+                let xmlHandler = assetDefinitionStore.xmlHandler(forContract: token.contractAddress, tokenType: token.type)
                 let view: String
                 switch tokenViewType {
                 case .viewIconified:

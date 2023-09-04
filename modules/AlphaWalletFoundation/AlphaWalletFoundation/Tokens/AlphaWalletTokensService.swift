@@ -76,6 +76,7 @@ public class AlphaWalletTokensService: TokensService {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: token.contractAddress, server: token.server)
         Task {
             await tokensDataStore.updateToken(primaryKey: primaryKey, action: .isHidden(isHidden))
+            assetDefinitionStore.deleteXmlFileDownloadedFromOfficialRepo(forContract: token.contractAddress)
         }
     }
 

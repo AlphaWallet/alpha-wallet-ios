@@ -105,6 +105,13 @@ extension String {
         }
     }
 
+    public var dropLeading04: String {
+        if count > 2 && substring(with: 0..<2) == "04" {
+            return String(dropFirst(2))
+        }
+        return self
+    }
+
     //Base64 encoding must be in multiples of 4. `Data(base64Encoded:)` doesn't parse it otherwise
     public var paddedForBase64Encoded: String {
         let paddingCount = (4 - (count % 4)) % 4

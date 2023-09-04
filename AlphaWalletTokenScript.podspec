@@ -32,8 +32,10 @@ Pod::Spec.new do |s|
   s.dependency 'PromiseKit/CorePromise'
   s.dependency 'AlphaWalletAddress'
   s.dependency 'AlphaWalletABI'
+  s.dependency 'AlphaWalletAttestation'
   s.dependency 'AlphaWalletCore'
   s.dependency 'AlphaWalletLogger'
   s.dependency 'AlphaWalletOpenSea'
   s.dependency 'AlphaWalletWeb3'
+  s.dependency 'CryptoSwift'
 end

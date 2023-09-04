@@ -12,6 +12,7 @@ struct EasAttestation: Codable, Hashable {
     let v: UInt8
     let signer: AlphaWallet.Address
     let uid: String
+    ///This is the schema UID, not the schema, but we keep the name to be consistent with EAS terminology
     let schema: String
     let recipient: String
     let time: Int

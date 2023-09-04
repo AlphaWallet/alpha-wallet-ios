@@ -313,7 +313,7 @@ final class ImportMagicLinkController {
             }
 
             if let existingToken = await tokensService.tokenViewModel(for: contractAddress, server: server) {
-                let name = XMLHandler(token: existingToken, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: existingToken.name)
+                let name = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: existingToken).getLabel(fallback: existingToken.name)
                 await makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
@@ -343,19 +343,11 @@ final class ImportMagicLinkController {
         }
         guard let tokenType = tokenType1 else { return }
         var tokens = [TokenScript.Token]()
-        let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: contractAddress, tokenType: tokenType)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(
-                    name: name,
-                    symbol: symbol,
-                    fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i),
-                    inWallet: wallet.address,
-                    server: server,
-                    tokenType: tokenType,
-                    assetDefinitionStore: assetDefinitionStore)
-
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i), inWallet: wallet.address, server: server, tokenType: tokenType)
                 tokens.append(token)
             }
         }

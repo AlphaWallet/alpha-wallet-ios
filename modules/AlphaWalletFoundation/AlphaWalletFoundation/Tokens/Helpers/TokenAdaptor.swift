@@ -41,11 +41,11 @@ public struct TokenAdaptor {
     }
 
     public func xmlHandler(token: TokenScriptSupportable) -> XMLHandler {
-        return XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token)
     }
 
     public func xmlHandler(contract: AlphaWallet.Address, tokenType: TokenType) -> XMLHandler {
-        return XMLHandler(contract: contract, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+        return assetDefinitionStore.xmlHandler(forContract: contract, tokenType: tokenType)
     }
 
     public func tokenScriptOverrides(token: TokenScriptSupportable) -> TokenScriptOverrides {
@@ -71,14 +71,9 @@ public struct TokenAdaptor {
     public func getTokenHolder(token: TokenScriptSupportable) -> TokenHolder {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: token.contractAddress, tokenType: token.type)
             //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(
-            withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
-            server: token.server,
-            account: wallet.address,
-            assetDefinitionStore: assetDefinitionStore)
-
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: token.server, account: wallet.address)
         let tokenScriptToken = TokenScript.Token(
             tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
             tokenType: token.type,
@@ -214,22 +209,9 @@ public struct TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String,
-                          symbol: String,
-                          forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
-                          index: UInt16,
-                          token: TokenScriptSupportable) -> TokenScript.Token {
-
+    private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, token: TokenScriptSupportable) -> TokenScript.Token {
         let xmlHandler = xmlHandler(token: token)
-        return xmlHandler.getToken(
-            name: name,
-            symbol: symbol,
-            fromTokenIdOrEvent: tokenIdOrEvent,
-            index: index,
-            inWallet: wallet.address,
-            server: token.server,
-            tokenType: token.type,
-            assetDefinitionStore: assetDefinitionStore)
+        return xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: wallet.address, server: token.server, tokenType: token.type)
     }
 
     private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, token: TokenScriptSupportable, isSourcedFromEvents: Bool) async -> EventInstanceValue? {
@@ -276,14 +258,8 @@ public struct TokenAdaptor {
 
         let event = await getFirstMatchingEvent(nonFungible: nonFungible, token: token, isSourcedFromEvents: isSourcedFromEvents)
         let tokenIdOrEvent: TokenIdOrEvent = getTokenIdOrEvent(event: event, nonFungible: nonFungible)
-
         let xmlHandler = xmlHandler(token: token)
-        var values = xmlHandler.resolveAttributesBypassingCache(
-            withTokenIdOrEvent: tokenIdOrEvent,
-            server: token.server,
-            account: wallet.address,
-            assetDefinitionStore: assetDefinitionStore)
-
+        var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: token.server, account: wallet.address)
         values.setTokenId(string: nonFungible.tokenId)
         if let date = nonFungible.collectionCreatedDate {
             //Storing as GeneralisedTime because we only support that for date/time formats in TokenScript. We are using the same `values` infrastructure

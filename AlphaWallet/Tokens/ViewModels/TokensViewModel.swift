@@ -178,7 +178,7 @@ final class TokensViewModel {
 
         let titleWithListOfBadTokenScriptFiles = Publishers.CombineLatest(title, assetDefinitionStore.listOfBadTokenScriptFiles)
         let firstNonZeroTokens = sectionViewModelsSubject.filter {
-            let (sectionsViewModels, _, _) = functional.generateDisplayState(tokens: self.tokens, attestations: self.attestations, tokensFilter: self.tokensFilter, filterInUserInterface: self.filterInUserInterface, walletConnectSessions: self.walletConnectSessions, isSearchActive: self.isSearchActive, tokenImageFetcher: self.tokenImageFetcher)
+            let (sectionsViewModels, _, _) = functional.generateDisplayState(tokens: self.tokens, attestations: self.attestations, tokensFilter: self.tokensFilter, filterInUserInterface: self.filterInUserInterface, walletConnectSessions: self.walletConnectSessions, isSearchActive: self.isSearchActive, tokenImageFetcher: self.tokenImageFetcher, assetDefinitionStore: self.assetDefinitionStore)
             //We could simplify the above code to just generate and the list of tokens for `.tokens` and perform less work, but it's not called often, so lets keep it simple
             if let s = sectionsViewModels.first(where: { $0.section == .tokens }) {
                 return !s.views.isEmpty
@@ -196,7 +196,7 @@ final class TokensViewModel {
             //Prevent crash, keeping updates serialized so receiving end can update with atomic state
             .receive(on: RunLoop.main)
             .map { _, summary, blockiesImage, data -> TokensViewModel.ViewState in
-                let (sectionsViewModels, filteredTokens, sections) = functional.generateDisplayState(tokens: self.tokens, attestations: self.attestations, tokensFilter: self.tokensFilter, filterInUserInterface: self.filterInUserInterface, walletConnectSessions: self.walletConnectSessions, isSearchActive: self.isSearchActive, tokenImageFetcher: self.tokenImageFetcher)
+                let (sectionsViewModels, filteredTokens, sections) = functional.generateDisplayState(tokens: self.tokens, attestations: self.attestations, tokensFilter: self.tokensFilter, filterInUserInterface: self.filterInUserInterface, walletConnectSessions: self.walletConnectSessions, isSearchActive: self.isSearchActive, tokenImageFetcher: self.tokenImageFetcher, assetDefinitionStore: self.assetDefinitionStore)
                 let isConsoleButtonHidden = data.1.isEmpty
                 return TokensViewModel.ViewState(
                     title: data.0,
@@ -758,7 +758,7 @@ fileprivate extension TokensViewModel.functional {
         }
     }
 
-    static func buildSectionViewModels(sections: [TokensViewModel.Section], filteredTokens: [TokensViewModel.TokenOrRpcServer], collectiblePairs: [TokensViewModel.CollectiblePairs], filter: WalletFilter, tokenImageFetcher: TokenImageFetcher) -> [TokensViewModel.SectionViewModel] {
+    static func buildSectionViewModels(sections: [TokensViewModel.Section], filteredTokens: [TokensViewModel.TokenOrRpcServer], collectiblePairs: [TokensViewModel.CollectiblePairs], filter: WalletFilter, tokenImageFetcher: TokenImageFetcher, assetDefinitionStore: AssetDefinitionStore) -> [TokensViewModel.SectionViewModel] {
         return sections.enumerated().map { (sectionIndex, section) -> TokensViewModel.SectionViewModel in
             let numberOfItems = numberOfItems(for: sectionIndex, sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs, filter: filter)
             guard numberOfItems > 0 else {
@@ -767,7 +767,7 @@ fileprivate extension TokensViewModel.functional {
 
             let viewModels = (0 ..< numberOfItems).map { row -> TokensViewModel.ViewModelType in
                 let indexPath = IndexPath(row: row, section: sectionIndex)
-                return TokensViewModel.functional.viewModel(for: indexPath, sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs, tokenImageFetcher: tokenImageFetcher)
+                return TokensViewModel.functional.viewModel(for: indexPath, sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs, tokenImageFetcher: tokenImageFetcher, assetDefinitionStore: assetDefinitionStore)
             }
 
             return TokensViewModel.SectionViewModel(section: section, views: viewModels)
@@ -788,7 +788,7 @@ fileprivate extension TokensViewModel.functional {
         }
     }
 
-    static func viewModel(for indexPath: IndexPath, sections: [TokensViewModel.Section], filteredTokens: [TokensViewModel.TokenOrRpcServer], collectiblePairs: [TokensViewModel.CollectiblePairs], tokenImageFetcher: TokenImageFetcher) -> TokensViewModel.ViewModelType {
+    static func viewModel(for indexPath: IndexPath, sections: [TokensViewModel.Section], filteredTokens: [TokensViewModel.TokenOrRpcServer], collectiblePairs: [TokensViewModel.CollectiblePairs], tokenImageFetcher: TokenImageFetcher, assetDefinitionStore: AssetDefinitionStore) -> TokensViewModel.ViewModelType {
         switch sections[indexPath.section] {
         case .search, .walletSummary, .filters, .activeWalletSession:
             return .undefined
@@ -814,7 +814,7 @@ fileprivate extension TokensViewModel.functional {
                     return .nonFungible(viewModel)
                 }
             case .attestation(let attestation):
-                return .attestation(AttestationViewCellViewModel(attestation: attestation))
+                return .attestation(AttestationViewCellViewModel(attestation: attestation, assetDefinitionStore: assetDefinitionStore))
             }
         case .collectiblePairs:
             let pair = collectiblePairs[indexPath.row]
@@ -841,10 +841,10 @@ fileprivate extension TokensViewModel.functional {
         }
     }
 
-    static func generateDisplayState(tokens: [TokenViewModel], attestations: [Attestation], tokensFilter: TokensFilter, filterInUserInterface: WalletFilter, walletConnectSessions: Int, isSearchActive: Bool, tokenImageFetcher: TokenImageFetcher) -> ([TokensViewModel.SectionViewModel], [TokensViewModel.TokenOrRpcServer], [TokensViewModel.Section]) {
+    static func generateDisplayState(tokens: [TokenViewModel], attestations: [Attestation], tokensFilter: TokensFilter, filterInUserInterface: WalletFilter, walletConnectSessions: Int, isSearchActive: Bool, tokenImageFetcher: TokenImageFetcher, assetDefinitionStore: AssetDefinitionStore) -> ([TokensViewModel.SectionViewModel], [TokensViewModel.TokenOrRpcServer], [TokensViewModel.Section]) {
         let filteredTokens = filteredAndSortedTokens(tokens: tokens, attestations: attestations, tokensFilter: tokensFilter, filter: filterInUserInterface)
         let sections = refreshSections(walletConnectSessions: walletConnectSessions, isSearchActive: isSearchActive, filter: filterInUserInterface)
-        let sectionsViewModels = buildSectionViewModels(sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs(filteredTokens: filteredTokens), filter: filterInUserInterface, tokenImageFetcher: tokenImageFetcher)
+        let sectionsViewModels = buildSectionViewModels(sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs(filteredTokens: filteredTokens), filter: filterInUserInterface, tokenImageFetcher: tokenImageFetcher, assetDefinitionStore: assetDefinitionStore)
         return (sectionsViewModels, filteredTokens, sections)
     }
 }

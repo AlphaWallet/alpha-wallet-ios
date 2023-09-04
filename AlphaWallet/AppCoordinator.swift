@@ -271,7 +271,7 @@ class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     func importAttestation(url: URL) {
         Task {
             if let attestation = try? await Attestation.extract(fromUrlString: url.absoluteString) {
-                _ = activeWalletCoordinator?.importAttestation(attestation)
+                _ = await activeWalletCoordinator?.importAttestation(attestation)
             }
         }
     }
