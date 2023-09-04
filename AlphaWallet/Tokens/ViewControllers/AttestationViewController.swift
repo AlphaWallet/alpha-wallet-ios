@@ -31,9 +31,9 @@ class AttestationViewController: UIViewController {
         let networkRow = functional.createDetailRow(title: R.string.localizable.transactionNetworkLabelTitle(), value: TokenAttributeViewModel.defaultValueAttributedString(attestation.server.name))
         subviews.append(networkRow)
 
-        let contractAddressRow = functional.createDetailRow(title: R.string.localizable.contractAddress(), value: TokenAttributeViewModel.urlValueAttributedString(attestation.verifyingContract?.truncateMiddle ?? ""))
-        subviews.append(contractAddressRow)
-        contractAddressRow.delegate = self
+        let issuerAddressRow = functional.createDetailRow(title: R.string.localizable.aWalletContentsIssuerTitle(), value: TokenAttributeViewModel.urlValueAttributedString(attestation.signer.truncateMiddle))
+        subviews.append(issuerAddressRow)
+        issuerAddressRow.delegate = self
 
         let attributesHeader = TokenInfoHeaderView()
         attributesHeader.configure(viewModel: TokenInfoHeaderViewModel(title: R.string.localizable.attestationsAttributes()))

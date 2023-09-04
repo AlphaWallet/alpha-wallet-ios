@@ -188,6 +188,7 @@ public struct Attestation: Codable, Hashable {
     }
 
     public var verifyingContract: AlphaWallet.Address? { AlphaWallet.Address(string: easAttestation.verifyingContract) }
+    public var signer: AlphaWallet.Address { easAttestation.signer }
     public var server: RPCServer { easAttestation.server }
     //Good for debugging, in case converting to `RPCServer` is done wrongly
     public var chainId: Int { easAttestation.chainId }
