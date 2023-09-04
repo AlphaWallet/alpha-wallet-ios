@@ -170,11 +170,6 @@ public struct Attestation: Codable, Hashable {
         case easContractNotFound(server: RPCServer)
     }
 
-    public enum AttestationType {
-        case smartLayerPass
-        case others
-    }
-
     public let data: [TypeValuePair]
     public let source: String
     private let easAttestation: EasAttestation
@@ -196,13 +191,6 @@ public struct Attestation: Codable, Hashable {
     public var server: RPCServer { easAttestation.server }
     //Good for debugging, in case converting to `RPCServer` is done wrongly
     public var chainId: Int { easAttestation.chainId }
-    public var attestationType: AttestationType {
-        if let eventId = stringProperty(withName: "eventId"), eventId == "SMARTLAYER" {
-            return .smartLayerPass
-        } else {
-            return .others
-        }
-    }
     public var scriptUri: URL? {
         let url: URL? = data.compactMap { each in
             if each.type.name == "scriptURI" {
