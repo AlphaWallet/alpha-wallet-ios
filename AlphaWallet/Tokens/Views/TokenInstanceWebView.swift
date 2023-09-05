@@ -33,7 +33,11 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     lazy private var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
-        return .init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
+        let webView = WKWebView(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
+        if #available(iOS 16.4, *) {
+            webView.isInspectable = true
+        }
+        return webView
     }()
     private var lastInjectedJavaScript: String?
     //TODO remove once we refactor internals to include a TokenScriptContext
