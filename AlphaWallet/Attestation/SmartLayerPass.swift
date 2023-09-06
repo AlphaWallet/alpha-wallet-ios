@@ -7,6 +7,8 @@ import AlphaWalletLogger
 import Alamofire
 
 class SmartLayerPass {
+    static let typeFieldName = "eventId"
+
     private func authHeaderValue(forDomain domain: String) -> String? {
         if domain == "www.smartlayer.network" || domain == "smartlayer.network" {
             let value = Constants.Credentials.smartLayerPassAuthProd
@@ -38,7 +40,7 @@ class SmartLayerPass {
     }
 
     func handleAddedAttestation(_ attestation: Attestation, attestationStore: AttestationsStore) {
-        let optionalEventId = attestation.stringProperty(withName: "eventId")
+        let optionalEventId = attestation.stringProperty(withName: Self.typeFieldName)
         guard let eventId = optionalEventId, eventId == "SMARTLAYER" else {
             infoLog("[SmartLayerPass] Not a Smart Layer pass attestation, as eventId: \(String(describing: optionalEventId)) so no-op")
             return
