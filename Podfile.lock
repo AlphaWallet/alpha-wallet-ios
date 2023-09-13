@@ -9,7 +9,8 @@ PODS:
     - EthereumAddress
     - TrustKeystore
   - AlphaWalletAttestation (0.0.1):
-    - AlphaWalletFoundation
+    - AlphaWalletAddress
+    - AlphaWalletCore
     - AlphaWalletWeb3
     - BigInt
     - GzipSwift
@@ -442,7 +443,7 @@ SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   AlphaWalletABI: 5a4303eba7e575cf6ca11b70bb06f1b1d05b0d19
   AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
-  AlphaWalletAttestation: 64970455862b55785a04d7f3da556e781e1ae9a5
+  AlphaWalletAttestation: e81a973d468ff941569ba5f0b3c279b8b1d902b9
   AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
   AlphaWalletFoundation: fecb0317a9f6b55dd736416660830a1145b9cd0c

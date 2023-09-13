@@ -7,6 +7,8 @@
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
 import AlphaWalletABI
+import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
 
 /// A struct represents EIP712 type tuple
@@ -81,8 +83,8 @@ extension EIP712TypedData {
         let primaryType = primaryType.dropTrailingSquareBrackets
         var found = dependencies
         guard !found.contains(primaryType),
-            let primaryTypes = types[primaryType] else {
-                return found
+              let primaryTypes = types[primaryType] else {
+            return found
         }
         found.insert(primaryType)
         for type in primaryTypes {
@@ -98,10 +100,10 @@ extension EIP712TypedData {
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
         let encoded = sorted.compactMap { type in
-            guard let values = types[type] else { return nil }
-            let param = values.map { "\($0.type) \($0.name)" }.joined(separator: ",")
-            return "\(type)(\(param))"
-        }.joined()
+                guard let values = types[type] else { return nil }
+                let param = values.map { "\($0.type) \($0.name)" }.joined(separator: ",")
+                return "\(type)(\(param))"
+            }.joined()
         return encoded.data(using: .utf8) ?? Data()
     }
 
@@ -210,7 +212,7 @@ extension EIP712TypedData {
     /// Helper func for encoding uint / int types
     private func parseIntSize(type: String, prefix: String) -> Int {
         guard type.starts(with: prefix),
-            let size = Int(type.dropFirst(prefix.count)) else {
+              let size = Int(type.dropFirst(prefix.count)) else {
             return -1
         }
 
@@ -456,5 +458,36 @@ extension EIP712TypedData.JSON {
             return dict[key]
         }
         return nil
+    }
+}
+
+fileprivate extension Data {
+    init?(hexString: String) {
+        let string: Substring
+        if hexString.hasPrefix("0x") {
+            string = hexString.dropFirst(2)
+        } else {
+            string = Substring(hexString)
+        }
+
+        self.init(capacity: string.count / 2)
+        for offset in stride(from: 0, to: string.count, by: 2) {
+            let start = string.index(string.startIndex, offsetBy: offset)
+            guard string.distance(from: start, to: string.endIndex) >= 2 else {
+                let byte = string[start...]
+                guard let number = UInt8(byte, radix: 16) else {
+                    return nil
+                }
+                append(number)
+                break
+            }
+
+            let end = string.index(string.startIndex, offsetBy: offset + 2)
+            let byte = string[start ..< end]
+            guard let number = UInt8(byte, radix: 16) else {
+                return nil
+            }
+            append(number)
+        }
     }
 }

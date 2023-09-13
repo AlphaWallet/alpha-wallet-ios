@@ -448,13 +448,6 @@ extension RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public init?(chainIdOptional chainID: Int) {
-        guard let server = Self.availableServers.first(where: { $0.chainID == chainID }) else {
-            return nil
-        }
-        self = server
-    }
-
     public init?(withMagicLinkHost magicLinkHost: String) {
         var server: RPCServer?
         //Special case to support legacy host name
