@@ -131,9 +131,16 @@ public enum RPCServer: Hashable, CaseIterable {
         allCases + Self.customServers
     }
 
+    public init?(chainIdOptional chainID: Int) {
+        guard let server = Self.availableServers.first(where: { $0.chainID == chainID }) else {
+            return nil
+        }
+        self = server
+    }
+
     public init(chainID: Int) {
         //TODO defaulting to .main is bad
-        self = Self.availableServers.first { $0.chainID == chainID } ?? .main
+        self = .init(chainIdOptional: chainID) ?? .main
     }
 
     private static func convertJsonToCustomRpcs(_ json: String?) -> [CustomRPC] {

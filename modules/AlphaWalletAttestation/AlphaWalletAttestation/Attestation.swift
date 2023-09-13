@@ -2,8 +2,8 @@
 
 import Foundation
 import Gzip
-//TODO remove AlphaWalletFoundation if possible, It's only needed for `EIP712TypedData`. At this point, it's too tedious to move `EIP712TypedData` out to `AlphaWalletWeb3` because there is a circular dependency
-import AlphaWalletFoundation
+import AlphaWalletAddress
+import AlphaWalletCore
 import AlphaWalletWeb3
 import BigInt
 
@@ -25,7 +25,6 @@ public enum AttestationPropertyValue: Codable, Hashable {
     }
 
     enum CodingError: Error {
-        case cannotEncode(AssetInternalValue)
         case cannotDecode
     }
 
@@ -601,5 +600,16 @@ fileprivate extension Attestation.functional {
 extension EasAttestation {
     var server: RPCServer {
         return RPCServer(chainID: chainId)
+    }
+}
+
+fileprivate struct Constants {
+    static let nullAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000000")!
+}
+
+fileprivate extension Data {
+    //TODO: Duplicated here. Move to Core
+    var hexString: String {
+        return map({ String(format: "%02x", $0) }).joined()
     }
 }
