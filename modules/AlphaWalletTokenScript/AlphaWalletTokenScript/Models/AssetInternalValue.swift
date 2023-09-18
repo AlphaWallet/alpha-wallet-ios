@@ -1,5 +1,6 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
@@ -165,6 +166,7 @@ public enum AssetInternalValue: Codable {
     }
 }
 
+fileprivate var assetInternalValueCancellables = Set<AnyCancellable>()
 extension Array where Element == Subscribable<AssetInternalValue> {
     public func createPromiseForSubscribeOnce() -> Promise<Void> {
         guard !isEmpty else { return .value(Void()) }
@@ -174,11 +176,13 @@ extension Array where Element == Subscribable<AssetInternalValue> {
                 each.publisher
                     .first()
                     .ignoreOutput()
-                    .sink(receiveValue: { _ in
+                    .sink(receiveCompletion: { state in
                         count += 1
                         guard count == self.count else { return }
                         seal.fulfill(Void())
-                    })
+                    }, receiveValue: { _ in
+                        //no-op
+                    }).store(in: &assetInternalValueCancellables)
             }
         }
     }
