@@ -318,6 +318,11 @@ extension EtherscanSingleChainTransactionProvider {
         }
 
         func fetchPublisher() -> AnyPublisher<[Transaction], PromiseError> {
+            //TODO can remove after a while, maybe? This is to fix previously marking it as not supported
+            if transferType == .erc721 && session.server == .sepolia {
+                stateProvider.state = .initial
+            }
+
             guard stateProvider.state != .stopped else {
                 return .fail(PromiseError(error: SchedulerError.cancelled))
             }

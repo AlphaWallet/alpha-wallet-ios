@@ -589,9 +589,9 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
     //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
     static func serverSupportsFetchingNftTransactions(_ server: RPCServer) -> Bool {
         switch server {
-        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet:
+        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet, .sepolia:
             return true
-        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
+        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
             return false
         case .custom(let customRpc):
             switch customRpc.etherscanCompatibleType {
