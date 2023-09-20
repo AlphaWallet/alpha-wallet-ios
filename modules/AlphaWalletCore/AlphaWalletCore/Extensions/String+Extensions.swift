@@ -104,4 +104,14 @@ extension String {
             return "0x" + self
         }
     }
+
+    //Base64 encoding must be in multiples of 4. `Data(base64Encoded:)` doesn't parse it otherwise
+    public var paddedForBase64Encoded: String {
+        let paddingCount = (4 - (count % 4)) % 4
+        if paddingCount > 0 {
+            return self + String(repeating: "=", count: paddingCount)
+        } else {
+            return self
+        }
+    }
 }
