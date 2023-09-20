@@ -375,7 +375,7 @@ fileprivate extension Attestation.functional {
 
     static func unzipAttestation(_ zipped: String) throws -> Data {
         //Instead of the usual use of / and +, it might use _ and - instead. So we need to normalize it for parsing
-        let normalizedZipped = zipped.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+")
+        let normalizedZipped = zipped.replacingOccurrences(of: "_", with: "/").replacingOccurrences(of: "-", with: "+").paddedForBase64Encoded
 
         //Can't check `zipped.isGzipped`, it's false (sometimes?), but it works, so just don't check
         guard let compressed = Data(base64Encoded: normalizedZipped) else {
