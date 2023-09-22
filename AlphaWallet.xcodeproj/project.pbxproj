@@ -4594,6 +4594,7 @@
 				F6006D07F1DCADBC1150AD02 /* [CP] Copy Pods Resources */,
 				878EE8F6255ADA49000210DE /* Embed App Extensions */,
 				87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */,
+				C82ABE672ABD192A00A4E42B /* Post build script */,
 			);
 			buildRules = (
 			);
@@ -5139,6 +5140,25 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C82ABE672ABD192A00A4E42B /* Post build script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Post build script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#This is a hook for individual developer setup\nif [ -f \"${SRCROOT}/post-build\" ]; then\n    \"${SRCROOT}/post-build\"\nfi\n";
 		};
 		C83F787024A1C1DB00783B67 /* Check correct credentials used for API keys */ = {
 			isa = PBXShellScriptBuildPhase;
