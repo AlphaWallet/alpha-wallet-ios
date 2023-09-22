@@ -79,7 +79,7 @@ public class AssetDefinitionStore: NSObject {
             .eraseToAnyPublisher()
     }
 
-    public func assetBodyChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
+    private func assetBodyChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
         return bodyChangeSubject
             .filter { $0 == contract }
             .mapToVoid()
@@ -87,7 +87,7 @@ public class AssetDefinitionStore: NSObject {
             .eraseToAnyPublisher()
     }
 
-    public func assetSignatureChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
+    private func assetSignatureChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
         return signatureChangeSubject
             .filter { $0 == contract }
             .mapToVoid()
@@ -97,7 +97,7 @@ public class AssetDefinitionStore: NSObject {
 
     public func assetsSignatureOrBodyChange(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
         return Publishers
-            .Merge(assetSignatureChanged(for: contract), assetSignatureChanged(for: contract))
+            .Merge(assetSignatureChanged(for: contract), assetBodyChanged(for: contract))
             .mapToVoid()
             .eraseToAnyPublisher()
     }
