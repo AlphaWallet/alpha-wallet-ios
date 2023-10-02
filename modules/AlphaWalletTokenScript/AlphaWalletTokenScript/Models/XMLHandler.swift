@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import AlphaWalletAddress
 import AlphaWalletAttestation
 import AlphaWalletCore
@@ -1113,6 +1114,9 @@ public struct XMLHandler {
                src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
                font-weight: bold;
                }
+               body {
+                   background-color: \(defaultViewHtmlBodyBackgroundColor());
+               }
                .token-card {
                padding: 0pt;
                margin: 0pt;
@@ -1317,5 +1321,18 @@ extension XMLHandler {
 }
 
 fileprivate extension XMLHandler.functional {
+}
+
+//TODO fix it so we when user switch light-dark mode, this background is updated
+fileprivate func defaultViewHtmlBodyBackgroundColor() -> String {
+    let currentInterfaceStyle = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.traitCollection.userInterfaceStyle ?? .unspecified
+    switch currentInterfaceStyle {
+    case .unspecified, .light:
+        return "white"
+    case .dark:
+        return "black"
+    @unknown default:
+        return "white"
+    }
 }
 // swiftlint:enable file_length
