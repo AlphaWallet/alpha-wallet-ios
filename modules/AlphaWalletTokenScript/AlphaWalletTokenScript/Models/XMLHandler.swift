@@ -1292,19 +1292,9 @@ public struct XMLHandler {
             let relevantNamespaces = namespaces.filter { $0.hasPrefix(TokenScript.tokenScriptNamespacePrefix) }
             if relevantNamespaces.isEmpty {
                 return .unknownXml
-            } else if relevantNamespaces.count == 1, let namespace = relevantNamespaces.first {
-                if namespace == TokenScript.supportedTokenScriptNamespace {
-                    return .supportedTokenScriptVersion
-                } else {
-                    if TokenScript.oldNoLongerSupportedTokenScriptNamespaceVersions.contains(namespace) {
-                        return .unsupportedTokenScriptVersion(isOld: true)
-                    } else {
-                        return .unsupportedTokenScriptVersion(isOld: false)
-                    }
-                }
             } else {
-                //Not expecting more than 1 TokenScript namespace
-                return .unknownXml
+                //TODO must check if schemas are supported. Note that there might be both /tokenscript and /attestation?
+                return TokenScriptSchema.supportedTokenScriptVersion
             }
         } else {
             return .unknownXml
