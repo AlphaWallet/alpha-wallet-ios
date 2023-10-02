@@ -11,6 +11,7 @@ public class IsInterfaceSupported165 {
     private let fileName: String
     private let queue = DispatchQueue(label: "org.alphawallet.swift.isInterfaceSupported165")
     private lazy var storage: Storage<[String: Bool]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
+
     private var inFlightPromises: [String: AnyPublisher<Bool, SessionTaskError>] = [:]
 
     private let blockchainProvider: BlockchainProvider

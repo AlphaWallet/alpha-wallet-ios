@@ -47,6 +47,10 @@ public struct GeneralisedTime: Codable {
         self.date = date
         self.timeZone = timeZone
     }
+    public init(date: Date) {
+        self.date = date
+        self.timeZone = TimeZone.current
+    }
     private static let regex = try? NSRegularExpression(pattern: "([+-])(\\d\\d)(\\d\\d)$", options: [])
     /// Given "20180619210000+0300", extract "+0300" and convert to seconds
     private static func extractTimeZoneSecondsFromGMT(string: String) -> Int? {

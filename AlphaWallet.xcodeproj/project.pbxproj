@@ -184,6 +184,7 @@
 		5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FB99843529061368DA1 /* LocalesViewModel.swift */; };
 		5E7C71967C34DD3F207F8126 /* WhatsNewExperimentCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7709286B5D5A37D0156B /* WhatsNewExperimentCoordinator.swift */; };
 		5E7C71D1D16FE09032EB4B7E /* TokenObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C702A684DF27DC8ED4E42 /* TokenObjectTest.swift */; };
+		5E7C71D28882F455D2AE62B5 /* AttestationTypeValuePairToJavaScriptConvertor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7240B2AC0FE9E752B516 /* AttestationTypeValuePairToJavaScriptConvertor.swift */; };
 		5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */; };
 		5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */; };
 		5E7C71F8050CCF990539B293 /* LockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79D674D45A07E694CE31 /* LockView.swift */; };
@@ -1127,6 +1128,7 @@
 		5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensDataStoreTest.swift; sourceTree = "<group>"; };
 		5E7C7228C9BEB801D4CD34DE /* EtherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherTests.swift; sourceTree = "<group>"; };
 		5E7C723C21F6376387AD1DCE /* PromptBackupWalletAfterWalletCreationViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletAfterWalletCreationViewViewModel.swift; sourceTree = "<group>"; };
+		5E7C7240B2AC0FE9E752B516 /* AttestationTypeValuePairToJavaScriptConvertor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttestationTypeValuePairToJavaScriptConvertor.swift; sourceTree = "<group>"; };
 		5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearDappBrowserCacheCoordinator.swift; sourceTree = "<group>"; };
 		5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C728B3CA6A429AB5EE5DF /* ContainerViewWithShadow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewWithShadow.swift; sourceTree = "<group>"; };
@@ -3126,6 +3128,7 @@
 				5E7C7878E9E27F0CA05DFF03 /* Coordinators */,
 				5E7C78D36531AF80D3BAC20E /* ViewModels */,
 				5E7C7FD2D3F1340BD277AF86 /* FetchTokenScriptFiles.swift */,
+				5E7C7240B2AC0FE9E752B516 /* AttestationTypeValuePairToJavaScriptConvertor.swift */,
 			);
 			path = TokenScript;
 			sourceTree = "<group>";
@@ -5927,6 +5930,7 @@
 				5E7C7C7C7B62A23FA7C3669B /* FetchTokenScriptFiles.swift in Sources */,
 				5E7C72CFCF7C74331AF8B0A4 /* SmartLayerPass.swift in Sources */,
 				5E7C700996081C138CB69DD3 /* Attestation+Extensions.swift in Sources */,
+				5E7C71D28882F455D2AE62B5 /* AttestationTypeValuePairToJavaScriptConvertor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

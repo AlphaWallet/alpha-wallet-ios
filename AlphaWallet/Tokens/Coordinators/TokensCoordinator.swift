@@ -22,7 +22,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
 
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
     func viewWillAppearOnce(in coordinator: TokensCoordinator)
-    func importAttestation(_ attestation: Attestation) -> Bool
+    func importAttestation(_ attestation: Attestation) async -> Bool
 }
 
 class TokensCoordinator: Coordinator {
@@ -243,8 +243,8 @@ class TokensCoordinator: Coordinator {
     }
 
     private func displayAttestation(_ attestation: Attestation) {
-        infoLog("[Attestation] Display attestation: \(attestation)")
-        let vc = AttestationViewController(attestation: attestation)
+        infoLog("[Attestation] Display attestation: \(attestation) scriptURI TokenScript file in (it might be overridden): \(String(describing: assetDefinitionStore.debugFilenameHoldingAttestationScriptUri(forAttestation: attestation)))")
+        let vc = AttestationViewController(attestation: attestation, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         vc.delegate = self
         vc.hidesBottomBarWhenPushed = true
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -252,7 +252,9 @@ class TokensCoordinator: Coordinator {
     }
 
     private func importAttestation(_ attestation: Attestation) {
-        _ = delegate?.importAttestation(attestation)
+        Task { @MainActor in
+            _ = await delegate?.importAttestation(attestation)
+        }
     }
 }
 

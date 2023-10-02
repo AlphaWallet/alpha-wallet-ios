@@ -23,7 +23,7 @@ class FungibleTokenTabViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
     private var cancelable = Set<AnyCancellable>()
     private let tokensService: TokensService
-    lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+    lazy var tokenScriptFileStatusHandler = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token)
 
     let session: WalletSession
     let tabBarItems: [TabBarItem]

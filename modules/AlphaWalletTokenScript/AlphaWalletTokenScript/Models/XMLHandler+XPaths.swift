@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletAttestation
 import AlphaWalletCore
 import BigInt
 import Kanna
@@ -55,6 +56,26 @@ extension XMLHandler {
 
     static func getAttributeElements(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
         return element.xpath("attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationAttributeElements(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
+        return element.xpath("attestation/meta/attributeField".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationCollectionFieldElements(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
+        return element.xpath("attestation/collectionFields/collectionField".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationIdFieldElements(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
+        return element.xpath("attestation/idFields/idField".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationIssuerKey(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> String? {
+        return element.at_xpath("attestation/key".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text?.trimmed
+    }
+
+    static func getAttestationSchemaUid(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> Attestation.SchemaUid? {
+        return element.at_xpath("attestation/eas".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["schemaUID"].flatMap { Attestation.SchemaUid(value: $0) }
     }
 
     static func getActionCardAttributeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
@@ -156,6 +177,20 @@ extension XMLHandler {
         } else {
             return getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext)
         }
+    }
+
+    static func getAttestationElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
+        return root.at_xpath("/token/attestation".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationNameElement(fromAttestationElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let attestationElement = element else { return nil }
+        return attestationElement.at_xpath("meta/name".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getAttestationDescriptionElement(fromAttestationElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let attestationElement = element else { return nil }
+        return attestationElement.at_xpath("meta/description".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getDenialString(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {

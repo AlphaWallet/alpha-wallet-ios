@@ -18,7 +18,7 @@ struct RedeemTokenCardQuantitySelectionViewModel {
     let session: WalletSession
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
         return R.string.localizable.aWalletTokenRedeemSelectQuantityTitle(tokenTypeName)
     }
 
@@ -27,7 +27,7 @@ struct RedeemTokenCardQuantitySelectionViewModel {
     }
 
     var subtitleText: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
         return R.string.localizable.aWalletTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

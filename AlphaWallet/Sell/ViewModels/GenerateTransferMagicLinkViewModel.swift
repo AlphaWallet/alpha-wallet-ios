@@ -66,10 +66,10 @@ struct GenerateTransferMagicLinkViewModel {
 
     var tokenCountLabelText: String {
         if magicLinkData.count == 1 {
-            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forContract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType).getLabel()
             return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forContract: magicLinkData.contractAddress, tokenType: magicLinkData.tokenType).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(magicLinkData.count, tokenTypeName)
         }
     }

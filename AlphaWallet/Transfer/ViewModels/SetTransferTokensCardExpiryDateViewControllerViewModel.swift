@@ -10,7 +10,7 @@ struct SetTransferTokensCardExpiryDateViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
         return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 

@@ -136,7 +136,9 @@ class Application: WalletDependenciesProvidable {
         let tokenScriptFeatures = TokenScriptFeatures()
         Self.copyFeatures(Features.current, toTokenScriptFeatures: tokenScriptFeatures)
         self.tokenScriptFeatures = tokenScriptFeatures
-        self.assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService, blockchainsProvider: blockchainsProvider, features: tokenScriptFeatures)
+        self.assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService, blockchainsProvider: blockchainsProvider, features: tokenScriptFeatures, resetFolders: !config.haveMergedAttestationAndTokenTokenScriptFoldersV1)
+        var config = config
+        config.haveMergedAttestationAndTokenTokenScriptFoldersV1 = true
 
         self.coinTickers = CoinTickers(
             transporter: BaseApiTransporter(),
@@ -433,6 +435,7 @@ class Application: WalletDependenciesProvidable {
         sessionsProvider.start()
 
         let fetchTokenScriptFiles = FetchTokenScriptFilesImpl(
+            wallet: wallet,
             assetDefinitionStore: assetDefinitionStore,
             tokensDataStore: tokensDataStore,
             sessionsProvider: sessionsProvider)

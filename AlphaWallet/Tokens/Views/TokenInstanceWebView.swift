@@ -4,8 +4,11 @@ import Foundation
 import UIKit
 import WebKit
 import Combine
-import AlphaWalletFoundation
+import AlphaWalletABI
+import AlphaWalletAttestation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletLogger
 import AlphaWalletTokenScript
 import BigInt
 import PromiseKit
@@ -139,7 +142,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
             }
     }
 
-    func update(withId id: BigUInt, resolvedTokenAttributeNameValues: [AttributeId: AssetInternalValue], resolvedCardAttributeNameValues: [AttributeId: AssetInternalValue], isFirstUpdate: Bool = true) {
+    func update(withId id: BigUInt, resolvedTokenAttributeNameValues: [AttributeId: AssetInternalValue], resolvedCardAttributeNameValues: [AttributeId: AssetInternalValue], attestation: Attestation? = nil, isFirstUpdate: Bool = true) {
         var tokenData = [AttributeId: String]()
         let convertor = AssetAttributeToJavaScriptConvertor()
         for (name, value) in resolvedTokenAttributeNameValues {
@@ -158,11 +161,28 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         let cardDataString = cardData.map { name, value in "\(name): \(value)," }.joined()
         //TODO remove this soon since it's no longer in the JavaScript API
         let combinedData = tokenData.merging(cardData, uniquingKeysWith: { _, new in new })
-        let combinedDataString = combinedData.map { name, value in "\(name): \(value)," }.joined()
 
-        var string = "\nweb3.tokens.data.currentInstance = {\n"
-        string += combinedDataString
-        string += "\n}"
+        var string: String
+        //TODO currently only a token or attestation can be exposed, mutually exclusively
+        if let attestation {
+            string = "\nweb3.tokens.data.currentInstance = \n"
+            string += """
+                         {
+                            "chainId":\(attestation.chainId),
+                            "ownerAddress":"\(wallet.address.eip55String)",
+                            "rawAttestation":"\(functional.fixRawAttestationFormat(rawAttestation: Attestation.extractRawAttestation(fromUrlString: attestation.source) ?? attestation.source))",
+                            "attestationSig":"\(attestation.signature.hexEncoded)",
+                            "attestation":"\(attestation.abiEncoded.hexEncoded)",
+                            "attest":\(attestation.messageJson)
+                         }
+                      """
+            string += "\n"
+        } else {
+            let combinedDataString = combinedData.map { name, value in "\(name): \(value)," }.joined()
+            string = "\nweb3.tokens.data.currentInstance = {\n"
+            string += combinedDataString
+            string += "\n}"
+        }
 
         string += "\nweb3.tokens.data.token = {\n"
         string += tokenDataString
@@ -204,9 +224,13 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         }
     }
 
+    func updateWithAttestation(_ attestation: Attestation, withId id: BigUInt, isFirstUpdate: Bool = true) {
+        update(withId: id, resolvedTokenAttributeNameValues: .init(), resolvedCardAttributeNameValues: .init(), attestation: attestation, isFirstUpdate: isFirstUpdate)
+    }
+
     private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolder) -> [AttributeId: AssetAttributeSyntaxValue] {
         guard !localRefs.isEmpty else { return .init() }
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType)
         let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastCardLevelAttributeValues?[$0.key] == nil }
 
         return assetDefinitionStore
@@ -230,7 +254,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
             case .tokenId:
                 results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
             case .label:
-                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: tokenHolder.name)
+                let localizedNameFromAssetDefinition = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType).getLabel(fallback: tokenHolder.name)
                 results[each.javaScriptName] = .string(localizedNameFromAssetDefinition)
             case .symbol:
                 results[each.javaScriptName] = .string(tokenHolder.symbol)
@@ -308,7 +332,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
 
     private func checkPropsNameClashErrorWithCardAttributes() -> String? {
         guard let lastTokenHolder = lastTokenHolder else { return nil }
-        let xmlHandler = XMLHandler(contract: lastTokenHolder.contractAddress, tokenType: lastTokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: lastTokenHolder.contractAddress, tokenType: lastTokenHolder.tokenType)
         let attributes = xmlHandler.fields
         let attributeIds: [AttributeId]
         if let lastCardLevelAttributeValues = lastCardLevelAttributeValues {
@@ -418,5 +442,83 @@ extension TokenInstanceWebView {
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
+    }
+}
+
+fileprivate extension Attestation {
+    var messageJson: String {
+        let result: String
+        if let messageVersion = easMessageVersion, messageVersion >= 1 {
+            return """
+                   {
+                       "version": \(messageVersion),
+                       "time": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: time)),
+                       "data": \(TokenInstanceWebView.functional.convertAttestationDataToTokenScriptJson(data)),
+                       "expirationTime": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: expirationTime)),
+                       "recipient": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptAddress(address: recipient)),
+                       "refUID": "\(refUID)",
+                       "revocable": \(revocable),
+                       "schema": "\(schemaUid.value)"
+                   }
+                   """
+        } else {
+            result = """
+                     {
+                         "time": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: time)),
+                         "data": \(TokenInstanceWebView.functional.convertAttestationDataToTokenScriptJson(data)),
+                         "expirationTime": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: expirationTime)),
+                         "recipient": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptAddress(address: recipient)),
+                         "refUID": "\(refUID)",
+                         "revocable": \(revocable),
+                         "schema": "\(schemaUid.value)"
+                     }
+                     """
+        }
+        return result
+    }
+}
+
+extension TokenInstanceWebView {
+    enum functional {}
+}
+
+fileprivate extension TokenInstanceWebView.functional {
+    static func convertAttestationDataToTokenScriptJson(_ data: [Attestation.TypeValuePair]) -> String {
+        var result = [String: String]()
+        let convertor = AttestationTypeValuePairToJavaScriptConvertor()
+        for each in data {
+            if let value = convertor.formatAsTokenScriptJavaScript(value: each) {
+                result[each.type.name] = value
+            }
+        }
+        let resultString = result.map { name, value in "\"\(name)\": \(value)" }.joined(separator: ",")
+        return "{\n\(resultString)\n}\n"
+    }
+
+    static func fixRawAttestationFormat(rawAttestation: String) -> String {
+        //Important to undo/substitute this as Smart Layer API might need it
+        return rawAttestation.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-")
+    }
+}
+
+//TODO remove AlphaWalletABI's dependency on TrustKeystore and then move this into Attestation (we can't do it now to avoid adding dependency to AlphaWalletAttestation on TrustKeystore)
+fileprivate extension Attestation {
+    var abiEncoded: Data {
+        let encoder = ABIEncoder()
+        do {
+            try encoder.encode(tuple: [
+                ABIValue.bytes(Data(hex: schemaUid.value)),
+                ABIValue.address2(recipient ?? AlphaWalletFoundation.Constants.nullAddress),
+                ABIValue.uint(bits: 256, BigUInt(easAttestationTime)),
+                ABIValue.uint(bits: 256, BigUInt(easAttestationExpirationTime)),
+                ABIValue.bool(revocable),
+                ABIValue.bytes(Data(hex: refUID)),
+                ABIValue.dynamicBytes(Data(hex: easAttestationData)),
+            ])
+            return encoder.data
+        } catch {
+            infoLog("[Attestation] Failed to ABI-encode attestation: \(error)")
+            return Data()
+        }
     }
 }

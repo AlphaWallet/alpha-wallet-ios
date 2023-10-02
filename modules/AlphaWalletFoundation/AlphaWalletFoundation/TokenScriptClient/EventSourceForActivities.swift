@@ -116,7 +116,7 @@ final class EventSourceForActivities {
         private func map(token: Token) async -> [Token] {
             guard let session = sessionsProvider.session(for: token.server) else { return [] }
 
-            let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+            let xmlHandler = assetDefinitionStore.xmlHandler(forContract: token.contractAddress, tokenType: token.type)
             guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
             switch server {
             case .any:

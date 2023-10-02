@@ -60,13 +60,14 @@ public class TokenScriptOverridesFileManager {
         guard let overridesDirectory = overridesDirectory else { return false }
         //Guard against replacing the indices file. This shouldn't be possible because we should have configured the app to only accept AirDrops for files with known extensions. This is purely defensive
         guard url.lastPathComponent != TokenScript.indicesFileName else {
+            //TODO: It is OK to delete the file because it is just named like the indices file, but not actually it. It is in the inbox. But maybe we should check that the actual indices file URL isn't provided here
             try? fileManager.removeItem(at: url)
             return true
         }
 
         //TODO improve or remove checking here. getHoldingContracts() below already check for schema support. We might have to show the error in wallet if we keep the file instead. We are deleting the files for now
         let isTokenScriptOrXml: Bool
-        switch XMLHandler.functional.checkTokenScriptSchema(forPath: url) {
+        switch XMLHandler.checkTokenScriptSchema(forPath: url) {
         case .supportedTokenScriptVersion:
             isTokenScriptOrXml = true
         case .unsupportedTokenScriptVersion:
@@ -86,10 +87,13 @@ public class TokenScriptOverridesFileManager {
         let destinationFileInUse = getAllOverridesInDirectory().contains(destinationFileName)
 
         do {
+            //TODO would this removal would trigger an unnecessary change due to other watchers? Can't we just replace the file? But used to be like that
             try? FileManager.default.removeItem(at: destinationFileName )
             try FileManager.default.moveItem(at: url, to: destinationFileName )
             if isTokenScriptOrXml, let contents = try? String(contentsOf: destinationFileName) {
-                if let contracts = XMLHandler.functional.getHoldingContracts(forTokenScript: contents) {
+                //TODO this could include support for attestation too? This is a lot like AssetDefinitionStore.handleDownloadedOfficialTokenScript() which is for official?
+                //TODO maybe these logic should be in somewhere else
+                if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
                     for (contract, chainId) in contracts {
                         let server = RPCServer(chainID: chainId)
                         notifyImportTokenScriptOverrides(with: .success((contract: contract, server: server, destinationFileInUse: destinationFileInUse, filename: filename)))
@@ -131,6 +135,7 @@ public class TokenScriptOverridesFileManager {
     }
 
     public func remove(overrideFile url: URL) {
+        //TODO remove TokenScript files here from the UI. Hide to handle both token or contract?
         try? FileManager.default.removeItem(at: url)
         invalidateTokenScriptOverrides()
     }
@@ -149,6 +154,7 @@ public class TokenScriptOverridesFileManager {
         guard let directory = overridesDirectory else { return }
         let watcher = DirectoryContentsWatcher.Local(path: directory.path)
         do {
+            //This is to watch when overrides directory is changed, for displaying/refreshing the list of overrides screen
             try watcher.start { [weak self] results in
                 switch results {
                 case .noChanges: break

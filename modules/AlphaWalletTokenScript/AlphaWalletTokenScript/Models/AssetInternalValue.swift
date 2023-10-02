@@ -176,7 +176,7 @@ extension Array where Element == Subscribable<AssetInternalValue> {
                 each.publisher
                     .first()
                     .ignoreOutput()
-                    .sink(receiveCompletion: { state in
+                    .sink(receiveCompletion: { _ in
                         count += 1
                         guard count == self.count else { return }
                         seal.fulfill(Void())

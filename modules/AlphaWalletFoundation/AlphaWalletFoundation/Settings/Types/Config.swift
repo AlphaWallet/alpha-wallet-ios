@@ -192,6 +192,7 @@ public struct Config {
         static let homePageURL = "homePageURL"
         static let sendAnalyticsEnabled = "sendAnalyticsEnabled"
         static let sendCrashReportingEnabled = "sendCrashReportingEnabled"
+        static let haveMergedAttestationAndTokenTokenScriptFoldersV1 = "haveMergedAttestationAndTokenTokenScriptFoldersV1 "
     }
 
     public let defaults: UserDefaults
@@ -215,6 +216,18 @@ public struct Config {
             }
 
             defaults.set(newValue, forKey: Keys.sendAnalyticsEnabled)
+        }
+    }
+
+    public var haveMergedAttestationAndTokenTokenScriptFoldersV1: Bool {
+        get {
+            guard let value = defaults.value(forKey: Keys.haveMergedAttestationAndTokenTokenScriptFoldersV1) as? Bool else {
+                return false
+            }
+            return value
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.haveMergedAttestationAndTokenTokenScriptFoldersV1)
         }
     }
 

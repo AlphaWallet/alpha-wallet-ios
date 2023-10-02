@@ -320,7 +320,7 @@ extension NftAssetDisplayHelper.functional {
                                                                  tokenAttributeValues: AssetAttributeValues,
                                                                  assetDefinitionStore: AssetDefinitionStore) -> AnyPublisher<[OpenSeaNonFungibleTrait], Never> {
 
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokens[0].tokenType, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType)
         return tokenAttributeValues.resolveAllAttributes()
             .map { resolvedTokenAttributeNameValues in
                 let tokenLevelAttributeIdsAndNames = xmlHandler.fieldIdsAndNamesExcludingBase

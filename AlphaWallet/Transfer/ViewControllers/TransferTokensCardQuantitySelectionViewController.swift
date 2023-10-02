@@ -47,7 +47,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
-        
+
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
@@ -106,7 +106,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
     @objc private func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: viewModel.token).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],

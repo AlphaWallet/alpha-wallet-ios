@@ -10,7 +10,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     let assetDefinitionStore: AssetDefinitionStore
     let session: WalletSession
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
@@ -19,7 +19,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     }
 
     var subtitleText: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

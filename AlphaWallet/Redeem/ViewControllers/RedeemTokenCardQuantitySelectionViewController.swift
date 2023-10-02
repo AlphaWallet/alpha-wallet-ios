@@ -54,7 +54,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
     init(viewModel: RedeemTokenCardQuantitySelectionViewModel,
          assetDefinitionStore: AssetDefinitionStore) {
-        
+
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -121,7 +121,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
     @objc func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: viewModel.token).getNameInPluralForm()
             UIAlertController.alert(
                 message: R.string.localizable.aWalletTokenRedeemSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                 alertButtonTitles: [R.string.localizable.oK()],

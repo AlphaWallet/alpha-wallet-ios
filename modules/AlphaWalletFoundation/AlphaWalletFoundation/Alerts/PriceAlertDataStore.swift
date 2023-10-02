@@ -32,7 +32,7 @@ public class PriceAlertDataStore: PriceAlertDataStoreType {
     public var alerts: [PriceAlert] {
         storage.value
     }
-    
+
     private enum Keys {
         static func alertsKey(wallet: Wallet) -> String {
             return "alerts-\(wallet.address.eip55String)"

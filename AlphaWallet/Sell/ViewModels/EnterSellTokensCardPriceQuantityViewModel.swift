@@ -25,12 +25,12 @@ struct EnterSellTokensCardPriceQuantityViewModel {
     }
 
     var quantityLabelText: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
     }
 
     var pricePerTokenLabelText: String {
-        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getLabel()
+        let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: token).getLabel()
         return R.string.localizable.aWalletTokenSellPricePerTokenTitle(tokenTypeName.localizedUppercase)
     }
 

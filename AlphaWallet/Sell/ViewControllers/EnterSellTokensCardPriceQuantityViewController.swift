@@ -261,7 +261,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     @objc private func nextButtonTapped() {
         guard quantityStepper.value > 0 else {
-            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: viewModel.token).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
@@ -283,7 +283,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         }
 
         guard !noPrice else {
-            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = assetDefinitionStore.xmlHandler(forTokenScriptSupportable: viewModel.token).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellPriceProvideTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
@@ -367,7 +367,7 @@ extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegat
     func changeType(in textField: AmountTextField) {
         updateTotalCostsLabels()
     }
-    
+
     func doneButtonTapped(for textField: AmountTextField) {
         view.endEditing(true)
     }

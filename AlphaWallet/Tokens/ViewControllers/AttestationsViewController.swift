@@ -22,11 +22,13 @@ class AttestationsViewController: UIViewController {
         return tableView
     }()
     private let attestations: [Attestation]
+    private let assetDefinitionStore: AssetDefinitionStore
 
     weak var delegate: AttestationsViewControllerDelegate?
 
-    init(attestations: [Attestation]) {
+    init(attestations: [Attestation], assetDefinitionStore: AssetDefinitionStore) {
         self.attestations = attestations
+        self.assetDefinitionStore = assetDefinitionStore
 
         super.init(nibName: nil, bundle: nil)
 
@@ -58,7 +60,7 @@ extension AttestationsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let attestation = attestations[indexPath.row]
         let cell: AttestationViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: AttestationViewCellViewModel(attestation: attestation))
+        cell.configure(viewModel: AttestationViewCellViewModel(attestation: attestation, assetDefinitionStore: assetDefinitionStore))
         return cell
     }
 }

@@ -547,14 +547,26 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) -> Bool {
+    private func importAttestation(_ attestation: Attestation, intoWallet address: AlphaWallet.Address) async -> Bool {
+        //TODO not right since the yet-to-be-found-attestation to be replaced might not use the same TokenScript file and might not use the same identifying fields. Probably keep it this way for now. But we can fix this by running through the XMLHandler for each attestation and fetching the correct fields
+        let collectionIdFieldNames: [String]
+        let identifyingFieldNames: [String]
+        await assetDefinitionStore.fetchXMLForAttestationIfScriptURL(attestation)
+
+        if let xmlHandler = assetDefinitionStore.xmlHandler(forAttestation: attestation) {
+            collectionIdFieldNames = xmlHandler.computeCollectionIdFieldNames(forAttestation: attestation)
+            identifyingFieldNames = xmlHandler.computeAttestationIdentifyingFieldNames(forAttestation: attestation)
+        } else {
+            collectionIdFieldNames = []
+            identifyingFieldNames = []
+        }
+
         //We allow importing an attestation into a wallet (as long as the attestation receiver logic allows it) even if the wallet is not active
-        let isSuccessful = attestationsStore.addAttestation(attestation, forWallet: address)
+        let isSuccessful = await attestationsStore.addAttestation(attestation, forWallet: address, collectionIdFieldNames: collectionIdFieldNames, identifyingFieldNames: identifyingFieldNames)
         if isSuccessful {
             SmartLayerPass().handleAddedAttestation(attestation, attestationStore: attestationsStore)
             ensureServerEnabled(attestation.server)
             //TODO shouldn't switch tabs if imported to a wallet that is different from active wallet. Just let user know
-            //TODO: attestations+TokenScript to implement reload like when we download TokenScript files at launch
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                 self?.showTab(.tokens)
                 self?.tokensCoordinator?.rootViewController.selectTab(withFilter: .attestations)
@@ -1067,22 +1079,22 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         restartUI(withReason: .walletChange, account: account)
     }
 
-    func importAttestation(_ attestation: Attestation) -> Bool {
+    func importAttestation(_ attestation: Attestation) async -> Bool {
         if let recipient = attestation.recipient {
             if recipient.isNull {
                 infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is null address. Importing…")
-                return importAttestation(attestation, intoWallet: wallet.address)
+                return await importAttestation(attestation, intoWallet: wallet.address)
             } else if recipient == wallet.address {
                 infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches current wallet. Importing…")
-                return importAttestation(attestation, intoWallet: wallet.address)
+                return await importAttestation(attestation, intoWallet: wallet.address)
             } else if keystore.wallets.contains(where: { $0.address == recipient }) {
                 infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient matches inactive wallet. Importing…")
                 //TODO have a better UX, show user that it's imported, but to another wallet?
-                return importAttestation(attestation, intoWallet: recipient)
+                return await importAttestation(attestation, intoWallet: recipient)
             } else {
                 if config.development.shouldIgnoreAttestationRecipientAndImportToCurrentWallet {
                     infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Importing because overridden by development flag…")
-                    return importAttestation(attestation, intoWallet: wallet.address)
+                    return await importAttestation(attestation, intoWallet: wallet.address)
                 } else {
                     infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient doesn't match wallet. Skip import")
                     return false
@@ -1090,7 +1102,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
             }
         } else {
             infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
-            return importAttestation(attestation, intoWallet: wallet.address)
+            return await importAttestation(attestation, intoWallet: wallet.address)
         }
     }
 }
