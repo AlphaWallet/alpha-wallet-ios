@@ -86,6 +86,9 @@ Trust.zip
 *.swp
 *.swo
 
+#Local/developer-specific
+post-build
+
 # node
 node_modules
 JS/staging
