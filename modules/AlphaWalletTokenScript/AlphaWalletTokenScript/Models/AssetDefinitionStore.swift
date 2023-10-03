@@ -150,7 +150,9 @@ public class AssetDefinitionStore: NSObject {
                 //no-op
                 warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
             }, receiveValue: { result in
-                guard let (url, isScriptUri) = result else { return }
+                guard let (urls, isScriptUri) = result else { return }
+                //TODO loop through the list of EIP-5169 URLs instead of only using the first
+                guard let url = urls.first else { return }
                 self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch) { result in
                     //Try a bit harder if the TokenScript was specified via EIP-5169 (`scriptURI()`)
                     //TODO probably better to convert completionHandler to Promise so we can retry more elegantly
@@ -293,13 +295,13 @@ public class AssetDefinitionStore: NSObject {
         fetchXML(forContract: address, server: nil)
     }
 
-    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> AnyPublisher<(url: URL, isScriptUri: Bool)?, Never> {
-        let urlToFetchFromTokenScriptRepo = functional.urlToFetchFromTokenScriptRepo(contract: contract).flatMap { ($0, false) }
+    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> AnyPublisher<(urls: [URL], isScriptUri: Bool)?, Never> {
+        let urlToFetchFromTokenScriptRepo: ([URL], Bool)? = functional.urlToFetchFromTokenScriptRepo(contract: contract).flatMap { ([$0], false) }
 
         if let server = server {
             return Just(server)
                 .setFailureType(to: SessionTaskError.self)
-                .flatMap { [blockchainsProvider] server -> AnyPublisher<(url: URL, isScriptUri: Bool)?, SessionTaskError> in
+                .flatMap { [blockchainsProvider] server -> AnyPublisher<(urls: [URL], isScriptUri: Bool)?, SessionTaskError> in
                     guard let blockchain = blockchainsProvider.blockchain(with: server) else {
                         return .fail(SessionTaskError.responseError(SessionError.sessionNotFound))
                     }

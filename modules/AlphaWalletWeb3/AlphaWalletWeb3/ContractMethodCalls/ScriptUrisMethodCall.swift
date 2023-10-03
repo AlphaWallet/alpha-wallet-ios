@@ -4,8 +4,8 @@ import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 
-//This is EIP-5169 https://github.com/ethereum/EIPs/pull/5169 , but the return type is `string`. A newer version of it returns `string[]`
-fileprivate struct GetScriptUriReturningString {
+//This is EIP-5169 https://github.com/ethereum/EIPs/pull/5169 , but the return type is `string[]`. An older version of it returns `string` only
+fileprivate struct GetScriptUriReturningStringArray {
     let abi = """
                             [
                                 {
@@ -16,7 +16,7 @@ fileprivate struct GetScriptUriReturningString {
                                   "outputs" : [
                                     {
                                       "name" : "",
-                                      "type" : "string"
+                                      "type" : "string[]"
                                     }
                                   ],
                                   "payable" : false,
@@ -29,10 +29,10 @@ fileprivate struct GetScriptUriReturningString {
 
 }
 
-public struct ScriptUriMethodCall: ContractMethodCall {
-    public typealias Response = URL
+public struct ScriptUrisMethodCall: ContractMethodCall {
+    public typealias Response = [URL]
 
-    private let function = GetScriptUriReturningString()
+    private let function = GetScriptUriReturningStringArray()
 
     public let contract: AlphaWallet.Address
     public var name: String { function.name }
@@ -42,10 +42,10 @@ public struct ScriptUriMethodCall: ContractMethodCall {
         self.contract = contract
     }
 
-    public func response(from dictionary: [String: Any]) throws -> URL {
+    public func response(from dictionary: [String: Any]) throws -> [URL] {
         guard let urlString = dictionary["0"] as? String, let url = URL(string: urlString) else {
             throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
         }
-        return url.rewrittenIfIpfs
+        return [url.rewrittenIfIpfs]
     }
 }

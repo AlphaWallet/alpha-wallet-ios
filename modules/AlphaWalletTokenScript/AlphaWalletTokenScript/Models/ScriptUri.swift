@@ -14,7 +14,12 @@ class ScriptUri {
         self.blockchainProvider = blockchainProvider
     }
 
-    func get(forContract contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
-        blockchainProvider.call(ScriptUriMethodCall(contract: contract))
+    func get(forContract contract: AlphaWallet.Address) -> AnyPublisher<[URL], SessionTaskError> {
+        //EIP-5169 started out as having scriptURI() return `string` then updated to return `string[]`, so we must support both. Ideally we should just call `scriptURI()` once and interpret the results both ways to see which matches, but that needs some changes
+        return blockchainProvider.call(ScriptUrisMethodCall(contract: contract))
+                .catch { error in
+                    return self.blockchainProvider.call(ScriptUriMethodCall(contract: contract)).map { [$0] }
+                }
+                .eraseToAnyPublisher()
     }
 }
