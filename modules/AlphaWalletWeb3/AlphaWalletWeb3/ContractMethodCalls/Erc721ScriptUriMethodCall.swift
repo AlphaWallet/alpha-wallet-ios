@@ -1,9 +1,4 @@
-//
-//  Erc721ScriptUriMethodCall.swift
-//  AlphaWalletFoundation
-//
-//  Created by Vladyslav Shepitko on 17.01.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import AlphaWalletAddress
