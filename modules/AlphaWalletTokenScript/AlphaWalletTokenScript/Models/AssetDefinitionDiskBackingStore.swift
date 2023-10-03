@@ -339,6 +339,7 @@ fileprivate extension AssetDefinitionDiskBackingStore.functional {
         }
 
         if let oldHash {
+            (indices, schemaUidsAffected) = computeAttestationEffectForXmlFileDeleted(oldHash: oldHash, tokenScriptFileIndices: indices)
             indices.urlToHash = indices.urlToHash.filter({ $1 != oldHash })
             indices.hashToOverridesFilename.removeValue(forKey: oldHash)
             indices.hashToEntitiesReferenced.removeValue(forKey: oldHash)
@@ -346,7 +347,6 @@ fileprivate extension AssetDefinitionDiskBackingStore.functional {
             for (k, hashes) in copy {
                 indices.schemaUidToHashes[k] = hashes.filter { $0 != oldHash }
             }
-            (indices, schemaUidsAffected) = computeAttestationEffectForXmlFileDeleted(oldHash: oldHash, tokenScriptFileIndices: indices)
         } else {
             schemaUidsAffected = []
         }
