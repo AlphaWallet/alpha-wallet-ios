@@ -4,7 +4,7 @@ import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 
-struct GetScriptUri {
+fileprivate struct GetScriptUri {
     let abi = """
                             [
                                 {
