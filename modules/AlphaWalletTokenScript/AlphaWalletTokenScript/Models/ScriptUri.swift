@@ -3,8 +3,7 @@
 import Foundation
 import Combine
 import AlphaWalletAddress
-import protocol AlphaWalletWeb3.BlockchainCallable
-import struct AlphaWalletWeb3.ScriptUriMethodCall
+import AlphaWalletWeb3
 import APIKit
 
 //EIP-5169 https://github.com/ethereum/EIPs/pull/5169
