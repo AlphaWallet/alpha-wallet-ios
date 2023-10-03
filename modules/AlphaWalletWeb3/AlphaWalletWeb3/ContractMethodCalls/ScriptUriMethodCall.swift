@@ -1,9 +1,4 @@
-//
-//  Erc721ScriptUriMethodCall.swift
-//  AlphaWalletFoundation
-//
-//  Created by Vladyslav Shepitko on 17.01.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import AlphaWalletAddress
@@ -33,7 +28,7 @@ struct GetScriptUri {
 
 }
 
-public struct Erc721ScriptUriMethodCall: ContractMethodCall {
+public struct ScriptUriMethodCall: ContractMethodCall {
     public typealias Response = URL
 
     private let function = GetScriptUri()
