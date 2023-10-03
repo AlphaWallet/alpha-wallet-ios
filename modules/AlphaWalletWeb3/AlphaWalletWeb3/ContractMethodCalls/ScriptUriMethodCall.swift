@@ -28,7 +28,7 @@ struct GetScriptUri {
 
 }
 
-public struct Erc721ScriptUriMethodCall: ContractMethodCall {
+public struct ScriptUriMethodCall: ContractMethodCall {
     public typealias Response = URL
 
     private let function = GetScriptUri()
