@@ -57,6 +57,8 @@ public class TokenScriptOverridesFileManager {
 
     /// Return true if handled
     @discardableResult public func importTokenScriptOverrides(url: URL) -> Bool {
+        url.startAccessingSecurityScopedResource()
+        defer { url.stopAccessingSecurityScopedResource() }
         guard let overridesDirectory = overridesDirectory else { return false }
         //Guard against replacing the indices file. This shouldn't be possible because we should have configured the app to only accept AirDrops for files with known extensions. This is purely defensive
         guard url.lastPathComponent != TokenScript.indicesFileName else {
@@ -89,7 +91,7 @@ public class TokenScriptOverridesFileManager {
         do {
             //TODO would this removal would trigger an unnecessary change due to other watchers? Can't we just replace the file? But used to be like that
             try? FileManager.default.removeItem(at: destinationFileName )
-            try FileManager.default.moveItem(at: url, to: destinationFileName )
+            try FileManager.default.copyItem(at: url, to: destinationFileName)
             if isTokenScriptOrXml, let contents = try? String(contentsOf: destinationFileName) {
                 //TODO this could include support for attestation too? This is a lot like AssetDefinitionStore.handleDownloadedOfficialTokenScript() which is for official?
                 //TODO maybe these logic should be in somewhere else
