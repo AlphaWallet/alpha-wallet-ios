@@ -250,8 +250,9 @@ class Application: WalletDependenciesProvidable {
                     guard let session = dep.sessionsProvider.session(for: override.server) else { return }
                     session.importToken.importToken(for: override.contract, onlyIfThereIsABalance: false)
                         .sinkAsync(receiveCompletion: { result in
-                            guard case .failure(let error) = result else { return }
-                            debugLog("Error while adding imported token contract: \(override.contract.eip55String) server: \(override.server) wallet: \(wallet.address.eip55String) error: \(error)")
+                            if case .failure(let error) = result {
+                                debugLog("Error while adding imported token contract: \(override.contract.eip55String) server: \(override.server) wallet: \(wallet.address.eip55String) error: \(error)")
+                            }
                         })
                     if !override.destinationFileInUse {
                         strongSelf.navigation?.showTokenScriptFileImported(filename: override.filename)
