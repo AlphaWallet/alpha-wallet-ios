@@ -13,3 +13,7 @@ typealias AttributeId = AlphaWalletTokenScript.AttributeId
 typealias GeneralisedTime = AlphaWalletTokenScript.GeneralisedTime
 typealias TokenScript = AlphaWalletTokenScript.TokenScript
 typealias XMLHandler = AlphaWalletTokenScript.XMLHandler
+
+import AlphaWalletABI
+public typealias EIP712TypedData = AlphaWalletABI.EIP712TypedData
+public typealias EthTypedData = AlphaWalletABI.EthTypedData

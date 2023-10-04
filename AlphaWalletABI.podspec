@@ -27,6 +27,7 @@ Pod::Spec.new do |s|
   s.frameworks       = 'Foundation'
 
   s.dependency 'AlphaWalletAddress'
+  s.dependency 'AlphaWalletCore'
   s.dependency 'EthereumABI'
   s.dependency 'TrustKeystore'
 end

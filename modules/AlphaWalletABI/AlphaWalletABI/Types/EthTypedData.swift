@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletABI
+import AlphaWalletCore
 import BigInt
 
 /*

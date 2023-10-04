@@ -2,6 +2,7 @@
 
 import Foundation
 import Gzip
+import AlphaWalletABI
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletWeb3

@@ -2,6 +2,7 @@ PODS:
   - Alamofire (5.6.4)
   - AlphaWalletABI (1.0.0):
     - AlphaWalletAddress
+    - AlphaWalletCore
     - EthereumABI
     - TrustKeystore
   - AlphaWalletAddress (1.0.2):
@@ -9,6 +10,7 @@ PODS:
     - EthereumAddress
     - TrustKeystore
   - AlphaWalletAttestation (0.0.1):
+    - AlphaWalletABI
     - AlphaWalletAddress
     - AlphaWalletCore
     - AlphaWalletWeb3
@@ -447,9 +449,9 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
-  AlphaWalletABI: 5a4303eba7e575cf6ca11b70bb06f1b1d05b0d19
+  AlphaWalletABI: 5aa418b554dee7e6d7098ec4a4d47eef04876edb
   AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
-  AlphaWalletAttestation: e81a973d468ff941569ba5f0b3c279b8b1d902b9
+  AlphaWalletAttestation: e0a598276194b1d8a3f2dcf09c749102593adb00
   AlphaWalletBrowser: d3bd5176fe7422ff8999318b2f893a7602bdc6ef
   AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
