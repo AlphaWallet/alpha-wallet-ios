@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import AlphaWalletCore
 
 extension Data {
     init?(hexString: String) {

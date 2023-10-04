@@ -1,23 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-
-public enum WalletType: Equatable, Hashable, CustomStringConvertible {
-    case real(AlphaWallet.Address)
-    case watch(AlphaWallet.Address)
-    case hardware(AlphaWallet.Address)
-
-    public var description: String {
-        switch self {
-        case .real(let address):
-            return ".real(\(address.eip55String))"
-        case .watch(let address):
-            return ".watch(\(address.eip55String))"
-        case .hardware(let address):
-            return ".hardware(\(address.eip55String))"
-        }
-    }
-}
+import AlphaWalletCore
 
 public enum WalletOrigin: Int {
     case privateKey
@@ -31,14 +15,7 @@ public struct Wallet: Equatable, CustomStringConvertible {
     public let origin: WalletOrigin
 
     public var address: AlphaWallet.Address {
-        switch type {
-        case .real(let account):
-            return account
-        case .watch(let address):
-            return address
-        case .hardware(let address):
-            return address
-        }
+        return type.address
     }
 
     public var allowBackup: Bool {

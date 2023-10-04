@@ -1,11 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletTokenScript
 import PromiseKit
-
-public protocol TokenScriptLocalRefsSource {
-    var localRefs: [AttributeId: AssetInternalValue] { get }
-}
 
 public protocol ConfirmTokenScriptActionTransactionDelegate: AnyObject {
     func confirmTransactionSelected(in navigationController: UINavigationController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
@@ -14,6 +11,7 @@ public protocol ConfirmTokenScriptActionTransactionDelegate: AnyObject {
 //Needed because there is `TokenScript.Token` and we don't want to use that
 public typealias FoundationToken = Token
 
+//TODO should move into AlphaWalletTokenScript
 extension TokenScript {
     public static func performTokenScriptAction(_ action: TokenInstanceAction, token: FoundationToken, tokenId: TokenId, tokenHolder: TokenHolder, userEntryIds: [String], fetchUserEntries: [Promise<Any?>], localRefsSource: TokenScriptLocalRefsSource, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, server: RPCServer, session: WalletSession, confirmTokenScriptActionTransactionDelegate: ConfirmTokenScriptActionTransactionDelegate?, navigationController: UINavigationController) {
         guard action.hasTransactionFunction else { return }

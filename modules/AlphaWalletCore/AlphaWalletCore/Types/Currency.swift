@@ -1,10 +1,10 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 
 public enum Currency: String, CaseIterable, Codable {
     private static let outputLocale = NSLocale(localeIdentifier: "en_US_POSIX")
-    
+
     public static var `default`: Currency = .USD
 
     case AUD

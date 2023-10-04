@@ -21,16 +21,6 @@ public enum ImportWalletEvent {
     case new
 }
 
-extension String {
-    public var asSignableMessageData: Data {
-        if self.hasPrefix("0x") {
-            return Data(_hex: self)
-        } else {
-            return Data(_hex: self.hex)
-        }
-    }
-}
-
 public enum AccessOptions {
     case accessibleWhenUnlocked
     case accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: Bool)

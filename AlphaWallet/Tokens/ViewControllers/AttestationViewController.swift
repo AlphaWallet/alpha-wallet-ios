@@ -16,7 +16,7 @@ class AttestationViewController: UIViewController {
     private let attestation: Attestation
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private var tokenScriptRendererView: TokenInstanceWebView?
+    private var tokenScriptRendererView: TokenScriptWebView?
     private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: AttestationViewControllerDelegate?
@@ -229,9 +229,10 @@ fileprivate extension AttestationViewController.functional {
         return button
     }
 
-    static func createTokenScriptRendererView(attestation: Attestation, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) -> TokenInstanceWebView {
-        let webView = TokenInstanceWebView(server: attestation.server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+    static func createTokenScriptRendererView(attestation: Attestation, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) -> TokenScriptWebView {
+        let webView = TokenScriptWebView(server: attestation.server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         //TODO implement delegate if we need to use it
         //webView.delegate = self
         return webView

@@ -34,11 +34,12 @@ class ActivityViewController: UIViewController {
     private let timestampLabel = UILabel()
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
-    lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+    lazy private var tokenScriptRendererView: TokenScriptWebView = {
+        let webView = TokenScriptWebView(server: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
+        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         return webView
     }()
@@ -242,29 +243,17 @@ class ActivityViewController: UIViewController {
     }
 }
 
-extension ActivityViewController: TokenInstanceWebViewDelegate {
-
-    func requestSignMessage(message: SignMessageType,
-                            server: RPCServer,
-                            account: AlphaWallet.Address,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-
+extension ActivityViewController: TokenScriptWebViewDelegate {
+    func requestSignMessage(message: SignMessageType, server: RPCServer, account: AlphaWallet.Address, inTokenScriptWebView tokenScriptWebView: TokenScriptWebView) -> AnyPublisher<Data, PromiseError> {
         guard let delegate = delegate else { return .empty() }
-
-        return delegate.requestSignMessage(
-            message: message,
-            server: server,
-            account: account,
-            source: source,
-            requester: requester)
+        return delegate.requestSignMessage(message: message, server: server, account: account, source: .tokenScript, requester: nil)
     }
 
-    func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
+    func shouldClose(tokenScriptWebView: TokenScriptWebView) {
         //no-op
     }
 
-    func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+    func reinject(tokenScriptWebView: TokenScriptWebView) {
         delegate?.reinject(viewController: self)
     }
 }

@@ -1,12 +1,7 @@
-//
-//  InMemoryAddressStorage.swift
-//  AlphaWalletAddress
-//
-//  Created by Vladyslav Shepitko on 02.06.2022.
-//
+// Copyright © 2022 Stormbird PTE. LTD.
 
 import Foundation
-import AlphaWalletCore
+import AlphaWalletAddress
 
 public class InMemoryAddressStorage: AddressStorage {
     private var cache: AtomicDictionary<AddressKey, AlphaWallet.Address>
@@ -26,5 +21,5 @@ public class InMemoryAddressStorage: AddressStorage {
     public subscript(key: AddressKey) -> AlphaWallet.Address? {
         get { cache[key] }
         set { cache[key] = newValue }
-    } 
+    }
 }

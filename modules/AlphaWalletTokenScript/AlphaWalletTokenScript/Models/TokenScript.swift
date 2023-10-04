@@ -3,7 +3,6 @@
 import Foundation
 import BigInt
 
-public typealias TokenId = BigUInt
 public typealias AttributeId = String
 
 public enum TokenScript {

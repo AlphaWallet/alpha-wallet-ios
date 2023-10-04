@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletBrowser
 
 public enum SwitchChainRequestConfiguration {
     case promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer)

@@ -3,14 +3,15 @@
 import Foundation
 import WebKit
 import JavaScriptCore
+import AlphaWalletAddress
+import AlphaWalletCore
 
 public enum WebViewType {
-    case dappBrowser(RPCServer)
+    case dappBrowser(WithInjectableRpcUrl)
     case tokenScriptRenderer
 }
 
 extension WKWebViewConfiguration {
-
     public static func make(forType type: WebViewType, address: AlphaWallet.Address, messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
@@ -67,12 +68,12 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: SwitchChainCommand.Method.walletSwitchEthereumChain.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Browser.locationChangedEventName)
         //TODO extract like `Method.signTypedMessage.rawValue` when we have more than 1
-        webViewConfig.userContentController.add(messageHandler, name: TokenScript.SetProperties.setActionProps)
+        webViewConfig.userContentController.add(messageHandler, name: SetProperties.setActionProps)
         return webViewConfig
     }
 
 // swiftlint:disable function_body_length
-    fileprivate static func javaScriptForDappBrowser(server: RPCServer, address: AlphaWallet.Address) -> String {
+    fileprivate static func javaScriptForDappBrowser(server: WithInjectableRpcUrl, address: AlphaWallet.Address) -> String {
         return """
                //Space is needed here because it is sometimes cut off by websites. 
                
@@ -219,7 +220,7 @@ extension WKWebViewConfiguration {
                    setProps: function (object, cb) {
                      const id = 8888
                      window.tokenScriptCallBacks[id] = cb
-                     webkit.messageHandlers.\(TokenScript.SetProperties.setActionProps).postMessage({"object":  object, id: id})
+                     webkit.messageHandlers.\(SetProperties.setActionProps).postMessage({"object":  object, id: id})
                    }
                  }
                }

@@ -1,9 +1,4 @@
-//
-//  JsonRpcError.swift
-//  Alamofire
-//
-//  Created by Vladyslav Shepitko on 16.02.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 
