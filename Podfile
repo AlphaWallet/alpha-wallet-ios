@@ -23,6 +23,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletABI', :path => '.'
   pod 'AlphaWalletAddress', :path => '.'
   pod 'AlphaWalletAttestation', :path => '.'
+  pod 'AlphaWalletBrowser', :path => '.'
   pod 'AlphaWalletCore', :path => '.'
   pod 'AlphaWalletGoBack', :path => '.'
   pod 'AlphaWalletENS', :path => '.'

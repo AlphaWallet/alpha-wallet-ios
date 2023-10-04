@@ -14,6 +14,7 @@ PODS:
     - AlphaWalletWeb3
     - BigInt
     - GzipSwift
+  - AlphaWalletBrowser (1.0.0)
   - AlphaWalletCore (1.0.2):
     - Alamofire (= 5.6.4)
     - APIKit (= 5.1.0)
@@ -265,6 +266,7 @@ DEPENDENCIES:
   - AlphaWalletABI (from `.`)
   - AlphaWalletAddress (from `.`)
   - AlphaWalletAttestation (from `.`)
+  - AlphaWalletBrowser (from `.`)
   - AlphaWalletCore (from `.`)
   - AlphaWalletENS (from `.`)
   - AlphaWalletFoundation (from `.`)
@@ -364,6 +366,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletAttestation:
     :path: "."
+  AlphaWalletBrowser:
+    :path: "."
   AlphaWalletCore:
     :path: "."
   AlphaWalletENS:
@@ -446,6 +450,7 @@ SPEC CHECKSUMS:
   AlphaWalletABI: 5a4303eba7e575cf6ca11b70bb06f1b1d05b0d19
   AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
   AlphaWalletAttestation: e81a973d468ff941569ba5f0b3c279b8b1d902b9
+  AlphaWalletBrowser: d3bd5176fe7422ff8999318b2f893a7602bdc6ef
   AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
   AlphaWalletFoundation: fecb0317a9f6b55dd736416660830a1145b9cd0c
@@ -516,6 +521,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: f29721774eddc40fefd076855cdca437f2155e8a
+PODFILE CHECKSUM: 79c873396f102493b024390422a5c4d68a6779cb
 
 COCOAPODS: 1.12.1

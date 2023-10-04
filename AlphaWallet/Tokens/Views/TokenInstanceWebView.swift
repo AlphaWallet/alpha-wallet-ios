@@ -6,6 +6,7 @@ import WebKit
 import Combine
 import AlphaWalletABI
 import AlphaWalletAttestation
+import AlphaWalletBrowser
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
