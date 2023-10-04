@@ -28,8 +28,6 @@ protocol TokenInstanceWebViewDelegate: RequestSignMessageDelegate {
 }
 
 class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
-    var coordinators: [Coordinator] = []
-
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
