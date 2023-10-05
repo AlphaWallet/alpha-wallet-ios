@@ -148,9 +148,10 @@ extension ActivitiesView: UITableViewDataSource {
     private func setupTokenScriptRendererViewForCellOnce(cell: ActivityViewCell) {
         guard cell.tokenScriptRendererView == nil else { return }
 
-        let tokenScriptRendererView: TokenInstanceWebView = {
+        let tokenScriptRendererView: TokenScriptWebView = {
             //TODO server value doesn't matter since we will change it later. But we should improve this
-            let webView = TokenInstanceWebView(server: .main, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+            let webView = TokenScriptWebView(server: .main, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+            webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
             //TODO needed? Seems like scary, performance-wise
             //webView.delegate = self
             return webView

@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
   s.dependency 'AlphaWalletAddress'
   s.dependency 'AlphaWalletABI'
   s.dependency 'AlphaWalletAttestation'
+  s.dependency 'AlphaWalletBrowser'
   s.dependency 'AlphaWalletCore'
   s.dependency 'AlphaWalletLogger'
   s.dependency 'AlphaWalletOpenSea'

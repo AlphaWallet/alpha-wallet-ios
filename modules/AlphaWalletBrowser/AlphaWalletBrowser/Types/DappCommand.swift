@@ -1,6 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
+import AlphaWalletABI
+import AlphaWalletCore
 
 public struct DappCommand: Decodable {
     public let name: Method
@@ -169,7 +171,7 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
 
     public struct ExplorerUrl: Decodable {
         let name: String
-        let url: String
+        public let url: String
 
         enum CodingKeys: CodingKey {
             case name
@@ -193,7 +195,7 @@ public struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
             }
         }
     }
-    
+
     public let nativeCurrency: NativeCurrency?
     public var blockExplorerUrls: [ExplorerUrl]?
     public let chainName: String?

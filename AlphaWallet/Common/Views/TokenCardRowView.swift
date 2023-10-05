@@ -54,9 +54,10 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
     var stateLabel = UILabel()
     var tokenView: TokenView
-    lazy var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+    lazy var tokenScriptRendererView: TokenScriptWebView = {
+        let webView = TokenScriptWebView(server: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.delegate = self
+        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return webView
     }()
     var showCheckbox: Bool {
@@ -339,22 +340,16 @@ extension TokenCardRowView: TokenRowView {
     }
 }
 
-extension TokenCardRowView: TokenInstanceWebViewDelegate {
-
-    func requestSignMessage(message: SignMessageType,
-                            server: RPCServer,
-                            account: AlphaWallet.Address,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-        
+extension TokenCardRowView: TokenScriptWebViewDelegate {
+    func requestSignMessage(message: SignMessageType, server: RPCServer, account: AlphaWallet.Address, inTokenScriptWebView tokenScriptWebView: TokenScriptWebView) -> AnyPublisher<Data, PromiseError> {
         return .fail(PromiseError(error: JsonRpcError.requestRejected))
     }
 
-    func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
+    func shouldClose(tokenScriptWebView: TokenScriptWebView) {
         //no-op
     }
 
-    func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+    func reinject(tokenScriptWebView: TokenScriptWebView) {
         //Refresh if view, but not item-view
         if isStandalone {
             guard let lastTokenHolder = lastTokenHolder else { return }

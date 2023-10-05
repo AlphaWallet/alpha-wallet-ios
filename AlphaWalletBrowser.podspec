@@ -25,5 +25,12 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
   s.frameworks       = 'Foundation'
+
+  s.dependency 'AlphaWalletABI'
+  s.dependency 'AlphaWalletAddress'
+  s.dependency 'AlphaWalletCore'
+  s.dependency 'AlphaWalletLogger'
+  s.dependency 'AlphaWalletWeb3'
+  s.dependency 'BigInt'
 end
 

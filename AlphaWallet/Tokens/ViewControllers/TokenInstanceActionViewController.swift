@@ -22,8 +22,10 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let session: WalletSession
     private let keystore: Keystore
     private let roundedBackground = RoundedBackground()
-    lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore)
+    lazy private var tokenScriptRendererView: TokenScriptWebView = {
+        //TODO pass in Config instance instead
+        let webView = TokenScriptWebView(server: server, wallet: session.account.type, assetDefinitionStore: assetDefinitionStore, shouldPretendIsRealWallet: Config().development.shouldPretendIsRealWallet)
+        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -180,25 +182,13 @@ extension TokenInstanceActionViewController: VerifiableStatusViewController {
     }
 }
 
-extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
-
-    func requestSignMessage(message: SignMessageType,
-                            server: RPCServer,
-                            account: AlphaWallet.Address,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-
+extension TokenInstanceActionViewController: TokenScriptWebViewDelegate {
+    func requestSignMessage(message: SignMessageType, server: RPCServer, account: AlphaWallet.Address, inTokenScriptWebView tokenScriptWebView: TokenScriptWebView) -> AnyPublisher<Data, PromiseError> {
         guard let delegate = delegate else { return .empty() }
-
-        return delegate.requestSignMessage(
-            message: message,
-            server: server,
-            account: account,
-            source: source,
-            requester: requester)
+        return delegate.requestSignMessage(message: message, server: server, account: account, source: .tokenScript, requester: nil)
     }
 
-    func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
+    func shouldClose(tokenScriptWebView: TokenScriptWebView) {
         //Bit of delay to wait for the UI animation to almost finish
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             SuccessOverlayView.show()
@@ -206,7 +196,7 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
         delegate?.shouldCloseFlow(inViewController: self)
     }
 
-    func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+    func reinject(tokenScriptWebView: TokenScriptWebView) {
         configure()
     }
 }

@@ -6,7 +6,6 @@ PODS:
     - EthereumABI
     - TrustKeystore
   - AlphaWalletAddress (1.0.2):
-    - AlphaWalletCore
     - EthereumAddress
     - TrustKeystore
   - AlphaWalletAttestation (0.0.1):
@@ -16,9 +15,16 @@ PODS:
     - AlphaWalletWeb3
     - BigInt
     - GzipSwift
-  - AlphaWalletBrowser (1.0.0)
+  - AlphaWalletBrowser (1.0.0):
+    - AlphaWalletABI
+    - AlphaWalletAddress
+    - AlphaWalletCore
+    - AlphaWalletLogger
+    - AlphaWalletWeb3
+    - BigInt
   - AlphaWalletCore (1.0.2):
     - Alamofire (= 5.6.4)
+    - AlphaWalletAddress
     - APIKit (= 5.1.0)
     - BigInt
     - CombineExt (= 1.8.0)
@@ -31,6 +37,7 @@ PODS:
   - AlphaWalletFoundation (1.0.0):
     - AlphaWalletABI
     - AlphaWalletAddress
+    - AlphaWalletBrowser
     - AlphaWalletCore
     - AlphaWalletENS
     - AlphaWalletGoBack
@@ -82,6 +89,7 @@ PODS:
     - AlphaWalletABI
     - AlphaWalletAddress
     - AlphaWalletAttestation
+    - AlphaWalletBrowser
     - AlphaWalletCore
     - AlphaWalletLogger
     - AlphaWalletOpenSea
@@ -450,19 +458,19 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   AlphaWalletABI: 5aa418b554dee7e6d7098ec4a4d47eef04876edb
-  AlphaWalletAddress: b1689336d5b2560d4f0993aa680e758c49068f87
+  AlphaWalletAddress: f99225bc1577e254cbfeb309ce4af71d2a711e98
   AlphaWalletAttestation: e0a598276194b1d8a3f2dcf09c749102593adb00
-  AlphaWalletBrowser: d3bd5176fe7422ff8999318b2f893a7602bdc6ef
-  AlphaWalletCore: 5b06f12b96578c533585bb1c06acf255a9f98bec
+  AlphaWalletBrowser: 8e83b2bd63ff6e4298ab4cd0a683948d6d5cbdcb
+  AlphaWalletCore: 1b6acfd4481c4011c77e347784836d5e231d98ea
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
-  AlphaWalletFoundation: fecb0317a9f6b55dd736416660830a1145b9cd0c
+  AlphaWalletFoundation: dffd87840b7800fb118b3bc5be1ac71cda3780f8
   AlphaWalletGoBack: 665101a1185145ef0a4a92943dcb11ae1fe697ca
   AlphaWalletHardwareWallet: 7aafac3ef2246713a606bd69e3af75ff111e1afc
   AlphaWalletLogger: 54208bad850ec92a32fa4f969d0026305b6ce028
   AlphaWalletNotifications: 6e6a5f1cf0fc598c1c917dfb527a608b049a0a96
   AlphaWalletOpenSea: e6ee4efb03db0dfebc69dfe23db33fa33bba8918
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
-  AlphaWalletTokenScript: f28807083e5c625dc415349a710eda2677a64105
+  AlphaWalletTokenScript: fda753dee03ae6796b4aac20d24e54a914280584
   AlphaWalletTrackAPICalls: 0e18ad5b389b054ee30673e7f1caf095a17c1b33
   AlphaWalletTrustWalletCoreExtensions: 976653ec0116dbcafa6ff1fc93ebdc3a469e5f57
   AlphaWalletWeb3: 6112b8d749368d3a8208bbec4220b13e003e4f40

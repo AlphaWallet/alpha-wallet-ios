@@ -146,7 +146,7 @@ class BrowserViewModel: NSObject {
 
 extension BrowserViewModel: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let command = DappAction.fromMessage(message) else {
+        guard let command = DappOrWalletCommand.fromMessage(message) else {
             if message.name == Browser.locationChangedEventName {
                 recordUrlSubject.send(())
             }

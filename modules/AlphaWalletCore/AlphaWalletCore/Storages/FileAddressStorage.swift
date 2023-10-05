@@ -1,13 +1,8 @@
-//
-//  FileAddressStorage.swift
-//  AlphaWalletAddress
-//
-//  Created by Vladyslav Shepitko on 02.06.2022.
-//
+// Copyright © 2022 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
-import AlphaWalletCore
+import AlphaWalletAddress
 
 public class FileAddressStorage: AddressStorage {
     private var lastCount: Int

@@ -2,7 +2,6 @@
 
 import Foundation
 import TrustKeystore
-import AlphaWalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}
@@ -10,6 +9,9 @@ public enum AlphaWallet {}
 //TODO move this to a standard alone internal Pod with 0 external dependencies so main app and TokenScript can use it?
 extension AlphaWallet {
     public enum Address: Hashable, Codable {
+        //Computing EIP55 is really slow. Cache needed when we need to create many addresses, like parsing a whole lot of Ethereum event logs there is cases when cache accessing from different treads, for this case we need to use sync access for it
+        public static var sharedAddressStorage: AddressStorage?
+
         case ethereumAddress(eip55String: String)
 
         enum Key: CodingKey {
@@ -17,7 +19,7 @@ extension AlphaWallet {
         }
 
         public init?(string: String) {
-            if let address = sharedAddressStorage?[string.lowercased()] {
+            if let address = Self.sharedAddressStorage?[string.lowercased()] {
                 self = address
                 return
             }
@@ -27,12 +29,12 @@ extension AlphaWallet {
             //    Terminating app due to uncaught exception 'NSRangeException', reason: '*** -[NSPathStore2 characterAtIndex:]: index (42) beyond bounds (42)'
             guard let address = TrustKeystore.Address(string: "\(string)") else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
-            sharedAddressStorage?[string.lowercased()] = self
+            Self.sharedAddressStorage?[string.lowercased()] = self
         }
 
         //TODO not sure if we should keep this
         public init?(uncheckedAgainstNullAddress string: String) {
-            if let address = sharedAddressStorage?[string.lowercased()] {
+            if let address = Self.sharedAddressStorage?[string.lowercased()] {
                 self = address
                 return
             }
@@ -41,7 +43,7 @@ extension AlphaWallet {
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
-            sharedAddressStorage?[string.lowercased()] = self
+            Self.sharedAddressStorage?[string.lowercased()] = self
         }
 
         public init?(fromPrivateKey privateKey: Data) {
@@ -142,5 +144,49 @@ extension AlphaWallet.Address {
         let front = address.prefix(6)
         let back = address.suffix(4)
         return "\(front)…\(back)"
+    }
+}
+
+fileprivate extension String {
+    var add0x: String {
+        if hasPrefix("0x") {
+            return self
+        } else {
+            return "0x" + self
+        }
+    }
+
+    var drop0x: String {
+        if count > 2 && substring(with: 0..<2) == "0x" {
+            return String(dropFirst(2))
+        }
+        return self
+    }
+
+    func index(from: Int) -> Index {
+        return index(startIndex, offsetBy: from)
+    }
+
+    func substring(with r: Range<Int>) -> String {
+        let startIndex = index(from: r.lowerBound)
+        let endIndex = index(from: r.upperBound)
+        return String(self[startIndex..<endIndex])
+    }
+}
+
+fileprivate extension Data {
+    struct HexEncodingOptions: OptionSet {
+        public static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+
+        public let rawValue: Int
+
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+    }
+
+    func hex(options: HexEncodingOptions = []) -> String {
+        let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
+        return map { String(format: format, $0) }.joined()
     }
 }

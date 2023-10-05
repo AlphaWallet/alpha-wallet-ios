@@ -27,6 +27,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'AlphaWalletLogger'
   spec.dependency 'AlphaWalletABI'
   spec.dependency 'AlphaWalletAddress'
+  spec.dependency 'AlphaWalletBrowser'
   spec.dependency 'AlphaWalletCore'
   spec.dependency 'AlphaWalletGoBack'
   spec.dependency 'AlphaWalletENS'

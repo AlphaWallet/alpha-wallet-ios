@@ -26,7 +26,6 @@ Pod::Spec.new do |s|
   s.frameworks       = 'Foundation'
 
   #Should not include any more of our own pods as dependency unless that pod is never going to have a dependency on this pod
-  s.dependency 'AlphaWalletCore'
   s.dependency 'EthereumAddress'
   s.dependency 'TrustKeystore'
 end

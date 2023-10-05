@@ -6,12 +6,12 @@ import AlphaWalletFoundation
 
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()
-    private (set) var tokenScriptRendererView: TokenInstanceWebView?
+    private (set) var tokenScriptRendererView: TokenScriptWebView?
     private var isFirstLoad = true
     private var viewModel: ActivityCellViewModel? {
         didSet {
             guard let tokenScriptRendererView = tokenScriptRendererView else { return }
-            
+
             if let oldValue = oldValue {
                 if oldValue.activity.id == viewModel?.activity.id {
                     //no-op
@@ -45,7 +45,7 @@ class ActivityViewCell: UITableViewCell {
         ])
     }
 
-    func setupTokenScriptRendererView(_ tokenScriptRendererView: TokenInstanceWebView) {
+    func setupTokenScriptRendererView(_ tokenScriptRendererView: TokenScriptWebView) {
         tokenScriptRendererView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(tokenScriptRendererView)
 

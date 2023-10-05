@@ -38,54 +38,6 @@ extension UIView {
         layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
 
-    func anchorsConstraintLessThanOrEqualTo(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(lessThanOrEqualTo: view.leadingAnchor, constant: edgeInsets.left),
-            trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -edgeInsets.right),
-            topAnchor.constraint(lessThanOrEqualTo: view.topAnchor, constant: edgeInsets.top),
-            bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -edgeInsets.bottom),
-        ]
-    }
-    func anchorsConstraintGreaterThanOrEqualTo(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: edgeInsets.left),
-            trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -edgeInsets.right),
-            topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: edgeInsets.top),
-            bottomAnchor.constraint(greaterThanOrEqualTo: view.bottomAnchor, constant: -edgeInsets.bottom),
-        ]
-    }
-
-    func anchorsConstraint(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: edgeInsets.left),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -edgeInsets.right),
-            topAnchor.constraint(equalTo: view.topAnchor, constant: edgeInsets.top),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -edgeInsets.bottom),
-        ]
-    }
-
-    func anchorsIgnoringBottomSafeArea(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
-            trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right),
-            topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: edgeInsets.top),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -edgeInsets.bottom),
-        ]
-    }
-
-    func anchorsConstraintSafeArea(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
-            trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right),
-            topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: edgeInsets.top),
-            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -edgeInsets.bottom),
-        ]
-    }
-
-    func anchorsConstraint(to view: UIView, margin: CGFloat) -> [NSLayoutConstraint] {
-        return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
-    }
-    
     static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear, flexible: Bool = false) -> UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false

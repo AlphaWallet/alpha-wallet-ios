@@ -3,7 +3,11 @@
 import Foundation
 import BigInt
 import WebKit
+import AlphaWalletABI
+import AlphaWalletAddress
+import AlphaWalletCore
 import AlphaWalletLogger
+import AlphaWalletWeb3
 
 public enum DappAction {
     case signMessage(String)
@@ -106,37 +110,5 @@ extension DappAction {
             gasPrice: gasPrice,
             nonce: nonce
         )
-    }
-
-    public static func fromMessage(_ message: WKScriptMessage) -> DappOrWalletCommand? {
-        let decoder = JSONDecoder()
-        guard var body = message.body as? [String: AnyObject] else {
-            infoLog("[Browser] Invalid body in message: \(message.body)")
-            return nil
-        }
-        if var object = body["object"] as? [String: AnyObject], object["gasLimit"] is [String: AnyObject] {
-            //Some dapps might wrongly have a gasLimit dictionary which breaks our decoder. MetaMask seems happy with this, so we support it too
-            object["gasLimit"] = nil
-            body["object"] = object as AnyObject
-        }
-        guard let jsonString = body.jsonString else {
-            infoLog("[Browser] Invalid jsonString. body: \(body)")
-            return nil
-        }
-        let data = jsonString.data(using: .utf8)!
-        //We try the stricter form (DappCommand) first before using the one that is more forgiving
-        if let command = try? decoder.decode(DappCommand.self, from: data) {
-            return .eth(command)
-        } else if let commandWithOptionalObjectValues = try? decoder.decode(DappCommandWithOptionalObjectValues.self, from: data) {
-            let command = commandWithOptionalObjectValues.toCommand
-            return .eth(command)
-        } else if let command = try? decoder.decode(AddCustomChainCommand.self, from: data) {
-            return .walletAddEthereumChain(command)
-        } else if let command = try? decoder.decode(SwitchChainCommand.self, from: data) {
-            return .walletSwitchEthereumChain(command)
-        } else {
-            infoLog("[Browser] failed to parse dapp command with JSON: \(jsonString)")
-            return nil
-        }
     }
 }

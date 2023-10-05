@@ -1,35 +1,28 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import Combine
 import UIKit
 import WebKit
-import Combine
 import AlphaWalletABI
+import AlphaWalletAddress
 import AlphaWalletAttestation
 import AlphaWalletBrowser
 import AlphaWalletCore
-import AlphaWalletFoundation
+import AlphaWalletWeb3
 import AlphaWalletLogger
-import AlphaWalletTokenScript
 import BigInt
 import PromiseKit
 
-protocol RequestSignMessageDelegate: AnyObject {
-    func requestSignMessage(message: SignMessageType,
-                            server: RPCServer,
-                            account: AlphaWallet.Address,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError>
+public protocol TokenScriptWebViewDelegate: AnyObject {
+    func shouldClose(tokenScriptWebView: TokenScriptWebView)
+    func reinject(tokenScriptWebView: TokenScriptWebView)
+    func requestSignMessage(message: SignMessageType, server: RPCServer, account: AlphaWallet.Address, inTokenScriptWebView tokenScriptWebView: TokenScriptWebView) -> AnyPublisher<Data, PromiseError>
 }
 
-protocol TokenInstanceWebViewDelegate: RequestSignMessageDelegate {
-    func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
-    func reinject(tokenInstanceWebView: TokenInstanceWebView)
-}
-
-class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
+public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
-    private let wallet: Wallet
+    private let wallet: WalletType
     private let assetDefinitionStore: AssetDefinitionStore
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
@@ -41,27 +34,28 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         }
         return webView
     }()
+    private let shouldPretendIsRealWallet: Bool
     private var lastInjectedJavaScript: String?
     //TODO remove once we refactor internals to include a TokenScriptContext
-    private var lastTokenHolder: TokenHolder?
-    private var actionProperties: TokenScript.SetProperties.Properties = .init()
+    private var lastTokenHolder: TokenHolderProtocol?
+    private var actionProperties: SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private var cancelable = Set<AnyCancellable>()
 
-    var server: RPCServer
-    var isWebViewInteractionEnabled: Bool = false {
+    public var server: RPCServer
+    public var isWebViewInteractionEnabled: Bool = false {
         didSet {
             webView.isUserInteractionEnabled = isWebViewInteractionEnabled
         }
     }
-    weak var delegate: TokenInstanceWebViewDelegate?
+    public weak var delegate: TokenScriptWebViewDelegate?
     //HACK: Flag necessary to inject token values somewhat reliably in at least 2 distinct cases:
     //A. TokenScript views in token cards (ie. view iconified)
     //B. Action views
     //TODO improve further. It's not reliable enough
-    var isStandalone = false
+    public var isStandalone = false
 
-    var localRefs: [AttributeId: AssetInternalValue] {
+    public var localRefs: [AttributeId: AssetInternalValue] {
         var results: [AttributeId: AssetInternalValue] = .init()
         for (key, value) in actionProperties {
             if let string = value as? String {
@@ -73,10 +67,17 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         return results
     }
 
-    init(server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+    public override var backgroundColor: UIColor? {
+        didSet {
+            webView.backgroundColor = backgroundColor
+        }
+    }
+
+    public init(server: RPCServer, wallet: WalletType, assetDefinitionStore: AssetDefinitionStore, shouldPretendIsRealWallet: Bool = false) {
         self.server = server
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
+        self.shouldPretendIsRealWallet = shouldPretendIsRealWallet
         super.init(frame: .zero)
 
         webView.isUserInteractionEnabled = false
@@ -99,21 +100,19 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         ])
 
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func stopLoading() {
+    public func stopLoading() {
         webView.stopLoading()
     }
     private var cancellable: AnyCancellable?
 
     //Implementation: String concatenation is slow, but it's not obvious at all
-    func update(withTokenHolder tokenHolder: TokenHolder, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+    public func update(withTokenHolder tokenHolder: TokenHolderProtocol, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
         lastTokenHolder = tokenHolder
         let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)
 
@@ -137,11 +136,11 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         cancellable?.cancel()
         cancellable = Publishers.CombineLatest(tokenAttributeValues.resolveAllAttributes(), cardAttributeValues.resolveAllAttributes())
             .sink { [weak self] resolvedTokenAttributeNameValues, resolvedCardAttributeNameValues in
-                self?.update(withId: tokenHolder.tokenIds[0], resolvedTokenAttributeNameValues: resolvedTokenAttributeNameValues, resolvedCardAttributeNameValues: resolvedCardAttributeNameValues, isFirstUpdate: isFirstUpdate)
+                self?.update(withId: tokenHolder.tokenId, resolvedTokenAttributeNameValues: resolvedTokenAttributeNameValues, resolvedCardAttributeNameValues: resolvedCardAttributeNameValues, isFirstUpdate: isFirstUpdate)
             }
     }
 
-    func update(withId id: BigUInt, resolvedTokenAttributeNameValues: [AttributeId: AssetInternalValue], resolvedCardAttributeNameValues: [AttributeId: AssetInternalValue], attestation: Attestation? = nil, isFirstUpdate: Bool = true) {
+    public func update(withId id: BigUInt, resolvedTokenAttributeNameValues: [AttributeId: AssetInternalValue], resolvedCardAttributeNameValues: [AttributeId: AssetInternalValue], attestation: Attestation? = nil, isFirstUpdate: Bool = true) {
         var tokenData = [AttributeId: String]()
         let convertor = AssetAttributeToJavaScriptConvertor()
         for (name, value) in resolvedTokenAttributeNameValues {
@@ -223,18 +222,18 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         }
     }
 
-    func updateWithAttestation(_ attestation: Attestation, withId id: BigUInt, isFirstUpdate: Bool = true) {
+    public func updateWithAttestation(_ attestation: Attestation, withId id: BigUInt, isFirstUpdate: Bool = true) {
         update(withId: id, resolvedTokenAttributeNameValues: .init(), resolvedCardAttributeNameValues: .init(), attestation: attestation, isFirstUpdate: isFirstUpdate)
     }
 
-    private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolder) -> [AttributeId: AssetAttributeSyntaxValue] {
+    private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolderProtocol) -> [AttributeId: AssetAttributeSyntaxValue] {
         guard !localRefs.isEmpty else { return .init() }
         let xmlHandler = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType)
         let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastCardLevelAttributeValues?[$0.key] == nil }
 
         return assetDefinitionStore
             .assetAttributeResolver
-            .resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]),
+            .resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenId),
                      userEntryValues: .init(),
                      server: server,
                      account: wallet.address,
@@ -243,7 +242,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
                      attributes: attributes)
     }
 
-    private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
+    private func implicitAttributes(tokenHolder: TokenHolderProtocol, isFungible: Bool) -> [String: AssetInternalValue] {
         var results = [String: AssetInternalValue]()
         for each in AssetImplicitAttributes.allCases {
             guard each.shouldInclude(forAddress: tokenHolder.contractAddress, isFungible: isFungible) else { continue }
@@ -251,7 +250,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
             case .ownerAddress:
                 results[each.javaScriptName] = .address(wallet.address)
             case .tokenId:
-                results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
+                results[each.javaScriptName] = .uint(tokenHolder.tokenId)
             case .label:
                 let localizedNameFromAssetDefinition = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType).getLabel(fallback: tokenHolder.name)
                 results[each.javaScriptName] = .string(localizedNameFromAssetDefinition)
@@ -264,7 +263,7 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         return results
     }
 
-    @discardableResult func inject(javaScript: String, afterDocumentIsLoaded: Bool = false) -> Promise<Any?>? {
+    @discardableResult public func inject(javaScript: String, afterDocumentIsLoaded: Bool = false) -> Promise<Any?>? {
         if let lastInjectedJavaScript = lastInjectedJavaScript, lastInjectedJavaScript == javaScript {
             return nil
         } else {
@@ -293,14 +292,34 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         }
     }
 
-    func loadHtml(_ html: String) {
+    public func loadHtml(_ html: String) {
         webView.loadHTMLString(html, baseURL: nil)
+    }
+
+    private func sign(message: String?, command: DappCommand, account: AlphaWallet.Address) {
+        guard let message else { return }
+
+        guard let delegate = self.delegate else {
+            self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
+            return
+        }
+
+        delegate.requestSignMessage(message: .personalMessage(message.asSignableMessageData), server: server, account: account, inTokenScriptWebView: self)
+                .handleEvents(receiveCancel: {
+                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
+                })
+                .sinkAsync(receiveCompletion: { _ in
+                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
+                }, receiveValue: { value in
+                    let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
+                    self.notifyFinish(callbackId: command.id, value: .success(callback))
+                })
     }
 }
 
-extension TokenInstanceWebView: WKScriptMessageHandler {
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        switch Browser.MessageType.fromMessage(message) {
+extension TokenScriptWebView: WKScriptMessageHandler {
+    public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        switch MessageType.fromMessage(message) {
         case .dappAction(let command):
             handleCommandForDappAction(command)
         case .setActionProps(.action(let id, let changedProperties)):
@@ -310,7 +329,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
     }
 
-    private func handleSetActionProperties(id: Int, changedProperties: TokenScript.SetProperties.Properties) {
+    private func handleSetActionProperties(id: Int, changedProperties: SetProperties.Properties) {
         guard !changedProperties.isEmpty else { return }
         let oldProperties = actionProperties
 
@@ -325,7 +344,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
 
         guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
         if lastCardLevelAttributeValues != nil {
-            delegate?.reinject(tokenInstanceWebView: self)
+            delegate?.reinject(tokenScriptWebView: self)
         }
     }
 
@@ -357,43 +376,13 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             return
         }
 
-        let action = DappAction.fromCommand(.eth(command), server: server, transactionType: .prebuilt(server))
-
-        func _sign(action: DappAction, command: DappCommand, account: AlphaWallet.Address) {
-            switch action {
-            case .signPersonalMessage(let message):
-                guard let delegate = self.delegate else {
-                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
-                    return
-                }
-
-                delegate.requestSignMessage(
-                    message: .personalMessage(message.asSignableMessageData),
-                    server: server,
-                    account: account,
-                    source: .tokenScript,
-                    requester: nil)
-                .handleEvents(receiveCancel: {
-                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
-                })
-                .sinkAsync(receiveCompletion: { _ in
-                    self.notifyFinish(callbackId: command.id, value: .failure(JsonRpcError.requestRejected))
-                }, receiveValue: { value in
-                    let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
-                    self.notifyFinish(callbackId: command.id, value: .success(callback))
-                })
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signEip712v3And4, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
-                break
-            }
-        }
-
-        switch wallet.type {
+        let message = functional.extractMessageToSign(fromCommand: command, server: server)
+        switch wallet {
         case .real(let account), .hardware(let account):
-            _sign(action: action, command: command, account: account)
+            sign(message: message, command: command, account: account)
         case .watch(let account):
-            //TODO pass in Config instance instead
-            if Config().development.shouldPretendIsRealWallet {
-                _sign(action: action, command: command, account: account)
+            if shouldPretendIsRealWallet {
+                sign(message: message, command: command, account: account)
             } else {
                 //no-op
             }
@@ -401,8 +390,8 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
     }
 }
 
-//Block navigation. Still good to have even if we end up using XSLT?
-extension TokenInstanceWebView: WKNavigationDelegate {
+////Block navigation. Still good to have even if we end up using XSLT?
+extension TokenScriptWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url?.absoluteString, url == "about:blank" {
             decisionHandler(.allow)
@@ -412,15 +401,15 @@ extension TokenInstanceWebView: WKNavigationDelegate {
     }
 }
 
-extension TokenInstanceWebView: WKUIDelegate {
-    func webViewDidClose(_ webView: WKWebView) {
-        delegate?.shouldClose(tokenInstanceWebView: self)
+extension TokenScriptWebView: WKUIDelegate {
+    public func webViewDidClose(_ webView: WKWebView) {
+        delegate?.shouldClose(tokenScriptWebView: self)
     }
 }
 
-//TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
-extension TokenInstanceWebView {
-    func notifyFinish(callbackId: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
+////TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
+extension TokenScriptWebView {
+    private func notifyFinish(callbackId: Int, value: Swift.Result<DappCallback, JsonRpcError>) {
         let script: String = {
             switch value {
             case .success(let result):
@@ -432,7 +421,7 @@ extension TokenInstanceWebView {
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    func notifyTokenScriptFinish(callbackId: Int, errorMessage: String?) {
+    private func notifyTokenScriptFinish(callbackId: Int, errorMessage: String?) {
         let script: String = {
             if let errorMessage = errorMessage {
                 return "executeTokenScriptCallback(\(callbackId), \"\(errorMessage)\")"
@@ -452,7 +441,7 @@ fileprivate extension Attestation {
                    {
                        "version": \(messageVersion),
                        "time": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: time)),
-                       "data": \(TokenInstanceWebView.functional.convertAttestationDataToTokenScriptJson(data)),
+                       "data": \(TokenScriptWebView.functional.convertAttestationDataToTokenScriptJson(data)),
                        "expirationTime": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: expirationTime)),
                        "recipient": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptAddress(address: recipient)),
                        "refUID": "\(refUID)",
@@ -464,7 +453,7 @@ fileprivate extension Attestation {
             result = """
                      {
                          "time": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: time)),
-                         "data": \(TokenInstanceWebView.functional.convertAttestationDataToTokenScriptJson(data)),
+                         "data": \(TokenScriptWebView.functional.convertAttestationDataToTokenScriptJson(data)),
                          "expirationTime": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptGeneralisedTime(date: expirationTime)),
                          "recipient": \(AttestationTypeValuePairToJavaScriptConvertor.formatAsTokenScriptJavaScriptAddress(address: recipient)),
                          "refUID": "\(refUID)",
@@ -477,11 +466,11 @@ fileprivate extension Attestation {
     }
 }
 
-extension TokenInstanceWebView {
+extension TokenScriptWebView {
     enum functional {}
 }
 
-fileprivate extension TokenInstanceWebView.functional {
+fileprivate extension TokenScriptWebView.functional {
     static func convertAttestationDataToTokenScriptJson(_ data: [Attestation.TypeValuePair]) -> String {
         var result = [String: String]()
         let convertor = AttestationTypeValuePairToJavaScriptConvertor()
@@ -498,16 +487,27 @@ fileprivate extension TokenInstanceWebView.functional {
         //Important to undo/substitute this as Smart Layer API might need it
         return rawAttestation.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-")
     }
+
+    static func extractMessageToSign(fromCommand command: DappCommand, server: RPCServer) -> String? {
+        switch command.name {
+        case .signPersonalMessage:
+            let data = command.object["data"]?.value ?? ""
+            return data
+        case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .ethCall, .unknown:
+            warnLog("[TokenScript] Method not supported in TokenScript view: \(command.name) command: \(command)")
+            return nil
+        }
+    }
 }
 
-//TODO remove AlphaWalletABI's dependency on TrustKeystore and then move this into Attestation (we can't do it now to avoid adding dependency to AlphaWalletAttestation on TrustKeystore)
+////TODO remove AlphaWalletABI's dependency on TrustKeystore and then move this into Attestation (we can't do it now to avoid adding dependency to AlphaWalletAttestation on TrustKeystore)
 fileprivate extension Attestation {
     var abiEncoded: Data {
         let encoder = ABIEncoder()
         do {
             try encoder.encode(tuple: [
                 ABIValue.bytes(Data(hex: schemaUid.value)),
-                ABIValue.address2(recipient ?? AlphaWalletFoundation.Constants.nullAddress),
+                ABIValue.address2(recipient ?? Constants.nullAddress),
                 ABIValue.uint(bits: 256, BigUInt(easAttestationTime)),
                 ABIValue.uint(bits: 256, BigUInt(easAttestationExpirationTime)),
                 ABIValue.bool(revocable),

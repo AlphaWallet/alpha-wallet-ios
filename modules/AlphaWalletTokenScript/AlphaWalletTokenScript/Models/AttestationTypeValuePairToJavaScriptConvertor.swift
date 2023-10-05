@@ -4,10 +4,11 @@ import Foundation
 import AlphaWalletAddress
 import AlphaWalletAttestation
 
-struct AttestationTypeValuePairToJavaScriptConvertor {
-    init() {}
+public struct AttestationTypeValuePairToJavaScriptConvertor {
+    public init() {}
+
     //Numbers must be formatted as string (or maybe later a suitable JavaScript big number type), but not as numbers in JavaScript because they can lose precision
-    func formatAsTokenScriptJavaScript(value: Attestation.TypeValuePair) -> String? {
+    public func formatAsTokenScriptJavaScript(value: Attestation.TypeValuePair) -> String? {
         switch value.value {
         case .string(let string):
             let string = string.replacingOccurrences(of: "\"", with: "\\\"")
@@ -30,7 +31,7 @@ struct AttestationTypeValuePairToJavaScriptConvertor {
         }
     }
 
-    static func formatAsTokenScriptJavaScriptGeneralisedTime(date: Date?) -> String {
+    public static func formatAsTokenScriptJavaScriptGeneralisedTime(date: Date?) -> String {
         if let date {
             return "\(GeneralisedTime(date: date).formatAsTokenScriptJavaScript)"
         } else {
@@ -38,7 +39,7 @@ struct AttestationTypeValuePairToJavaScriptConvertor {
         }
     }
 
-    static func formatAsTokenScriptJavaScriptAddress(address: AlphaWallet.Address?) -> String {
+    public static func formatAsTokenScriptJavaScriptAddress(address: AlphaWallet.Address?) -> String {
         if let address {
             return "\"\(address.eip55String)\""
         } else {

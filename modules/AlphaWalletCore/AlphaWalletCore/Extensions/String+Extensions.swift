@@ -132,4 +132,12 @@ extension String {
         }
         return true
     }
+
+    public var asSignableMessageData: Data {
+        if self.hasPrefix("0x") {
+            return Data(_hex: self)
+        } else {
+            return Data(_hex: self.hex)
+        }
+    }
 }
