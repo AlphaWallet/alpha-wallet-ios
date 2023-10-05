@@ -479,18 +479,18 @@ public class PrivateXMLHandler {
                     _server = PrivateXMLHandler.extractServer(fromXML: _xml, xmlContext: _xmlContext, matchingContract: contract).flatMap { .server($0) }
                 }
                 tokenScriptStatusPromise.done { tokenScriptStatus in
-                            let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus, shouldLoadTokenScriptWithFailedSignatures: shouldLoadTokenScriptWithFailedSignatures)
-                            _xml = xml
-                            _hasValidTokenScriptFile = hasValidTokenScriptFile
-                            if isBase {
-                                _server = .any
-                            } else {
-                                _server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: _xmlContext, matchingContract: contract).flatMap { .server($0) }
-                            }
-                            if !isBase {
-                                resolver.invalidateSignatureStatus(forContract: contract)
-                            }
-                        }.cauterize()
+                    let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus, shouldLoadTokenScriptWithFailedSignatures: shouldLoadTokenScriptWithFailedSignatures)
+                    _xml = xml
+                    _hasValidTokenScriptFile = hasValidTokenScriptFile
+                    if isBase {
+                        _server = .any
+                    } else {
+                        _server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: _xmlContext, matchingContract: contract).flatMap { .server($0) }
+                    }
+                    if !isBase {
+                        resolver.invalidateSignatureStatus(forContract: contract)
+                    }
+                }.cauterize()
             }
         }
 
@@ -930,6 +930,7 @@ final class ThreadSafe {
 }
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
+// swiftlint:disable type_body_length
 public struct XMLHandler {
     struct Entity: Codable {
         let name: String
@@ -1305,6 +1306,7 @@ public struct XMLHandler {
         return url.pathExtension == XMLHandler.fileExtension || url.pathExtension == "xml"
     }
 }
+// swiftlint:enable type_body_length
 
 extension XMLHandler {
     public enum functional {}

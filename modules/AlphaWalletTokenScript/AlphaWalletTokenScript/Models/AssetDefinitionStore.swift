@@ -14,6 +14,7 @@ fileprivate enum AttestationOrToken {
 }
 
 /// Manage access to and cache asset definition XML files
+// swiftlint:disable type_body_length
 public class AssetDefinitionStore: NSObject {
     public enum Result {
         case cached
@@ -423,6 +424,7 @@ public class AssetDefinitionStore: NSObject {
         _tokenScriptChanged(forAttestations: [attestation])
     }
 }
+// swiftlint:enable type_body_length
 
 extension AssetDefinitionStore: TokenScriptResolver {
     public func xmlHandler(forContract contract: AlphaWallet.Address, tokenType: TokenType) -> XMLHandler {
