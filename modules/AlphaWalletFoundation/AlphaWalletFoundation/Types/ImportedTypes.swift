@@ -1,7 +1,6 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
 import AlphaWalletCore
-typealias CastError = AlphaWalletCore.CastError
 public typealias CustomRPC = AlphaWalletCore.CustomRPC
 public typealias NetworkService = AlphaWalletCore.NetworkService
 public typealias RPCServer = AlphaWalletCore.RPCServer
@@ -13,26 +12,16 @@ public typealias TokenId = AlphaWalletCore.TokenId
 public typealias JsonRpcError = AlphaWalletCore.JsonRpcError
 
 import AlphaWalletTokenScript
-typealias AssetAttributeValues = AlphaWalletTokenScript.AssetAttributeValues
 public typealias AssetInternalValue = AlphaWalletTokenScript.AssetInternalValue
-public typealias AssetAttributeSyntaxValue = AlphaWalletTokenScript.AssetAttributeSyntaxValue
 public typealias AssetDefinitionStore = AlphaWalletTokenScript.AssetDefinitionStore
 public typealias AttributeId = AlphaWalletTokenScript.AttributeId
-public typealias FunctionOrigin = AlphaWalletTokenScript.FunctionOrigin
 public typealias TokenActionProvider = AlphaWalletTokenScript.TokenActionProvider
-typealias TokenIdOrEvent = AlphaWalletTokenScript.TokenIdOrEvent
 public typealias TokenType = AlphaWalletTokenScript.TokenType
 public typealias TokenInstanceAction = AlphaWalletTokenScript.TokenInstanceAction
 public typealias TokenScript = AlphaWalletTokenScript.TokenScript
-public typealias TokenScriptSelection = AlphaWalletTokenScript.TokenScriptSelection
-public typealias TokenHolderProtocol = AlphaWalletTokenScript.TokenHolderProtocol
-public typealias TokenScriptWebView = AlphaWalletTokenScript.TokenScriptWebView
-public typealias TokenScriptWebViewDelegate = AlphaWalletTokenScript.TokenScriptWebViewDelegate
 public typealias TokenSelection = AlphaWalletTokenScript.TokenSelection
-public typealias XMLHandler = AlphaWalletTokenScript.XMLHandler
 
 import AlphaWalletWeb3
-public typealias ContractMethodCall = AlphaWalletWeb3.ContractMethodCall
 public typealias BlockchainsProvider = AlphaWalletWeb3.BlockchainsProvider
 public typealias DecodedFunctionCall = AlphaWalletWeb3.DecodedFunctionCall
 public typealias EthereumTransaction = AlphaWalletWeb3.EthereumTransaction
@@ -40,20 +29,6 @@ public typealias EthereumUnit = AlphaWalletWeb3.EthereumUnit
 public typealias EtherNumberFormatter = AlphaWalletWeb3.EtherNumberFormatter
 public typealias GasPrice = AlphaWalletWeb3.GasPrice
 
-import AlphaWalletABI
-public typealias EIP712TypedData = AlphaWalletABI.EIP712TypedData
-public typealias EthTypedData = AlphaWalletABI.EthTypedData
-
-import AlphaWalletENS
-public typealias DomainName = AlphaWalletENS.DomainName
-
 import AlphaWalletBrowser
-public typealias AddCustomChainCommand = AlphaWalletBrowser.AddCustomChainCommand
-public typealias DappCallback = AlphaWalletBrowser.DappCallback
-public typealias DappCommandObjectValue = AlphaWalletBrowser.DappCommandObjectValue
-public typealias DappCommand = AlphaWalletBrowser.DappCommand
-public typealias DappCommandWithOptionalObjectValues = AlphaWalletBrowser.DappCommandWithOptionalObjectValues
-public typealias DappOrWalletCommand = AlphaWalletBrowser.DappOrWalletCommand
-public typealias SwitchChainCommand = AlphaWalletBrowser.SwitchChainCommand
 public typealias WalletAddEthereumChainObject = AlphaWalletBrowser.WalletAddEthereumChainObject
 public typealias WalletSwitchEthereumChainObject = AlphaWalletBrowser.WalletSwitchEthereumChainObject

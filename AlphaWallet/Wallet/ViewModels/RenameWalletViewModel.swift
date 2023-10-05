@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletENS
 import AlphaWalletFoundation
 
 struct RenameWalletViewModelInput {

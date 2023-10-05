@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 protocol AssetDefinitionStoreCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: AssetDefinitionStoreCoordinator)

@@ -5,6 +5,7 @@ import BigInt
 import WebKit
 import AlphaWalletABI
 import AlphaWalletAddress
+import AlphaWalletBrowser
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3

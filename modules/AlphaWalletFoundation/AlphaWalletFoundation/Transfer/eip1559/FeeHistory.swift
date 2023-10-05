@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 public struct FeeHistory {

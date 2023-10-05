@@ -2,6 +2,8 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletCore
+import AlphaWalletWeb3
 import BigInt
 import Kanna
 

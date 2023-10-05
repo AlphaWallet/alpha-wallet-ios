@@ -1,6 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 import XCTest
+import AlphaWalletBrowser
 @testable import AlphaWalletFoundation
 
 class DappCommandTests: XCTestCase {

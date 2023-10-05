@@ -6,9 +6,10 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
 import BigInt
 import StatefulViewController
-import AlphaWalletFoundation
 
 protocol ActivitiesViewDelegate: AnyObject {
     func didPressActivity(activity: Activity, in view: ActivitiesView)

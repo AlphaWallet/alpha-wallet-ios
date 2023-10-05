@@ -6,11 +6,11 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
-import AlphaWalletTokenScript
-import AlphaWalletOpenSea
-import BigInt
 import Combine
+import Foundation
+import AlphaWalletOpenSea
+import AlphaWalletTokenScript
+import BigInt
 
 extension TokenHolder: ObservableObject { }
 

@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 protocol NFTCollectionViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectAssetSelection(in viewController: NFTCollectionViewController)

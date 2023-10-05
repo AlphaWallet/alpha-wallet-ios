@@ -5,10 +5,11 @@
 //  Created by Vladyslav Shepitko on 16.08.2022.
 //
 
-import Foundation
-import JSONRPCKit
-import APIKit
 import Combine
+import Foundation
+import AlphaWalletCore
+import APIKit
+import JSONRPCKit
 
 struct FeeHistoryRequest: JSONRPCKit.Request {
     typealias Response = FeeHistory

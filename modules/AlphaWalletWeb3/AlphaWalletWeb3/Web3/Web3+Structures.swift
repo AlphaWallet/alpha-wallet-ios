@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 fileprivate func decodeHexToData<T>(_ container: KeyedDecodingContainer<T>, key: KeyedDecodingContainer<T>.Key, allowOptional: Bool = false) throws -> Data? {

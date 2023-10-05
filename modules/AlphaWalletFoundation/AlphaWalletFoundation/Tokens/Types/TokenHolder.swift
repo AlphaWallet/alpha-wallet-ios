@@ -9,8 +9,8 @@
 import Foundation
 import AlphaWalletCore
 import AlphaWalletOpenSea
+import AlphaWalletTokenScript
 import BigInt
-
 
 public enum TokenHolderSelectionStrategy {
     case all

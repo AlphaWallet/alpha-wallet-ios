@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 import AlphaWalletWeb3
 import BigInt
 import PromiseKit

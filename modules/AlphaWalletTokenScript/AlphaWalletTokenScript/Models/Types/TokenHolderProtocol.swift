@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletCore
 
 public protocol TokenHolderProtocol {
     var tokenId: TokenId { get }

@@ -1,10 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import Combine
 import UIKit
 import WebKit
-import AlphaWalletFoundation
 import AlphaWalletCore
-import Combine
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let server: RPCServer

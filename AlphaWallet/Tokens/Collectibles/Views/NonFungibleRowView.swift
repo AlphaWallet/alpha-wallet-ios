@@ -6,8 +6,8 @@
 //
 
 import UIKit
+import AlphaWalletCore
 import AlphaWalletFoundation
-import struct AlphaWalletTokenScript.TokenId
 
 class NonFungibleRowView: TokenCardViewRepresentable {
     private let titleLabel = UILabel()

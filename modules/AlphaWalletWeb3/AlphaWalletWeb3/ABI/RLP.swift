@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 protocol ArrayType {}

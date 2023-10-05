@@ -1,10 +1,12 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
+import Combine
 import UIKit
 import WebKit
-import AlphaWalletFoundation
-import Combine
+import AlphaWalletBrowser
+import AlphaWalletBrowser
 import AlphaWalletCore
+import AlphaWalletFoundation
 
 protocol DappBrowserCoordinatorDelegate: DappRequesterDelegate, CanOpenURL {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)

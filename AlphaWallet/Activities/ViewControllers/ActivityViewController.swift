@@ -2,8 +2,9 @@
 
 import UIKit
 import Combine
-import AlphaWalletFoundation
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 protocol ActivityViewControllerDelegate: AnyObject, RequestSignMessageDelegate {
     func reinject(viewController: ActivityViewController)

@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 
 public enum TokenIdOrEvent {
     case tokenId(tokenId: TokenId)

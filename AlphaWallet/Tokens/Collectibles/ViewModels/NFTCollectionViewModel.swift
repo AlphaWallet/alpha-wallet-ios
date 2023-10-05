@@ -10,6 +10,7 @@ import Foundation
 import BigInt
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 struct NFTCollectionViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

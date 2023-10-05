@@ -7,8 +7,9 @@
 
 import Foundation
 import Combine
-import CombineExt
 import AlphaWalletCore
+import AlphaWalletENS
+import CombineExt
 
 public struct RecipientViewModel {
     public var address: AlphaWallet.Address?

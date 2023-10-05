@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 protocol PaymentCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
