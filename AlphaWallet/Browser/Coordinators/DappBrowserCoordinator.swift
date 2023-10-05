@@ -4,7 +4,6 @@ import Combine
 import UIKit
 import WebKit
 import AlphaWalletBrowser
-import AlphaWalletBrowser
 import AlphaWalletCore
 import AlphaWalletFoundation
 

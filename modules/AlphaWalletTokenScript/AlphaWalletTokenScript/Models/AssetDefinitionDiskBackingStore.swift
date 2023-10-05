@@ -201,11 +201,11 @@ extension AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     public func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         precondition(isOfficial)
         let dates: [Date] = (tokenScriptFileIndices.contractToHashes[contract] ?? []).compactMap { hash in
-                    let path = localUrlForXml(forHash: hash)
-                    guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
-                    guard XMLHandler.isTokenScriptSupportedSchemaVersion(path) else { return nil }
-                    return lastModified.contentModificationDate
-                }.sorted()
+            let path = localUrlForXml(forHash: hash)
+            guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
+            guard XMLHandler.isTokenScriptSupportedSchemaVersion(path) else { return nil }
+            return lastModified.contentModificationDate
+        }.sorted()
         //Defensive: if there's more than 1, we use the oldest date
         return dates.first
     }

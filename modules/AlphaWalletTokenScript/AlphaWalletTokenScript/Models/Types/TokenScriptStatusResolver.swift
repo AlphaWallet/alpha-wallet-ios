@@ -30,20 +30,20 @@ public class TokenScriptStatusResolver {
             return firstly {
                 verificationType(forXml: xmlString)
             }.then { [backingStore] verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
-                        return Promise { seal in
-                            backingStore.writeCacheTokenScriptSignatureVerificationType(verificationStatus, forContract: contract, forXmlString: xmlString)
+                return Promise { seal in
+                    backingStore.writeCacheTokenScriptSignatureVerificationType(verificationStatus, forContract: contract, forXmlString: xmlString)
 
-                            switch verificationStatus {
-                            case .verified(let domainName):
-                                seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
-                            case .verificationFailed:
-                                seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2InvalidSignature, reason: .invalidSignature))
-                            case .notCanonicalizedAndNotSigned:
-                                //But should always be debug mode because we can't have a non-canonicalized XML from the official repo
-                                seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: false, validatedDomain: nil, error: .tokenScriptType1SupportedNotCanonicalizedAndUnsigned))
-                            }
-                        }
+                    switch verificationStatus {
+                    case .verified(let domainName):
+                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
+                    case .verificationFailed:
+                        seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2InvalidSignature, reason: .invalidSignature))
+                    case .notCanonicalizedAndNotSigned:
+                        //But should always be debug mode because we can't have a non-canonicalized XML from the official repo
+                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: false, validatedDomain: nil, error: .tokenScriptType1SupportedNotCanonicalizedAndUnsigned))
                     }
+                }
+            }
         case .unsupportedTokenScriptVersion(let isOld):
             if isOld {
                 return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Old version"), reason: .oldTokenScriptVersion))
