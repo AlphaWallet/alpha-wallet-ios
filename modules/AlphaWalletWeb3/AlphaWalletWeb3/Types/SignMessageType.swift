@@ -1,6 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletABI
 
 public enum SignMessageType {
     case message(Data)
