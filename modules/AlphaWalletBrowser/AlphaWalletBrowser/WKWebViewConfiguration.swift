@@ -26,9 +26,9 @@ extension WKWebViewConfiguration {
                     js += try String(contentsOfFile: filepath)
                 } catch { }
             }
-            js += javaScriptForDappBrowser(server: server, address: address)
+            js += functional.javaScriptForDappBrowser(server: server, address: address)
         case .tokenScriptRenderer:
-            js += javaScriptForTokenScriptRenderer(address: address)
+            js += functional.javaScriptForTokenScriptRenderer(address: address)
             js += """
                   \n
                   web3.tokens = {
@@ -71,124 +71,130 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: SetProperties.setActionProps)
         return webViewConfig
     }
+}
 
+extension WKWebViewConfiguration {
+    enum functional {}
+}
+
+fileprivate extension WKWebViewConfiguration.functional {
 // swiftlint:disable function_body_length
-    fileprivate static func javaScriptForDappBrowser(server: WithInjectableRpcUrl, address: AlphaWallet.Address) -> String {
+    static func javaScriptForDappBrowser(server: WithInjectableRpcUrl, address: AlphaWallet.Address) -> String {
         return """
-               //Space is needed here because it is sometimes cut off by websites. 
-               
-               const addressHex = "\(address.eip55String)"
-               const rpcURL = "\(server.web3InjectedRpcURL.absoluteString)"
-               const chainID = "\(server.chainID)"
+                 //Space is needed here because it is sometimes cut off by websites. 
+                 
+                 const addressHex = "\(address.eip55String)"
+                 const rpcURL = "\(server.web3InjectedRpcURL.absoluteString)"
+                 const chainID = "\(server.chainID)"
 
-               function executeCallback (id, error, value) {
-                   AlphaWallet.executeCallback(id, error, value)
+                 function executeCallback (id, error, value) {
+                     AlphaWallet.executeCallback(id, error, value)
+                 }
+
+                 AlphaWallet.init(rpcURL, {
+                     getAccounts: function (cb) { cb(null, [addressHex]) },
+                     processTransaction: function (tx, cb){
+                         console.log('signing a transaction', tx)
+                         const { id = 8888 } = tx
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.sendTransaction.postMessage({"name": "sendTransaction", "object":     tx, id: id})
+                     },
+                     signMessage: function (msgParams, cb) {
+                         const { data } = msgParams
+                         const { id = 8888 } = msgParams
+                         console.log("signing a message", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id:    id} )
+                     },
+                     signPersonalMessage: function (msgParams, cb) {
+                         const { data } = msgParams
+                         const { id = 8888 } = msgParams
+                         console.log("signing a personal message", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object":  { data }, id: id})
+                     },
+                     signTypedMessage: function (msgParams, cb) {
+                         const { data } = msgParams
+                         const { id = 8888 } = msgParams
+                         console.log("signing a typed message", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object":     { data }, id: id})
+                     },
+                     ethCall: function (msgParams, cb) {
+                         const data = msgParams
+                         const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
+                         console.log("eth_call", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.ethCall.postMessage({"name": "ethCall", "object": data, id: id})
+                     },
+                     walletAddEthereumChain: function (msgParams, cb) {
+                         const data = msgParams
+                         const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
+                         console.log("walletAddEthereumChain", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.walletAddEthereumChain.postMessage({"name": "walletAddEthereumChain", "object": data, id: id})
+                     },
+                     walletSwitchEthereumChain: function (msgParams, cb) {
+                         const data = msgParams
+                         const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
+                         console.log("walletSwitchEthereumChain", msgParams)
+                         AlphaWallet.addCallback(id, cb)
+                         webkit.messageHandlers.walletSwitchEthereumChain.postMessage({"name": "walletSwitchEthereumChain", "object": data, id: id})
+                     },
+                     enable: function() {
+                        return new Promise(function(resolve, reject) {
+                            //send back the coinbase account as an array of one
+                            resolve([addressHex])
+                        })
+                     }
+                 }, {
+                     address: addressHex,
+                     networkVersion: "0x" + parseInt(chainID).toString(16) || null
+                 })
+
+                 web3.setProvider = function () {
+                     console.debug('AlphaWallet Wallet - overrode web3.setProvider')
+                 }
+
+                 web3.eth.defaultAccount = addressHex
+
+                 web3.version.getNetwork = function(cb) {
+                     cb(null, chainID)
+                 }
+
+                web3.eth.getCoinbase = function(cb) {
+                 return cb(null, addressHex)
                }
+               window.ethereum = web3.currentProvider
+                 
+               // So we can detect when sites use History API to generate the page location. Especially common with React and similar frameworks
+               ;(function() {
+                 var pushState = history.pushState;
+                 var replaceState = history.replaceState;
 
-               AlphaWallet.init(rpcURL, {
-                   getAccounts: function (cb) { cb(null, [addressHex]) },
-                   processTransaction: function (tx, cb){
-                       console.log('signing a transaction', tx)
-                       const { id = 8888 } = tx
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.sendTransaction.postMessage({"name": "sendTransaction", "object":     tx, id: id})
-                   },
-                   signMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id:    id} )
-                   },
-                   signPersonalMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a personal message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object":  { data }, id: id})
-                   },
-                   signTypedMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a typed message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object":     { data }, id: id})
-                   },
-                   ethCall: function (msgParams, cb) {
-                       const data = msgParams
-                       const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
-                       console.log("eth_call", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.ethCall.postMessage({"name": "ethCall", "object": data, id: id})
-                   },
-                   walletAddEthereumChain: function (msgParams, cb) {
-                       const data = msgParams
-                       const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
-                       console.log("walletAddEthereumChain", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.walletAddEthereumChain.postMessage({"name": "walletAddEthereumChain", "object": data, id: id})
-                   },
-                   walletSwitchEthereumChain: function (msgParams, cb) {
-                       const data = msgParams
-                       const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
-                       console.log("walletSwitchEthereumChain", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.walletSwitchEthereumChain.postMessage({"name": "walletSwitchEthereumChain", "object": data, id: id})
-                   },
-                   enable: function() {
-                      return new Promise(function(resolve, reject) {
-                          //send back the coinbase account as an array of one
-                          resolve([addressHex])
-                      })
-                   }
-               }, {
-                   address: addressHex,
-                   networkVersion: "0x" + parseInt(chainID).toString(16) || null
+                 history.pushState = function() {
+                   pushState.apply(history, arguments);
+                   window.dispatchEvent(new Event('locationchange'));
+                 };
+
+                 history.replaceState = function() {
+                   replaceState.apply(history, arguments);
+                   window.dispatchEvent(new Event('locationchange'));
+                 };
+
+                 window.addEventListener('popstate', function() {
+                   window.dispatchEvent(new Event('locationchange'))
+                 });
+               })();
+
+               window.addEventListener('locationchange', function(){
+                 webkit.messageHandlers.\(Browser.locationChangedEventName).postMessage(window.location.href)
                })
-
-               web3.setProvider = function () {
-                   console.debug('AlphaWallet Wallet - overrode web3.setProvider')
-               }
-
-               web3.eth.defaultAccount = addressHex
-
-               web3.version.getNetwork = function(cb) {
-                   cb(null, chainID)
-               }
-
-              web3.eth.getCoinbase = function(cb) {
-               return cb(null, addressHex)
-             }
-             window.ethereum = web3.currentProvider
-               
-             // So we can detect when sites use History API to generate the page location. Especially common with React and similar frameworks
-             ;(function() {
-               var pushState = history.pushState;
-               var replaceState = history.replaceState;
-
-               history.pushState = function() {
-                 pushState.apply(history, arguments);
-                 window.dispatchEvent(new Event('locationchange'));
-               };
-
-               history.replaceState = function() {
-                 replaceState.apply(history, arguments);
-                 window.dispatchEvent(new Event('locationchange'));
-               };
-
-               window.addEventListener('popstate', function() {
-                 window.dispatchEvent(new Event('locationchange'))
-               });
-             })();
-
-             window.addEventListener('locationchange', function(){
-               webkit.messageHandlers.\(Browser.locationChangedEventName).postMessage(window.location.href)
-             })
-             """
+               """
     }
 // swiftlint:enable function_body_length
 
-    fileprivate static func javaScriptForTokenScriptRenderer(address: AlphaWallet.Address) -> String {
+    static func javaScriptForTokenScriptRenderer(address: AlphaWallet.Address) -> String {
         return """
                window.web3CallBacks = {}
                window.tokenScriptCallBacks = {}
@@ -227,7 +233,7 @@ extension WKWebViewConfiguration {
                """
     }
 
-    fileprivate static func contentBlockingRulesJson() -> String {
+    static func contentBlockingRulesJson() -> String {
         //TODO read from TokenScript, when it's designed and available
         let whiteListedUrls = [
             "https://unpkg.com/",
