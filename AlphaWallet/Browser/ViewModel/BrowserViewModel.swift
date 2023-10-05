@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import WebKit
 import JavaScriptCore
+import AlphaWalletBrowser
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
@@ -52,7 +53,7 @@ class BrowserViewModel: NSObject {
         return config
     }()
     let browserOnly: Bool
-    
+
     init(wallet: Wallet, server: RPCServer, browserOnly: Bool) {
         self.wallet = wallet
         self.server = server
