@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletABI
 
 public struct DappOrTokenScriptEip712v3And4Validator {
     let server: RPCServer

@@ -1,8 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import Combine
 import Foundation
 import LocalAuthentication
-import Combine
+import AlphaWalletABI
 import AlphaWalletTrustWalletCoreExtensions
 
 public protocol Keystore: AnyObject {

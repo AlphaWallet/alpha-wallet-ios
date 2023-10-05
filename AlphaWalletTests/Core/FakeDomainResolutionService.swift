@@ -1,9 +1,10 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 @testable import AlphaWallet
-import Foundation
 import Combine
+import Foundation
 import AlphaWalletCore
+import AlphaWalletENS
 import AlphaWalletFoundation
 
 //TODO does the results from each stub function work correctly as expected in test suite?:w

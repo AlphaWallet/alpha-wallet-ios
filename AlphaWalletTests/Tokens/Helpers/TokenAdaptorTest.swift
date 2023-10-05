@@ -2,6 +2,7 @@
 
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 import Foundation
 import XCTest
 
@@ -41,7 +42,7 @@ class TokenAdaptorTest: XCTestCase {
             ]),
         ]
         let assetDefinitionStore = AssetDefinitionStore.make()
-        let token = Token(contract: Constants.nullAddress)
+        let token = Token(contract: AlphaWalletFoundation.Constants.nullAddress)
         let nftProvider = FakeNftProvider()
         let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make(), nftProvider: nftProvider).bundleTestsOnly(tokens: tokens, token: token)
         XCTAssertEqual(bundles.count, 2)
@@ -92,7 +93,7 @@ class TokenAdaptorTest: XCTestCase {
             ]),
         ]
         let assetDefinitionStore = AssetDefinitionStore.make()
-        let token = Token(contract: Constants.nullAddress)
+        let token = Token(contract: AlphaWalletFoundation.Constants.nullAddress)
         let nftProvider = FakeNftProvider()
         let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make(), nftProvider: nftProvider).bundleTestsOnly(tokens: tokens, token: token)
         XCTAssertEqual(bundles.count, 2)

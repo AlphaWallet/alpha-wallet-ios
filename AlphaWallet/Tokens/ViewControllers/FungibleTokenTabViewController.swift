@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 protocol FungibleTokenTabViewControllerDelegate: AnyObject, CanOpenURL2 {
     func didClose(in viewController: FungibleTokenTabViewController)

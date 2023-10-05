@@ -1,9 +1,10 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
+import JavaScriptCore
 import UIKit
 import WebKit
-import JavaScriptCore
+import AlphaWalletBrowser
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine

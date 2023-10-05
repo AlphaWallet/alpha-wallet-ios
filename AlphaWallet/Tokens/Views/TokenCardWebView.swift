@@ -5,11 +5,12 @@
 //  Created by Vladyslav Shepitko on 12.05.2022.
 //
 
+import Combine
 import Foundation
 import UIKit
-import AlphaWalletFoundation
-import Combine
 import AlphaWalletCore
+import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingSupportable {
     private let server: RPCServer

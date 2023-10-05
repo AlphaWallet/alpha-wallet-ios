@@ -1,6 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 public struct TokenSelection: Equatable, Hashable {

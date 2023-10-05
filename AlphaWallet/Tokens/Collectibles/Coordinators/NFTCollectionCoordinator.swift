@@ -5,13 +5,14 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
-import UIKit
-import SafariServices
-import MessageUI
-import BigInt
 import Combine
+import Foundation
+import MessageUI
+import SafariServices
+import UIKit
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
+import BigInt
 
 protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)

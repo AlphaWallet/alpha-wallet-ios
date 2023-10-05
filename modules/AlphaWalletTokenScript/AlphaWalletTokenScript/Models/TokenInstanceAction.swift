@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletCore
 import BigInt
 
 extension TokenInstanceAction.ActionType: Equatable {

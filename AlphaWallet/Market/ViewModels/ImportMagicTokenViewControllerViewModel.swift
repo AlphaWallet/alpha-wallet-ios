@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
 
 struct ImportMagicTokenViewModel {
     enum State {

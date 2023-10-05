@@ -1,8 +1,9 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
-import BigInt
 import AlphaWalletFoundation
+import AlphaWalletTokenScript
+import BigInt
 
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()

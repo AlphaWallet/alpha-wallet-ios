@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 
 public enum AssetAttributeSyntax: String {
