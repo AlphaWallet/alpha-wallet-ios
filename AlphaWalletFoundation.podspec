@@ -22,6 +22,8 @@ Pod::Spec.new do |spec|
   spec.resource_bundles = {'AlphaWalletFoundation' => ['modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{graphql,json}'] }
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
+  #Other pods should almost never include AlphaWalletFoundation as a dependency in any other pod
+
   spec.dependency 'AlphaWalletWeb3'
   spec.dependency 'AlphaWalletWeb3Provider'
   spec.dependency 'AlphaWalletLogger'
