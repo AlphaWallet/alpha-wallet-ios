@@ -31,7 +31,10 @@ public typealias EtherNumberFormatter = AlphaWalletWeb3.EtherNumberFormatter
 public typealias DecodedFunctionCall = AlphaWalletWeb3.DecodedFunctionCall
 public typealias GasPrice = AlphaWalletWeb3.GasPrice
 public typealias EthereumTransaction = AlphaWalletWeb3.EthereumTransaction
-public typealias EIP712TypedData = AlphaWalletWeb3.EIP712TypedData
+
+import AlphaWalletABI
+public typealias EIP712TypedData = AlphaWalletABI.EIP712TypedData
+public typealias EthTypedData = AlphaWalletABI.EthTypedData
 
 import AlphaWalletENS
 public typealias AddressOrDomainName = AlphaWalletENS.AddressOrDomainName

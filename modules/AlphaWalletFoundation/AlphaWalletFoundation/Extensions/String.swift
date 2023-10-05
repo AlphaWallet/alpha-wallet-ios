@@ -4,17 +4,6 @@ import UIKit
 import BigInt
 
 extension String {
-    var isHexEncoded: Bool {
-        guard starts(with: "0x") else {
-            return false
-        }
-        let regex = try! NSRegularExpression(pattern: "^0x[0-9A-Fa-f]*$")
-        if regex.matches(in: self, range: NSRange(startIndex..., in: self)).isEmpty {
-            return false
-        }
-        return true
-    }
-
     public var doubleValue: Double {
         return optionalDecimalValue?.doubleValue ?? 0.0
     }
