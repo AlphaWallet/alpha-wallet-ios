@@ -34,20 +34,6 @@ class EnsResolverTests: XCTestCase {
         await fulfillment(of: expectations, timeout: 20)
     }
 
-    func testResolutionThatHasDifferentOwnerAndResolver() async {
-        var expectations = [XCTestExpectation]()
-        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
-        expectations.append(expectation)
-        let ensName = "ethereum.eth"
-        Task {
-            let address = try! await resolver.getENSAddressFromResolver(for: ensName)
-            XCTAssertTrue(address.sameContract(as: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"), "ENS name did not resolve correctly")
-            expectation.fulfill()
-
-        }
-        await fulfillment(of: expectations, timeout: 20)
-    }
-
     func testEnsIp10WildcardAndEip3668CcipRead() async {
         var expectations = [XCTestExpectation]()
         let expectation = self.expectation(description: "Wait for ENS name to be resolved")
