@@ -255,15 +255,13 @@ open class TransactionDataStore {
         guard !transactions.isEmpty else { return [] }
 
         let transactionsToCommit = transactions.map { TransactionObject(transaction: $0) }
-        Task {
-            await store.perform { realm in
-                try? realm.safeWrite {
-                    for each in transactionsToCommit {
-                        if let tx = realm.object(ofType: TransactionObject.self, forPrimaryKey: each.primaryKey) {
-                            realm.delete(tx.localizedOperations)
-                        }
-                        realm.add(each, update: .all)
+        await store.perform { realm in
+            try? realm.safeWrite {
+                for each in transactionsToCommit {
+                    if let tx = realm.object(ofType: TransactionObject.self, forPrimaryKey: each.primaryKey) {
+                        realm.delete(tx.localizedOperations)
                     }
+                    realm.add(each, update: .all)
                 }
             }
         }
