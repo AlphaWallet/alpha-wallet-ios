@@ -25,9 +25,9 @@ public protocol TokensService {
     func start()
     func stop()
     func mark(token: TokenIdentifiable, isHidden: Bool)
-    func setBalanceTestsOnly(balance: Balance, for token: Token)
-    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token)
-    func addOrUpdateTokenTestsOnly(token: Token)
+    @discardableResult func setBalanceTestsOnly(balance: Balance, for token: Token) -> Task<Bool?, Never>
+    @discardableResult func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token) -> Task<Bool?, Never>
+    @discardableResult func addOrUpdateTokenTestsOnly(token: Token) -> Task<[Token], Never>
     func deleteTokenTestsOnly(token: Token)
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
     @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token]

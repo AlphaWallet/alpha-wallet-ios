@@ -186,10 +186,10 @@ open class TransactionDataStore {
         }
     }
 
-    public func delete(transactions: [Transaction]) {
-        guard !transactions.isEmpty else { return }
+    public func delete(transactions: [Transaction]) -> Task<Void, Never> {
+        guard !transactions.isEmpty else { return Task {} }
 
-        Task {
+        return Task {
             await store.perform { realm in
                 let objects = transactions.compactMap { realm.object(ofType: TransactionObject.self, forPrimaryKey: $0.primaryKey) }
                 guard !objects.isEmpty else { return }
@@ -291,8 +291,8 @@ open class TransactionDataStore {
         }
     }
 
-    public func deleteAllForTestsOnly() {
-        Task {
+    public func deleteAllForTestsOnly() -> Task <Void, Never> {
+        return Task {
             await store.perform { realm in
                 try? realm.safeWrite {
                     realm.delete(realm.objects(LocalizedOperationObject.self))

@@ -45,8 +45,13 @@ class SendCoordinatorTests: XCTestCase {
             tokensService: dep.tokensService)
         coordinator.start()
 
-        XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
+        let expectation = self.expectation(description: "Allow time for async operation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 4)
     }
 
 }

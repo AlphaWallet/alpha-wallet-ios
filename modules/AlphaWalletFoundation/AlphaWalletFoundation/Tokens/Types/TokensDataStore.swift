@@ -26,8 +26,9 @@ public protocol TokensDataStore: NSObjectProtocol {
     func hiddenContracts(forServer server: RPCServer) async -> [AddressAndRPCServer]
     func addEthToken(forServer server: RPCServer)
     func add(hiddenContracts: [AddressAndRPCServer])
-    func deleteTestsOnly(tokens: [Token])
+    func deleteTestsOnly(tokens: [Token]) -> Task<Void, Never>
     func tokenBalancesTestsOnly() async -> [TokenBalanceValue]
+    //TODO probably shouldn't/wouldn't be optional
     @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) async -> Bool?
     @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) async -> [Token]
 }
@@ -276,7 +277,8 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        let publisher: CurrentValueSubject<Token?, DataStoreError> = .init(nil)
+        //We don't want the initial `nil`, it's wrong (and unnecessary) since we are just waiting for the database read to get an actual value, so we must not use CurrentValueSubject
+        let publisher: PassthroughSubject<Token?, DataStoreError> = .init()
 
         Task {
             var notificationToken: NotificationToken?
@@ -430,10 +432,10 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return balances
     }
 
-    public func deleteTestsOnly(tokens: [Token]) {
-        guard !tokens.isEmpty else { return }
+    public func deleteTestsOnly(tokens: [Token]) -> Task<Void, Never> {
+        guard !tokens.isEmpty else { return Task {} }
 
-        Task {
+        return Task {
             await store.perform { realm in
                 try? realm.safeWrite {
                     let tokendToDelete = tokens.compactMap { realm.object(ofType: TokenObject.self, forPrimaryKey: $0.primaryKey) }

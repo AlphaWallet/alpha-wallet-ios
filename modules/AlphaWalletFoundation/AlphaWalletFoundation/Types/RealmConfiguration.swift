@@ -54,7 +54,7 @@ public struct RealmConfiguration {
         return config
     }
 
-    private static func _RLMRealmPathInCacheFolderForFile(_ fileName: String) throws -> String {
+    public static func _RLMRealmPathInCacheFolderForFile(_ fileName: String) throws -> String {
         let fileManager = FileManager.default
 
         func createSubDirectoryIfNotExists(name: String) throws -> URL {
@@ -80,7 +80,7 @@ public struct RealmConfiguration {
         let documentsURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         let directory = documentsURL.appendingPathComponent(name)
 
-        try? fileManager.removeItem(atPath: directory.absoluteString)
+        try? fileManager.removeItem(atPath: directory.path)
     }
 }
 

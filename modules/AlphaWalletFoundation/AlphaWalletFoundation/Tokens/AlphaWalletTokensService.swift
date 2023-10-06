@@ -208,20 +208,20 @@ public class AlphaWalletTokensService: TokensService {
 }
 
 extension AlphaWalletTokensService {
-    public func setBalanceTestsOnly(balance: Balance, for token: Token) {
-        Task {
+    public func setBalanceTestsOnly(balance: Balance, for token: Token) -> Task<Bool?, Never> {
+        return Task {
             await tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .value(balance.value))
         }
     }
 
-    public func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token) {
-        Task {
+    public func setNftBalanceTestsOnly(_ value: NonFungibleBalance, for token: Token) -> Task<Bool?, Never> {
+        return Task {
             await tokensDataStore.updateToken(addressAndRpcServer: token.addressAndRPCServer, action: .nonFungibleBalance(value))
         }
     }
 
-    public func addOrUpdateTokenTestsOnly(token: Token) {
-        Task {
+    public func addOrUpdateTokenTestsOnly(token: Token) -> Task<[Token], Never> {
+        return Task {
             await tokensDataStore.addOrUpdate(with: [.init(token)])
         }
     }

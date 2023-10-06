@@ -15,7 +15,7 @@ extension TokensFilter {
 
 extension RealmStore {
     static func fake(for wallet: Wallet) -> RealmStore {
-        RealmStore(config: fakeRealm(wallet: wallet).configuration, name: RealmStore.threadName(for: wallet))
+        RealmStore(config: fakeRealmConfiguration(wallet: wallet), name: RealmStore.threadName(for: wallet))
     }
 }
 extension CurrencyService {

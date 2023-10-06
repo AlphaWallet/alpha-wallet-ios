@@ -17,7 +17,7 @@ class TokensDataStoreTest: XCTestCase {
     //We make a call to update token in datastore to store the updated balance after an async call to fetch the balance over the web. Token in the datastore might have been deleted when the web call is completed. Make sure this doesn't crash
     func testUpdateDeletedTokensDoNotCrash() async {
         await storage.addOrUpdate(with: [.init(token)])
-        storage.deleteTestsOnly(tokens: [token])
+        await storage.deleteTestsOnly(tokens: [token]).value
         let tokenUpdateHappened = await storage.updateToken(primaryKey: token.primaryKey, action: .value(1))
         XCTAssertNil(tokenUpdateHappened)
     }

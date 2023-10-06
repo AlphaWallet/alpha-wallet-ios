@@ -19,7 +19,7 @@ public final class CoinTickers {
         let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
         if isRunningTests() {
             //TODO should be injected in tests instead
-            storage = RealmStore(config: fakeRealm().configuration, name: "org.alphawallet.swift.realmStore.shared.wallet")
+            storage = RealmStore(config: fakeRealmConfiguration(), name: "org.alphawallet.swift.realmStore.shared.wallet")
         } else {
             storage = RealmStore.shared
         }
@@ -72,13 +72,13 @@ extension CoinTickers: CoinTickersProvider {
         return await storage.ticker(for: key, currency: currency)
     }
 
-    public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
+    public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) -> Task<Void, Never> {
         let tickers: [AssignedCoinTickerId: CoinTicker] = ticker.flatMap { ticker in
             let tickerId = AssignedCoinTickerId(tickerId: "tickerId-\(token.contractAddress)-\(token.server.chainID)", token: token)
             return [tickerId: ticker]
         } ?? [:]
 
-        storage.addOrUpdate(tickers: tickers)
+        return storage.addOrUpdate(tickers: tickers)
     }
 
     public func chartHistories(for token: TokenMappedToTicker, currency: Currency) async -> [ChartHistoryPeriod: ChartHistory] {
