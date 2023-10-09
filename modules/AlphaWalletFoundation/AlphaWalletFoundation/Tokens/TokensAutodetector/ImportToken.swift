@@ -131,7 +131,6 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
             //FIXME: looks like blocking access to realm doesn't work well, after adding a new token and retrieving its value from bd it returns nil, adding delay in 1 sec helps to return a new token.
             let action = AddOrUpdateTokenAction(tokenOrContract)
             if let token = await tokensDataStore.addOrUpdate(with: [action]).first {
-                try await Task.sleep(nanoseconds: 1_000_000_000)
                 return token
             } else {
                 throw ImportTokenError.notContractOrFailed(tokenOrContract)
