@@ -206,6 +206,7 @@ public enum TokenFieldUpdate {
 open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let store: RealmStore
     private var cancellables = Set<AnyCancellable>()
+    private var notificationTokens: Set<NotificationToken> = []
 
     public init(store: RealmStore) {
         self.store = store
@@ -298,10 +299,17 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                         publisher.send(completion: .failure(.general(error: e)))
                     }
                 }
+                if let notificationToken {
+                    self.notificationTokens.insert(notificationToken)
+                }
             }
-            publisher.handleEvents(receiveCancel: {
-                //TODO verify observation and invalidation works correctly
-                notificationToken?.invalidate()
+            publisher.handleEvents(receiveCancel: { [weak self] in
+                if let notificationToken {
+                    notificationToken.invalidate()
+                    if let strongSelf = self {
+                        strongSelf.notificationTokens = strongSelf.notificationTokens.filter { $0 != notificationToken }
+                    }
+                }
             })
         }
 
