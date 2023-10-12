@@ -16,7 +16,7 @@ public protocol CoinTickersStorage {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
 
     func ticker(for key: AddressAndRPCServer, currency: Currency) async -> CoinTicker?
-    func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker])
+    @discardableResult func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker]) -> Task<Void, Never>
 }
 
 public protocol ChartHistoryStorage {
@@ -203,6 +203,16 @@ extension RealmStore: CoinTickersStorage {
                         }.store(in: &self.cancellables)
             }
         }
+        Task {
+            await performSync { realm in
+                realm.objects(CoinTickerObject.self)
+                        .changesetPublisher
+                        .mapToVoid()
+                        .sink { value in
+                            publisher.send(value)
+                        }.store(in: &self.cancellables)
+            }
+        }
         return publisher.eraseToAnyPublisher()
     }
 
@@ -217,10 +227,10 @@ extension RealmStore: CoinTickersStorage {
         return ticker
     }
 
-    public func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker]) {
-        guard !tickers.isEmpty else { return }
+    public func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker]) -> Task<Void, Never> {
+        guard !tickers.isEmpty else { return Task {} }
 
-        Task {
+        return Task {
             await perform { realm in
                 try? realm.safeWrite {
                     for each in tickers {

@@ -10,6 +10,7 @@ open class TransactionDataStore {
 
     private let store: RealmStore
     private var cancellables = Set<AnyCancellable>()
+    private var notificationTokens: Set<NotificationToken> = []
 
     public init(store: RealmStore) {
         self.store = store
@@ -82,10 +83,17 @@ open class TransactionDataStore {
                         publisher.send(completion: .failure(.general(error: e)))
                     }
                 }
+                if let notificationToken {
+                    self.notificationTokens.insert(notificationToken)
+                }
             }
-            publisher.handleEvents(receiveCancel: {
-                //TODO verify observation and invalidation works correctly
-                notificationToken?.invalidate()
+            publisher.handleEvents(receiveCancel: { [weak self] in
+                if let notificationToken {
+                    notificationToken.invalidate()
+                    if let strongSelf = self {
+                        strongSelf.notificationTokens = strongSelf.notificationTokens.filter { $0 != notificationToken }
+                    }
+                }
             })
         }
 
@@ -178,10 +186,10 @@ open class TransactionDataStore {
         }
     }
 
-    public func delete(transactions: [Transaction]) {
-        guard !transactions.isEmpty else { return }
+    public func delete(transactions: [Transaction]) -> Task<Void, Never> {
+        guard !transactions.isEmpty else { return Task {} }
 
-        Task {
+        return Task {
             await store.perform { realm in
                 let objects = transactions.compactMap { realm.object(ofType: TransactionObject.self, forPrimaryKey: $0.primaryKey) }
                 guard !objects.isEmpty else { return }
@@ -283,8 +291,8 @@ open class TransactionDataStore {
         }
     }
 
-    public func deleteAllForTestsOnly() {
-        Task {
+    public func deleteAllForTestsOnly() -> Task <Void, Never> {
+        return Task {
             await store.perform { realm in
                 try? realm.safeWrite {
                     realm.delete(realm.objects(LocalizedOperationObject.self))

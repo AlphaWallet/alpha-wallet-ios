@@ -61,7 +61,7 @@ class TransactionsStorageTests: XCTestCase {
         let transactionCount = await storage.transactionCount(forServer: .main)
         XCTAssertEqual(2, transactionCount)
 
-        storage.delete(transactions: [one])
+        await storage.delete(transactions: [one]).value
 
         let transactionCount2 = await storage.transactionCount(forServer: .main)
         XCTAssertEqual(1, transactionCount2)
@@ -81,7 +81,7 @@ class TransactionsStorageTests: XCTestCase {
         let transactionCount = await storage.transactionCount(forServer: .main)
         XCTAssertEqual(2, transactionCount)
 
-        storage.deleteAllForTestsOnly()
+        await storage.deleteAllForTestsOnly().value
 
         let transactionCount2 = await storage.transactionCount(forServer: .main)
         XCTAssertEqual(0, transactionCount2)

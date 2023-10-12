@@ -10,14 +10,17 @@ import Combine
 import Realm
 import RealmSwift
 
-public func fakeRealm(wallet: Wallet, inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
+//TODO these fakeXXX functions should only be in the test target
+public func fakeRealmConfiguration(wallet: Wallet) -> Realm.Configuration {
     let uuid = UUID().uuidString
-    return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "\(inMemoryIdentifier)-\(wallet.address.eip55String)-\(uuid)"))
+    //We don't use `Realm.Configuration(inMemoryIdentifier:)` because they don't seem to work properly when we have multiple Realm instances accessing the same store. Using file-based Realm for tests runs the slight risk of bloat if we don't clean up properly; but it's acceptable
+    return Realm.Configuration(fileURL: URL(fileURLWithPath: try! RealmConfiguration._RLMRealmPathInCacheFolderForFile("\(wallet.address.eip55String)-\(uuid).realm"), isDirectory: false))
 }
 
-public func fakeRealm(inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
+public func fakeRealmConfiguration() -> Realm.Configuration {
     let uuid = UUID().uuidString
-    return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "\(inMemoryIdentifier)-\(uuid)"))
+    //We don't use `Realm.Configuration(inMemoryIdentifier:)` because they don't seem to work properly when we have multiple Realm instances accessing the same store. Using file-based Realm for tests runs the slight risk of bloat if we don't clean up properly; but it's acceptable
+    return Realm.Configuration(fileURL: URL(fileURLWithPath: try! RealmConfiguration._RLMRealmPathInCacheFolderForFile("\(uuid).realm"), isDirectory: false))
 }
 
 open class RealmStore {
@@ -27,6 +30,10 @@ open class RealmStore {
     var cancellables = Set<AnyCancellable>()
     private let config: Realm.Configuration
     private let thread: RunLoopThread = .init()
+
+    public var fileURL: URL? {
+        return config.fileURL
+    }
 
     public init(config: Realm.Configuration, name: String = "org.alphawallet.swift.realmStore") {
         self.config = config

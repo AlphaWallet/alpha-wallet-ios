@@ -8,7 +8,7 @@ public protocol CoinTickersProvider: AnyObject {
     var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
     func ticker(for key: AddressAndRPCServer, currency: Currency) async -> CoinTicker?
-    func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
+    @discardableResult func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) -> Task<Void, Never>
     func chartHistories(for token: TokenMappedToTicker, currency: Currency) async -> [ChartHistoryPeriod: ChartHistory]
 }
 

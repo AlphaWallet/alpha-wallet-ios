@@ -11,6 +11,6 @@ import AlphaWalletFoundation
 
 final class FakeEnsRecordsStorage: RealmStore {
     init() {
-        super.init(config: fakeRealm().configuration)
+        super.init(config: fakeRealmConfiguration())
     }
 }
