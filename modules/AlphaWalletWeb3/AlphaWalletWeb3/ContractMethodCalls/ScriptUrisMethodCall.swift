@@ -43,9 +43,10 @@ public struct ScriptUrisMethodCall: ContractMethodCall {
     }
 
     public func response(from dictionary: [String: Any]) throws -> [URL] {
-        guard let urlString = dictionary["0"] as? String, let url = URL(string: urlString) else {
-            throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
+        guard let urlStrings = dictionary["0"] as? [String] else {
+            throw CastError(actualValue: dictionary["0"], expectedType: [String].self)
         }
-        return [url.rewrittenIfIpfs]
+        let urls = urlStrings.compactMap({ URL(string: $0) })
+        return urls.map { $0.rewrittenIfIpfs }
     }
 }
