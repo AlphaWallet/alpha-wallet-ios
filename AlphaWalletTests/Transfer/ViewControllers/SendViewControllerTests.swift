@@ -580,7 +580,7 @@ class TokenBalanceTests: XCTestCase {
                 }
             }
         tokensService.deleteTokenTestsOnly(token: token)
-        await fulfillment(of: [tokenBalanceUpdateCallbackExpectation,], timeout: 1)
+        await fulfillment(of: [tokenBalanceUpdateCallbackExpectation], timeout: 1)
     }
 
     @MainActor func testBalanceUpdatesPublisherWhenNonFungibleBalanceUpdated() async {
