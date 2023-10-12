@@ -203,6 +203,16 @@ extension RealmStore: CoinTickersStorage {
                         }.store(in: &self.cancellables)
             }
         }
+        Task {
+            await performSync { realm in
+                realm.objects(CoinTickerObject.self)
+                        .changesetPublisher
+                        .mapToVoid()
+                        .sink { value in
+                            publisher.send(value)
+                        }.store(in: &self.cancellables)
+            }
+        }
         return publisher.eraseToAnyPublisher()
     }
 
