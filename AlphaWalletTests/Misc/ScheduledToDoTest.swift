@@ -11,12 +11,12 @@ import XCTest
 final class ScheduledToDoTest: XCTestCase {
 
     func testReminderToRemoveSpamTokenIconFilesFromIconAssetsRepo() throws {
-        let expirationDate = ISO8601DateFormatter().date(from: "2023-08-06T00:00:00Z")! // 6th July 2023
+        let expirationDate = ISO8601DateFormatter().date(from: "2023-11-06T00:00:00Z")! // 6th July 2023
         XCTAssertFalse(dueDateElapsed(expirationDate: expirationDate), "TODO:- Spam Token Icon Removal task: https://github.com/AlphaWallet/iconassets/issues/30")
     }
 
     func testReminderToCheckKlaytnBlockchainExplorerAPI() throws {
-        let expirationDate = ISO8601DateFormatter().date(from: "2023-08-11T00:00:00Z")!
+        let expirationDate = ISO8601DateFormatter().date(from: "2023-11-11T00:00:00Z")!
         XCTAssertFalse(dueDateElapsed(expirationDate: expirationDate), "TODO:- Check Klaytn blockchain explorer API again. `services-monitor` was disabled because they were always down https://github.com/AlphaWallet/services-monitor/pull/49")
     }
 
