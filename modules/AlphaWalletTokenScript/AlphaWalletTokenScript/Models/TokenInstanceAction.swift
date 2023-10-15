@@ -7,6 +7,7 @@ import BigInt
 
 extension TokenInstanceAction.ActionType: Equatable {
     public static func == (lhs: TokenInstanceAction.ActionType, rhs: TokenInstanceAction.ActionType) -> Bool {
+        //Printing lhs and rhs here might crash. Why? (don't remove this comment as we might accidentally trigger it)
         switch (lhs, rhs) {
         case (.erc20Send, .erc20Send):
             return true

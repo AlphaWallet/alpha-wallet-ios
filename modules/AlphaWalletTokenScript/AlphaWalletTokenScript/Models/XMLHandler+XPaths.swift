@@ -272,10 +272,23 @@ extension XMLHandler {
         return ethereumFunctionElement.at_xpath("ethereum:to", namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
-    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
-        let styleElements = element.xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
-        let scriptElements = element.xpath("script".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
-        let bodyElements = element.xpath("body".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, cardElements: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
+        let viewContentElement: XMLElement?
+        if let viewContentName = element.at_xpath("ts:viewContent", namespaces: xmlContext.namespaces)?["name"] {
+            let p = xmlContext.namespacePrefix
+            viewContentElement = cardElements.at_xpath("\(p)viewContent[@name=\"\(viewContentName)\"]", namespaces: xmlContext.namespaces)
+        } else {
+            viewContentElement = nil
+        }
+        let styleElements = element.xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces).defaultIfEmpty {
+            return viewContentElement?.xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        }
+        let scriptElements = element.xpath("script".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces).defaultIfEmpty {
+            return viewContentElement?.xpath("script".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        }
+        let bodyElements = element.xpath("body".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces).defaultIfEmpty {
+            return viewContentElement?.xpath("body".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        }
         let style: String
         let script: String
         let body: String
@@ -301,6 +314,10 @@ extension XMLHandler {
             body = ""
         }
         return (style: style, script: script, body: body)
+    }
+
+    static func getTokenScriptCardsElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
+       return root.at_xpath("/token/cards".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getTokenScriptTokenItemViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
@@ -347,5 +364,17 @@ extension XMLHandler {
 
     static func getContractElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
         return root.xpath("/token/contract".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+}
+
+extension XPathObject {
+    func defaultIfEmpty(_ block: () -> XPathObject?) -> XPathObject {
+        // swiftlint:disable empty_count
+        if count == 0 {
+            // swiftlint:enable empty_count
+            return block() ?? self
+        } else {
+            return self
+        }
     }
 }

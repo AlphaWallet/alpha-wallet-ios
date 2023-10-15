@@ -137,6 +137,7 @@ public class PrivateXMLHandler {
 
     private static let emptyXMLString = "<tbml:token xmlns:tbml=\"http://attestation.id/ns/tbml\"></tbml:token>"
     private static let emptyXML = try! Kanna.XML(xml: emptyXMLString, encoding: .utf8)
+    //TODO have to fix createXmlContext() which hardcodes the namespace supported
     fileprivate static let tokenScriptNamespace = TokenScript.supportedTokenScriptNamespace
 
     private let features: TokenScriptFeatures
@@ -144,7 +145,7 @@ public class PrivateXMLHandler {
     private var xml: XMLDocument
     private let signatureNamespacePrefix = "ds:"
     private let xhtmlNamespacePrefix = "xhtml:"
-    private let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
+    private let xmlContext: XmlContext
     private let target: Target
     var server: RPCServerOrAny?
     //Explicit type so that the variable autocompletes with AppCode
@@ -213,8 +214,8 @@ public class PrivateXMLHandler {
                 tokenViewIconifiedHtml = (html: "", style: "")
                 return
             }
-            if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-                tokenViewIconifiedHtml = extractHtml(fromViewElement: element)
+            if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
+                tokenViewIconifiedHtml = extractHtml(fromViewElement: element, cardElements: cardElements)
             } else {
                 tokenViewIconifiedHtml = (html: "", style: "")
             }
@@ -229,8 +230,8 @@ public class PrivateXMLHandler {
                 tokenViewHtml = (html: "", style: "")
                 return
             }
-            if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-                tokenViewHtml = extractHtml(fromViewElement: element)
+            if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
+                tokenViewHtml = extractHtml(fromViewElement: element, cardElements: cardElements)
             } else {
                 tokenViewHtml = (html: "", style: "")
             }
@@ -249,8 +250,8 @@ public class PrivateXMLHandler {
                 if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty {
                     let html: String
                     let style: String
-                    if let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
-                        let (html: html1, style: style1) = extractHtml(fromViewElement: viewElement)
+                    if let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
+                        let (html: html1, style: style1) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
                         html = html1
                         style = style1
                         guard !html.isEmpty else { continue }
@@ -302,9 +303,9 @@ public class PrivateXMLHandler {
             let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
             results = cards.compactMap { eachCard in
                 guard let name = eachCard["name"],
-                  let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
-                   let eventName = ethereumEventElement["type"],
-                   let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
+                      let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
+                      let eventName = ethereumEventElement["type"],
+                      let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
                 let optionalContract: AlphaWallet.Address?
                 if let eventContractName = ethereumEventElement["contract"],
                    let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: xml, xmlContext: xmlContext) {
@@ -326,15 +327,16 @@ public class PrivateXMLHandler {
                     let viewStyle: String
                     let itemViewHtml: String
                     let itemViewStyle: String
-
+                    //TODO fix forced unwrap. If we get here, there must be a <cards>
+                    let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext)!
                     if let viewElement = XMLHandler.getViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
-                        (html: viewHtml, style: viewStyle) = extractHtml(fromViewElement: viewElement)
+                        (html: viewHtml, style: viewStyle) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
                     } else {
                         viewHtml = ""
                         viewStyle = ""
                     }
                     if let itemViewElement = XMLHandler.getItemViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
-                        (html: itemViewHtml, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement)
+                        (html: itemViewHtml, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement, cardElements: cardElements)
                     } else {
                         itemViewHtml = ""
                         itemViewStyle = ""
@@ -452,7 +454,7 @@ public class PrivateXMLHandler {
         var _tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>!
         var _hasValidTokenScriptFile: Bool!
         var _server: RPCServerOrAny?
-        let _xmlContext = xmlContext
+        let _xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang, forXml: xmlString)
         let _isBase = baseTokenType != nil
         let shouldLoadTokenScriptWithFailedSignatures = features.shouldLoadTokenScriptWithFailedSignatures
 
@@ -495,6 +497,7 @@ public class PrivateXMLHandler {
         }
 
         self.xml = _xml
+        self.xmlContext = _xmlContext
         self.tokenScriptStatus = _tokenScriptStatus
         self.hasValidTokenScriptFile = _hasValidTokenScriptFile!
         self.server = _server
@@ -513,7 +516,6 @@ public class PrivateXMLHandler {
         var _tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>!
         var _hasValidTokenScriptFile: Bool!
         var _server: RPCServerOrAny?
-        let _xmlContext = xmlContext
         let features = self.features
 
         threadSafe.performSync {
@@ -540,6 +542,7 @@ public class PrivateXMLHandler {
         }
 
         self.xml = _xml
+        self.xmlContext = Self.createXmlContext(withLang: PrivateXMLHandler.lang, forXml: xmlString)
         self.tokenScriptStatus = _tokenScriptStatus
         self.hasValidTokenScriptFile = _hasValidTokenScriptFile!
         self.server = _server
@@ -563,8 +566,8 @@ public class PrivateXMLHandler {
         return fieldElements.compactMap { $0["name"] }
     }
 
-    private func extractHtml(fromViewElement element: XMLElement) -> (html: String, style: String) {
-        let (style: style, script: script, body: body) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
+    private func extractHtml(fromViewElement element: XMLElement, cardElements: XMLElement) -> (html: String, style: String) {
+        let (style: style, script: script, body: body) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, cardElements: cardElements, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
         let sanitizedHtml = sanitize(html: body)
         if sanitizedHtml.isEmpty && script.isEmpty {
             return (html: "", style: "")
@@ -823,17 +826,31 @@ public class PrivateXMLHandler {
         return fromTokenAsTopLevel + fromActionAsTopLevel
     }
 
-    fileprivate static func createXmlContext(withLang lang: String) -> XmlContext {
+    fileprivate static func createXmlContext(withLang lang: String, forXml xmlString: String) -> XmlContext {
+        //TODO this is a hack to detect namespaces since we designed to support only the latest namespace but now have to support both of these
+        let supportedNamespaces = ["http://tokenscript.org/2022/09/tokenscript", "http://tokenscript.org/2022/06/tokenscript"]
+        let namespaces: [String: String]
+        if let namespace = supportedNamespaces.first(where: { xmlString.contains($0) }) {
+            namespaces = [
+                "ts": namespace,
+                "ds": "http://www.w3.org/2000/09/xmldsig#",
+                "xhtml": "http://www.w3.org/1999/xhtml",
+                "asnx": "urn:ietf:params:xml:ns:asnx",
+                "ethereum": "urn:ethereum:constantinople",
+            ]
+        } else {
+            namespaces = [
+                "ts": PrivateXMLHandler.tokenScriptNamespace,
+                "ds": "http://www.w3.org/2000/09/xmldsig#",
+                "xhtml": "http://www.w3.org/1999/xhtml",
+                "asnx": "urn:ietf:params:xml:ns:asnx",
+                "ethereum": "urn:ethereum:constantinople",
+            ]
+        }
         let rootNamespacePrefix = "ts:"
-        let namespaces = [
-            "ts": PrivateXMLHandler.tokenScriptNamespace,
-            "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml",
-            "asnx": "urn:ietf:params:xml:ns:asnx",
-            "ethereum": "urn:ethereum:constantinople",
-        ]
         return .init(namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
     }
+
     private static let regex = try? NSRegularExpression(pattern: "<\\!ENTITY\\s+(.*)\\s+SYSTEM\\s+\"(.*)\">", options: [])
     fileprivate static func getEntities(inXml xml: String) -> [XMLHandler.Entity] {
         var entities = [XMLHandler.Entity]()
@@ -853,13 +870,13 @@ public class PrivateXMLHandler {
 
     static func getAttestationSchemaUid(xmlString: String) -> Attestation.SchemaUid? {
         guard let xml = try? Kanna.XML(xml: xmlString, encoding: .utf8) else { return nil }
-        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
+        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang, forXml: xmlString)
         return functional.getAttestationSchemaUid(xml: xml, xmlContext: xmlContext)
     }
 
     static func getAttestationCollectionId(xmlString: String) -> String? {
         guard let xml = try? Kanna.XML(xml: xmlString, encoding: .utf8) else { return nil }
-        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
+        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang, forXml: xmlString)
         return functional.computeAttestationCollectionId(xml: xml, xmlContext: xmlContext)
     }
 
@@ -999,7 +1016,6 @@ public struct XMLHandler {
         } else {
             tokenViewIconifiedHtml = privateXMLHandler.tokenViewIconifiedHtml
         }
-
         return tokenViewIconifiedHtml
     }
 
@@ -1015,7 +1031,6 @@ public struct XMLHandler {
         } else {
             tokenViewHtml = privateXMLHandler.tokenViewHtml
         }
-
         return tokenViewHtml
     }
 
@@ -1028,7 +1043,6 @@ public struct XMLHandler {
         } else {
             result = privateXMLHandler.actions
         }
-
         return result
     }
 
@@ -1245,7 +1259,7 @@ public struct XMLHandler {
     //Returns nil if the XML schema is not supported
     public static func getHoldingContracts(forTokenScript xmlString: String) -> [(AlphaWallet.Address, Int)]? {
         //Lang doesn't matter
-        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: "en")
+        let xmlContext = PrivateXMLHandler.createXmlContext(withLang: "en", forXml: xmlString)
 
         switch checkTokenScriptSchema(xmlString) {
         case .supportedTokenScriptVersion:

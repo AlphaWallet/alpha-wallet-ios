@@ -64,7 +64,7 @@ class NFTAssetViewModel {
         case .imageView:
             let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId)
                 .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-            
+
             return .image(iconImage: .just(assetImage))
         }
     }
