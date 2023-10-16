@@ -32,7 +32,8 @@ struct NonFungibleRowViewModel {
         let string: String
         let tokenIdString = tokenHolder.values(tokenId: tokenId)?.tokenIdStringValue ?? ""
         if let name = tokenHolder.values(tokenId: tokenId)?.nameStringValue.nilIfEmpty {
-            string = name
+            //Display the token ID at the end, there's a chance that it's already include in the name and be redundant, but it'll be much more readable if it wasn't
+            string = displayHelper.title(fromTokenName: name, tokenId: tokenIdString)
         } else {
             string = displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenIdString)
         }
@@ -55,12 +56,12 @@ struct NonFungibleRowViewModel {
         self.tokenHolder = tokenHolder
         self.tokenId = tokenId
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
-    } 
+    }
 
     var assetImage: TokenImagePublisher {
         let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s300)
             .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-        
+
         return .just(assetImage)
     }
 }
