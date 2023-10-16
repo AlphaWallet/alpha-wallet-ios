@@ -111,12 +111,12 @@ final class NFTAssetsPageViewModel {
         let filter = Publishers.Merge(searchFilterSubject, filterWhenAppear)
 
         let assets = Publishers.CombineLatest(tokenHolders, filter)
-            .map { self.filter($1, tokenHolders: $0) }
+            .map { functional.filter($1, tokenHolders: $0) }
             .map { $0.sorted { $0.tokenId < $1.tokenId } }
             .map { [SectionViewModel(section: .assets, views: $0)] }
 
         let viewState = assets
-            .map { self.buildSnapshot(for: $0) }
+            .map { functional.buildSnapshot(for: $0) }
             .map { NFTAssetsPageViewModel.ViewState(animatingDifferences: true, snapshot: $0) }
             .eraseToAnyPublisher()
 
@@ -124,8 +124,14 @@ final class NFTAssetsPageViewModel {
 
         return .init(layout: layout, viewState: viewState)
     }
+}
 
-    private func buildSnapshot(for viewModels: [NFTAssetsPageViewModel.SectionViewModel]) -> NFTAssetsPageViewModel.Snapshot {
+extension NFTAssetsPageViewModel {
+    enum functional {}
+}
+
+fileprivate extension NFTAssetsPageViewModel.functional {
+    static func buildSnapshot(for viewModels: [NFTAssetsPageViewModel.SectionViewModel]) -> NFTAssetsPageViewModel.Snapshot {
         var snapshot = NSDiffableDataSourceSnapshot<NFTAssetsPageViewModel.Section, TokenHolder>()
         let sections = viewModels.map { $0.section }
         snapshot.appendSections(sections)
@@ -135,7 +141,7 @@ final class NFTAssetsPageViewModel {
         return snapshot
     }
 
-    private func nftAssetTitle(for tokenHolder: TokenHolder) -> String {
+    static func nftAssetTitle(for tokenHolder: TokenHolder) -> String {
         let displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
@@ -145,14 +151,14 @@ final class NFTAssetsPageViewModel {
         }
     }
 
-    private func filter(_ filter: ActivityOrTransactionFilter, tokenHolders: [TokenHolder]) -> [TokenHolder] {
+    static func filter(_ filter: ActivityOrTransactionFilter, tokenHolders: [TokenHolder]) -> [TokenHolder] {
         var newTokenHolders = tokenHolders
 
         switch filter {
         case .keyword(let keyword):
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 newTokenHolders = tokenHolders.filter { tokenHolder in
-                    return self.nftAssetTitle(for: tokenHolder).lowercased().contains(valueToSearch)
+                    return nftAssetTitle(for: tokenHolder).lowercased().contains(valueToSearch)
                 }
             }
         }
