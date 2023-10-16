@@ -112,6 +112,7 @@ final class NFTAssetsPageViewModel {
 
         let assets = Publishers.CombineLatest(tokenHolders, filter)
             .map { self.filter($1, tokenHolders: $0) }
+            .map { $0.sorted { $0.tokenId < $1.tokenId } }
             .map { [SectionViewModel(section: .assets, views: $0)] }
 
         let viewState = assets
