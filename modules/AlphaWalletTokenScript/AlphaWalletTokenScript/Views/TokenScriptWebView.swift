@@ -26,7 +26,7 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
     private let assetDefinitionStore: AssetDefinitionStore
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
-        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
+        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer(serverWithInjectableRpcUrl), address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         let webView = WKWebView(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
         if #available(iOS 16.4, *) {
@@ -41,8 +41,9 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
     private var actionProperties: SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private var cancelable = Set<AnyCancellable>()
+    private var serverWithInjectableRpcUrl: WithInjectableRpcUrl
+    private var server: RPCServer
 
-    public var server: RPCServer
     public var isWebViewInteractionEnabled: Bool = false {
         didSet {
             webView.isUserInteractionEnabled = isWebViewInteractionEnabled
@@ -73,8 +74,10 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
         }
     }
 
-    public init(server: RPCServer, wallet: WalletType, assetDefinitionStore: AssetDefinitionStore, shouldPretendIsRealWallet: Bool = false) {
+    //Have a serverWithInjectableRpcUrl because RPCServer only conforms to serverWithInjectableRpcUrl outside of AlphaWalletTokenScript pod
+    public init(server: RPCServer, serverWithInjectableRpcUrl: WithInjectableRpcUrl, wallet: WalletType, assetDefinitionStore: AssetDefinitionStore, shouldPretendIsRealWallet: Bool = false) {
         self.server = server
+        self.serverWithInjectableRpcUrl = serverWithInjectableRpcUrl
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.shouldPretendIsRealWallet = shouldPretendIsRealWallet
@@ -110,6 +113,12 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
         webView.stopLoading()
     }
     private var cancellable: AnyCancellable?
+
+    //The 2 args are always the same but because conformance is defined outside of this pod, we have to do this
+    public func setServer(_ server: RPCServer, serverWithInjectableRpcUrl: WithInjectableRpcUrl) {
+        self.server = server
+        self.serverWithInjectableRpcUrl = serverWithInjectableRpcUrl
+    }
 
     //Implementation: String concatenation is slow, but it's not obvious at all
     public func update(withTokenHolder tokenHolder: TokenHolderProtocol, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
@@ -153,6 +162,10 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
             if let value = convertor.formatAsTokenScriptJavaScript(value: value) {
                 cardData[name] = value
             }
+        }
+        //Patching for compatibility with Android, so image_preview_url is available
+        if tokenData["image_preview_url"] == nil && tokenData["imageUrl"] != nil {
+            tokenData["image_preview_url"] = tokenData["imageUrl"]
         }
 
         let tokenDataString = tokenData.map { name, value in "\(name): \(value)," }.joined()
@@ -292,8 +305,28 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
         }
     }
 
-    public func loadHtml(_ html: String) {
+    public func loadHtml(_ html: String, urlFragment: String?) {
+        if let urlFragment {
+            loadHtmlAsBase64(html, withUrlFragment: urlFragment)
+        } else {
+            loadHtmlWithoutUrlFragment(html)
+        }
+    }
+
+    private func loadHtmlWithoutUrlFragment(_ html: String) {
         webView.loadHTMLString(html, baseURL: nil)
+    }
+
+    private func loadHtmlAsBase64(_ html: String, withUrlFragment urlFragment: String) {
+        if let data = html.data(using: .utf8) {
+            let base64 = data.base64EncodedString()
+            let dataUrlString = "data:text/html;base64,\(base64)#\(urlFragment)"
+            let url = URL(dataRepresentation: Data(dataUrlString.utf8), relativeTo: URL(string: "about:blank")!)!
+            let request = URLRequest(url: url)
+            webView.load(request)
+        } else {
+            loadHtmlWithoutUrlFragment(html)
+        }
     }
 
     private func sign(message: String?, command: DappCommand, account: AlphaWallet.Address) {
@@ -393,7 +426,8 @@ extension TokenScriptWebView: WKScriptMessageHandler {
 ////Block navigation. Still good to have even if we end up using XSLT?
 extension TokenScriptWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if let url = navigationAction.request.url?.absoluteString, url == "about:blank" {
+        //We allow loading `data:` to support urlFragments, especially useful with `<viewContent>`
+        if let url = navigationAction.request.url?.absoluteString, (url == "about:blank" || navigationAction.request.url?.scheme == "data") {
             decisionHandler(.allow)
         } else {
             decisionHandler(.cancel)

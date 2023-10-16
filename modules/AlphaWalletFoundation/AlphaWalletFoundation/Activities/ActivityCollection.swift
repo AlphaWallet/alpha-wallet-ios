@@ -351,8 +351,8 @@ extension ActivityCollection.functional {
                 logIndex: 0,
                 date: transactionRow.date,
                 values: (token: .init(), card: cardAttributes),
-                view: (html: "", style: ""),
-                itemView: (html: "", style: ""),
+                view: (html: "", urlFragment: nil, style: ""),
+                itemView: (html: "", urlFragment: nil, style: ""),
                 isBaseCard: true,
                 state: state
         )

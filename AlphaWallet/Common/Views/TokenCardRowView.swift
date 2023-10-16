@@ -56,7 +56,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     var stateLabel = UILabel()
     var tokenView: TokenView
     lazy var tokenScriptRendererView: TokenScriptWebView = {
-        let webView = TokenScriptWebView(server: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenScriptWebView(server: server, serverWithInjectableRpcUrl: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.delegate = self
         webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return webView
@@ -282,7 +282,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             canDetailsBeVisible = false
             nativelyRenderedAttributeViews.hideAll()
             tokenScriptRendererView.isHidden = false
-            tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml)
+            tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml.html, urlFragment: viewModel.tokenScriptHtml.urlFragment)
                 //TODO not good to explicitly check for different types. Easy to miss
             if let viewModel = viewModel as? TokenCardRowViewModel {
                 tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)

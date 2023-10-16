@@ -36,7 +36,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenScriptWebView = {
-        let webView = TokenScriptWebView(server: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenScriptWebView(server: server, serverWithInjectableRpcUrl: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -186,7 +186,7 @@ class ActivityViewController: UIViewController {
             bottomFiller.isHidden = true
             tokenScriptRendererView.isHidden = false
 
-            tokenScriptRendererView.loadHtml(viewModel.activity.viewHtml)
+            tokenScriptRendererView.loadHtml(viewModel.activity.viewHtml.html, urlFragment: viewModel.activity.viewHtml.urlFragment)
 
             tokenScriptRendererView.update(withId: .init(viewModel.activity.id), resolvedTokenAttributeNameValues: tokenAttributes, resolvedCardAttributeNameValues: cardAttributes, isFirstUpdate: isFirstLoad)
             isFirstLoad = false

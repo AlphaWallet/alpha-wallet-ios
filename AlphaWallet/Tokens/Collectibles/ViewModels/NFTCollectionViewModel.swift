@@ -39,7 +39,7 @@ final class NFTCollectionViewModel {
     let wallet: Wallet
 
     private var previewViewType: NFTPreviewViewType {
-        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view) {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
         case .backedByOpenSea:
             return .imageView
         case .notBackedByOpenSea:

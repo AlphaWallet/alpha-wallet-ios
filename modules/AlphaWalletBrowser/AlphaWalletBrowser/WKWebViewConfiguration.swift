@@ -8,7 +8,7 @@ import AlphaWalletCore
 
 public enum WebViewType {
     case dappBrowser(WithInjectableRpcUrl)
-    case tokenScriptRenderer
+    case tokenScriptRenderer(WithInjectableRpcUrl)
 }
 
 extension WKWebViewConfiguration {
@@ -27,8 +27,8 @@ extension WKWebViewConfiguration {
                 } catch { }
             }
             js += functional.javaScriptForDappBrowser(server: server, address: address)
-        case .tokenScriptRenderer:
-            js += functional.javaScriptForTokenScriptRenderer(address: address)
+        case .tokenScriptRenderer(let server):
+            js += functional.javaScriptForTokenScriptRenderer(server: server, address: address)
             js += """
                   \n
                   web3.tokens = {
@@ -83,6 +83,7 @@ fileprivate extension WKWebViewConfiguration.functional {
         return """
                  //Space is needed here because it is sometimes cut off by websites. 
                  
+                 const walletAddress = "\(address.eip55String)"
                  const addressHex = "\(address.eip55String)"
                  const rpcURL = "\(server.web3InjectedRpcURL.absoluteString)"
                  const chainID = "\(server.chainID)"
@@ -194,8 +195,13 @@ fileprivate extension WKWebViewConfiguration.functional {
     }
 // swiftlint:enable function_body_length
 
-    static func javaScriptForTokenScriptRenderer(address: AlphaWallet.Address) -> String {
+    static func javaScriptForTokenScriptRenderer(server: WithInjectableRpcUrl, address: AlphaWallet.Address) -> String {
         return """
+               const walletAddress = "\(address.eip55String)"
+               const addressHex = "\(address.eip55String)"
+               const rpcURL = "\(server.web3InjectedRpcURL.absoluteString)"
+               const chainID = "\(server.chainID)"
+
                window.web3CallBacks = {}
                window.tokenScriptCallBacks = {}
 

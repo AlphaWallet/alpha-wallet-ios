@@ -34,7 +34,7 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
     var placeholderRounding: ViewRounding = .none {
         didSet { previewView.placeholderRounding = placeholderRounding }
     }
-    
+
     override var contentMode: UIView.ContentMode {
         didSet { previewView.contentMode = contentMode }
     }
@@ -88,7 +88,8 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
                                               assetDefinitionStore: AssetDefinitionStore) -> TokenCardWebView {
         let tokeCardWebView = TokenCardWebView(
             server: session.server,
-            tokenView: .viewIconified,
+            //TODO should this be viewIconified instead? But it has to be `.view` for Smart Cats
+            tokenView: .view,
             assetDefinitionStore: assetDefinitionStore,
             wallet: session.account)
 

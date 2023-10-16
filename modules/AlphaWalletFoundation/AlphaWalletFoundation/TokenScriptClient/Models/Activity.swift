@@ -39,16 +39,16 @@ public struct Activity {
     public let logIndex: Int
     public let date: Date
     public let values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue])
-    public let view: (html: String, style: String)
-    public let itemView: (html: String, style: String)
+    public let view: (html: String, urlFragment: String?, style: String)
+    public let itemView: (html: String, urlFragment: String?, style: String)
     public let isBaseCard: Bool
     public let state: State
 
     public init() {
-        self.init(id: 0, rowType: .item, token: .init(), server: .main, name: "", eventName: "", blockNumber: 0, transactionId: "", transactionIndex: 0, logIndex: 0, date: Date(), values: (token: [:], card: [:]), view: (html: "", style: ""), itemView: (html: "", style: ""), isBaseCard: false, state: .completed)
+        self.init(id: 0, rowType: .item, token: .init(), server: .main, name: "", eventName: "", blockNumber: 0, transactionId: "", transactionIndex: 0, logIndex: 0, date: Date(), values: (token: [:], card: [:]), view: (html: "", urlFragment: nil, style: ""), itemView: (html: "", urlFragment: nil, style: ""), isBaseCard: false, state: .completed)
     }
 
-    public init(id: Int, rowType: ActivityRowType, token: Token, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, style: String), itemView: (html: String, style: String), isBaseCard: Bool, state: State) {
+    public init(id: Int, rowType: ActivityRowType, token: Token, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, urlFragment: String?, style: String), itemView: (html: String, urlFragment: String?, style: String), isBaseCard: Bool, state: State) {
         self.id = id
         self.token = token
         self.server = server
@@ -67,12 +67,12 @@ public struct Activity {
         self.rowType = rowType
     }
 
-    public var viewHtml: String {
-        return wrapWithHtmlViewport(html: view.html, style: view.style, forTokenId: .init(id))
+    public var viewHtml: (html: String, urlFragment: String?) {
+        return (html: wrapWithHtmlViewport(html: view.html, style: view.style, forTokenId: .init(id)), urlFragment: view.urlFragment)
     }
 
-    public var itemViewHtml: String {
-        return wrapWithHtmlViewport(html: itemView.html, style: itemView.style, forTokenId: .init(id))
+    public var itemViewHtml: (html: String, urlFragment: String?) {
+        return (html: wrapWithHtmlViewport(html: itemView.html, style: itemView.style, forTokenId: .init(id)), urlFragment: itemView.urlFragment)
     }
 
     public var nativeViewType: NativeViewType {

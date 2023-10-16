@@ -182,6 +182,7 @@ extension TokenInstanceAction {
             let tokenHolder = selectedTokenHolders[0]
             let parser = TokenScriptFilterParser(expression: selection.filter)
             let filterExpressionIsTrue = parser.parse(withValues: tokenHolder.values, ownerAddress: walletAddress, symbol: tokenHolder.symbol, fungibleBalance: fungibleBalance)
+
             if filterExpressionIsTrue {
                 return selection
             } else {

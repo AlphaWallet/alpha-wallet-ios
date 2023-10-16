@@ -67,14 +67,14 @@ class TokenScriptCoordinator: Coordinator {
 
     func start() {
         switch action.type {
-        case .tokenScript(_, let title, viewHtml: (html: let html, style: let style), attributes: let attributes, transactionFunction: let transactionFunction, selection: let selection):
+        case .tokenScript(_, let title, viewHtml: (html: let html, urlFragment: let urlFragment, style: let style), attributes: let attributes, transactionFunction: let transactionFunction, selection: let selection):
             if TokenScript.functional.isNoView(html: html, style: style) {
                 let noViewActionCoordinator = NoViewCardTokenScriptActionCoordinator(
                     token: token,
                     tokenHolder: tokenHolder,
                     action: action,
                     title: title,
-                    viewHtml: (html: html, style: style),
+                    viewHtml: (html: html, urlFragment: urlFragment, style: style),
                     attributes: attributes,
                     transactionFunction: transactionFunction,
                     selection: selection,

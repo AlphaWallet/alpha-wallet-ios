@@ -40,7 +40,7 @@ public struct TokenInstanceAction {
         case nftRedeem
         case nftSell
         case nonFungibleTransfer
-        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?)
+        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, urlFragment: String?, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?)
         case swap(service: TokenActionProvider)
         case bridge(service: TokenActionProvider)
         case buy(service: TokenActionProvider)
@@ -105,12 +105,12 @@ public struct TokenInstanceAction {
         self.type = type
     }
     //TODO we can live-reload the action view screen now if we observe for changes
-    public func viewHtml(tokenId: TokenId) -> String {
+    public func viewHtml(tokenId: TokenId) -> (html: String, urlFragment: String?) {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nonFungibleTransfer, .nftRedeem, .nftSell:
-            return ""
-        case .tokenScript(_, _, (html: let html, style: let style), _, _, _):
-            return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId)
+            return (html: "", urlFragment: nil)
+        case .tokenScript(_, _, (html: let html, let urlFragment, style: let style), _, _, _):
+            return (html: wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId), urlFragment: urlFragment)
         }
     }
 }

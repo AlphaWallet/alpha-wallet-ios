@@ -19,7 +19,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
     private var tokenView: TokenView
     private let wallet: Wallet
     private lazy var tokenScriptRendererView: TokenScriptWebView = {
-        let webView = TokenScriptWebView(server: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenScriptWebView(server: server, serverWithInjectableRpcUrl: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.delegate = self
         webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return webView
@@ -70,7 +70,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         backgroundColor = viewModel.contentsBackgroundColor
         if viewModel.hasTokenScriptHtml {
             tokenScriptRendererView.isHidden = false
-            tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml)
+            tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml.html, urlFragment: viewModel.tokenScriptHtml.urlFragment)
             tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
         } else {
             tokenScriptRendererView.isHidden = true

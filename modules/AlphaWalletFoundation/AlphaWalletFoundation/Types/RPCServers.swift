@@ -376,6 +376,7 @@ extension RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //TODO check if this values are still duplicated in TokenScriptWebView
     public var rpcURL: URL {
         let urlString: String = {
             switch self {
