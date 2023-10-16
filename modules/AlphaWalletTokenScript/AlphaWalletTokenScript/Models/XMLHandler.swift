@@ -207,33 +207,33 @@ public class PrivateXMLHandler {
         return introductionHtmlString
     }()
 
-    lazy var tokenViewIconifiedHtml: (html: String, style: String) = {
-        var tokenViewIconifiedHtml: (html: String, style: String) = (html: "", style: "")
+    lazy var tokenViewIconifiedHtml: (html: String, urlFragment: String?, style: String) = {
+        var tokenViewIconifiedHtml: (html: String, urlFragment: String?, style: String) = (html: "", urlFragment: nil, style: "")
         threadSafe.performSync {
             guard hasValidTokenScriptFile else {
-                tokenViewIconifiedHtml = (html: "", style: "")
+                tokenViewIconifiedHtml = (html: "", urlFragment: nil, style: "")
                 return
             }
             if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
                 tokenViewIconifiedHtml = extractHtml(fromViewElement: element, cardElements: cardElements)
             } else {
-                tokenViewIconifiedHtml = (html: "", style: "")
+                tokenViewIconifiedHtml = (html: "", urlFragment: nil, style: "")
             }
         }
         return tokenViewIconifiedHtml
     }()
 
-    lazy var tokenViewHtml: (html: String, style: String) = {
-        var tokenViewHtml: (html: String, style: String) = (html: "", style: "")
+    lazy var tokenViewHtml: (html: String, urlFragment: String?, style: String) = {
+        var tokenViewHtml: (html: String, urlFragment: String?, style: String) = (html: "", urlFragment: nil, style: "")
         threadSafe.performSync {
             guard hasValidTokenScriptFile else {
-                tokenViewHtml = (html: "", style: "")
+                tokenViewHtml = (html: "", urlFragment: nil, style: "")
                 return
             }
             if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
                 tokenViewHtml = extractHtml(fromViewElement: element, cardElements: cardElements)
             } else {
-                tokenViewHtml = (html: "", style: "")
+                tokenViewHtml = (html: "", urlFragment: nil, style: "")
             }
         }
         return tokenViewHtml
@@ -249,14 +249,17 @@ public class PrivateXMLHandler {
             for actionElement in actionElements {
                 if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty {
                     let html: String
+                    let urlFragment: String?
                     let style: String
                     if let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
-                        let (html: html1, style: style1) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
+                        let (html: html1, urlFragment: urlFragment1, style: style1) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
                         html = html1
+                        urlFragment = urlFragment1
                         style = style1
                         guard !html.isEmpty else { continue }
                     } else {
                         html = ""
+                        urlFragment = nil
                         style = ""
                     }
                     let attributes = extractFields(forActionElement: actionElement)
@@ -266,7 +269,7 @@ public class PrivateXMLHandler {
                     }
                     switch target {
                     case .token(let contractAddress):
-                        results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
+                        results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, urlFragment: urlFragment, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
                     case .attestation:
                         //TODO attestations+TokenScript to implement support for `actions
                         break
@@ -324,24 +327,28 @@ public class PrivateXMLHandler {
                 switch origin {
                 case .event(let eventOrigin):
                     let viewHtml: String
+                    let viewUrlFragment: String?
                     let viewStyle: String
                     let itemViewHtml: String
+                    let itemViewUrlFragment: String?
                     let itemViewStyle: String
                     //TODO fix forced unwrap. If we get here, there must be a <cards>
                     let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext)!
                     if let viewElement = XMLHandler.getViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
-                        (html: viewHtml, style: viewStyle) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
+                        (html: viewHtml, urlFragment: viewUrlFragment, style: viewStyle) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
                     } else {
                         viewHtml = ""
+                        viewUrlFragment = nil
                         viewStyle = ""
                     }
                     if let itemViewElement = XMLHandler.getItemViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
-                        (html: itemViewHtml, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement, cardElements: cardElements)
+                        (html: itemViewHtml, urlFragment: itemViewUrlFragment, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement, cardElements: cardElements)
                     } else {
                         itemViewHtml = ""
+                        itemViewUrlFragment = nil
                         itemViewStyle = ""
                     }
-                    return .init(name: name, eventOrigin: eventOrigin, view: (html: viewHtml, style: viewStyle), itemView: (html: itemViewHtml, style: itemViewStyle), isBase: isBase)
+                    return .init(name: name, eventOrigin: eventOrigin, view: (html: viewHtml, urlFragment: viewUrlFragment, style: viewStyle), itemView: (html: itemViewHtml, urlFragment: itemViewUrlFragment, style: itemViewStyle), isBase: isBase)
                 case .tokenId, .userEntry, .function:
                     return nil
                 }
@@ -566,11 +573,11 @@ public class PrivateXMLHandler {
         return fieldElements.compactMap { $0["name"] }
     }
 
-    private func extractHtml(fromViewElement element: XMLElement, cardElements: XMLElement) -> (html: String, style: String) {
-        let (style: style, script: script, body: body) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, cardElements: cardElements, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
+    private func extractHtml(fromViewElement element: XMLElement, cardElements: XMLElement) -> (html: String, urlFragment: String?, style: String) {
+        let (style: style, script: script, body: body, urlFragment: urlFragment) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, cardElements: cardElements, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
         let sanitizedHtml = sanitize(html: body)
         if sanitizedHtml.isEmpty && script.isEmpty {
-            return (html: "", style: "")
+            return (html: "", urlFragment: nil, style: "")
         } else {
             return (html: """
                           <script type="text/javascript">
@@ -578,6 +585,7 @@ public class PrivateXMLHandler {
                           </script>
                           \(sanitizedHtml)
                           """,
+                    urlFragment: urlFragment,
                     style: """
                            \(XMLHandler.standardTokenScriptStyles)
                            <style type="text/css">
@@ -1004,9 +1012,9 @@ public struct XMLHandler {
         return privateXMLHandler.introductionHtmlString
     }
 
-    public var tokenViewIconifiedHtml: (html: String, style: String) {
-        var tokenViewIconifiedHtml: (html: String, style: String)!
-        let (html: html, style: _) = privateXMLHandler.tokenViewIconifiedHtml
+    public var tokenViewIconifiedHtml: (html: String, urlFragment: String?, style: String) {
+        var tokenViewIconifiedHtml: (html: String, urlFragment: String?, style: String)!
+        let (html: html, urlFragment: urlFragment, style: _) = privateXMLHandler.tokenViewIconifiedHtml
         if let baseXMLHandler = baseXMLHandler {
             if html.isEmpty {
                 tokenViewIconifiedHtml = baseXMLHandler.tokenViewIconifiedHtml
@@ -1019,9 +1027,9 @@ public struct XMLHandler {
         return tokenViewIconifiedHtml
     }
 
-    public var tokenViewHtml: (html: String, style: String) {
-        var tokenViewHtml: (html: String, style: String)!
-        let (html: html, style: _) = privateXMLHandler.tokenViewHtml
+    public var tokenViewHtml: (html: String, urlFragment: String?, style: String) {
+        var tokenViewHtml: (html: String, urlFragment: String?, style: String)!
+        let (html: html, urlFragment: urlFragment, style: _) = privateXMLHandler.tokenViewHtml
         if let baseXMLHandler = baseXMLHandler {
             if html.isEmpty {
                 tokenViewHtml = baseXMLHandler.tokenViewHtml
@@ -1107,6 +1115,7 @@ public struct XMLHandler {
 
     //TODO move
     public static var standardTokenScriptStyles: String {
+        //TODO restore the background color after it works with Smart Cats
         return """
                <style type="text/css">
                @font-face {
@@ -1130,7 +1139,7 @@ public struct XMLHandler {
                font-weight: bold;
                }
                body {
-                   background-color: \(defaultViewHtmlBodyBackgroundColor());
+                   background-color1: \(defaultViewHtmlBodyBackgroundColor());
                }
                .token-card {
                padding: 0pt;

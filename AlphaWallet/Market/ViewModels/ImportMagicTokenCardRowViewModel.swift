@@ -89,16 +89,15 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
             .eraseToAnyPublisher()
     }
 
-    var tokenScriptHtml: String {
-        guard let tokenHolder = viewModel.tokenHolder else { return "" }
+    var tokenScriptHtml: (html: String, urlFragment: String?) {
+        guard let tokenHolder = viewModel.tokenHolder else { return (html: "", urlFragment: nil) }
         let xmlHandler = assetDefinitionStore.xmlHandler(forContract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType)
-        let (html: html, style: style) = xmlHandler.tokenViewIconifiedHtml
-
-        return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0])
+        let (html: html, urlFragment: urlFragment, style: style) = xmlHandler.tokenViewIconifiedHtml
+        return (html: wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0]), urlFragment: urlFragment)
     }
 
     var hasTokenScriptHtml: Bool {
         //TODO improve performance? Because it is generated again when used
-        return !tokenScriptHtml.isEmpty
+        return !tokenScriptHtml.html.isEmpty
     }
 }

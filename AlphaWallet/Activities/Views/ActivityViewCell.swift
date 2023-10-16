@@ -20,14 +20,14 @@ class ActivityViewCell: UITableViewCell {
                     isFirstLoad = true
                     if let server = viewModel?.activity.server {
                         //TODO make sure updating the server like this works
-                        tokenScriptRendererView.server = server
+                        tokenScriptRendererView.setServer(server, serverWithInjectableRpcUrl: server)
                     }
                 }
             } else {
                 isFirstLoad = true
                 if let server = viewModel?.activity.server {
                     //TODO make sure updating the server like this works
-                    tokenScriptRendererView.server = server
+                    tokenScriptRendererView.setServer(server, serverWithInjectableRpcUrl: server)
                 }
             }
         }
@@ -71,7 +71,7 @@ class ActivityViewCell: UITableViewCell {
 
         backgroundColor = viewModel.backgroundColor
 
-        tokenScriptRendererView.loadHtml(viewModel.activity.itemViewHtml)
+        tokenScriptRendererView.loadHtml(viewModel.activity.itemViewHtml.html, urlFragment: viewModel.activity.itemViewHtml.urlFragment)
 
         let tokenAttributes = viewModel.activity.values.token
         let cardAttributes = viewModel.activity.values.card

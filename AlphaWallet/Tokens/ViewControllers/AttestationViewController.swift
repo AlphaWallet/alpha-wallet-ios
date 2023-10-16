@@ -45,23 +45,27 @@ class AttestationViewController: UIViewController {
     private func configure() {
         let xmlHandler = assetDefinitionStore.xmlHandler(forAttestation: attestation)
         let tokenScriptViewHtml: String
+        let tokenScriptViewUrlFragment: String?
         let tokenScriptViewStyle: String
         if let xmlHandler {
-            let (html, style) = xmlHandler.tokenViewHtml
+            let (html, urlFragment, style) = xmlHandler.tokenViewHtml
             if html.isEmpty {
                 tokenScriptRendererView?.removeFromSuperview()
                 tokenScriptRendererView = nil
                 tokenScriptViewHtml = ""
+                tokenScriptViewUrlFragment = nil
                 tokenScriptViewStyle = ""
             } else {
                 tokenScriptRendererView = functional.createTokenScriptRendererView(attestation: attestation, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
                 tokenScriptViewHtml = html
+                tokenScriptViewUrlFragment = urlFragment
                 tokenScriptViewStyle = style
             }
         } else {
             tokenScriptRendererView?.removeFromSuperview()
             tokenScriptRendererView = nil
             tokenScriptViewHtml = ""
+            tokenScriptViewUrlFragment = nil
             tokenScriptViewStyle = ""
         }
 
@@ -148,7 +152,7 @@ class AttestationViewController: UIViewController {
             //The actual value doesn't matter as long as it's the same
             let dummyId: BigUInt = 0
             let tokenScriptHtml = wrapWithHtmlViewport(html: tokenScriptViewHtml, style: tokenScriptViewStyle, forTokenId: dummyId)
-            tokenScriptRendererView.loadHtml(tokenScriptHtml)
+            tokenScriptRendererView.loadHtml(tokenScriptHtml, urlFragment: tokenScriptViewUrlFragment)
             tokenScriptRendererView.updateWithAttestation(attestation, withId: dummyId)
         } else {
             constraints.append(containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
@@ -230,7 +234,7 @@ fileprivate extension AttestationViewController.functional {
     }
 
     static func createTokenScriptRendererView(attestation: Attestation, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) -> TokenScriptWebView {
-        let webView = TokenScriptWebView(server: attestation.server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenScriptWebView(server: attestation.server, serverWithInjectableRpcUrl: attestation.server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         //TODO implement delegate if we need to use it

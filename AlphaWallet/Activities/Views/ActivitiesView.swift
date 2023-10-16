@@ -151,7 +151,7 @@ extension ActivitiesView: UITableViewDataSource {
 
         let tokenScriptRendererView: TokenScriptWebView = {
             //TODO server value doesn't matter since we will change it later. But we should improve this
-            let webView = TokenScriptWebView(server: .main, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
+            let webView = TokenScriptWebView(server: .main, serverWithInjectableRpcUrl: RPCServer.main, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
             webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
             //TODO needed? Seems like scary, performance-wise
             //webView.delegate = self

@@ -272,8 +272,9 @@ extension XMLHandler {
         return ethereumFunctionElement.at_xpath("ethereum:to", namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
-    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, cardElements: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
+    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, cardElements: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String, urlFragment: String?) {
         let viewContentElement: XMLElement?
+        let urlFragment = element["urlFragment"]
         if let viewContentName = element.at_xpath("ts:viewContent", namespaces: xmlContext.namespaces)?["name"] {
             let p = xmlContext.namespacePrefix
             viewContentElement = cardElements.at_xpath("\(p)viewContent[@name=\"\(viewContentName)\"]", namespaces: xmlContext.namespaces)
@@ -313,7 +314,7 @@ extension XMLHandler {
         } else {
             body = ""
         }
-        return (style: style, script: script, body: body)
+        return (style: style, script: script, body: body, urlFragment: urlFragment)
     }
 
     static func getTokenScriptCardsElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {

@@ -19,9 +19,9 @@ protocol TokenCardRowViewModelProtocol {
     var contentsBackgroundColor: UIColor { get }
     ///TODO get rid of this at some point
     var isMeetupContract: Bool { get }
-    var tokenScriptHtml: String { get }
+    var tokenScriptHtml: (html: String, urlFragment: String?) { get }
     var hasTokenScriptHtml: Bool { get }
-    
+
     func streetLocalityStateCountryPublisher() -> AnyPublisher<String, Never>
     func buildingPublisher() -> AnyPublisher<String, Never>
 }

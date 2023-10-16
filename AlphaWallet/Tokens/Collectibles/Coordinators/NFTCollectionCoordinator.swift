@@ -104,8 +104,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        let (html, style) = rootViewController.viewModel.tokenScriptFileStatusHandler.tokenViewHtml
-        infoLog("[TokenScript] Display token: \(token.contractAddress) has TokenScript: \(rootViewController.viewModel.tokenScriptFileStatusHandler.hasAssetDefinition) view: \(html.count) style: \(style.count)")
+        let (html, urlFragment, style) = rootViewController.viewModel.tokenScriptFileStatusHandler.tokenViewHtml
+        infoLog("[TokenScript] Display token: \(token.contractAddress) has TokenScript: \(rootViewController.viewModel.tokenScriptFileStatusHandler.hasAssetDefinition) view: \(html.count) urlFragment: \(urlFragment) style: \(style.count)")
         navigationController.pushViewController(rootViewController, animated: true)
     }
 

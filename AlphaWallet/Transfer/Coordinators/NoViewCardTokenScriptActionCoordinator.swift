@@ -17,7 +17,7 @@ class NoViewCardTokenScriptActionCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private let action: TokenInstanceAction
     private let title: String
-    private let viewHtml: (html: String, style: String)
+    private let viewHtml: (html: String, urlFragment: String?, style: String)
     private let attributes: [AttributeId: AssetAttribute]
     private let transactionFunction: FunctionOrigin?
     private let selection: TokenScriptSelection?
@@ -29,7 +29,7 @@ class NoViewCardTokenScriptActionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ConfirmTokenScriptActionTransactionDelegate?
 
-    init(token: Token, tokenHolder: TokenHolder, action: TokenInstanceAction, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?, navigationController: UINavigationController, assetDefinitionStore: AssetDefinitionStore, session: WalletSession, keystore: Keystore) {
+    init(token: Token, tokenHolder: TokenHolder, action: TokenInstanceAction, title: String, viewHtml: (html: String, urlFragment: String?, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?, navigationController: UINavigationController, assetDefinitionStore: AssetDefinitionStore, session: WalletSession, keystore: Keystore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.action = action
