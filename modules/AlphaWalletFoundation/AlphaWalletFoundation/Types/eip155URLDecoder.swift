@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AlphaWalletTokenScript
+import AlphaWalletCore
 
 public struct Eip155URL {
     let tokenType: TokenInterfaceType?
