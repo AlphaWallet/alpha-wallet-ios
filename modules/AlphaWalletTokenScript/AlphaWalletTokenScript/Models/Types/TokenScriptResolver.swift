@@ -2,6 +2,7 @@
 
 import AlphaWalletAddress
 import AlphaWalletAttestation
+import AlphaWalletCore
 
 public protocol TokenScriptResolver: AnyObject {
     func xmlHandler(forContract contract: AlphaWallet.Address, tokenType: TokenType) -> XMLHandler

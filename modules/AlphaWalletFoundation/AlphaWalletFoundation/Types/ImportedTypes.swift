@@ -10,13 +10,13 @@ public typealias Currency = AlphaWalletCore.Currency
 public typealias FungibleAmount = AlphaWalletCore.FungibleAmount
 public typealias TokenId = AlphaWalletCore.TokenId
 public typealias JsonRpcError = AlphaWalletCore.JsonRpcError
+public typealias TokenType = AlphaWalletCore.TokenType
 
 import AlphaWalletTokenScript
 public typealias AssetInternalValue = AlphaWalletTokenScript.AssetInternalValue
 public typealias AssetDefinitionStore = AlphaWalletTokenScript.AssetDefinitionStore
 public typealias AttributeId = AlphaWalletTokenScript.AttributeId
 public typealias TokenActionProvider = AlphaWalletTokenScript.TokenActionProvider
-public typealias TokenType = AlphaWalletTokenScript.TokenType
 public typealias TokenInstanceAction = AlphaWalletTokenScript.TokenInstanceAction
 public typealias TokenScript = AlphaWalletTokenScript.TokenScript
 public typealias TokenSelection = AlphaWalletTokenScript.TokenSelection
