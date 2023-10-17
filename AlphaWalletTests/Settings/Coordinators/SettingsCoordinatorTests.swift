@@ -36,14 +36,16 @@ class SettingsCoordinatorTests: XCTestCase {
             .sink { value in
                 deletedWallet = value
                 expectation.fulfill()
-                storage.deleteAllForTestsOnly()
+                Task { [deletedWallet] in
+                    await storage.deleteAllForTestsOnly().value
 
-                //let transactionCount2 = await storage.transactionCount(forServer: .main)
-                XCTAssertNotNil(deletedWallet)
-                XCTAssertTrue(wallet.address == deletedWallet!.address)
-                XCTAssertEqual(0, keystore.wallets.count)
-                //TODO test this too
-                //XCTAssertEqual(0, transactionCount2)
+                    //let transactionCount2 = await storage.transactionCount(forServer: .main)
+                    XCTAssertNotNil(deletedWallet)
+                    XCTAssertTrue(wallet.address == deletedWallet!.address)
+                    XCTAssertEqual(0, keystore.wallets.count)
+                    //TODO test this too
+                    //XCTAssertEqual(0, transactionCount2)
+                }
             }
 
         keystore.delete(wallet: wallet)

@@ -263,7 +263,7 @@ class TokenBalanceTests: XCTestCase {
                 }
 
         for each in 0 ..< callbackCount {
-            await tokensService.setNftBalanceTestsOnly(.balance(["0x0\(each)"]), for: token).value
+            _ = await tokensService.setNftBalanceTestsOnly(.balance(["0x0\(each)"]), for: token).value
         }
 
         await fulfillment(of: [tokenBalanceUpdateCallbackExpectation], timeout: 0.1)
