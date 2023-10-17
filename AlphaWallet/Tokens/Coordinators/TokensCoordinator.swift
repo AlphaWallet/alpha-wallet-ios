@@ -317,7 +317,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             strongSelf.delegate?.didTapSwap(swapTokenFlow: .selectTokenToSwap, in: strongSelf)
         }
 
-        alertController.addAction(swapAction)
+        if Features.current.isAvailable(.isSwapEnabled) {
+            alertController.addAction(swapAction)
+        }
 
         let renameThisWalletAction = UIAlertAction(title: R.string.localizable.tokensWalletRenameThisWallet(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
