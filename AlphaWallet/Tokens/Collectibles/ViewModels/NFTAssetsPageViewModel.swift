@@ -141,11 +141,11 @@ fileprivate extension NFTAssetsPageViewModel.functional {
         return snapshot
     }
 
-    static func nftAssetTitle(for tokenHolder: TokenHolder) -> String {
+    static func nftAssetTitleForFiltering(for tokenHolder: TokenHolder) -> String {
         let displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
-            return name
+            return displayHelper.title(fromTokenName: name, tokenId: tokenId)
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
         }
@@ -158,7 +158,7 @@ fileprivate extension NFTAssetsPageViewModel.functional {
         case .keyword(let keyword):
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 newTokenHolders = tokenHolders.filter { tokenHolder in
-                    return nftAssetTitle(for: tokenHolder).lowercased().contains(valueToSearch)
+                    return nftAssetTitleForFiltering(for: tokenHolder).lowercased().contains(valueToSearch)
                 }
             }
         }
