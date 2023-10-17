@@ -264,7 +264,7 @@ final class AddHideTokensViewModel {
         }
         popularTokens = tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
         displayedTokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
-        sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
+        sections = functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 }
 
@@ -316,7 +316,7 @@ extension AddHideTokensViewModel {
     enum functional {}
 }
 
-extension AddHideTokensViewModel.functional {
+fileprivate extension AddHideTokensViewModel.functional {
     static func availableSectionsToDisplay(displayedTokens: [Any], hiddenTokens: [Any], popularTokens: [Any], isSearchActive: Bool) -> [AddHideTokensViewModel.Section] {
         if isSearchActive {
             var sections: [AddHideTokensViewModel.Section] = []

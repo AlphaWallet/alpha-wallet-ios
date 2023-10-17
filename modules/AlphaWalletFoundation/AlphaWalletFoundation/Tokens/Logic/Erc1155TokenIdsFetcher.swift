@@ -27,7 +27,7 @@ struct Erc1155TokenIdsV1: Codable {
     let lastBlockNumber: BigUInt
 }
 
-fileprivate struct Erc1155TransferEvent: Comparable {
+internal struct Erc1155TransferEvent: Comparable {
     enum TransferType {
         case send
         case receive
@@ -313,8 +313,8 @@ extension Erc1155TokenIdsFetcher {
     enum functional {}
 }
 
+//internal instead of fileprivate to expose to tests
 extension Erc1155TokenIdsFetcher.functional {
-
     //Even if a tokenId now has a balance/value of 0, it will be included in the results
     static func computeUpdatedTokenIds(fromPreviousRead old: Erc1155TokenIds.ContractsAndTokenIds, newlyFetched: Erc1155TokenIds.ContractsAndTokenIds) -> Erc1155TokenIds.ContractsAndTokenIds {
         var updatedTokenIds: Erc1155TokenIds.ContractsAndTokenIds = old
@@ -336,7 +336,7 @@ extension Erc1155TokenIdsFetcher.functional {
         return result
     }
 
-    private static func coalesce(_ old: Erc1155TokenIds.BlockNumbersProcessed) -> Erc1155TokenIds.BlockNumbersProcessed {
+    static func coalesce(_ old: Erc1155TokenIds.BlockNumbersProcessed) -> Erc1155TokenIds.BlockNumbersProcessed {
         guard old.count > 1 else { return old }
         let e0 = old[old.count - 2]
         let e1 = old.last!
@@ -350,7 +350,7 @@ extension Erc1155TokenIdsFetcher.functional {
         }
     }
 
-    private static func union(_ e0: Range<UInt64>, _ e1: Range<UInt64>) -> Range<UInt64>? {
+    static func union(_ e0: Range<UInt64>, _ e1: Range<UInt64>) -> Range<UInt64>? {
         if e0.overlaps(e1) || e0.upperBound == e1.lowerBound || e1.upperBound == e0.lowerBound {
             return min(e0.lowerBound, e1.lowerBound)..<max(e0.upperBound, e1.upperBound)
         } else {

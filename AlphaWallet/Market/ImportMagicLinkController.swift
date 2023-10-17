@@ -434,8 +434,7 @@ extension ImportMagicLinkController {
     enum functional {}
 }
 
-extension ImportMagicLinkController.functional {
-
+fileprivate extension ImportMagicLinkController.functional {
     static func requiresPaymasterForCurrencyLinks(signedOrder: SignedOrder, server: RPCServer) -> Bool {
         guard signedOrder.order.nativeCurrencyDrop else { return false }
         guard signedOrder.order.price == 0 else { return false }

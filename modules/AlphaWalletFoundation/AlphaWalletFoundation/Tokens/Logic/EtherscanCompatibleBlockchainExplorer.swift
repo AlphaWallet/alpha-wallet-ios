@@ -8,6 +8,7 @@ import BigInt
 import AlphaWalletLogger
 import Alamofire
 
+// swiftlint:disable type_body_length
 class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private let server: RPCServer
     private let transporter: ApiTransporter
@@ -54,7 +55,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
-        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+        if Self.serverSupportsFetchingNftTransactions(server) {
             //no-op
         } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
@@ -112,7 +113,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
         return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -134,7 +135,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
         return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -180,7 +181,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
                                             transactions: $0.compactMap { $0 },
                                             startBlock: pagination.startBlock,
                                             endBlock: pagination.endBlock)
-                                    let (_, _, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                                    let (_, _, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
                                     if maxBlockNumber > 0 {
                                         let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
                                         return TransactionsResponse(transactions: transactions, nextPage: nextPage)
@@ -210,7 +211,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
         return getErc1155Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -237,7 +238,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
+                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
@@ -245,7 +246,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private func getErc721Transactions(walletAddress: AlphaWallet.Address,
                                        server: RPCServer,
                                        startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
-        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+        if Self.serverSupportsFetchingNftTransactions(server) {
             //no-op
         } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
@@ -261,7 +262,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
+                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
@@ -285,7 +286,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
+                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
@@ -300,7 +301,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
         return normalTransactions(walletAddress: walletAddress, sortOrder: .asc, pagination: pagination)
             .map {
-                functional.mergeTransactionOperationsForNormalTransactions(
+                Self.mergeTransactionOperationsForNormalTransactions(
                     transactions: transactions,
                     normalTransactions: $0.transactions)
             }.eraseToAnyPublisher()
@@ -356,7 +357,107 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private func randomDelay() -> Int {
         Int.random(in: 4...30)
     }
+
+    static func extractBoundingBlockNumbers(fromTransactions transactions: [Transaction]) -> (transactions: [Transaction], min: Int, max: Int) {
+        let blockNumbers = transactions.map(\.blockNumber)
+        if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
+            return (transactions: transactions, min: minBlockNumber, max: maxBlockNumber)
+        } else {
+            return (transactions: [], min: 0, max: 0)
+        }
+    }
+
+    static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: Eip20TokenType) -> [Transaction] {
+        let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
+        let transactions: [Transaction] = filteredResult.compactMap { result -> Transaction? in
+            let transactionJson = result.1
+            //Blockscout (and compatible like Polygon's) includes ERC721 transfers
+            let operationType: OperationType
+
+            switch tokenType {
+            case .erc20:
+                guard transactionJson["tokenID"].stringValue.isEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
+                operationType = .erc20TokenTransfer
+            case .erc721:
+                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
+                operationType = .erc721TokenTransfer
+            case .erc1155:
+                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.nonEmpty else { return nil }
+                operationType = .erc1155TokenTransfer
+            }
+
+            //TODO: implement saving tokenValue
+            let localizedTokenObj = LocalizedOperation(
+                    from: transactionJson["from"].stringValue,
+                    to: transactionJson["to"].stringValue,
+                    contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                    type: operationType.rawValue,
+                    value: transactionJson["value"].stringValue,
+                    tokenId: transactionJson["tokenID"].stringValue,
+                    symbol: transactionJson["tokenSymbol"].stringValue,
+                    name: transactionJson["tokenName"].stringValue,
+                    decimals: transactionJson["tokenDecimal"].intValue)
+
+            let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
+
+            return Transaction(
+                    id: transactionJson["hash"].stringValue,
+                    server: server,
+                    blockNumber: transactionJson["blockNumber"].intValue,
+                    transactionIndex: transactionJson["transactionIndex"].intValue,
+                    from: transactionJson["from"].stringValue,
+                    to: transactionJson["to"].stringValue,
+                    //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                    value: "0",
+                    gas: transactionJson["gas"].stringValue,
+                    gasPrice: gasPrice,
+                    gasUsed: transactionJson["gasUsed"].stringValue,
+                    nonce: transactionJson["nonce"].stringValue,
+                    date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                    localizedOperations: [localizedTokenObj],
+                    //The API only returns successful transactions
+                    state: .completed,
+                    isErc20Interaction: true)
+        }
+
+        return functional.mergeTransactionOperationsIntoSingleTransaction(transactions)
+    }
+
+    static func mergeTransactionOperationsForNormalTransactions(transactions: [Transaction], normalTransactions: [Transaction]) -> [Transaction] {
+        var results: [Transaction] = .init()
+        for each in transactions {
+            //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
+            guard !each.localizedOperations.isEmpty else { continue }
+            if var transaction = normalTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
+                transaction.isERC20Interaction = true
+                transaction.localizedOperations = Array(Set(each.localizedOperations))
+                results.append(transaction)
+            } else {
+                results.append(each)
+            }
+        }
+
+        return results
+    }
+
+    //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
+    static func serverSupportsFetchingNftTransactions(_ server: RPCServer) -> Bool {
+        switch server {
+        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet, .sepolia:
+            return true
+        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
+            return false
+        case .custom(let customRpc):
+            switch customRpc.etherscanCompatibleType {
+            case .etherscan:
+                return true
+            case .blockscout, .unknown:
+                return false
+            }
+        }
+    }
 }
+// swiftlint:enable type_body_length
 
 extension EtherscanCompatibleBlockchainExplorer {
 
@@ -470,8 +571,7 @@ extension EtherscanCompatibleBlockchainExplorer {
     enum functional {}
 }
 
-extension EtherscanCompatibleBlockchainExplorer.functional {
-
+fileprivate extension EtherscanCompatibleBlockchainExplorer.functional {
     //NOTE: some apis like https://api.hecoinfo.com/api? don't filter response to fit startBlock, endBlock, do it manually
     static func filter(transactions: [Transaction], startBlock: Int?, endBlock: Int?) -> [Transaction] {
         guard let startBlock = startBlock, let endBlock = endBlock else { return transactions }
@@ -479,88 +579,6 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
         let range = min(startBlock, endBlock)...max(startBlock, endBlock)
 
         return transactions.filter { range.contains($0.blockNumber) }
-    }
-
-    static func extractBoundingBlockNumbers(fromTransactions transactions: [Transaction]) -> (transactions: [Transaction], min: Int, max: Int) {
-        let blockNumbers = transactions.map(\.blockNumber)
-        if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
-            return (transactions: transactions, min: minBlockNumber, max: maxBlockNumber)
-        } else {
-            return (transactions: [], min: 0, max: 0)
-        }
-    }
-
-    static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: Eip20TokenType) -> [Transaction] {
-        let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
-        let transactions: [Transaction] = filteredResult.compactMap { result -> Transaction? in
-            let transactionJson = result.1
-                //Blockscout (and compatible like Polygon's) includes ERC721 transfers
-            let operationType: OperationType
-
-            switch tokenType {
-            case .erc20:
-                guard transactionJson["tokenID"].stringValue.isEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
-                operationType = .erc20TokenTransfer
-            case .erc721:
-                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.isEmpty else { return nil }
-                operationType = .erc721TokenTransfer
-            case .erc1155:
-                guard transactionJson["tokenID"].stringValue.nonEmpty && transactionJson["tokenValue"].stringValue.nonEmpty else { return nil }
-                operationType = .erc1155TokenTransfer
-            }
-
-            //TODO: implement saving tokenValue
-            let localizedTokenObj = LocalizedOperation(
-                from: transactionJson["from"].stringValue,
-                to: transactionJson["to"].stringValue,
-                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                type: operationType.rawValue,
-                value: transactionJson["value"].stringValue,
-                tokenId: transactionJson["tokenID"].stringValue,
-                symbol: transactionJson["tokenSymbol"].stringValue,
-                name: transactionJson["tokenName"].stringValue,
-                decimals: transactionJson["tokenDecimal"].intValue)
-
-            let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
-
-            return Transaction(
-                id: transactionJson["hash"].stringValue,
-                server: server,
-                blockNumber: transactionJson["blockNumber"].intValue,
-                transactionIndex: transactionJson["transactionIndex"].intValue,
-                from: transactionJson["from"].stringValue,
-                to: transactionJson["to"].stringValue,
-                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                value: "0",
-                gas: transactionJson["gas"].stringValue,
-                gasPrice: gasPrice,
-                gasUsed: transactionJson["gasUsed"].stringValue,
-                nonce: transactionJson["nonce"].stringValue,
-                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                localizedOperations: [localizedTokenObj],
-                //The API only returns successful transactions
-                state: .completed,
-                isErc20Interaction: true)
-        }
-
-        return mergeTransactionOperationsIntoSingleTransaction(transactions)
-    }
-
-    static func mergeTransactionOperationsForNormalTransactions(transactions: [Transaction], normalTransactions: [Transaction]) -> [Transaction] {
-        var results: [Transaction] = .init()
-        for each in transactions {
-            //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
-            guard !each.localizedOperations.isEmpty else { continue }
-            if var transaction = normalTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
-                transaction.isERC20Interaction = true
-                transaction.localizedOperations = Array(Set(each.localizedOperations))
-                results.append(transaction)
-            } else {
-                results.append(each)
-            }
-        }
-
-        return results
     }
 
     static func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [Transaction]) -> [Transaction] {
@@ -584,22 +602,6 @@ extension EtherscanCompatibleBlockchainExplorer.functional {
             return true
         case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli, .custom:
             return false
-        }
-    }
-    //TODO should move this to where the blockchain APIs are defined so we can update them in lock-step?
-    static func serverSupportsFetchingNftTransactions(_ server: RPCServer) -> Bool {
-        switch server {
-        case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet, .sepolia:
-            return true
-        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
-            return false
-        case .custom(let customRpc):
-            switch customRpc.etherscanCompatibleType {
-            case .etherscan:
-                return true
-            case .blockscout, .unknown:
-                return false
-            }
         }
     }
 }

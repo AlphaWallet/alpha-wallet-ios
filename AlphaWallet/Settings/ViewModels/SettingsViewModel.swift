@@ -276,8 +276,8 @@ extension SettingsViewModel.ViewType: Hashable {
     }
 }
 
-extension SettingsViewModel.functional {
-    fileprivate static func computeSections(account: Wallet, blockscanChatUnreadCount: Int?) -> [SettingsViewModel.SettingsSection] {
+fileprivate extension SettingsViewModel.functional {
+    static func computeSections(account: Wallet, blockscanChatUnreadCount: Int?) -> [SettingsViewModel.SettingsSection] {
         let walletRows: [SettingsViewModel.SettingsWalletRow]
         if account.allowBackup {
             if account.origin == .hd {

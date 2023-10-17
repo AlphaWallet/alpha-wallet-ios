@@ -26,7 +26,7 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             try await Task.sleep(nanoseconds: 3_000_000_000)
             await store.performSync { realm in
                 realm.objects(EventActivity.self)
-                        .filter(EventsActivityDataStore.functional.chainIdPredicate(servers: servers))
+                        .filter(functional.chainIdPredicate(servers: servers))
                         .sorted(byKeyPath: "date", ascending: false)
                         .changesetPublisher
                         .freeze()
@@ -49,10 +49,7 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     }
 
     public func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) async -> [EventActivityInstance] {
-        let predicate = EventsActivityDataStore
-            .functional
-            .matchingEventPredicate(for: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
-
+        let predicate = EventsActivityDataStore.functional.matchingEventPredicate(for: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
         var eventActivities: [EventActivityInstance] = []
         await store.perform { realm in
             eventActivities = realm.objects(EventActivity.self)
@@ -65,10 +62,7 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     }
 
     public func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) async -> EventActivityInstance? {
-        let predicate = EventsActivityDataStore
-            .functional
-            .matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
-
+        let predicate = Self.matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
         var eventActivity: EventActivityInstance?
         await store.perform { realm in
             eventActivity = realm.objects(EventActivity.self)
@@ -93,13 +87,6 @@ public class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             }
         }
     }
-}
-
-extension EventsActivityDataStore {
-    enum functional {}
-}
-
-extension EventsActivityDataStore.functional {
 
     static func isContractMatchPredicate(contract: AlphaWallet.Address) -> NSPredicate {
         return NSPredicate(format: "contract = '\(contract.eip55String)'")
@@ -113,25 +100,8 @@ extension EventsActivityDataStore.functional {
         return NSPredicate(format: "chainId = \(server.chainID)")
     }
 
-    static func chainIdPredicate(servers: [RPCServer]) -> NSPredicate {
-        return NSPredicate(format: "chainId IN %@", servers.map { $0.chainID })
-    }
-
     static func isEventNameMatchPredicate(eventName: String) -> NSPredicate {
         return NSPredicate(format: "eventName = '\(eventName)'")
-    }
-
-    static func isFilterMatchPredicate(interpolatedFilter: String) -> NSPredicate {
-        return NSPredicate(format: "filter = '\(interpolatedFilter)'")
-    }
-
-    static func matchingEventPredicate(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> NSPredicate {
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [
-            isContractMatchPredicate(contract: contract),
-            isChainIdMatchPredicate(server: server),
-            isEventNameMatchPredicate(eventName: eventName),
-            isFilterMatchPredicate(interpolatedFilter: interpolatedFilter)
-        ])
     }
 
     static func matchingEventPredicate(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> NSPredicate {
@@ -140,6 +110,29 @@ extension EventsActivityDataStore.functional {
             isTokenContractMatchPredicate(contract: tokenContract),
             isChainIdMatchPredicate(server: server),
             isEventNameMatchPredicate(eventName: eventName),
+        ])
+    }
+}
+
+extension EventsActivityDataStore {
+    enum functional {}
+}
+
+fileprivate extension EventsActivityDataStore.functional {
+    static func chainIdPredicate(servers: [RPCServer]) -> NSPredicate {
+        return NSPredicate(format: "chainId IN %@", servers.map { $0.chainID })
+    }
+
+    static func isFilterMatchPredicate(interpolatedFilter: String) -> NSPredicate {
+        return NSPredicate(format: "filter = '\(interpolatedFilter)'")
+    }
+
+    static func matchingEventPredicate(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            EventsActivityDataStore.isContractMatchPredicate(contract: contract),
+            EventsActivityDataStore.isChainIdMatchPredicate(server: server),
+            EventsActivityDataStore.isEventNameMatchPredicate(eventName: eventName),
+            isFilterMatchPredicate(interpolatedFilter: interpolatedFilter)
         ])
     }
 }

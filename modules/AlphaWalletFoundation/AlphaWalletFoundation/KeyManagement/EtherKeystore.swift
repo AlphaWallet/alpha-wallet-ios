@@ -872,10 +872,10 @@ extension EtherKeystore {
     enum functional {}
 }
 
-extension EtherKeystore.functional {
-    static fileprivate var emptyPassphrase = ""
+fileprivate extension EtherKeystore.functional {
+    static var emptyPassphrase = ""
 
-    static fileprivate func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
+    static func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
         repeat {
             if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: passphrase) {
                 let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
@@ -889,7 +889,7 @@ extension EtherKeystore.functional {
     }
 
     //Defensive check. Make sure mnemonic is OK and signs data correctly
-    static fileprivate func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
+    static func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
         guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase) else { return false }
         guard wallet.mnemonic == mnemonic else { return false }
         guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
@@ -907,7 +907,7 @@ extension EtherKeystore.functional {
         return address.sameContract(as: recoveredAddress.address)
     }
 
-    static fileprivate func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
+    static func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
         let firstAccountIndex = UInt32(0)
         let externalChangeConstant = UInt32(0)
         let addressIndex = UInt32(0)

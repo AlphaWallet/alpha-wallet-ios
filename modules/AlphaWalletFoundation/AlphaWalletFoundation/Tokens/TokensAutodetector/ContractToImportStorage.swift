@@ -31,7 +31,7 @@ extension ContractToImportFileStorage {
     enum functional {}
 }
 
-extension ContractToImportFileStorage.functional {
+fileprivate extension ContractToImportFileStorage.functional {
     static func loadContractsToDetect(fileName: String, server: RPCServer) -> [ContractToImport] {
         guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else {
             return []

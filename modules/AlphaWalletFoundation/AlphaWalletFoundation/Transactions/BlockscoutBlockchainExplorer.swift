@@ -55,7 +55,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
 
-        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+        if EtherscanCompatibleBlockchainExplorer.serverSupportsFetchingNftTransactions(server) {
             //no-op
         } else {
             return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
@@ -90,7 +90,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
 
         return erc20TokenTransferTransactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -112,7 +112,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
 
         return getErc721Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -157,7 +157,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
                                 .collect()
                                 .map {
                                     let transactions = $0.compactMap { $0 }
-                                    let (_, _, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                                    let (_, _, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.extractBoundingBlockNumbers(fromTransactions: transactions)
                                     if maxBlockNumber > 0 {
                                         let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
                                         return TransactionsResponse(transactions: transactions, nextPage: nextPage)
@@ -181,7 +181,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
 
         return getErc1155Transactions(walletAddress: walletAddress, server: server, startBlock: pagination.startBlock)
             .flatMap { transactions -> AnyPublisher<TransactionsResponse, PromiseError> in
-                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+                let (transactions, minBlockNumber, maxBlockNumber) = EtherscanCompatibleBlockchainExplorer.extractBoundingBlockNumbers(fromTransactions: transactions)
                 return self.backFillTransactionGroup(walletAddress: walletAddress, transactions: transactions, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                     .map {
                         if maxBlockNumber > 0 {
@@ -207,14 +207,14 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { EtherscanCompatibleBlockchainExplorer.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
+                .tryMap { EtherscanCompatibleBlockchainExplorer.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
 
     private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
         let tokenAction: BlockscoutBlockchainExplorer.Action
-        if EtherscanCompatibleBlockchainExplorer.functional.serverSupportsFetchingNftTransactions(server) {
+        if EtherscanCompatibleBlockchainExplorer.serverSupportsFetchingNftTransactions(server) {
             tokenAction = .tokennfttx
             //no-op
         } else {
@@ -233,7 +233,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { EtherscanCompatibleBlockchainExplorer.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
+                .tryMap { EtherscanCompatibleBlockchainExplorer.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
@@ -251,7 +251,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
                 .setFailureType(to: SessionTaskError.self)
                 .flatMap { _ in self.transporter.dataTaskPublisher(request) }
                 .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { EtherscanCompatibleBlockchainExplorer.functional.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
+                .tryMap { EtherscanCompatibleBlockchainExplorer.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
                 .mapError { PromiseError.some(error: $0) }
                 .eraseToAnyPublisher()
     }
@@ -270,7 +270,7 @@ class BlockscoutBlockchainExplorer: BlockchainExplorer {
 
         return normalTransactions(walletAddress: walletAddress, sortOrder: .asc, pagination: pagination)
             .map {
-                EtherscanCompatibleBlockchainExplorer.functional.mergeTransactionOperationsForNormalTransactions(
+                EtherscanCompatibleBlockchainExplorer.mergeTransactionOperationsForNormalTransactions(
                     transactions: transactions,
                     normalTransactions: $0.transactions)
             }.eraseToAnyPublisher()

@@ -75,12 +75,12 @@ extension TransactionsViewModel {
     }
 }
 
-extension TransactionsViewModel.functional {
-    private static var formatter: DateFormatter {
+fileprivate extension TransactionsViewModel.functional {
+    static var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
 
-    fileprivate static func buildSnapshot(for viewModels: [TransactionsViewModel.SectionViewModel]) -> TransactionsViewModel.Snapshot {
+    static func buildSnapshot(for viewModels: [TransactionsViewModel.SectionViewModel]) -> TransactionsViewModel.Snapshot {
         var snapshot = NSDiffableDataSourceSnapshot<TransactionsViewModel.Section, TransactionRow>()
         let sections = viewModels.map { dateString(for: $0.date) }
         //We need this for testing because ConfigTests.testTokensNavigationTitle is broken by ConfigTests.testTabBarItemTitle which changes the locale which modifies the singletons date formatters
@@ -95,7 +95,7 @@ extension TransactionsViewModel.functional {
         return snapshot
     }
 
-    fileprivate static func buildSectionViewModels(for transactions: [Transaction]) -> [TransactionsViewModel.SectionViewModel] {
+    static func buildSectionViewModels(for transactions: [Transaction]) -> [TransactionsViewModel.SectionViewModel] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
@@ -133,7 +133,7 @@ extension TransactionsViewModel.functional {
         }
     }
 
-    fileprivate static func dateString(for value: String) -> String {
+    static func dateString(for value: String) -> String {
         guard let date = formatter.date(from: value) else { return .init() }
 
         if NSCalendar.current.isDateInToday(date) {

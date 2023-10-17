@@ -232,13 +232,7 @@ extension TokenSwapper {
 }
 
 fileprivate extension TokenSwapper.functional {
-
-    static func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction,
-                                     fromToken: TokenToSwap,
-                                     fromAmount: BigUInt,
-                                     toToken: TokenToSwap,
-                                     toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
-
+    static func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
         let configuration: TransactionType.Configuration = .swapTransaction(
             fromToken: fromToken,
             fromAmount: fromAmount,

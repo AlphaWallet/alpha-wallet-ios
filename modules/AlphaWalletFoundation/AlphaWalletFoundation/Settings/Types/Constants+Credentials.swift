@@ -18,7 +18,7 @@ extension Constants {
             }
             let lines = fileContents.components(separatedBy: .newlines)
             let keyValues: [(String, String)] = lines.compactMap { line -> (String, String)? in
-                Constants.Credentials.functional.extractKeyValueCredentials(line)
+                Constants.Credentials.extractKeyValueCredentials(line)
             }
             let dict = Dictionary(uniqueKeysWithValues: keyValues)
             debugLog("[Credentials] Loaded .credentials file found for development with key count: \(dict.count)")
@@ -68,10 +68,6 @@ extension Constants {
 }
 
 extension Constants.Credentials {
-    public enum functional {}
-}
-
-extension Constants.Credentials.functional {
     public static func extractKeyValueCredentials(_ line: String) -> (key: String, value: String)? {
         let keyValue = line.components(separatedBy: "=")
         if keyValue.count == 2 {

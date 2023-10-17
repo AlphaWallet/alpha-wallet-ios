@@ -642,7 +642,7 @@ extension TokensViewController {
     enum functional {}
 }
 
-extension TokensViewController.functional {
+fileprivate extension TokensViewController.functional {
     static func fixTableViewBackgroundColor(tableView: UITableView, backgroundColor: UIColor) {
         let v = UIView()
         v.backgroundColor = backgroundColor

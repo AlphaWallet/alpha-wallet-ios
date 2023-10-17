@@ -13,8 +13,8 @@ public struct WalletSummary {
     public let changePercentage: WalletBalance.ValueForCurrency?
 
     public init(balances: [WalletBalance]) {
-        self.changePercentage = WalletSummary.functional.createChangePercentage(for: balances)
-        self.totalAmount = WalletSummary.functional.createTotalAmount(for: balances)
+        self.changePercentage = functional.createChangePercentage(for: balances)
+        self.totalAmount = functional.createTotalAmount(for: balances)
     }
 
     public var totalAmountString: String {
@@ -50,13 +50,12 @@ public extension Decimal {
     }
 }
 
-public extension WalletSummary {
+extension WalletSummary {
     public enum functional {}
 }
 
-extension WalletSummary.functional {
-
-    public static func createChangePercentage(for balances: [WalletBalance]) -> WalletBalance.ValueForCurrency? {
+fileprivate extension WalletSummary.functional {
+    static func createChangePercentage(for balances: [WalletBalance]) -> WalletBalance.ValueForCurrency? {
         let values = balances.compactMap { value -> WalletBalance.ValueForCurrency? in
             if let value = value.changePercentage {
                 guard !value.amount.isNaN else { return nil }
@@ -69,7 +68,7 @@ extension WalletSummary.functional {
         return reduce(all: values)
     }
 
-    public static func createTotalAmount(for balances: [WalletBalance]) -> WalletBalance.ValueForCurrency? {
+    static func createTotalAmount(for balances: [WalletBalance]) -> WalletBalance.ValueForCurrency? {
         let values = balances.compactMap { each -> WalletBalance.ValueForCurrency? in
             if let value = each.totalAmount {
                 guard !value.amount.isNaN else { return nil }
@@ -83,7 +82,7 @@ extension WalletSummary.functional {
     }
 
     //TODO: make tests
-    private static func reduce(all values: [WalletBalance.ValueForCurrency]) -> WalletBalance.ValueForCurrency? {
+    static func reduce(all values: [WalletBalance.ValueForCurrency]) -> WalletBalance.ValueForCurrency? {
         guard !values.isEmpty else { return nil }
 
         let total = values.reduce(into: WalletBalance.ValueForCurrency(amount: 0, currency: .default)) { partialResult, each in

@@ -31,7 +31,7 @@ class AddHideTokensViewController: UIViewController {
     private lazy var tokenFilterView: DropDownView<SortTokensParam> = {
         let view = DropDownView(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
         view.delegate = self
-        
+
         return view
     }()
     private var bottomConstraint: NSLayoutConstraint!
@@ -54,7 +54,7 @@ class AddHideTokensViewController: UIViewController {
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
             let addressString = strongSelf.searchController.searchBar.text ?? ""
             delegate.didPressAddToken(in: strongSelf, with: addressString)
-        }) 
+        })
 
         view.addSubview(tableView)
 
@@ -118,6 +118,19 @@ class AddHideTokensViewController: UIViewController {
         startLoading(animated: false)
         tableView.reloadData()
         endLoading(animated: false)
+    }
+}
+
+extension AddHideTokensViewController {
+    enum functional {}
+}
+
+fileprivate extension AddHideTokensViewController.functional {
+    static func headerView(for section: Int, viewModel: AddHideTokenSectionHeaderViewModel) -> UIView {
+        let view = AddHideTokenSectionHeaderView()
+        view.configure(viewModel: viewModel)
+
+        return view
     }
 }
 
@@ -248,7 +261,7 @@ extension AddHideTokensViewController: UITableViewDelegate {
             return header
         case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
             let viewModel: AddHideTokenSectionHeaderViewModel = .init(titleText: self.viewModel.titleForSection(section))
-            return AddHideTokensViewController.functional.headerView(for: section, viewModel: viewModel)
+            return functional.headerView(for: section, viewModel: viewModel)
         }
     }
 

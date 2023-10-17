@@ -443,9 +443,9 @@ extension Attestation {
 }
 
 //For testing
-extension Attestation.functional {
+extension Attestation {
     internal static func extractTypesFromSchemaForTesting(_ schema: Attestation.Schema) -> [ABIv2.Element.InOut]? {
-        return extractTypesFromSchema(schema)
+        return functional.extractTypesFromSchema(schema)
     }
 }
 

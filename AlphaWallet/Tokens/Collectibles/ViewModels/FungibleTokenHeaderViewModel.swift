@@ -132,7 +132,7 @@ extension FungibleTokenHeaderViewModel {
     }
 }
 
-extension FungibleTokenHeaderViewModel.functional {
+fileprivate extension FungibleTokenHeaderViewModel.functional {
     static func amountInFiatAttributedString(for balance: BalanceViewModel) -> NSAttributedString {
         let string: String = {
             guard let ticker = balance.ticker, let amount = balance.amountInFiat else { return UiTweaks.noPriceMarker }
@@ -184,7 +184,7 @@ extension FungibleTokenHeaderViewModel.functional {
         return mutableAttributedString
     }
 
-    private static func priceChange(for balance: BalanceViewModel) -> String? {
+    static func priceChange(for balance: BalanceViewModel) -> String? {
         guard let ticker = balance.ticker else { return nil }
 
         let formatter = NumberFormatter.percent
@@ -198,7 +198,7 @@ extension FungibleTokenHeaderViewModel.functional {
         }
     }
 
-    private static func marketPrice(for balance: BalanceViewModel) -> String? {
+    static func marketPrice(for balance: BalanceViewModel) -> String? {
         guard let ticker = balance.ticker else { return nil }
 
         return NumberFormatter.fiat(currency: ticker.currency).string(double: ticker.price_usd)

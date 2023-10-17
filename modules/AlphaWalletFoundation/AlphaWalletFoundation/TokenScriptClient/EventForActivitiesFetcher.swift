@@ -36,7 +36,7 @@ final class EventForActivitiesFetcher {
                 $0.isIndexed
             }
             .map {
-                EventSourceForActivities.functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: session.account)
+                EventSourceForActivities.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: session.account)
             }
 
         if filterParam.allSatisfy({ $0 == nil }) {
@@ -68,7 +68,7 @@ final class EventForActivitiesFetcher {
         let results = await events.asyncCompactMap { event -> EventActivityInstance? in
             guard let blockNumber = event.eventLog?.blockNumber else { return nil }; do {
                 let block = try await session.blockchainProvider.block(by: blockNumber)
-                return EventSourceForActivities.functional.convertEventToDatabaseObject(event, date: block.timestamp, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: token.contractAddress, server: token.server)
+                return EventSourceForActivities.convertEventToDatabaseObject(event, date: block.timestamp, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: token.contractAddress, server: token.server)
             } catch {
                 logError(error, rpcServer: token.server, address: token.contractAddress)
                 return nil

@@ -76,8 +76,7 @@ extension ErcTokenDetector {
     enum functional {}
 }
 
-extension ErcTokenDetector.functional {
-
+fileprivate extension ErcTokenDetector.functional {
     static func filter(transactions: [Transaction], contractsToAvoid: [AlphaWallet.Address]) -> [Transaction] {
         return transactions.filter {
             if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {

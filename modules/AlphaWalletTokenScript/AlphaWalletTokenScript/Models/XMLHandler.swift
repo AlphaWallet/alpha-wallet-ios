@@ -1331,13 +1331,6 @@ public struct XMLHandler {
 }
 // swiftlint:enable type_body_length
 
-extension XMLHandler {
-    public enum functional {}
-}
-
-fileprivate extension XMLHandler.functional {
-}
-
 //TODO fix it so we when user switch light-dark mode, this background is updated
 fileprivate func defaultViewHtmlBodyBackgroundColor() -> String {
     let currentInterfaceStyle = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.traitCollection.userInterfaceStyle ?? .unspecified

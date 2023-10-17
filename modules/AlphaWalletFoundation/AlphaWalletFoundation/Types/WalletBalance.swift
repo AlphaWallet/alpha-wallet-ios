@@ -105,9 +105,8 @@ public extension WalletBalance {
     public enum functional {}
 }
 
-extension WalletBalance.functional {
-
-    fileprivate static func createChange(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
+fileprivate extension WalletBalance.functional {
+    static func createChange(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
         var totalChange: Double? = 0.0
         for token in tokens {
             if totalChange == nil { totalChange = 0.0 }
@@ -125,7 +124,7 @@ extension WalletBalance.functional {
         return totalChange.flatMap { WalletBalance.ValueForCurrency(amount: $0, currency: currency) }
     }
 
-    fileprivate static func createTotalAmount(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
+    static func createTotalAmount(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
         var totalAmount: Double? = 0
 
         for token in tokens {

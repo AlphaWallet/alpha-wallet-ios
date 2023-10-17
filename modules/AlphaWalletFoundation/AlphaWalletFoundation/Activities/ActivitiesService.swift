@@ -10,6 +10,7 @@ import Combine
 import CoreFoundation
 import AlphaWalletCore
 import AlphaWalletTokenScript
+import BigInt
 import CombineExt
 
 public protocol ActivitiesServiceType: AnyObject {
@@ -167,7 +168,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     let operations = transaction.localizedOperations
                     return operations.allSatisfy { activity != $0 }
                 }
-                let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
+                let activity = await functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty && activities.isEmpty {
                     results.append(.standaloneTransaction(transaction: transaction, activity: activity))
                 } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
@@ -180,7 +181,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
                     results.append(contentsOf: await transaction.localizedOperations.asyncMap {
-                        let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
                     for each in activities {
@@ -197,7 +198,7 @@ public class ActivitiesService: ActivitiesServiceType {
             case .activity(let activity):
                 return [.standaloneActivity(activity: activity)]
             case .transaction(let transaction):
-                let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
+                let activity = await functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensService: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else if transaction.localizedOperations.count == 1 {
@@ -207,7 +208,7 @@ public class ActivitiesService: ActivitiesServiceType {
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: await transaction.localizedOperations.asyncMap {
-                        let activity = await ActivityCollection.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
 
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
@@ -309,12 +310,155 @@ extension ActivitiesService {
     enum functional {}
 }
 
-extension ActivitiesService.functional {
-    static func generateImplicitAttributesForCard(forContract contract: AlphaWallet.Address, server: RPCServer, event: EventActivityInstance) -> [String: AssetInternalValue] {
-        var results = [String: AssetInternalValue]()
+fileprivate extension ActivitiesService.functional {
+    static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensService: TokensService, wallet: AlphaWallet.Address) async -> (token: Token, activityName: String)? {
+        enum TokenOperation {
+            case nativeCryptoTransfer(Token)
+            case completedTransfer(Token)
+            case pendingTransfer(Token)
+            case completedErc20Approval(Token)
+            case pendingErc20Approval(Token)
+
+            var token: Token {
+                switch self {
+                case .nativeCryptoTransfer(let token):
+                    return token
+                case .completedTransfer(let token):
+                    return token
+                case .pendingTransfer(let token):
+                    return token
+                case .completedErc20Approval(let token):
+                    return token
+                case .pendingErc20Approval(let token):
+                    return token
+                }
+            }
+        }
+
+        let erc20TokenOperation: TokenOperation?
+        if transactionRow.operation == nil {
+            erc20TokenOperation = .nativeCryptoTransfer(MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionRow.server))
+        } else {
+            //Explicitly listing out combinations so future changes to enums will be caught by compiler
+            switch (transactionRow.state, transactionRow.operation?.operationType) {
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer), (.pending, .erc1155TokenTransfer):
+                if let address = transactionRow.operation?.contractAddress {
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server).flatMap { TokenOperation.pendingTransfer($0) }
+                } else {
+                    erc20TokenOperation = nil
+                }
+            case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer), (.completed, .erc1155TokenTransfer):
+                if let address = transactionRow.operation?.contractAddress {
+                    erc20TokenOperation =  await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.completedTransfer($0) }
+                } else {
+                    erc20TokenOperation = nil
+                }
+            case (.pending, .erc20TokenApprove):
+                if let address = transactionRow.operation?.contractAddress {
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.pendingErc20Approval($0) }
+                } else {
+                    erc20TokenOperation = nil
+                }
+            case (.completed, .erc20TokenApprove):
+                if let address = transactionRow.operation?.contractAddress {
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.completedErc20Approval($0) }
+                } else {
+                    erc20TokenOperation = nil
+                }
+            case (.pending, .erc721TokenApproveAll):
+                //TODO support ERC721 setApprovalForAll()
+                erc20TokenOperation = .none
+            case (.completed, .erc721TokenApproveAll):
+                //TODO support ERC721 setApprovalForAll()
+                erc20TokenOperation = .none
+            case (.unknown, _), (.error, _), (.failed, _), (_, .unknown), (.completed, .none), (.pending, nil):
+                erc20TokenOperation = .none
+            }
+        }
+        guard let token = erc20TokenOperation?.token else { return nil }
+        let activityName: String
+        switch erc20TokenOperation {
+        case .nativeCryptoTransfer, .completedTransfer, .pendingTransfer, .none:
+            if wallet.sameContract(as: transactionRow.from) {
+                activityName = "sent"
+            } else {
+                activityName = "received"
+            }
+        case .completedErc20Approval, .pendingErc20Approval:
+            activityName = "ownerApproved"
+        }
+        return (token: token, activityName: activityName)
+    }
+
+    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, tokensService: TokensService, wallet: AlphaWallet.Address) async -> Activity? {
+        guard let (token, activityName) = await extractTokenAndActivityName(fromTransactionRow: transactionRow, tokensService: tokensService, wallet: wallet) else { return nil }
+
+        var cardAttributes = [AttributeId: AssetInternalValue]()
+        cardAttributes.setSymbol(string: transactionRow.server.symbol)
+
+        if let operation = transactionRow.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
+            cardAttributes.setAmount(uint: value)
+        } else {
+            if let value = BigUInt(transactionRow.value) {
+                cardAttributes.setAmount(uint: value)
+            }
+        }
+
+        if let value = AlphaWallet.Address(string: transactionRow.from) {
+            cardAttributes.setFrom(address: value)
+        }
+
+        if let toString = transactionRow.operation?.to, let to = AlphaWallet.Address(string: toString) {
+            cardAttributes.setTo(address: to)
+        } else {
+            if let value = AlphaWallet.Address(string: transactionRow.to) {
+                cardAttributes.setTo(address: value)
+            }
+        }
+
         var timestamp: GeneralisedTime = .init()
-        timestamp.date = event.date
-        results["timestamp"] = .generalisedTime(timestamp)
-        return results
+        timestamp.date = transactionRow.date
+        cardAttributes.setTimestamp(generalisedTime: timestamp)
+        let state: Activity.State
+        switch transactionRow.state {
+        case .pending:
+            state = .pending
+        case .completed:
+            state = .completed
+        case .error, .failed:
+            state = .failed
+                //TODO we don't need the other states at the moment
+        case .unknown:
+            state = .completed
+        }
+        let rowType: ActivityRowType
+        switch transactionRow {
+        case .standalone:
+            rowType = .standalone
+        case .group:
+            rowType = .group
+        case .item:
+            rowType = .item
+        }
+        return .init(
+                //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
+                id: transactionRow.blockNumber + 10000000,
+                rowType: rowType,
+                token: token,
+                server: transactionRow.server,
+                name: activityName,
+                eventName: activityName,
+                blockNumber: transactionRow.blockNumber,
+                transactionId: transactionRow.id,
+                transactionIndex: transactionRow.transactionIndex,
+                //We don't use this for transactions, so it's ok
+                logIndex: 0,
+                date: transactionRow.date,
+                values: (token: .init(), card: cardAttributes),
+                view: (html: "", urlFragment: nil, style: ""),
+                itemView: (html: "", urlFragment: nil, style: ""),
+                isBaseCard: true,
+                state: state
+        )
     }
 }

@@ -291,7 +291,7 @@ extension SwapOptionsConfigurator {
     class functional {}
 }
 
-extension SwapOptionsConfigurator.functional {
+fileprivate extension SwapOptionsConfigurator.functional {
     static func sortSessionsWithMainnetsFirst(sessions: [WalletSession]) -> [WalletSession] {
         let sortedSessions = sessions.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
         var mainnetsSessions = [WalletSession]()

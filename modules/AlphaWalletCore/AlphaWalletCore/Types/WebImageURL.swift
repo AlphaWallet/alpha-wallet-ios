@@ -97,7 +97,7 @@ public enum WebImageURL: Codable, Hashable, Equatable, CustomStringConvertible {
 }
 
 extension String {
-    
+
     func rangeFromNSRange(nsRange: NSRange) -> Range<String.Index>? {
         return Range(nsRange, in: self)
     }
@@ -108,8 +108,7 @@ extension WebImageURL {
 }
 
 fileprivate extension WebImageURL.functional {
-
-    private static let googleImageSizeInUrlRegex: NSRegularExpression = {
+    static let googleImageSizeInUrlRegex: NSRegularExpression = {
         return try! NSRegularExpression(pattern: "(=s|=S).*[0-9]", options: .init())
     }()
 
