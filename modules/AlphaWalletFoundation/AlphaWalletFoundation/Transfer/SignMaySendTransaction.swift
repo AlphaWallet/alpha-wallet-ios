@@ -4,7 +4,7 @@ import Foundation
 import AlphaWalletLogger
 import BigInt
 
-public class SendTransaction {
+public class SignMaySendTransaction {
     private let keystore: Keystore
     private let session: WalletSession
     private let confirmType: ConfirmType
@@ -12,13 +12,7 @@ public class SendTransaction {
     private let analytics: AnalyticsLogger
     private let prompt: String
 
-    public init(session: WalletSession,
-                keystore: Keystore,
-                confirmType: ConfirmType,
-                config: Config,
-                analytics: AnalyticsLogger,
-                prompt: String) {
-
+    public init(session: WalletSession, keystore: Keystore, confirmType: ConfirmType, config: Config, analytics: AnalyticsLogger, prompt: String) {
         self.prompt = prompt
         self.session = session
         self.keystore = keystore
@@ -38,17 +32,26 @@ public class SendTransaction {
         }
     }
 
-    public func send(transaction: UnsignedTransaction) async throws -> ConfirmResult {
-        if transaction.nonce >= 0 {
-            return try await signAndSend(transaction: transaction)
-        } else {
-            let nonce = try await session.blockchainProvider.nextNonce(wallet: session.account.address).first
-            let transaction = transaction.updating(nonce: nonce)
+    public func signMaybeSend(transaction: UnsignedTransaction) async throws -> ConfirmResult {
+        switch confirmType {
+        case .sign:
+            return try await sign(transaction: transaction)
+        case .signThenSend:
             return try await signAndSend(transaction: transaction)
         }
     }
 
     private func signAndSend(transaction: UnsignedTransaction) async throws -> ConfirmResult {
+        if transaction.nonce >= 0 {
+            return try await _signAndSend(transaction: transaction)
+        } else {
+            let nonce = try await session.blockchainProvider.nextNonce(wallet: session.account.address).first
+            let transaction = transaction.updating(nonce: nonce)
+            return try await _signAndSend(transaction: transaction)
+        }
+    }
+
+    private func _signAndSend(transaction: UnsignedTransaction) async throws -> ConfirmResult {
         do {
             switch try await keystore.signTransaction(transaction, prompt: prompt) {
             case .failure(let error):
@@ -59,6 +62,22 @@ public class SendTransaction {
                 return .sentTransaction(SentTransaction(id: transactionId, original: transaction))
             }
         } catch {
+            logSelectSendError(error)
+            throw error
+        }
+    }
+
+    private func sign(transaction: UnsignedTransaction) async throws -> ConfirmResult {
+        do {
+            switch try await keystore.signTransaction(transaction, prompt: prompt) {
+            case .failure(let error):
+                throw error
+            case .success(let data):
+                infoLog("Sign transaction")
+                return .signedTransaction(data)
+            }
+        } catch {
+            //TODO should rename the function (since we are only signing, not sending), or have a different function
             logSelectSendError(error)
             throw error
         }

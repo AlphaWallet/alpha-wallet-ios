@@ -148,16 +148,31 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         rootViewController.set(state: .pending)
 
         Task { @MainActor in
-            do {
-                let result = try await sendTransaction()
-                handleSendTransactionSuccessfully(result: result)
-                logCompleteActionSheetForTransactionConfirmationSuccessfully()
-            } catch {
-                logActionSheetForTransactionConfirmationFailed()
-                //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    self.rootViewController.set(state: .done(withError: true)) {
-                        self.handleSendTransactionError(error)
+            switch configuration.confirmType {
+            case .sign:
+                do {
+                    let result = try await signTransaction()
+                    handleTransactionSuccessfully(result: result)
+                } catch {
+                    //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        self.rootViewController.set(state: .done(withError: true)) {
+                            self.handleTransactionError(error)
+                        }
+                    }
+                }
+            case .signThenSend:
+                do {
+                    let result = try await sendTransaction()
+                    handleTransactionSuccessfully(result: result)
+                    logCompleteActionSheetForTransactionConfirmationSuccessfully()
+                } catch {
+                    logActionSheetForTransactionConfirmationFailed()
+                    //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        self.rootViewController.set(state: .done(withError: true)) {
+                            self.handleTransactionError(error)
+                        }
                     }
                 }
             }
@@ -169,17 +184,25 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 
     private func sendTransaction() async throws -> ConfirmResult {
         let prompt = R.string.localizable.keystoreAccessKeySign()
-        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
+        let sender = SignMaySendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
         let transaction = configurator.formUnsignedTransaction()
         infoLog("[TransactionConfirmation] form unsigned transaction: \(transaction)")
         if configurator.session.config.development.shouldNotSendTransactions {
             throw DevelopmentForcedError(message: "Did not send transaction because of development flag")
         } else {
-            return try await sender.send(transaction: transaction)
+            return try await sender.signMaybeSend(transaction: transaction)
         }
     }
 
-    private func handleSendTransactionSuccessfully(result: ConfirmResult) {
+    private func signTransaction() async throws -> ConfirmResult {
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let signer = SignMaySendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
+        let transaction = configurator.formUnsignedTransaction()
+        infoLog("[TransactionConfirmation] form unsigned transaction: \(transaction)")
+        return try await signer.signMaybeSend(transaction: transaction)
+    }
+
+    private func handleTransactionSuccessfully(result: ConfirmResult) {
         switch result {
         case .sentTransaction(let tx):
             delegate?.didSendTransaction(tx, inCoordinator: self)
@@ -193,7 +216,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }
     }
 
-    private func handleSendTransactionError(_ error: Error) {
+    private func handleTransactionError(_ error: Error) {
         switch error {
         case let e as SendTransactionNotRetryableError where !server.isTestnet:
             let errorViewController = SendTransactionErrorViewController(analytics: analytics, viewModel: .init(server: server, error: e))

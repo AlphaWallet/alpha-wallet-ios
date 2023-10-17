@@ -1196,7 +1196,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                                 requester: RequesterViewModel?,
                                 transaction: UnconfirmedTransaction,
                                 configuration: TransactionType.Configuration) -> AnyPublisher<Data, PromiseError> {
-
         infoLog("[\(source)] signTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
@@ -1222,7 +1221,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: JsonRpcError.requestRejected) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
+            let sender = SignMaySendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
             return Promise {
                 try await sender.send(rawTransaction: transaction)
             }
