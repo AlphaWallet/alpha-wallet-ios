@@ -14,8 +14,9 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
     public static func createStorage() -> StorageType {
         let directoryUrl: URL = {
             if isRunningTests() {
+                let uuid = UUID().uuidString
                 let cacheDirectoryUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-                let directory = try! FileManager.default.createSubDirectoryIfNotExists(name: walletsFolderForTests, directory: cacheDirectoryUrl)
+                let directory = try! FileManager.default.createSubDirectoryIfNotExists(name: "\(walletsFolderForTests)/\(uuid)", directory: cacheDirectoryUrl)
                 return directory
             } else {
                 let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -32,7 +33,7 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         let cacheDirectoryUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         let directory = cacheDirectoryUrl.appendingPathComponent(walletsFolderForTests)
 
-        //NOTE: we want to clear all elready created wallets in cache directory while performing tests
+        //NOTE: we want to clear all already created wallets in cache directory while performing tests
         FileManager.default.removeAllItems(directory: directory)
     }
 
@@ -191,13 +192,11 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
 }
 
 extension EtherKeystore {
-    private static let rawJsonWalletStore = JsonWalletAddressesStore.createStorage()
-
     public static func migratedWalletAddressesStore(userDefaults: UserDefaults) -> WalletAddressesStore {
         //NOTE: its quite important to remove test wallets right before fetching, otherwise tests will fails, especially Keystore related
         JsonWalletAddressesStore.removeWalletsFolderForTests()
 
-        let jsonWalletAddressesStore = JsonWalletAddressesStore(storage: rawJsonWalletStore)
+        let jsonWalletAddressesStore = JsonWalletAddressesStore(storage: JsonWalletAddressesStore.createStorage())
         if !jsonWalletAddressesStore.hasAnyStoredData {
 
             let userDefaultsWalletAddressesStore = DefaultsWalletAddressesStore(userDefaults: userDefaults)
