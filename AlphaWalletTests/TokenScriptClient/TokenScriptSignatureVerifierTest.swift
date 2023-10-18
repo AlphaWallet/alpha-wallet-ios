@@ -28,7 +28,7 @@ class TokenScriptSignatureVerifierTest: XCTestCase {
             }
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 30)
+        wait(for: [expectation], timeout: 3)
     }
 
     func testValidatorAPIFailed() {
@@ -50,6 +50,6 @@ class TokenScriptSignatureVerifierTest: XCTestCase {
             }
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 30)
+        wait(for: [expectation], timeout: 3)
     }
 }

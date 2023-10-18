@@ -32,7 +32,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
             isDisabled: false,
             type: .erc875
         )
-        
+
         let order = Order(price: BigUInt(0),
                           indices: indices,
                           expiry: expiry,
@@ -43,10 +43,9 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                           spawnable: false,
                           nativeCurrencyDrop: false
         )
-        
+
         let _ = SignedOrder(order: order, message: [UInt8](), signature: "")
         expectation.fulfill()
-        wait(for: expectations, timeout: 10)
+        wait(for: expectations, timeout: 0.1)
     }
-    
 }

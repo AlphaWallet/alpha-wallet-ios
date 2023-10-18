@@ -22,28 +22,14 @@ class EnsResolverTests: XCTestCase {
     }()
 
     func testResolution() async {
-        var expectations = [XCTestExpectation]()
-        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
-        expectations.append(expectation)
         let ensName = "b00n.thisisme.eth"
-        Task {
-            let address = try! await resolver.getENSAddressFromResolver(for: ensName)
-            XCTAssertTrue(address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362"), "ENS name did not resolve correctly")
-            expectation.fulfill()
-        }
-        await fulfillment(of: expectations, timeout: 20)
+        let address = try? await resolver.getENSAddressFromResolver(for: ensName)
+        XCTAssertEqual(address?.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362"), true, "ENS name did not resolve correctly")
     }
 
     func testEnsIp10WildcardAndEip3668CcipRead() async {
-        var expectations = [XCTestExpectation]()
-        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
-        expectations.append(expectation)
         let ensName = "1.offchainexample.eth"
-        Task {
-            let address = try! await resolver.getENSAddressFromResolver(for: ensName)
-            XCTAssertTrue(address.sameContract(as: "41563129cdbbd0c5d3e1c86cf9563926b243834d"), "ENS name did not resolve correctly")
-            expectation.fulfill()
-        }
-        await fulfillment(of: expectations, timeout: 100)
+        let address = try? await resolver.getENSAddressFromResolver(for: ensName)
+        XCTAssertEqual(address?.sameContract(as: "41563129cdbbd0c5d3e1c86cf9563926b243834d"), true, "ENS name did not resolve correctly")
     }
 }

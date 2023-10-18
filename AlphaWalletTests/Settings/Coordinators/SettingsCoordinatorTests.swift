@@ -50,7 +50,7 @@ class SettingsCoordinatorTests: XCTestCase {
 
         keystore.delete(wallet: wallet)
 
-        await fulfillment(of: [expectation], timeout: 20)
+        await fulfillment(of: [expectation], timeout: 3)
     }
 
     func testDeleteWallet() {
@@ -79,7 +79,7 @@ class SettingsCoordinatorTests: XCTestCase {
                 expectation.fulfill()
             }
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: 3)
     }
 
     func testAddDeleteWallet() {

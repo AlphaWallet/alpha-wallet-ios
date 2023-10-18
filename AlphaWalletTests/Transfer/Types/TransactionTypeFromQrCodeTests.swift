@@ -44,7 +44,7 @@ class ImportTokenTests: XCTestCase {
                 }
             }).store(in: &cancelable)
 
-        await fulfillment(of: [expectation, expectationDidCheckAdd], timeout: 30)
+        await fulfillment(of: [expectation, expectationDidCheckAdd], timeout: 3)
     }
 
     func testImportNotDetectedErc20Token() throws {
@@ -67,7 +67,7 @@ class ImportTokenTests: XCTestCase {
 
             }).store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        waitForExpectations(timeout: 3)
     }
 
     func testImportAlreadyAddedErc20Token() async throws {
@@ -92,7 +92,7 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.value, .zero)
             }).store(in: &cancelable)
 
-        await fulfillment(of: [expectation], timeout: 30)
+        await fulfillment(of: [expectation], timeout: 3)
     }
 }
 
@@ -146,7 +146,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        await fulfillment(of: [expectation], timeout: 30)
+        await fulfillment(of: [expectation], timeout: 3)
     }
 
     func testScanSmallErc20Transfer() async throws {
@@ -172,7 +172,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        await fulfillment(of: [expectation], timeout: 30)
+        await fulfillment(of: [expectation], timeout: 3)
     }
 
     func testScanSmallErc20TransferWhenTokenNeedToResolve() throws {
@@ -198,7 +198,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        waitForExpectations(timeout: 3)
     }
 
     func testScanSmallNonErc20Transfer() throws {
@@ -217,7 +217,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 30)
+        waitForExpectations(timeout: 3)
     }
 }
 
