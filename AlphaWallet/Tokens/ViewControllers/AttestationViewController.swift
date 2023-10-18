@@ -136,7 +136,7 @@ class AttestationViewController: UIViewController {
         var constraints: [NSLayoutConstraint] = [
             containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
         if let tokenScriptRendererView {
             view.addSubview(tokenScriptRendererView)
