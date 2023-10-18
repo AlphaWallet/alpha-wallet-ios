@@ -2,7 +2,7 @@
 
 @testable import AlphaWallet
 import XCTest
-import AlphaWalletFoundation
+@testable import AlphaWalletFoundation
 
 class DeepLinkTests: XCTestCase {
     func testHasWalletConnectPathFromSafariExtensionRewriting() {
