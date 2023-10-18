@@ -28,7 +28,7 @@ class ScrollableStackView: UIView {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
-        
+
         return scrollView
     }()
 
@@ -43,7 +43,7 @@ class ScrollableStackView: UIView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-        ] + scrollView.anchorsConstraintSafeArea(to: self))
+        ] + scrollView.anchorsIgnoringBottomSafeArea(to: self))
 
         configure(viewModel: viewModel)
     }
