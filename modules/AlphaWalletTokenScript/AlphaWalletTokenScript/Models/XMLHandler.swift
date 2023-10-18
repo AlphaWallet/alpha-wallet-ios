@@ -1139,8 +1139,15 @@ public struct XMLHandler {
                font-weight: bold;
                }
                body {
-                   background-color1: \(defaultViewHtmlBodyBackgroundColor());
+                   background-color: white;
                }
+               /*
+               @media (prefers-color-scheme: dark) {
+                   body {
+                       background-color: black;
+                   }
+               }
+               */
                .token-card {
                padding: 0pt;
                margin: 0pt;
@@ -1330,17 +1337,4 @@ public struct XMLHandler {
     }
 }
 // swiftlint:enable type_body_length
-
-//TODO fix it so we when user switch light-dark mode, this background is updated
-fileprivate func defaultViewHtmlBodyBackgroundColor() -> String {
-    let currentInterfaceStyle = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.traitCollection.userInterfaceStyle ?? .unspecified
-    switch currentInterfaceStyle {
-    case .unspecified, .light:
-        return "white"
-    case .dark:
-        return "black"
-    @unknown default:
-        return "white"
-    }
-}
 // swiftlint:enable file_length
