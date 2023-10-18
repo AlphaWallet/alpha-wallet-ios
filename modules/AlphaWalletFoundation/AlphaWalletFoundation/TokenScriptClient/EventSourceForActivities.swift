@@ -327,42 +327,36 @@ final class EventSourceForActivities {
             }
         }
     }
-}
 
-extension EventSourceForActivities {
-    enum functional {}
-}
-
-extension EventSourceForActivities.functional {
     static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, date: Date, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, tokenContract: AlphaWallet.Address, server: RPCServer) -> EventActivityInstance? {
         guard let eventLog = event.eventLog else { return nil }
 
         let transactionId = eventLog.transactionHash.hexEncoded
-        let decodedResult = EventSource.functional.convertToJsonCompatible(dictionary: event.decodedResult)
+        let decodedResult = EventSource.convertToJsonCompatible(dictionary: event.decodedResult)
         guard let json = decodedResult.jsonString else { return nil }
         //TODO when TokenScript schema allows it, support more than 1 filter
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
 
         return EventActivityInstance(
-            contract: eventOrigin.contract,
-            tokenContract: tokenContract,
-            server: server,
-            date: date,
-            eventName: eventOrigin.eventName,
-            blockNumber: Int(eventLog.blockNumber),
-            transactionId: transactionId,
-            transactionIndex: Int(eventLog.transactionIndex),
-            logIndex: Int(eventLog.logIndex),
-            filter: filterText,
-            json: json)
+                contract: eventOrigin.contract,
+                tokenContract: tokenContract,
+                server: server,
+                date: date,
+                eventName: eventOrigin.eventName,
+                blockNumber: Int(eventLog.blockNumber),
+                transactionId: transactionId,
+                transactionIndex: Int(eventLog.transactionIndex),
+                logIndex: Int(eventLog.logIndex),
+                filter: filterText,
+                json: json)
     }
 
     static func formFilterFrom(fromParameter parameter: EventParameter, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {
         guard parameter.name == filterName else { return nil }
         guard let parameterType = SolidityType(rawValue: parameter.type) else { return nil }
         let optionalFilter: (filter: AssetAttributeValueUsableAsFunctionArguments, textEquivalent: String)?
-        if let implicitAttribute = EventSource.functional.convertToImplicitAttribute(string: filterValue) {
+        if let implicitAttribute = EventSource.convertToImplicitAttribute(string: filterValue) {
             switch implicitAttribute {
             case .tokenId:
                 optionalFilter = nil

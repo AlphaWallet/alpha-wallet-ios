@@ -86,7 +86,7 @@ class ActivitiesGenerator {
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
                 let interpolatedFilter: String
-                if let implicitAttribute = EventSource.functional.convertToImplicitAttribute(string: filterValue) {
+                if let implicitAttribute = EventSource.convertToImplicitAttribute(string: filterValue) {
                     switch implicitAttribute {
                     case .tokenId:
                         continue
@@ -154,8 +154,7 @@ class ActivitiesGenerator {
 
             let implicitAttributes = generateImplicitAttributesForToken(contract: contract, server: server, symbol: token.symbol)
             let tokenAttributes = implicitAttributes
-            var cardAttributes = ActivitiesService.functional
-                .generateImplicitAttributesForCard(forContract: contract, server: server, event: eachEvent)
+            var cardAttributes = functional.generateImplicitAttributesForCard(forContract: contract, server: server, event: eachEvent)
 
             cardAttributes.merge(eachEvent.data) { _, new in new }
 
@@ -225,6 +224,20 @@ class ActivitiesGenerator {
                 results[each.javaScriptName] = .address(contract)
             }
         }
+        return results
+    }
+}
+
+extension ActivitiesGenerator {
+    enum functional {}
+}
+
+fileprivate extension ActivitiesGenerator.functional {
+    static func generateImplicitAttributesForCard(forContract contract: AlphaWallet.Address, server: RPCServer, event: EventActivityInstance) -> [String: AssetInternalValue] {
+        var results = [String: AssetInternalValue]()
+        var timestamp: GeneralisedTime = .init()
+        timestamp.date = event.date
+        results["timestamp"] = .generalisedTime(timestamp)
         return results
     }
 }

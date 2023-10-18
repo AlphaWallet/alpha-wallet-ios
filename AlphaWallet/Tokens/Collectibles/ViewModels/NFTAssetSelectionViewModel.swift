@@ -263,7 +263,7 @@ extension NFTAssetSelectionViewModel {
         case allAvailable
         case unselectAll
     }
-    
+
     struct SelectedAsset: Equatable {
         let selected: Int
         let indexPath: IndexPath
@@ -295,8 +295,7 @@ extension NFTAssetSelectionViewModel {
     }
 }
 
-extension NFTAssetSelectionViewModel.functional {
-
+fileprivate extension NFTAssetSelectionViewModel.functional {
     static func filter(tokenHolders: [TokenHolder], with filter: NFTAssetSelectionViewModel.AssetFilter) -> [TokenHolderWithItsTokenIds] {
         switch filter {
         case .keyword(let keyword):

@@ -287,9 +287,8 @@ extension AddCustomChain {
     }
 }
 
-//Experimental. Having some of the logic in barely-functional style. Most importantly, immutable. Static functions in an inner class enforce that state of value-type arguments are not modified, but it's still possible to modify reference-typed arguments. For now, avoid those. Inner class is required instead of a `fileprivate` class because one of the value they provide is being easier to test, so they must be accessible from the testsuite
-extension AddCustomChain.functional {
-    public static func checkChainId(_ customChain: WalletAddEthereumChainObject) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int), AddCustomChainError> {
+fileprivate extension AddCustomChain.functional {
+    static func checkChainId(_ customChain: WalletAddEthereumChainObject) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int), AddCustomChainError> {
         guard let chainId = Int(chainId0xString: customChain.chainId) else {
             return .fail(AddCustomChainError.invalidChainId(customChain.chainId))
         }

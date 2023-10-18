@@ -95,7 +95,7 @@ extension CoinTickers: CoinTickersProvider {
     }
 }
 
-private extension CoinTickers.functional {
+fileprivate extension CoinTickers.functional {
     struct FetcherTokenMappedToTickerPair {
         let fetcher: CoinTickersFetcher
         let tokenMappedToTickers: [TokenMappedToTicker]

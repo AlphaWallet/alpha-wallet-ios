@@ -330,7 +330,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 }
             }.compactMap { $0 }
 
-            let contractToNonFungibles = functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToOpenSeaNonFungibles, contractsAndBalances: contractsAndBalances)
+            let contractToNonFungibles = Self.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToOpenSeaNonFungibles, contractsAndBalances: contractsAndBalances)
             return await self.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToNonFungibles)
         }
 
@@ -339,13 +339,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             notifyUpdateBalance(ops)
         }
     }
-}
 
-extension TokenBalanceFetcher {
-    enum functional {}
-}
-
-extension TokenBalanceFetcher.functional {
     static func fillErc1155NonFungiblesWithBalance<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]], contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])]) -> [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]] {
         let contractsAndBalances = Dictionary(uniqueKeysWithValues: contractsAndBalances)
         let contractToNonFungiblesWithUpdatedBalances: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]] = Dictionary(uniqueKeysWithValues: contractToNonFungibles.map { contract, nonFungibles in

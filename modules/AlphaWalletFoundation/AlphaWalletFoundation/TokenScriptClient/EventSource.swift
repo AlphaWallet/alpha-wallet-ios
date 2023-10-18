@@ -6,6 +6,7 @@ import Combine
 import AlphaWalletTokenScript
 import AlphaWalletWeb3
 
+// swiftlint:disable type_body_length
 final class EventSource {
     typealias EventPublisher = AnyPublisher<[EventInstanceValue], Never>
 
@@ -356,13 +357,6 @@ final class EventSource {
             return subject.eraseToAnyPublisher()
         }
     }
-}
-
-extension EventSource {
-    enum functional {}
-}
-
-extension EventSource.functional {
 
     static func convertToImplicitAttribute(string: String) -> AssetImplicitAttributes? {
         let prefix = "${"
@@ -370,40 +364,6 @@ extension EventSource.functional {
         guard string.hasPrefix(prefix) && string.hasSuffix(suffix) else { return nil }
         let value = string.substring(with: prefix.count..<(string.count - suffix.count))
         return AssetImplicitAttributes(rawValue: value)
-    }
-
-    static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, contractAddress: AlphaWallet.Address, server: RPCServer) -> EventInstanceValue? {
-        guard let blockNumber = event.eventLog?.blockNumber else { return nil }
-        guard let logIndex = event.eventLog?.logIndex else { return nil }
-        let decodedResult = Self.convertToJsonCompatible(dictionary: event.decodedResult)
-        guard let json = decodedResult.jsonString else { return nil }
-        //TODO when TokenScript schema allows it, support more than 1 filter
-        let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
-        let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
-
-        return EventInstanceValue(contract: eventOrigin.contract, tokenContract: contractAddress, server: server, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), logIndex: Int(logIndex), filter: filterText, json: json)
-    }
-
-    static func formFilterFrom(fromParameter parameter: EventParameter, tokenId: TokenId, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {
-        guard parameter.name == filterName else { return nil }
-        guard let parameterType = SolidityType(rawValue: parameter.type) else { return nil }
-        let optionalFilter: (filter: AssetAttributeValueUsableAsFunctionArguments, textEquivalent: String)?
-        if let implicitAttribute = Self.convertToImplicitAttribute(string: filterValue) {
-            switch implicitAttribute {
-            case .tokenId:
-                optionalFilter = AssetAttributeValueUsableAsFunctionArguments(assetAttribute: .uint(tokenId)).flatMap { (filter: $0, textEquivalent: "\(filterName)=\(tokenId)") }
-            case .ownerAddress:
-                optionalFilter = AssetAttributeValueUsableAsFunctionArguments(assetAttribute: .address(wallet.address)).flatMap { (filter: $0, textEquivalent: "\(filterName)=\(wallet.address.eip55String)") }
-            case .label, .contractAddress, .symbol:
-                optionalFilter = nil
-            }
-        } else {
-            //TODO support things like "$prefix-{tokenId}"
-            optionalFilter = nil
-        }
-        guard let (filterValue, textEquivalent) = optionalFilter else { return nil }
-        guard let filterValueTypedForEventFilters = filterValue.coerceToArgumentTypeForEventFilter(parameterType) else { return nil }
-        return (filter: [filterValueTypedForEventFilters], textEquivalent: textEquivalent)
     }
 
     static func convertToJsonCompatible(dictionary: [String: Any]) -> [String: Any] {
@@ -424,5 +384,5 @@ extension EventSource.functional {
             }
         })
     }
-
 }
+// swiftlint:enable type_body_length

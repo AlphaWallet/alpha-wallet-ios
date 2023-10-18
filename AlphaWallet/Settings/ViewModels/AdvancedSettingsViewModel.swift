@@ -32,7 +32,7 @@ class AdvancedSettingsViewModel {
 
     func transform(input: AdvancedSettingsViewModelInput) -> AdvancedSettingsViewModelOutput {
         let viewState = input.willAppear
-            .map { [wallet, features] _ in AdvancedSettingsViewModel.functional.computeSections(wallet: wallet, features: features) }
+            .map { [wallet, features] _ in functional.computeSections(wallet: wallet, features: features) }
             .handleEvents(receiveOutput: { self.rows = $0 })
             .map { $0.map { self.buildCellViewModel(for: $0) } }
             .map { AdvancedSettingsViewModel.SectionViewModel(section: .rows, views: $0) }
@@ -69,8 +69,6 @@ extension AdvancedSettingsViewModel {
     class DataSource: UITableViewDiffableDataSource<AdvancedSettingsViewModel.Section, SettingTableViewCellViewModel> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<AdvancedSettingsViewModel.Section, SettingTableViewCellViewModel>
 
-    enum functional {}
-
     enum Section: Int, Hashable, CaseIterable {
         case rows
     }
@@ -100,8 +98,12 @@ extension AdvancedSettingsViewModel {
     }
 }
 
-extension AdvancedSettingsViewModel.functional {
-    fileprivate static func computeSections(wallet: Wallet, features: Features) -> [AdvancedSettingsViewModel.AdvancedSettingsRow] {
+extension AdvancedSettingsViewModel {
+    enum functional {}
+}
+
+fileprivate extension AdvancedSettingsViewModel.functional {
+    static func computeSections(wallet: Wallet, features: Features) -> [AdvancedSettingsViewModel.AdvancedSettingsRow] {
         let canExportToJSONKeystore = features.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
         return [
             .clearBrowserCache,

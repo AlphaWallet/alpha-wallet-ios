@@ -274,8 +274,7 @@ extension EnjinUserManager {
     enum functional { }
 }
 
-extension EnjinUserManager.functional {
-
+fileprivate extension EnjinUserManager.functional {
     private struct EnjinOauthFallbackDecoder {
         func decode(from body: JSONObject) -> EnjinOauthQuery.Data.EnjinOauth? {
             guard let data = body["data"] as? [String: Any], let authData = data["EnjinOauth"] as? [String: Any] else { return nil }
@@ -290,10 +289,7 @@ extension EnjinUserManager.functional {
         }
     }
 
-    fileprivate static func authorize(graphqlClient: ApolloClient,
-                                      email: String,
-                                      password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
-
+    static func authorize(graphqlClient: ApolloClient, email: String, password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
         return Promise<EnjinOauthQuery.Data.EnjinOauth> { seal in
             graphqlClient.fetch(query: EnjinOauthQuery(email: email, password: password)) { response in
                 switch response {

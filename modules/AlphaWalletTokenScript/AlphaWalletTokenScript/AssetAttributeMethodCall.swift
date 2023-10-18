@@ -33,7 +33,7 @@ struct AssetAttributeMethodCall: ContractMethodCall {
 
     func response(from dictionary: [String: Any]) throws -> AssetInternalValue {
         if let value = dictionary["0"] {
-            return CallForAssetAttributeProvider.functional.mapValue(of: functionCall.output, for: value)
+            return functional.mapValue(of: functionCall.output, for: value)
         } else {
             if case SolidityType.void = functionCall.output.type {
                 return .bool(false)
@@ -44,11 +44,11 @@ struct AssetAttributeMethodCall: ContractMethodCall {
     }
 }
 
-extension CallForAssetAttributeProvider {
+extension AssetAttributeMethodCall {
     enum functional {}
 }
 
-extension CallForAssetAttributeProvider.functional {
+fileprivate extension AssetAttributeMethodCall.functional {
     static func mapValue(of output: AssetFunctionCall.ReturnType, for value: Any) -> AssetInternalValue {
         switch output.type {
         case .address:

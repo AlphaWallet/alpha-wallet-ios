@@ -1,22 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
-extension AddHideTokensViewController {
-    enum functional {}
-}
 
-extension AddHideTokensViewController.functional {
-
-    static func headerView(for section: Int, viewModel: AddHideTokenSectionHeaderViewModel) -> UIView {
-        let view = AddHideTokenSectionHeaderView()
-        view.configure(viewModel: viewModel)
-
-        return view
-    }
-}
-
-private class AddHideTokenSectionHeaderView: UIView {
-
+class AddHideTokenSectionHeaderView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

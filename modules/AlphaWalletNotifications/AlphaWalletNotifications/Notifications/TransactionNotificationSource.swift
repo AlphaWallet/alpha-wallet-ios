@@ -67,8 +67,7 @@ extension TransactionNotificationSource {
     enum functional {}
 }
 
-extension TransactionNotificationSource.functional {
-
+fileprivate extension TransactionNotificationSource.functional {
     //NOTE: case insensitive search for address value because it might be written not in eip55
     static func addressPredicate(field: String, address: AlphaWallet.Address) -> NSPredicate {
         return NSPredicate(format: "\(field) contains[c] %@", address.eip55String)

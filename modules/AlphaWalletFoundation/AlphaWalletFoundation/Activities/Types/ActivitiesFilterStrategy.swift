@@ -45,11 +45,11 @@ extension Token {
     }
 }
 
-fileprivate extension ActivitiesFilterStrategy {
+extension ActivitiesFilterStrategy {
     enum functional {}
 }
 
-extension ActivitiesFilterStrategy.functional {
+fileprivate extension ActivitiesFilterStrategy.functional {
     static func predicateForNativeCryptocurrencyTransactions() -> NSPredicate {
         let completed = TransactionState.predicate(for: .completed)
         let pending = TransactionState.predicate(for: .pending)

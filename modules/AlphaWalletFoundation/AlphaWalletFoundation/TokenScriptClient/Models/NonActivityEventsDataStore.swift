@@ -118,16 +118,16 @@ extension NonActivityMultiChainEventsDataStore.functional {
 
     static func matchingEventPredicate(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
-            EventsActivityDataStore.functional.isContractMatchPredicate(contract: contract),
-            EventsActivityDataStore.functional.isChainIdMatchPredicate(server: server),
-            EventsActivityDataStore.functional.isTokenContractMatchPredicate(contract: tokenContract),
-            EventsActivityDataStore.functional.isEventNameMatchPredicate(eventName: eventName),
+            EventsActivityDataStore.isContractMatchPredicate(contract: contract),
+            EventsActivityDataStore.isChainIdMatchPredicate(server: server),
+            EventsActivityDataStore.isTokenContractMatchPredicate(contract: tokenContract),
+            EventsActivityDataStore.isEventNameMatchPredicate(eventName: eventName),
             isFilterMatchPredicate(filterName: filterName, filterValue: filterValue)
         ])
     }
 
     static func matchingEventPredicate(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> NSPredicate {
-        EventsActivityDataStore.functional.matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
+        EventsActivityDataStore.matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
     }
 }
 

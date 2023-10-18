@@ -38,6 +38,7 @@ public enum HardwareWalletSuccessMessages {
 }
 
 //TODO consider move out if this is useful for general wallet, not just hardware wallet. Maybe into Web3.Utils, but those seem like they should be extracted too
+//TODO some of these might not fit into `functional`
 public extension HDWallet.functional {
     static func convertMnemonicToSeed(_ mnemonic: String) -> Data? {
         let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase)
