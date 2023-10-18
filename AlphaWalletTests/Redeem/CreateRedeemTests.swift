@@ -42,6 +42,6 @@ class CreateRedeemTests: XCTestCase {
                 }
             }).store(in: &cancellable)
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [expectation], timeout: 3)
     }
 }

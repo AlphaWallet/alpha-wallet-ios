@@ -22,7 +22,7 @@ class LocalPopularTokensCollectionTests: XCTestCase {
                 XCTAssertFalse(results.isEmpty)
             }
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 3)
     }
 }
 

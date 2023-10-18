@@ -102,7 +102,7 @@ class SessionTests: XCTestCase {
             XCTAssertEqual(retryCallbackCallCounter, 1)
         }
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 3)
     }
 
 }
