@@ -8,7 +8,7 @@ class AccountViewCell: UITableViewCell {
     private let apprecation24hourLabel = UILabel()
     private let balanceLabel = UILabel()
     private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
-    lazy private var selectedIndicator: UIView = {
+    private lazy var selectedIndicator: UIView = {
         let indicator = UIView()
         indicator.layer.cornerRadius = DataEntry.Metric.SelectionIndicator.width / 2.0
         indicator.borderWidth = 0.0

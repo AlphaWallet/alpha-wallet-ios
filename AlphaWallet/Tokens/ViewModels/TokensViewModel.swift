@@ -45,7 +45,7 @@ final class TokensViewModel {
     var viewState: ViewState!
 
     private let attestationsStore: AttestationsStore
-    lazy private var _attestations: [Attestation] = attestationsStore.attestations
+    private lazy var _attestations: [Attestation] = attestationsStore.attestations
     private var attestations: [Attestation] {
         _attestations.filter { serversProvider.enabledServers.contains($0.server) }
     }

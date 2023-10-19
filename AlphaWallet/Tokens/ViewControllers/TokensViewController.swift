@@ -24,7 +24,7 @@ final class TokensViewController: UIViewController {
         return viewModel.viewState
     }
 
-    lazy private var filterView: ScrollableSegmentedControl = {
+    private lazy var filterView: ScrollableSegmentedControl = {
         let control = ScrollableSegmentedControl(cells: viewModel.filterViewModel.cells, configuration: viewModel.filterViewModel.configuration)
         control.setSelection(cellIndex: 0, animated: false)
         control.translatesAutoresizingMaskIntoConstraints = false

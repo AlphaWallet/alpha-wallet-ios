@@ -47,7 +47,7 @@ final class AddressTextField: UIControl {
 
         return textField
     }()
-    lazy private var ensAddressLabel: AddressOrEnsNameLabel = {
+    private lazy var ensAddressLabel: AddressOrEnsNameLabel = {
         let label = AddressOrEnsNameLabel(domainResolutionService: domainResolutionService)
         label.addressFormat = .truncateMiddle
         label.shouldShowLoadingIndicator = true

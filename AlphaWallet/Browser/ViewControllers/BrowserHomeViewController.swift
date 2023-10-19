@@ -51,7 +51,7 @@ class BrowserHomeViewController: UIViewController {
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController?.navigationBar as? DappBrowserNavigationBar
     }
-    lazy private var collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let fixedGutter = CGFloat(24)
         let availableWidth = UIScreen.main.bounds.size.width - (2 * fixedGutter)
@@ -167,7 +167,7 @@ extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
 }
 
 fileprivate extension BrowserHomeViewController {
-    
+
     func makeDataSource() -> BrowserHomeViewModel.DataSource {
         let dataSource = BrowserHomeViewModel.DataSource(collectionView: collectionView, cellProvider: { [weak self] collectionView, indexPath, viewModel in
             guard let strongSelf = self else { return UICollectionViewCell() }
@@ -209,7 +209,7 @@ extension BrowserHomeViewController: DappViewCellDelegate {
                 message: cell.title,
                 okTitle: R.string.localizable.removeButtonTitle(),
                 okStyle: .destructive) else { return }
-            
+
             deleteBookmark.send(cell.bookmark)
         }
     }
