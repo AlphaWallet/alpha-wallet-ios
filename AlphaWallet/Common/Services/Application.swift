@@ -255,6 +255,7 @@ class Application: WalletDependenciesProvidable {
                             }
                         })
                     if !override.destinationFileInUse {
+                        //This does work, but only for AirDrop on device, not with drag and drop in Finder on simulator
                         strongSelf.navigation?.showTokenScriptFileImported(filename: override.filename)
                     }
                 }
