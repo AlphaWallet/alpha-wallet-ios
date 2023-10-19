@@ -7,12 +7,12 @@ protocol StaticHTMLViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class StaticHTMLViewController: UIViewController {
-    lazy private var webViewConfiguration: WKWebViewConfiguration = {
+    private lazy var webViewConfiguration: WKWebViewConfiguration = {
         let config = WKWebViewConfiguration()
         config.setURLSchemeHandler(self, forURLScheme: "tokenscript-resource")
         return config
     }()
-    lazy private var webView = WKWebView(frame: .zero, configuration: webViewConfiguration)
+    private lazy var webView = WKWebView(frame: .zero, configuration: webViewConfiguration)
 
     let footer = UIView()
     weak var delegate: StaticHTMLViewControllerDelegate?

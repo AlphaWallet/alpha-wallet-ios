@@ -24,8 +24,8 @@ public class TokenScriptWebView: UIView, TokenScriptLocalRefsSource {
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: WalletType
     private let assetDefinitionStore: AssetDefinitionStore
-    lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
-    lazy private var webView: WKWebView = {
+    private lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
+    private lazy var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer(serverWithInjectableRpcUrl), address: wallet.address, messageHandler: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         let webView = WKWebView(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)

@@ -23,7 +23,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let session: WalletSession
     private let keystore: Keystore
     private let roundedBackground = RoundedBackground()
-    lazy private var tokenScriptRendererView: TokenScriptWebView = {
+    private lazy var tokenScriptRendererView: TokenScriptWebView = {
         //TODO pass in Config instance instead
         let webView = TokenScriptWebView(server: server, serverWithInjectableRpcUrl: server, wallet: session.account.type, assetDefinitionStore: assetDefinitionStore, shouldPretendIsRealWallet: Config().development.shouldPretendIsRealWallet)
         webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground

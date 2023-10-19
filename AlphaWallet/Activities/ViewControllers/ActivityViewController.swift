@@ -35,7 +35,7 @@ class ActivityViewController: UIViewController {
     private let timestampLabel = UILabel()
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
-    lazy private var tokenScriptRendererView: TokenScriptWebView = {
+    private lazy var tokenScriptRendererView: TokenScriptWebView = {
         let webView = TokenScriptWebView(server: server, serverWithInjectableRpcUrl: server, wallet: wallet.type, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self

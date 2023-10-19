@@ -11,7 +11,7 @@ protocol ElevateWalletSecurityViewControllerDelegate: AnyObject {
 class ElevateWalletSecurityViewController: UIViewController {
     private let keystore: Keystore
     private let account: Wallet
-    lazy private var viewModel = ElevateWalletSecurityViewModel(isHdWallet: account.origin == .hd)
+    private lazy var viewModel = ElevateWalletSecurityViewModel(isHdWallet: account.origin == .hd)
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()

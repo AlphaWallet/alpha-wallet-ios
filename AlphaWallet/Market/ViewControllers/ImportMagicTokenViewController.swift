@@ -9,7 +9,7 @@ protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
-    lazy private var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
+    private lazy var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .large)

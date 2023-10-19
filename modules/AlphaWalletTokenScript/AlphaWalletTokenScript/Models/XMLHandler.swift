@@ -156,7 +156,7 @@ public class PrivateXMLHandler {
         baseTokenType != nil
     }
     private let baseTokenType: TokenType?
-    lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
+    private lazy var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
     private lazy var tokenElement: XMLElement? = {
         return XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext)

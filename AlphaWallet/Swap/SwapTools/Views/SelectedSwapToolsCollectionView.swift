@@ -21,13 +21,13 @@ final class SelectedSwapToolsCollectionView: UIView {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(SwapToolCollectionViewCell.self)
         collectionView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        
+
         return collectionView
     }()
     private lazy var dataSource: SelectedSwapToolsCollectionViewModel.DataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()
     private static let fallbackHeight: CGFloat = 60
-    lazy private var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
+    private lazy var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
     private let viewModel: SelectedSwapToolsCollectionViewModel
     private let willAppear: AnyPublisher<Void, Never>
 

@@ -60,7 +60,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var attributesCollectionViewHeightConstraint = attributesCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var attributesCollectionViewHeightConstraint = attributesCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let rankingsLabel = UILabel()
     private let rankingsCollectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
@@ -70,7 +70,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var rankingsCollectionViewHeightConstraint = rankingsCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var rankingsCollectionViewHeightConstraint = rankingsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let statsLabel = UILabel()
     private let statsCollectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
@@ -80,13 +80,13 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         layout.minimumInteritemSpacing = 00
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    lazy private var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private lazy var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let urlButton = UIButton(type: .system)
     private let urlButtonHolder = [].asStackView(axis: .horizontal, alignment: .leading)
     private var viewModel: OpenSeaNonFungibleTokenCardRowViewModel?
     private var thumbnailRelatedConstraints = [NSLayoutConstraint]()
     //Sets a default which is ignored. At runtime, we recalculate constant based on image's aspect ratio so the image can always fill the width
-    lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
+    private lazy var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
     private var bigImageRelatedConstraints = [NSLayoutConstraint]()
     private var bigImageViewRelatedConstraintsWithPositiveBleed = [NSLayoutConstraint]()
     private var bigImageViewRelatedConstraintsWithNegativeBleed = [NSLayoutConstraint]()
