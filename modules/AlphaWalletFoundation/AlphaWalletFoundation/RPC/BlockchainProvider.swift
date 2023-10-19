@@ -128,7 +128,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         if let inflight = BlockNumbers.inflightBlockTimesFetchers[server] {
             return inflight.eraseToAnyPublisher()
         }
-        if let (blockNumber, fetchedTime) = BlockNumbers.lastFetchedBlockTimes[server], Date().timeIntervalSince(fetchedTime) < (BlockNumbers.averageBlockTimes[server] ?? BlockNumbers.fallBackAverageBlockTime) {
+        if let (blockNumber, fetchedTime) = BlockNumbers.lastFetchedBlockTimes[server], Date().timeIntervalSince(fetchedTime) < (BlockNumbers.averageBlockTimes[server, default: BlockNumbers.fallBackAverageBlockTime]) {
             return Just(blockNumber).setFailureType(to: SessionTaskError.self).eraseToAnyPublisher()
         }
         let inflight = PassthroughSubject<Int, SessionTaskError>()

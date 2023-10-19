@@ -29,7 +29,7 @@ public class AttestationsStore {
     public func addAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address, collectionIdFieldNames: [String], identifyingFieldNames: [String]) async -> Bool {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
-            var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
+            var attestationsForWallet: [Attestation] = allAttestations[address, default: []]
             if attestations.contains(attestation) {
                 infoLog("[Attestation] Attestation already exist. Skipping")
                 return false
@@ -71,7 +71,7 @@ public class AttestationsStore {
     public func removeAttestation(_ attestation: Attestation, forWallet address: AlphaWallet.Address) {
         var allAttestations = functional.readAttestations(from: Self.fileUrl)
         do {
-            var attestationsForWallet: [Attestation] = allAttestations[address] ?? []
+            var attestationsForWallet: [Attestation] = allAttestations[address, default: []]
             attestationsForWallet = attestationsForWallet.filter { $0 != attestation }
             allAttestations[address] = attestationsForWallet
 
@@ -105,7 +105,7 @@ fileprivate extension AttestationsStore.functional {
 
     static func readAttestations(forWallet address: AlphaWallet.Address, from fileUrl: URL) -> [Attestation] {
         let allAttestations = readAttestations(from: fileUrl)
-        let result: [Attestation] = allAttestations[address] ?? []
+        let result: [Attestation] = allAttestations[address, default: []]
         return result
     }
 

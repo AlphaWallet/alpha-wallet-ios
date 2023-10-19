@@ -628,7 +628,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
     }
 
     func mapTraitsToDisplayName(name: String) -> String {
-        return traitsToProperNames[name] ?? name.replacingOccurrences(of: "_", with: " ").titleCasedWords()
+        return traitsToProperNames[name, default: name.replacingOccurrences(of: "_", with: " ").titleCasedWords()]
     }
 
 // swiftlint:disable function_body_length

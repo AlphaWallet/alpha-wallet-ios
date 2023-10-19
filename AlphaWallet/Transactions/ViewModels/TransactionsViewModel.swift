@@ -100,7 +100,7 @@ fileprivate extension TransactionsViewModel.functional {
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
             let date = formatter.string(from: transaction.date)
-            let currentItems = newItems[date] ?? .init()
+            let currentItems = newItems[date, default: .init()]
             currentItems.add(transaction)
             newItems[date] = currentItems
         }

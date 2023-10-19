@@ -172,7 +172,7 @@ extension RealmStore: ChartHistoryStorage {
 
                     if let assignedCoinTicker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey) {
                         var histories = assignedCoinTicker.chartHistory ?? [:]
-                        var historyForPeriod = histories[period] ?? [:]
+                        var historyForPeriod = histories[period, default: [:]]
                         historyForPeriod[history.currency] = .init(history: history, fetchDate: Date())
                         histories[period] = historyForPeriod
 

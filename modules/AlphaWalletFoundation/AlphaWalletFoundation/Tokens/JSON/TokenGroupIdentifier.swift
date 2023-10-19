@@ -164,7 +164,7 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
         if token.isCollectibles {
             return .collectibles
         }
-        return decodedTokenEntries[token.tokenGroupKey] ?? .assets
+        return decodedTokenEntries[token.tokenGroupKey, default: .assets]
     }
 
     public func hasContract(address: String, chainID: Int) -> Bool {

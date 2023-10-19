@@ -110,7 +110,7 @@ fileprivate extension CoinTickers.functional {
         for each in tokenMappedToTickers {
             //TODO fragile
             let type = String(describing: each.coinTickerProviderType)
-            var tokens = mappedToProvidersTypeTokens[type] ?? []
+            var tokens = mappedToProvidersTypeTokens[type, default: []]
             tokens += [each]
             mappedToProvidersTypeTokens[type] = tokens
         }

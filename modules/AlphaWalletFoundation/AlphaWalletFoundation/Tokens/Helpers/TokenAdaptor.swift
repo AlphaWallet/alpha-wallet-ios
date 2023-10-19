@@ -201,7 +201,7 @@ public struct TokenAdaptor {
             let category = each.values.categoryStringValue ?? "N/A"
 
             let hash = "\(city),\(venue),\(date),\(countryA),\(countryB),\(match),\(category)"
-            var group = dictionary[hash] ?? []
+            var group = dictionary[hash, default: []]
             group.append(each)
             dictionary[hash] = group
         }

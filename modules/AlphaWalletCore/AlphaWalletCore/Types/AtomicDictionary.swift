@@ -27,7 +27,11 @@ public class AtomicDictionary<Key: Hashable, Value> {
             }
         }
     }
-    
+
+    public subscript(server: Key, default defaultValue: @autoclosure () -> Value) -> Value {
+        return self[server] ?? defaultValue()
+    }
+
     public init(queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background), value: [Key: Value] = [:]) {
         self.queue = queue
         self.cache = value

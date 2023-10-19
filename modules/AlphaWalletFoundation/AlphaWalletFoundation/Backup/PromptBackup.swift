@@ -85,7 +85,7 @@ public class PromptBackup {
 
     //TODO: improve balance fetching
     public func balance(wallet: Wallet) -> WalletBalance.ValueForCurrency {
-        balances[wallet] ?? .init(amount: 0, currency: .default)
+        balances[wallet, default: .init(amount: 0, currency: .default)]
     }
 
     private func migrateOldData() {

@@ -56,7 +56,7 @@ public struct ActivityCollection {
 
         for each in activities {
             let key: ActivityDateKey = .init(date: each.date)
-            let currentItems = newItems[key] ?? .init()
+            let currentItems = newItems[key, default: .init()]
             currentItems.add(each)
 
             newItems[key] = currentItems
