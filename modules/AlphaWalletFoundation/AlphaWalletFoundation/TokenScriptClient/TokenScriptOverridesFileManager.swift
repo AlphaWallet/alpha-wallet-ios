@@ -126,6 +126,9 @@ public class TokenScriptOverridesFileManager {
             if let index = urls.firstIndex(where: { $0.lastPathComponent == TokenScript.indicesFileName }) {
                 urls.remove(at: index)
             }
+            if let index = urls.firstIndex(where: { $0.lastPathComponent == ".DS_Store" }) {
+                urls.remove(at: index)
+            }
             return urls.sorted { $0.path.caseInsensitiveCompare($1.path) == .orderedAscending }
         } else {
             return []
