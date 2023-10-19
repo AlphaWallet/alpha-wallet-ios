@@ -1138,16 +1138,9 @@ public struct XMLHandler {
                src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
                font-weight: bold;
                }
-               body {
-                   background-color: white;
+               :root {
+                   color-scheme: light dark;
                }
-               /*
-               @media (prefers-color-scheme: dark) {
-                   body {
-                       background-color: black;
-                   }
-               }
-               */
                .token-card {
                padding: 0pt;
                margin: 0pt;
