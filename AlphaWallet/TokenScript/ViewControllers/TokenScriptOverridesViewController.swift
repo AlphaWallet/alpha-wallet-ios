@@ -5,29 +5,29 @@ import AlphaWalletFoundation
 import StatefulViewController
 import Combine
 
-protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
-    func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController)
-    func didClose(in viewController: AssetDefinitionsOverridesViewController)
+protocol TokenScriptOverridesViewControllerDelegate: AnyObject {
+    func didTapShare(file: URL, in viewController: TokenScriptOverridesViewController)
+    func didClose(in viewController: TokenScriptOverridesViewController)
 }
 
-class AssetDefinitionsOverridesViewController: UIViewController {
+class TokenScriptOverridesViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView.buildGroupedTableView()
-        tableView.register(AssetDefinitionsOverridesViewCell.self)
+        tableView.register(TokenScriptOverridesViewCell.self)
         tableView.delegate = self
 
         return tableView
     }()
 
-    private let viewModel: AssetDefinitionsOverridesViewModel
+    private let viewModel: TokenScriptOverridesViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
     private let willAppear = PassthroughSubject<Void, Never>()
     private let deletion = PassthroughSubject<URL, Never>()
 
-    weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
+    weak var delegate: TokenScriptOverridesViewControllerDelegate?
 
-    init(viewModel: AssetDefinitionsOverridesViewModel) {
+    init(viewModel: TokenScriptOverridesViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
@@ -55,8 +55,8 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         return nil
     }
 
-    private func bind(viewModel: AssetDefinitionsOverridesViewModel) {
-        let input = AssetDefinitionsOverridesViewModelInput(
+    private func bind(viewModel: TokenScriptOverridesViewModel) {
+        let input = TokenScriptOverridesViewModelInput(
             willAppear: willAppear.eraseToAnyPublisher(),
             deletion: deletion.eraseToAnyPublisher())
 
@@ -71,16 +71,16 @@ class AssetDefinitionsOverridesViewController: UIViewController {
     }
 }
 
-extension AssetDefinitionsOverridesViewController: StatefulViewController {
+extension TokenScriptOverridesViewController: StatefulViewController {
     func hasContent() -> Bool {
         return dataSource.snapshot().numberOfItems > 0
     }
 }
 
-fileprivate extension AssetDefinitionsOverridesViewController {
-    private func makeDataSource() -> AssetDefinitionsOverridesViewModel.DataSource {
-        return AssetDefinitionsOverridesViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
-            let cell: AssetDefinitionsOverridesViewCell = tableView.dequeueReusableCell(for: indexPath)
+fileprivate extension TokenScriptOverridesViewController {
+    private func makeDataSource() -> TokenScriptOverridesViewModel.DataSource {
+        return TokenScriptOverridesViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+            let cell: TokenScriptOverridesViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 
             return cell
@@ -88,13 +88,13 @@ fileprivate extension AssetDefinitionsOverridesViewController {
     }
 }
 
-extension AssetDefinitionsOverridesViewController: PopNotifiable {
+extension TokenScriptOverridesViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
         delegate?.didClose(in: self)
     }
 }
 
-extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
+extension TokenScriptOverridesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let hideAction = UIContextualAction(style: .destructive, title: R.string.localizable.delete()) { [deletion, dataSource] _, _, completionHandler in
             deletion.send(dataSource.item(at: indexPath).url)

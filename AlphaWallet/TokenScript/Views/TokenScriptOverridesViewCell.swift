@@ -2,7 +2,7 @@
 
 import UIKit
 
-class AssetDefinitionsOverridesViewCell: UITableViewCell {
+class TokenScriptOverridesViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }

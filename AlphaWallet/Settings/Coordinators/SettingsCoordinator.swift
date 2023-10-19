@@ -349,7 +349,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func tokenScriptSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = AssetDefinitionStoreCoordinator(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, navigationController: navigationController)
+        let coordinator = TokenScriptOverridesCoordinator(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, navigationController: navigationController)
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -418,8 +418,8 @@ extension SettingsCoordinator: ChangeCurrencyCoordinatorDelegate {
     }
 }
 
-extension SettingsCoordinator: AssetDefinitionStoreCoordinatorDelegate {
-    func didClose(in coordinator: AssetDefinitionStoreCoordinator) {
+extension SettingsCoordinator: TokenScriptOverridesCoordinatorDelegate {
+    func didClose(in coordinator: TokenScriptOverridesCoordinator) {
         removeCoordinator(coordinator)
     }
 }
