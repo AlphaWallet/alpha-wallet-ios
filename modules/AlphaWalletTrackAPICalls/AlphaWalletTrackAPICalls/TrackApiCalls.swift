@@ -64,7 +64,7 @@ public class TrackApiCalls: URLProtocol {
     private static func clock(url: URL?) {
         guard let domainName = url?.host else { return }
         DispatchQueue.main.async {
-            let old = Self.counts[domainName] ?? 0
+            let old = Self.counts[domainName, default: 0]
             Self.counts[domainName] = old + 1
         }
     }

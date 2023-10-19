@@ -101,14 +101,14 @@ public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
     }
 
     private func add(callback: ((VerifierResult) -> Void)?, xml: String) {
-        var callbacks = completions[xml] ?? []
+        var callbacks = completions[xml, default: []]
         callbacks.append(callback)
 
         completions[xml] = callbacks
     }
 
     private func fulfill(for xml: String, result: TokenScriptSignatureVerifier.VerifierResult) {
-        var callbacks = completions[xml] ?? []
+        var callbacks = completions[xml, default: []]
         callbacks.forEach { $0?(result) }
     }
 }

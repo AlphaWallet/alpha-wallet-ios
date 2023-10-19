@@ -65,7 +65,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
                     for each in tokenIdMetaDatas {
                         guard let data = each.jsonAndItsSource.value.data(using: .utf8) else { continue }
                         guard let nonFungible = nonFungible(fromJsonData: data, tokenType: .erc1155) as? NonFungibleFromTokenUri else { continue }
-                        var nonFungibles = contractToTokenIds[each.contract] ?? .init()
+                        var nonFungibles = contractToTokenIds[each.contract, default: .init()]
                         nonFungibles.append(.init(tokenId: each.jsonAndItsSource.tokenId, value: nonFungible, source: each.jsonAndItsSource.source))
                         contractToTokenIds[each.contract] = nonFungibles
                     }

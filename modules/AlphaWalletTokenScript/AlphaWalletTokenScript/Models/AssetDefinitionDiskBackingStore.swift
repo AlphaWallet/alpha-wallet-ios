@@ -200,7 +200,7 @@ extension AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     //Must only return the last modified date for a file if it's for the current schema version otherwise, a file using the old schema might have a more recent timestamp (because it was recently downloaded) than a newer version on the server (which was not yet made available by the time the user downloaded the version with the old schema)
     public func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         precondition(isOfficial)
-        let dates: [Date] = (tokenScriptFileIndices.contractToHashes[contract] ?? []).compactMap { hash in
+        let dates: [Date] = (tokenScriptFileIndices.contractToHashes[contract, default: []]).compactMap { hash in
             let path = localUrlForXml(forHash: hash)
             guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
             guard XMLHandler.isTokenScriptSupportedSchemaVersion(path) else { return nil }
