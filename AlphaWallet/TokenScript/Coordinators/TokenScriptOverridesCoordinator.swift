@@ -5,16 +5,16 @@ import UIKit
 import AlphaWalletFoundation
 import AlphaWalletTokenScript
 
-protocol AssetDefinitionStoreCoordinatorDelegate: AnyObject {
-    func didClose(in coordinator: AssetDefinitionStoreCoordinator)
+protocol TokenScriptOverridesCoordinatorDelegate: AnyObject {
+    func didClose(in coordinator: TokenScriptOverridesCoordinator)
 }
 
-class AssetDefinitionStoreCoordinator: Coordinator {
+class TokenScriptOverridesCoordinator: Coordinator {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let navigationController: UINavigationController
-    private lazy var rootViewController: AssetDefinitionsOverridesViewController = {
-        let viewModel = AssetDefinitionsOverridesViewModel(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, fileExtension: XMLHandler.fileExtension)
-        let viewController = AssetDefinitionsOverridesViewController(viewModel: viewModel)
+    private lazy var rootViewController: TokenScriptOverridesViewController = {
+        let viewModel = TokenScriptOverridesViewModel(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, fileExtension: XMLHandler.fileExtension)
+        let viewController = TokenScriptOverridesViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -22,7 +22,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         return viewController
     }()
 
-    weak var delegate: AssetDefinitionStoreCoordinatorDelegate?
+    weak var delegate: TokenScriptOverridesCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
     init(tokenScriptOverridesFileManager: TokenScriptOverridesFileManager, navigationController: UINavigationController) {
@@ -35,12 +35,12 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     }
 }
 
-extension AssetDefinitionStoreCoordinator: AssetDefinitionsOverridesViewControllerDelegate {
-    func didClose(in viewController: AssetDefinitionsOverridesViewController) {
+extension TokenScriptOverridesCoordinator: TokenScriptOverridesViewControllerDelegate {
+    func didClose(in viewController: TokenScriptOverridesViewController) {
         delegate?.didClose(in: self)
     }
 
-    func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController) {
+    func didTapShare(file: URL, in viewController: TokenScriptOverridesViewController) {
         viewController.showShareActivity(fromSource: .view(viewController.view), with: [file])
     }
 }

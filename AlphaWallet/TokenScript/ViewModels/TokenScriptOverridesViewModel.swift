@@ -10,16 +10,16 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-struct AssetDefinitionsOverridesViewModelInput {
+struct TokenScriptOverridesViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
     let deletion: AnyPublisher<URL, Never>
 }
 
 struct AssetDefinitionsOverridesViewModelOutput {
-    let viewState: AnyPublisher<AssetDefinitionsOverridesViewModel.ViewState, Never>
+    let viewState: AnyPublisher<TokenScriptOverridesViewModel.ViewState, Never>
 }
 
-class AssetDefinitionsOverridesViewModel {
+class TokenScriptOverridesViewModel {
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let fileExtension: String
     private var cancelable = Set<AnyCancellable>()
@@ -29,7 +29,7 @@ class AssetDefinitionsOverridesViewModel {
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
     }
 
-    func transform(input: AssetDefinitionsOverridesViewModelInput) -> AssetDefinitionsOverridesViewModelOutput {
+    func transform(input: TokenScriptOverridesViewModelInput) -> AssetDefinitionsOverridesViewModelOutput {
         input.deletion
             .sink { [tokenScriptOverridesFileManager] in tokenScriptOverridesFileManager.remove(overrideFile: $0) }
             .store(in: &cancelable)
@@ -42,15 +42,15 @@ class AssetDefinitionsOverridesViewModel {
             .eraseToAnyPublisher()
 
         let viewState = viewModels
-            .map { snapshot -> AssetDefinitionsOverridesViewModel.ViewState in
-                return AssetDefinitionsOverridesViewModel.ViewState(snapshot: snapshot)
+            .map { snapshot -> TokenScriptOverridesViewModel.ViewState in
+                return TokenScriptOverridesViewModel.ViewState(snapshot: snapshot)
             }.eraseToAnyPublisher()
 
         return .init(viewState: viewState)
     }
 
-    private func buildSnapshot(for viewModels: [AssetDefinitionsOverridesViewModel.SectionViewModel]) -> AssetDefinitionsOverridesViewModel.Snapshot {
-        var snapshot = AssetDefinitionsOverridesViewModel.Snapshot()
+    private func buildSnapshot(for viewModels: [TokenScriptOverridesViewModel.SectionViewModel]) -> TokenScriptOverridesViewModel.Snapshot {
+        var snapshot = TokenScriptOverridesViewModel.Snapshot()
         let sections = viewModels.map { $0.section }
         snapshot.appendSections(sections)
         for each in viewModels {
@@ -61,18 +61,18 @@ class AssetDefinitionsOverridesViewModel {
     }
 }
 
-extension AssetDefinitionsOverridesViewModel {
-    typealias Snapshot = NSDiffableDataSourceSnapshot<AssetDefinitionsOverridesViewModel.Section, AssetDefinitionsOverridesViewCellViewModel>
-    typealias DataSource = UITableViewDiffableDataSource<AssetDefinitionsOverridesViewModel.Section, AssetDefinitionsOverridesViewCellViewModel>
+extension TokenScriptOverridesViewModel {
+    typealias Snapshot = NSDiffableDataSourceSnapshot<TokenScriptOverridesViewModel.Section, AssetDefinitionsOverridesViewCellViewModel>
+    typealias DataSource = UITableViewDiffableDataSource<TokenScriptOverridesViewModel.Section, AssetDefinitionsOverridesViewCellViewModel>
 
     struct ViewState {
-        let snapshot: AssetDefinitionsOverridesViewModel.Snapshot
+        let snapshot: TokenScriptOverridesViewModel.Snapshot
         let animatingDifferences: Bool = false
         let title: String = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
     }
 
     struct SectionViewModel {
-        let section: AssetDefinitionsOverridesViewModel.Section
+        let section: TokenScriptOverridesViewModel.Section
         let views: [AssetDefinitionsOverridesViewCellViewModel]
     }
 
