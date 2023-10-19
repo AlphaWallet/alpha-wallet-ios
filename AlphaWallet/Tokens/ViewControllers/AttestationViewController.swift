@@ -73,6 +73,11 @@ class AttestationViewController: UIViewController {
         view.backgroundColor = Configuration.Color.Semantic.searchBarBackground
 
         var subviews: [UIView] = []
+
+        if let tokenScriptRendererView {
+            subviews.append(tokenScriptRendererView)
+        }
+
         let detailsHeader = TokenInfoHeaderView()
         detailsHeader.configure(viewModel: TokenInfoHeaderViewModel(title: R.string.localizable.semifungiblesDetails()))
         subviews.append(detailsHeader)
@@ -136,26 +141,16 @@ class AttestationViewController: UIViewController {
         var constraints: [NSLayoutConstraint] = [
             containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
         if let tokenScriptRendererView {
-            view.addSubview(tokenScriptRendererView)
-
-            constraints.append(contentsOf: [
-                containerView.topAnchor.constraint(equalTo: tokenScriptRendererView.bottomAnchor),
-
-                tokenScriptRendererView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                tokenScriptRendererView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-                tokenScriptRendererView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            ])
-
+            constraints.append(containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
             //The actual value doesn't matter as long as it's the same
             let dummyId: BigUInt = 0
             let tokenScriptHtml = wrapWithHtmlViewport(html: tokenScriptViewHtml, style: tokenScriptViewStyle, forTokenId: dummyId)
             tokenScriptRendererView.loadHtml(tokenScriptHtml, urlFragment: tokenScriptViewUrlFragment)
             tokenScriptRendererView.updateWithAttestation(attestation, withId: dummyId)
-        } else {
-            constraints.append(containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
         }
         NSLayoutConstraint.activate(constraints)
 
