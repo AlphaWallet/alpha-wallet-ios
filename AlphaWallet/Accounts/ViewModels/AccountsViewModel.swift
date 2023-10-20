@@ -99,7 +99,7 @@ final class AccountsViewModel {
         let viewState = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
             .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1) }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
-            .map { self.buildSnapshot(for: $0) }
+            .map { functional.buildSnapshot(for: $0) }
             .map { [configuration] snapshot in AccountsViewModel.ViewState(title: configuration.titleWith(walletCount: snapshot.walletCount), snapshot: snapshot.snapshot) }
 
         return .init(
@@ -132,18 +132,6 @@ final class AccountsViewModel {
                 UIPasteboard.general.string = wallet.address.eip55String
                 return R.string.localizable.copiedToClipboard()
             }.eraseToAnyPublisher()
-    }
-
-    private func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> (snapshot: AccountsViewModel.Snapshot, walletCount: Int) {
-        var snapshot = AccountsViewModel.Snapshot()
-        let sections = viewModels.map { $0.section }
-        snapshot.appendSections(sections)
-        for each in viewModels {
-            snapshot.appendItems(each.views, toSection: each.section)
-        }
-        let walletCount = viewModels.reduce(0) { $0 + $1.numberOfWallets }
-
-        return (snapshot: snapshot, walletCount: walletCount)
     }
 
     private func buildAccountRowViewModel(wallet: Wallet) -> AnyPublisher<AccountRowViewModel, Never> {
@@ -332,6 +320,23 @@ final class AccountsViewModel {
         }.first
     }
 
+}
+extension AccountsViewModel {
+    enum functional {}
+}
+
+fileprivate extension AccountsViewModel.functional {
+    static func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> (snapshot: AccountsViewModel.Snapshot, walletCount: Int) {
+        var snapshot = AccountsViewModel.Snapshot()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
+        }
+        let walletCount = viewModels.reduce(0) { $0 + $1.numberOfWallets }
+
+        return (snapshot: snapshot, walletCount: walletCount)
+    }
 }
 
 extension AccountsViewModel {
