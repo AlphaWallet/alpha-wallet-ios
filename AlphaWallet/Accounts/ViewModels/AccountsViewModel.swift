@@ -100,7 +100,7 @@ final class AccountsViewModel {
             .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1) }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
             .map { self.buildSnapshot(for: $0) }
-            .map { [configuration] snapshot in AccountsViewModel.ViewState(title: configuration.title, snapshot: snapshot) }
+            .map { [configuration] snapshot in AccountsViewModel.ViewState(title: configuration.titleWith(walletCount: snapshot.walletCount), snapshot: snapshot.snapshot) }
 
         return .init(
             viewState: viewState.eraseToAnyPublisher(),
@@ -134,15 +134,16 @@ final class AccountsViewModel {
             }.eraseToAnyPublisher()
     }
 
-    private func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> AccountsViewModel.Snapshot {
+    private func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> (snapshot: AccountsViewModel.Snapshot, walletCount: Int) {
         var snapshot = AccountsViewModel.Snapshot()
         let sections = viewModels.map { $0.section }
         snapshot.appendSections(sections)
         for each in viewModels {
             snapshot.appendItems(each.views, toSection: each.section)
         }
+        let walletCount = viewModels.reduce(0) { $0 + $1.numberOfWallets }
 
-        return snapshot
+        return (snapshot: snapshot, walletCount: walletCount)
     }
 
     private func buildAccountRowViewModel(wallet: Wallet) -> AnyPublisher<AccountRowViewModel, Never> {
