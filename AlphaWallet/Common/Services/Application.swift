@@ -85,7 +85,10 @@ class Application: WalletDependenciesProvidable {
     static let shared: Application = try! Application()
 
     convenience init(name: String = "Default") throws {
-        crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
+        Task {
+            //This could a problem if this is not completed soon enough. Maybe not so bad because they are *all* actor-isolated, so serialized. Just crashes early (as in crash handling) would be a problem
+            await crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
+        }
 
         let analytics = AnalyticsService()
         let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)

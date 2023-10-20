@@ -68,12 +68,13 @@ public protocol TokenImageFetcher {
                serverIconImage: UIImage?) -> TokenImagePublisher
 }
 
-public class TokenImageFetcherImpl: TokenImageFetcher {
+public actor TokenImageFetcherImpl: TokenImageFetcher {
     private let networking: ImageFetcher
     private let tokenGroupsIdentifier: TokenGroupIdentifierProtocol
     private let spamImage: UIImage
-    private let subscribables: AtomicDictionary<String, CurrentValueSubject<TokenImage?, Never>> = .init()
-    private let inFlightTasks: AtomicDictionary<String, Task<Void, Never>> = .init()
+    private var subscribables: [String: CurrentValueSubject<TokenImage?, Never>] = .init()
+    private var inFlightTasks: [String: Task<Void, Never>] = .init()
+    private var cancellables: Set<AnyCancellable> = .init()
 
     enum ImageAvailabilityError: LocalizedError {
         case notAvailable
@@ -88,16 +89,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
         self.spamImage = spamImage
     }
 
-    private nonisolated func getDefaultOrGenerateIcon(server: RPCServer,
-                                          contractAddress: AlphaWallet.Address,
-                                          type: TokenType,
-                                          name: String,
-                                          tokenImage: UIImage?,
-                                          colors: [UIColor],
-                                          staticOverlayIcon: UIImage?,
-                                          blockChainNameColor: UIColor,
-                                          serverIconImage: UIImage?) -> TokenImage? {
-
+    private nonisolated func getDefaultOrGenerateIcon(server: RPCServer, contractAddress: AlphaWallet.Address, type: TokenType, name: String, tokenImage: UIImage?, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor, serverIconImage: UIImage?) -> TokenImage? {
         switch type {
         case .nativeCryptocurrency:
             if let img = iconImageForContractAndChainID(image: serverIconImage, address: contractAddress.eip55String, chainID: server.chainID) {
@@ -119,25 +111,32 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             blockChainNameColor: blockChainNameColor)
     }
 
-    private func iconImageForContractAndChainID(image iconImage: UIImage?, address: String, chainID: Int) -> UIImage? {
+    private nonisolated func iconImageForContractAndChainID(image iconImage: UIImage?, address: String, chainID: Int) -> UIImage? {
         if tokenGroupsIdentifier.isSpam(address: address, chainID: chainID) {
             return spamImage
         }
         return iconImage
     }
 
-    public func image(contractAddress: AlphaWallet.Address,
-                      server: RPCServer,
-                      name: String,
-                      type: TokenType,
-                      balance: NonFungibleFromJson?,
-                      size: GoogleContentSize,
-                      contractDefinedImage: UIImage?,
-                      colors: [UIColor],
-                      staticOverlayIcon: UIImage?,
-                      blockChainNameColor: UIColor,
-                      serverIconImage: UIImage?) -> TokenImagePublisher {
+    public nonisolated func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, contractDefinedImage: UIImage?, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor, serverIconImage: UIImage?) -> TokenImagePublisher {
+        //Cannot use PassthroughSubject because of how we use flatMapLatest downstream
+        let subject: CurrentValueSubject<TokenImage?, Never> = .init(nil)
+        Task {
+            let sourcePublisher = await self._image(contractAddress: contractAddress, server: server, name: name, type: type, balance: balance, size: size, contractDefinedImage: contractDefinedImage, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor, serverIconImage: serverIconImage)
+            let cancellable = sourcePublisher.sink { image in
+                subject.send(image)
+            }
+            await storeCancellable(cancellable)
+        }
+        return subject.eraseToAnyPublisher()
+    }
 
+    //Need this so we can access `cancellables` in the actor's isolated context from within a `Task`
+    private func storeCancellable(_ cancellable: AnyCancellable) {
+        cancellables.insert(cancellable)
+    }
+
+   private func _image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, contractDefinedImage: UIImage?, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor, serverIconImage: UIImage?) -> TokenImagePublisher {
         let subject: CurrentValueSubject<TokenImage?, Never>
         let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
         if let sub = subscribables[key] {
@@ -176,7 +175,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
         }
 
         if inFlightTasks[key] == nil {
-            inFlightTasks[key] = Task { @MainActor in
+            inFlightTasks[key] = Task {
                 if let image = try? await self.fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress) {
                     let tokenImage = TokenImage(image: .image(.loaded(image: image)), isFinal: true, overlayServerIcon: staticOverlayIcon)
                     subject.send(tokenImage)
@@ -309,17 +308,35 @@ class GithubAssetsURLResolver {
 
 public typealias ImagePublisher = AnyPublisher<ImageOrWebImageUrl<Image>?, Never>
 
-public class RPCServerImageFetcher {
+public actor RPCServerImageFetcher {
     public static var instance = RPCServerImageFetcher()
-    private let subscribables: AtomicDictionary<Int, ImagePublisher> = .init()
+    private var subscribables: [Int: ImagePublisher] = .init()
+    private var cancellables: Set<AnyCancellable> = .init()
 
-    public func image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
+    public nonisolated func image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
+        //Careful to not use PassthroughSubject due to how upstream works
+        let subject: CurrentValueSubject<ImageOrWebImageUrl<Image>?, Never> = .init(nil)
+        Task {
+            let sourcePublisher = await self._image(server: server, iconImage: iconImage)
+            let cancellable = sourcePublisher.sink { image in
+                subject.send(image)
+            }
+            await storeCancellable(cancellable)
+        }
+        return subject.eraseToAnyPublisher()
+    }
+
+    //Need this so we can access `cancellables` in the actor's isolated context from within a `Task`
+    private func storeCancellable(_ cancellable: AnyCancellable) {
+        cancellables.insert(cancellable)
+    }
+
+    private func _image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
         if let sub = subscribables[server.chainID] {
             return sub
         } else {
             let sub = CurrentValueSubject<ImageOrWebImageUrl<Image>?, Never>(.image(iconImage))
             subscribables[server.chainID] = sub.eraseToAnyPublisher()
-
             return sub.eraseToAnyPublisher()
         }
     }

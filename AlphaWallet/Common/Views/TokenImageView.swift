@@ -25,7 +25,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupporta
     private lazy var chainOverlayImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        
+
         return imageView
     }()
 
@@ -86,6 +86,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingSupporta
         chainOverlayImageView.isHidden = isChainOverlayHidden
 
         imageSourceSubject.flatMapLatest { $0 }
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] value in
                 self?.symbolLabel.text = ""
 
