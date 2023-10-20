@@ -82,8 +82,8 @@ public struct Constants {
         AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!
     ]
 
-    public static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .polygon]
-    public static let defaultEnabledTestnetServers: [RPCServer] = [.goerli, .sepolia]
+    public static let defaultEnabledServers: [RPCServer] = [.main, .binance_smart_chain, .polygon, .xDai]
+    public static let defaultEnabledTestnetServers: [RPCServer] = [.sepolia, .goerli]
 
     enum Enjin {
         static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
