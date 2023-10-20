@@ -36,7 +36,7 @@ struct AccountsCoordinatorViewModel {
         func titleWith(walletCount: Int) -> String {
             switch self {
             case .changeWallets:
-                return R.string.localizable.walletNavigationTitle()
+                return "\(R.string.localizable.walletNavigationTitle()) (\(walletCount))"
             case .summary:
                 //Arbitrary number that that indicates when user can't tell how many wallets they have easily
                 if walletCount > 6 {
