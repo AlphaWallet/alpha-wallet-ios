@@ -16,7 +16,7 @@ public protocol NftAssetImageProvider: AnyObject {
     func assetImageUrl(for url: Eip155URL) async throws -> URL
 }
 
-public class BlockiesGenerator {
+public actor BlockiesGenerator {
     private enum BlockieSize {
         case sized(size: Int, scale: Int)
         case none
