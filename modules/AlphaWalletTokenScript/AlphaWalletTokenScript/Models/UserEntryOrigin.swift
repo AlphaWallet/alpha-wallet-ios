@@ -29,7 +29,7 @@ public struct UserEntryOrigin {
         case .address:
             return AlphaWallet.Address(string: userEntry.trimmed).flatMap { .address($0) }
         case .uint:
-            guard let userEntryNumber = BigUInt(userEntry, radix: 16) else { return BigUInt(userEntry).flatMap { .uint($0) } }
+            guard let userEntryNumber = BigUInt(userEntry) else { return nil }
             let number: BigUInt = (bitmask & userEntryNumber) >> bitShift
             return .uint(number)
         case .utf8:
