@@ -504,12 +504,14 @@ extension RPCServer: Hashable, CaseIterable {
     public var displayOrderPriority: Int {
         switch self {
         case .main: return 1
-        case .xDai: return 2
-        case .classic: return 3
+        case .binance_smart_chain: return 2
+        case .sepolia: return 3
+        case .binance_smart_chain_testnet: return 4
+        case .polygon: return 5
+        case .xDai: return 6
+        case .classic: return 7
         case .callisto: return 9
-        case .goerli: return 10
-        case .binance_smart_chain: return 12
-        case .binance_smart_chain_testnet: return 13
+        case .goerli: return 12
         case .custom(let custom): return 300000 + custom.chainID
         case .heco: return 14
         case .heco_testnet: return 15
@@ -517,7 +519,6 @@ extension RPCServer: Hashable, CaseIterable {
         case .fantom_testnet: return 17
         case .avalanche: return 18
         case .avalanche_testnet: return 19
-        case .polygon: return 20
         case .mumbai_testnet: return 21
         case .optimistic: return 22
         case .cronosTestnet: return 24
@@ -532,7 +533,6 @@ extension RPCServer: Hashable, CaseIterable {
         case .arbitrumGoerli: return 37
         case .cronosMainnet: return 38
         case .okx: return 39
-        case .sepolia: return 40
         }
     }
 
