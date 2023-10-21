@@ -88,46 +88,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
         self.spamImage = spamImage
     }
 
-    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address,
-                                                     type: TokenType,
-                                                     server: RPCServer,
-                                                     symbol: String,
-                                                     colors: [UIColor],
-                                                     staticOverlayIcon: UIImage?,
-                                                     blockChainNameColor: UIColor) -> TokenImage? {
-
-        guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
-        let symbol = symbol.substring(to: i)
-        let rawImage: UIImage?
-        let overlayServerIcon: UIImage?
-
-        switch type {
-        case .erc1155, .erc721, .erc721ForTickets:
-            rawImage = nil
-            overlayServerIcon = staticOverlayIcon
-        case .erc20, .erc875:
-            rawImage = programmaticallyGeneratedIconImage(
-                for: contractAddress,
-                server: server,
-                colors: colors,
-                blockChainNameColor: blockChainNameColor)
-
-            overlayServerIcon = staticOverlayIcon
-        case .nativeCryptocurrency:
-            rawImage = programmaticallyGeneratedIconImage(
-                for: contractAddress,
-                server: server,
-                colors: colors,
-                blockChainNameColor: blockChainNameColor)
-
-            overlayServerIcon = nil
-        }
-        let imageSource = rawImage.flatMap { RawImage.generated(image: $0, symbol: symbol) } ?? .none
-
-        return .init(image: .image(imageSource), isFinal: false, overlayServerIcon: overlayServerIcon)
-    }
-
-    private func getDefaultOrGenerateIcon(server: RPCServer,
+    private nonisolated func getDefaultOrGenerateIcon(server: RPCServer,
                                           contractAddress: AlphaWallet.Address,
                                           type: TokenType,
                                           name: String,
@@ -148,7 +109,7 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
             }
         }
 
-        return TokenImageFetcherImpl.programmaticallyGenerateIcon(
+        return functional.programmaticallyGenerateIcon(
             for: contractAddress,
             type: type,
             server: server,
@@ -270,6 +231,64 @@ public class TokenImageFetcherImpl: TokenImageFetcher {
     }
 }
 
+extension TokenImageFetcherImpl {
+    enum functional {}
+}
+
+fileprivate extension TokenImageFetcherImpl.functional {
+    static func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer, colors: [UIColor], blockChainNameColor: UIColor) -> UIImage {
+        let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server, colors: colors, blockChainNameColor: blockChainNameColor)
+        return UIImage.tokenSymbolBackgroundImage(backgroundColor: backgroundColor)
+    }
+
+    static func symbolBackgroundColor(for contractAddress: AlphaWallet.Address, server: RPCServer, colors: [UIColor], blockChainNameColor: UIColor) -> UIColor {
+        if contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return blockChainNameColor
+        } else {
+            let index: Int
+            //We just need a random number from the contract. The LSBs are more random than the MSBs
+            if let i = Int(contractAddress.eip55String.substring(from: 37), radix: 16) {
+                index = i % colors.count
+            } else {
+                index = 0
+            }
+            return colors[index]
+        }
+    }
+
+    static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor) -> TokenImage? {
+        guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
+        let symbol = symbol.substring(to: i)
+        let rawImage: UIImage?
+        let overlayServerIcon: UIImage?
+
+        switch type {
+        case .erc1155, .erc721, .erc721ForTickets:
+            rawImage = nil
+            overlayServerIcon = staticOverlayIcon
+        case .erc20, .erc875:
+            rawImage = programmaticallyGeneratedIconImage(
+                    for: contractAddress,
+                    server: server,
+                    colors: colors,
+                    blockChainNameColor: blockChainNameColor)
+
+            overlayServerIcon = staticOverlayIcon
+        case .nativeCryptocurrency:
+            rawImage = programmaticallyGeneratedIconImage(
+                    for: contractAddress,
+                    server: server,
+                    colors: colors,
+                    blockChainNameColor: blockChainNameColor)
+
+            overlayServerIcon = nil
+        }
+        let imageSource = rawImage.flatMap { RawImage.generated(image: $0, symbol: symbol) } ?? .none
+
+        return .init(image: .image(imageSource), isFinal: false, overlayServerIcon: overlayServerIcon)
+    }
+}
+
 class GithubAssetsURLResolver {
     static let file = "logo.png"
 
@@ -303,33 +322,5 @@ public class RPCServerImageFetcher {
 
             return sub.eraseToAnyPublisher()
         }
-    }
-}
-
-private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address,
-                                                server: RPCServer,
-                                                colors: [UIColor],
-                                                blockChainNameColor: UIColor) -> UIImage {
-
-    let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server, colors: colors, blockChainNameColor: blockChainNameColor)
-    return UIImage.tokenSymbolBackgroundImage(backgroundColor: backgroundColor)
-}
-
-private func symbolBackgroundColor(for contractAddress: AlphaWallet.Address,
-                                   server: RPCServer,
-                                   colors: [UIColor],
-                                   blockChainNameColor: UIColor) -> UIColor {
-
-    if contractAddress == Constants.nativeCryptoAddressInDatabase {
-        return blockChainNameColor
-    } else {
-        let index: Int
-        //We just need a random number from the contract. The LSBs are more random than the MSBs
-        if let i = Int(contractAddress.eip55String.substring(from: 37), radix: 16) {
-            index = i % colors.count
-        } else {
-            index = 0
-        }
-        return colors[index]
     }
 }
