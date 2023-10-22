@@ -72,25 +72,24 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
         self.sessionsProvider = sessionsProvider
     }
 
-    public func start() {
+    public func start() async {
         //NOTE: need to figure out creating xml handlers, object creating takes a lot of resources
         eventSource.start()
         eventSourceForActivities?.start()
-
-        activitiesSubService.start()
+        await activitiesSubService.start()
     }
 
-    public func stop() {
-        activitiesSubService.stop()
+    public func stop() async {
+        await activitiesSubService.stop()
         eventSource.stop()
         eventSourceForActivities?.stop()
     }
 
-    public func reinject(activity: Activity) {
-        activitiesSubService.reinject(activity: activity)
+    public func reinject(activity: Activity) async {
+        await activitiesSubService.reinject(activity: activity)
     }
 
-    public func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        activitiesSubService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy)
+    public func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) async -> ActivitiesServiceType {
+        return await activitiesSubService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy)
     }
 }

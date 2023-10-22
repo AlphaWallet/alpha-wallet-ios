@@ -182,7 +182,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
 
 }
 
-final class EnjinUserManagementInterceptor: ApolloInterceptor {
+final actor EnjinUserManagementInterceptor: ApolloInterceptor {
 
     enum UserError: Error {
         case noUserLoggedIn
@@ -190,18 +190,20 @@ final class EnjinUserManagementInterceptor: ApolloInterceptor {
     }
 
     private let userManager: EnjinUserManager
-    private var pending: AtomicArray<() -> Void> = .init()
+    private var pending: [() -> Void] = []
     private var inFlightPromise: Promise<EnjinAccessToken>?
 
     init(userManager: EnjinUserManager) {
         self.userManager = userManager
     }
 
-    func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain,
-                                                     request: HTTPRequest<Operation>,
-                                                     response: HTTPResponse<Operation>?,
-                                                     completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    nonisolated func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+        Task {
+            await _interceptAsync(chain: chain, request: request, response: response, completion: completion)
+        }
+    }
 
+    private func _interceptAsync<Operation: GraphQLOperation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
         func addTokenAndProceed<Operation: GraphQLOperation>(_ token: EnjinAccessToken, to request: HTTPRequest<Operation>, chain: RequestChain, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
             request.addHeader(name: "Authorization", value: "Bearer \(token)")

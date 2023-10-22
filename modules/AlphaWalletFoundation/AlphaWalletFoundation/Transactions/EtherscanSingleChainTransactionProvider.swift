@@ -107,44 +107,34 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     deinit {
         schedulerProviders.forEach { $0.cancel() }
         oldestTransferTransactionsScheduler.cancel()
-        pendingTransactionProvider.cancelScheduler()
+        Task {
+            await pendingTransactionProvider.cancelScheduler()
+        }
     }
 
-    func resume() {
+    func resume() async {
         guard state == .stopped else { return }
-
-        pendingTransactionProvider.resumeScheduler()
+        await pendingTransactionProvider.resumeScheduler()
         schedulerProviders.forEach { $0.restart() }
         oldestTransferTransactionsScheduler.restart()
-
         state = .running
     }
 
-    func pause() {
+    func pause() async {
         guard state == .running || state == .pending else { return }
-
-        pendingTransactionProvider.cancelScheduler()
+        await pendingTransactionProvider.cancelScheduler()
         schedulerProviders.forEach { $0.cancel() }
         oldestTransferTransactionsScheduler.cancel()
-
         state = .stopped
     }
 
-    func start() {
+    func start() async {
         guard state == .pending else { return }
-
-        pendingTransactionProvider.start()
+        await pendingTransactionProvider.start()
         schedulerProviders.forEach { $0.start() }
         oldestTransferTransactionsScheduler.start()
-
         queue.async { [weak self] in self?.removeUnknownTransactions() }
         state = .running
-    }
-
-    public func stop() {
-        pendingTransactionProvider.cancelScheduler()
-        schedulerProviders.forEach { $0.cancel() }
-        oldestTransferTransactionsScheduler.cancel()
     }
 
     public func isServer(_ server: RPCServer) -> Bool {

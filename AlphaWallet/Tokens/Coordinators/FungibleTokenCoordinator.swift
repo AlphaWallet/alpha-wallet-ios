@@ -102,7 +102,9 @@ class FungibleTokenCoordinator: Coordinator {
                 viewController.configure(viewModel: $0.activitiesViewModel)
             }.store(in: &cancelable)
 
-        activitiesService.start()
+        Task {
+            await activitiesService.start()
+        }
 
         return viewController
     }

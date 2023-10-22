@@ -85,7 +85,9 @@ public class TransactionProvider: SingleChainTransactionProvider {
 
     deinit {
         schedulerProviders.forEach { $0.cancel() }
-        pendingTransactionProvider.cancelScheduler()
+        Task {
+            await pendingTransactionProvider.cancelScheduler()
+        }
     }
 
     private func handle(response: Result<[Transaction], PromiseError>, provider: SchedulerProvider) {
@@ -132,30 +134,24 @@ public class TransactionProvider: SingleChainTransactionProvider {
     }
 
     //Don't worry about start method and pending state once object created we first call method `start`
-    public func start() {
+    public func start() async {
         guard state == .pending else { return }
-
-        pendingTransactionProvider.start()
-
+        await pendingTransactionProvider.start()
         schedulerProviders.forEach { $0.start() }
         queue.async { [weak self] in self?.removeUnknownTransactions() }
         state = .running
     }
 
-    public func resume() {
+    public func resume() async {
         guard state == .stopped else { return }
-
-        pendingTransactionProvider.resumeScheduler()
-
+        await pendingTransactionProvider.resumeScheduler()
         schedulerProviders.forEach { $0.restart() }
         state = .running
     }
 
-    public func pause() {
+    public func pause() async {
         guard state == .running || state == .pending else { return }
-
-        pendingTransactionProvider.cancelScheduler()
-
+        await pendingTransactionProvider.cancelScheduler()
         schedulerProviders.forEach { $0.cancel() }
         state = .stopped
     }

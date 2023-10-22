@@ -10,8 +10,7 @@ import AlphaWalletCore
 import BigInt
 import Combine
 
-public final class PendingTransactionProvider {
-
+public final actor PendingTransactionProvider {
     public enum PendingTransactionProviderError: Error {
         case `internal`(Error)
         case failureToRetrieveTransaction(hash: String, error: Error)
@@ -21,7 +20,6 @@ public final class PendingTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let ercTokenDetector: ErcTokenDetector
     private var cancelable = Set<AnyCancellable>()
-    private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
     private let fetchPendingTransactionsQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Auto-update Pending Transactions"
@@ -30,9 +28,9 @@ public final class PendingTransactionProvider {
         return queue
     }()
     private let completeTransactionSubject = PassthroughSubject<Result<Transaction, PendingTransactionProviderError>, Never>()
-    private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
+    private lazy var store: [String: SchedulerProtocol] = [:]
 
-    public var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProviderError>, Never> {
+    public nonisolated var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProviderError>, Never> {
         completeTransactionSubject.eraseToAnyPublisher()
     }
 
@@ -48,30 +46,28 @@ public final class PendingTransactionProvider {
     public func start() {
         transactionDataStore
             .initialOrNewTransactionsPublisher(forServer: session.server, transactionState: .pending)
-            .receive(on: queue)
-            .sink { [weak self] transactions in self?.runPendingTransactionWatchers(transactions: transactions) }
-            .store(in: &cancelable)
+            .sink { transactions in
+                Task { [weak self] in
+                    await self?.runPendingTransactionWatchers(transactions: transactions)
+                }
+            }.store(in: &cancelable)
     }
 
     public func cancelScheduler() {
-        queue.async {
-            for each in self.store.values {
-                each.value.cancel()
-            }
+        for each in store.values {
+            each.cancel()
         }
     }
 
     public func resumeScheduler() {
-        queue.async {
-            for each in self.store.values {
-                each.value.restart()
-            }
+        for each in store.values {
+            each.restart()
         }
     }
 
     deinit {
         for each in self.store.values {
-            each.value.cancel()
+            each.cancel()
         }
     }
 
@@ -86,8 +82,11 @@ public final class PendingTransactionProvider {
                 fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
 
             provider.responsePublisher
-                .receive(on: queue)
-                .sink { [weak self] in self?.handle(response: $0, transaction: transaction) }
+                .sink { response in
+                    Task { [weak self] in
+                        await self?.handle(response: response, transaction: transaction)
+                    }
+                }
                 .store(in: &cancelable)
 
             let scheduler = Scheduler(provider: provider)
@@ -116,7 +115,7 @@ public final class PendingTransactionProvider {
                 completeTransactionSubject.send(.success(transaction))
             }
 
-            cancelScheduler(transaction: transaction)
+            await cancelScheduler(transaction: transaction)
         }
     }
 
@@ -139,7 +138,7 @@ public final class PendingTransactionProvider {
                 Task { @MainActor in
                     guard await transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
                     transactionDataStore.delete(transactions: [transaction])
-                    cancelScheduler(transaction: transaction)
+                    await cancelScheduler(transaction: transaction)
                 }
                 //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
             case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:

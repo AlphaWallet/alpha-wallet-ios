@@ -16,7 +16,7 @@ import PromiseKit
 
 public protocol TokenScriptWebViewDelegate: AnyObject {
     func shouldClose(tokenScriptWebView: TokenScriptWebView)
-    func reinject(tokenScriptWebView: TokenScriptWebView)
+    func reinject(tokenScriptWebView: TokenScriptWebView) async
     func requestSignMessage(message: SignMessageType, server: RPCServer, account: AlphaWallet.Address, inTokenScriptWebView tokenScriptWebView: TokenScriptWebView) -> AnyPublisher<Data, PromiseError>
 }
 
@@ -356,13 +356,15 @@ extension TokenScriptWebView: WKScriptMessageHandler {
         case .dappAction(let command):
             handleCommandForDappAction(command)
         case .setActionProps(.action(let id, let changedProperties)):
-            handleSetActionProperties(id: id, changedProperties: changedProperties)
+            Task {
+                await handleSetActionProperties(id: id, changedProperties: changedProperties)
+            }
         case .none:
             break
         }
     }
 
-    private func handleSetActionProperties(id: Int, changedProperties: SetProperties.Properties) {
+    private func handleSetActionProperties(id: Int, changedProperties: SetProperties.Properties) async {
         guard !changedProperties.isEmpty else { return }
         let oldProperties = actionProperties
 
@@ -377,7 +379,7 @@ extension TokenScriptWebView: WKScriptMessageHandler {
 
         guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
         if lastCardLevelAttributeValues != nil {
-            delegate?.reinject(tokenScriptWebView: self)
+            await delegate?.reinject(tokenScriptWebView: self)
         }
     }
 

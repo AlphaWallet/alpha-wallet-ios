@@ -87,38 +87,27 @@ class SingleChainTokenCoordinator: Coordinator {
         }
 
         let activitiesFilterStrategy = token.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
-
-        let coordinator = NFTCollectionCoordinator(
-            session: session,
-            navigationController: navigationController,
-            keystore: keystore,
-            token: token,
-            assetDefinitionStore: assetDefinitionStore,
-            analytics: analytics,
-            nftProvider: nftProvider,
-            activitiesService: activitiesService,
-            tokensService: tokensPipeline,
-            sessionsProvider: sessionsProvider,
-            currencyService: currencyService,
-            tokenImageFetcher: tokenImageFetcher,
-            tokenActionsProvider: tokenActionsProvider)
-
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start()
+        Task {
+            let activitiesService = await self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
+            let coordinator = NFTCollectionCoordinator(session: session, navigationController: navigationController, keystore: keystore, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, activitiesService: activitiesService, tokensService: tokensPipeline, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, tokenActionsProvider: tokenActionsProvider)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start()
+        }
     }
 
     func show(fungibleToken token: Token, navigationController: UINavigationController) {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = token.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
+        Task {
+            let activitiesService = await self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
 
-        Task { @MainActor in
-            let coordinator = await FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersProvider: coinTickersProvider, activitiesService: activitiesService, alertService: alertService, tokensPipeline: tokensPipeline, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, tokensService: tokensService)
-            addCoordinator(coordinator)
-            coordinator.delegate = self
-            coordinator.start()
+            Task { @MainActor in
+                let coordinator = await FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersProvider: coinTickersProvider, activitiesService: activitiesService, alertService: alertService, tokensPipeline: tokensPipeline, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, tokensService: tokensService)
+                addCoordinator(coordinator)
+                coordinator.delegate = self
+                coordinator.start()
+            }
         }
     }
 

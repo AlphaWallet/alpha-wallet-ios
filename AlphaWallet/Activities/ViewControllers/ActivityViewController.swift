@@ -7,7 +7,7 @@ import AlphaWalletFoundation
 import AlphaWalletTokenScript
 
 protocol ActivityViewControllerDelegate: AnyObject, RequestSignMessageDelegate {
-    func reinject(viewController: ActivityViewController)
+    func reinject(viewController: ActivityViewController) async
     func goToToken(viewController: ActivityViewController)
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)
@@ -254,7 +254,7 @@ extension ActivityViewController: TokenScriptWebViewDelegate {
         //no-op
     }
 
-    func reinject(tokenScriptWebView: TokenScriptWebView) {
-        delegate?.reinject(viewController: self)
+    func reinject(tokenScriptWebView: TokenScriptWebView) async {
+        await delegate?.reinject(viewController: self)
     }
 }

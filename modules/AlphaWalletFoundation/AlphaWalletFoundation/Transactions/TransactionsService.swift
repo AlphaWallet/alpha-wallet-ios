@@ -51,39 +51,48 @@ public class TransactionsService {
 
         NotificationCenter.default.applicationState
             .receive(on: RunLoop.main)
-            .sink { [weak self] state in
-                switch state {
-                case .didEnterBackground:
-                    self?.pause()
-                case .willEnterForeground:
-                    self?.resume()
+            .sink { state in
+                Task { [weak self] in
+                    switch state {
+                    case .didEnterBackground:
+                        await self?.pause()
+                    case .willEnterForeground:
+                        await self?.resume()
+                    }
                 }
             }.store(in: &cancelable)
 
         sessionsProvider.sessions
-            .map { [weak self] sessions -> [RPCServer: SingleChainTransactionProvider] in
-                guard let strongSelf = self else { return [:] }
+            .flatMap { [weak self] sessions -> Future<[RPCServer: SingleChainTransactionProvider], Never> in
+                asFuture {
+                    guard let strongSelf = self else { return [:] }
 
-                var providers: [RPCServer: SingleChainTransactionProvider] = [:]
-                for session in sessions {
-                    if let provider = strongSelf.providers[session.key] {
-                        providers[session.key] = provider
-                    } else {
-                        providers[session.key] = strongSelf.buildTransactionProvider(for: session.value)
+                    var providers: [RPCServer: SingleChainTransactionProvider] = [:]
+                    for session in sessions {
+                        if let provider = strongSelf.providers[session.key] {
+                            providers[session.key] = provider
+                        } else {
+                            providers[session.key] = await strongSelf.buildTransactionProvider(for: session.value)
+                        }
                     }
+                    return providers
                 }
-                return providers
-            }.handleEvents(receiveOutput: { [weak self] in self?.pauseDeleted(except: $0) })
-            .assign(to: \.providers, on: self)
+            }.handleEvents(receiveOutput: { providers in
+                Task { [weak self] in
+                    await self?.pauseDeleted(except: providers)
+                }
+            }).assign(to: \.providers, on: self)
             .store(in: &cancelable)
     }
 
-    private func pauseDeleted(except providers: [RPCServer: SingleChainTransactionProvider]) {
+    private func pauseDeleted(except providers: [RPCServer: SingleChainTransactionProvider]) async {
         let providersToStop = self.providers.keys.filter { !providers.keys.contains($0) }.compactMap { self.providers[$0] }
-        providersToStop.forEach { $0.pause() }
+        for each in providersToStop {
+            await each.pause()
+        }
     }
 
-    private func buildTransactionProvider(for session: WalletSession) -> SingleChainTransactionProvider {
+    private func buildTransactionProvider(for session: WalletSession) async -> SingleChainTransactionProvider {
         let ercTokenDetector = ErcTokenDetector(
             tokensService: tokensService,
             server: session.server,
@@ -100,7 +109,7 @@ public class TransactionsService {
                 ercTokenDetector: ercTokenDetector,
                 blockchainExplorer: session.blockchainExplorer)
 
-            provider.start()
+            await provider.start()
 
             return provider
         case .covalent, .oklink, .unknown:
@@ -111,23 +120,23 @@ public class TransactionsService {
                 ercTokenDetector: ercTokenDetector,
                 networking: session.blockchainExplorer)
 
-            provider.start()
+            await provider.start()
 
             return provider
         }
     }
 
-    @objc private func pause() {
+    private func pause() async {
         for each in providers {
-            each.value.pause()
+            await each.value.pause()
         }
     }
 
-    @objc private func resume() {
+    private func resume() async {
         guard !config.development.isAutoFetchingDisabled else { return }
 
         for each in providers {
-            each.value.resume()
+            await each.value.resume()
         }
     }
 
@@ -138,17 +147,17 @@ public class TransactionsService {
         return provider.fetchLatestTransactions(fetchTypes: TransactionFetchType.allCases)
     }
 
-    public func forceResumeOrStart(server: RPCServer) {
+    public func forceResumeOrStart(server: RPCServer) async {
         guard let provider = providers[server] else { return }
 
         switch provider.state {
         case .pending:
-            provider.start()
+            await provider.start()
         case .running:
-            provider.pause()
-            provider.resume()
+            await provider.pause()
+            await provider.resume()
         case .stopped:
-            provider.resume()
+            await provider.resume()
         }
     }
 
