@@ -16,7 +16,11 @@ public final class ReportUsersActiveChains: Service {
         serversProvider.enabledServersPublisher
             .delay(for: .seconds(2), scheduler: RunLoop.main)
             .removeDuplicates()
-            .sink { crashlytics.track(enabledServers: Array($0)) }
+            .sink { servers in
+                Task {
+                    await crashlytics.track(enabledServers: Array(servers))
+                }
+            }
             .store(in: &cancelable)
     }
 }

@@ -15,14 +15,14 @@ public protocol TokenScriptSignatureVerifieble {
     func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (TokenScriptSignatureVerifier.VerifierResult) -> Void)
 }
 
-public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble {
+public final actor TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble {
     private let baseTokenScriptFiles: BaseTokenScriptFiles
     private let networking: TokenScriptSignatureNetworking
     private let queue = DispatchQueue(label: "org.alphawallet.swift.TokenScriptSignatureVerifier")
     private let reachability: ReachabilityManagerProtocol
-    private let cancellable: AtomicDictionary<String, AnyCancellable> = .init()
+    private var cancellable: [String: AnyCancellable] = .init()
     //TODO: remove later when replace with publisher, needed to add waiting for completion of single api call, to avoid multiple uploading of same file
-    private let completions: AtomicDictionary<String, [((VerifierResult) -> Void)?]> = .init()
+    private var completions: [String: [((VerifierResult) -> Void)?]] = .init()
     private let features: TokenScriptFeatures
 
     public var retryBehavior: RetryBehavior<RunLoop> = .delayed(retries: UInt.max, time: 10)
@@ -45,7 +45,22 @@ public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
         self.features = features
     }
 
-    public func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType> {
+    public nonisolated func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType> {
+        return Promise<TokenScriptSignatureVerificationType> { seal in
+            Task {
+                let promise = await self._verificationType(forXml: xmlString)
+                firstly {
+                    promise
+                }.done {
+                   seal.fulfill($0)
+                }.catch {
+                    seal.reject($0)
+                }
+            }
+        }
+    }
+
+    private func _verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType> {
         return Promise { seal in
             if features.isActivityEnabled {
                 if baseTokenScriptFiles.containsBaseTokenScriptFile(for: xmlString) {
@@ -73,8 +88,14 @@ public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
         }
     }
 
+    public nonisolated func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
+        Task {
+            await self._verifyXMLSignatureViaAPI(xml: xml, completion: completion)
+        }
+    }
+
     //TODO log reasons for failures `completion(.failed)` as well as those that triggers retries in in-app Console
-    public func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
+    private func _verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
         add(callback: completion, xml: xml)
 
         guard cancellable[xml] == nil else { return }
@@ -94,9 +115,7 @@ public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
             .sink(receiveCompletion: { _ in
                 self.cancellable[xml] = nil
             }, receiveValue: { result in
-                DispatchQueue.main.async {
-                    self.fulfill(for: xml, result: result)
-                }
+                self.fulfill(for: xml, result: result)
             })
     }
 

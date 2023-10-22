@@ -121,7 +121,9 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
 extension ClientSideTokenSourceProvider: TokenBalanceFetcherDelegate {
     public func didUpdateBalance(value actions: [AddOrUpdateTokenAction], in fetcher: TokenBalanceFetcher) {
-        crashlytics.logLargeNftJsonFiles(for: actions, fileSizeThreshold: 10)
+        Task {
+            await crashlytics.logLargeNftJsonFiles(for: actions, fileSizeThreshold: 10)
+        }
         Task {
             await tokensDataStore.addOrUpdate(with: actions)
         }

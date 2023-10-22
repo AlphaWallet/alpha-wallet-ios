@@ -28,4 +28,13 @@ public extension Sequence {
         }
         return values
     }
+
+    func asyncContains(where predicate: (Self.Element) async throws -> Bool) async rethrows -> Bool {
+        for element in self {
+            if try await predicate(element) {
+                return true
+            }
+        }
+        return false
+    }
 }

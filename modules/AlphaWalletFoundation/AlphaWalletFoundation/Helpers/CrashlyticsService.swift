@@ -9,16 +9,16 @@ import Foundation
 import AlphaWalletCore
 
 public protocol CrashlyticsReporter: AnyObject {
-    func track(wallets: [Wallet])
-    func trackActiveWallet(wallet: Wallet)
-    func track(enabledServers: [RPCServer])
-    @discardableResult func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool
+    func track(wallets: [Wallet]) async
+    func trackActiveWallet(wallet: Wallet) async
+    func track(enabledServers: [RPCServer]) async
+    @discardableResult func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) async -> Bool
 }
 
 public let crashlytics = CrashlyticsService()
 
-public final class CrashlyticsService: NSObject, CrashlyticsReporter {
-    private var services: AtomicArray<CrashlyticsReporter> = .init()
+public final actor CrashlyticsService: NSObject, CrashlyticsReporter {
+    private var services: Array<CrashlyticsReporter> = .init()
 
     public override init() { }
 
@@ -26,20 +26,26 @@ public final class CrashlyticsService: NSObject, CrashlyticsReporter {
         services.append(service)
     }
 
-    public func track(wallets: [Wallet]) {
-        services.forEach { $0.track(wallets: wallets) }
+    public func track(wallets: [Wallet]) async {
+        for each in services {
+            await each.track(wallets: wallets)
+        }
     }
 
-    public func trackActiveWallet(wallet: Wallet) {
-        services.forEach { $0.trackActiveWallet(wallet: wallet) }
+    public func trackActiveWallet(wallet: Wallet) async {
+        for each in services {
+            await each.trackActiveWallet(wallet: wallet)
+        }
     }
 
-    public func track(enabledServers: [RPCServer]) {
-        services.forEach { $0.track(enabledServers: enabledServers) }
+    public func track(enabledServers: [RPCServer]) async {
+        for each in services {
+            await each.track(enabledServers: enabledServers)
+        }
     }
 
-    public func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool {
-        return services.contains(where: { $0.logLargeNftJsonFiles(for: actions, fileSizeThreshold: fileSizeThreshold) })
+    public func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) async -> Bool {
+        return await services.asyncContains(where: { await $0.logLargeNftJsonFiles(for: actions, fileSizeThreshold: fileSizeThreshold) })
     }
 }
 

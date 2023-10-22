@@ -210,7 +210,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         blockscanChatService.delegate = self
 
         self.keystore.recentlyUsedWallet = wallet
-        crashlytics.trackActiveWallet(wallet: wallet)
+        Task {
+            await crashlytics.trackActiveWallet(wallet: wallet)
+        }
         caip10AccountProvidable.set(activeWallet: wallet)
         localNotificationsService.register(source: transactionNotificationSource)
 

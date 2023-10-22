@@ -8,6 +8,7 @@
 import UIKit
 import AlphaWalletCore
 
+//TODO move contents of this extension out to an actor for protecting the dictionary
 extension UIImage {
     static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()
     static func tokenSymbolBackgroundImage(backgroundColor: UIColor, contractAddress: AlphaWallet.Address) -> UIImage {
