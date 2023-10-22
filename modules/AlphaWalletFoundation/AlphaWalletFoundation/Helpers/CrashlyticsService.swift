@@ -18,7 +18,7 @@ public protocol CrashlyticsReporter: AnyObject {
 public let crashlytics = CrashlyticsService()
 
 public final actor CrashlyticsService: NSObject, CrashlyticsReporter {
-    private var services: Array<CrashlyticsReporter> = .init()
+    private var services: [CrashlyticsReporter] = []
 
     public override init() { }
 
