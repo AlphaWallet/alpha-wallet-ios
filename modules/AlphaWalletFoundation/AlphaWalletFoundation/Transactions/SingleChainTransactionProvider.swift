@@ -26,12 +26,12 @@ public enum TransactionFetchType: String, CaseIterable {
 }
 
 public protocol SingleChainTransactionProvider: AnyObject {
-    var state: TransactionProviderState { get }
+    var state: TransactionProviderState { get async }
     var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProvider.PendingTransactionProviderError>, Never> { get }
 
     func start() async
     func resume() async
     func pause() async
     func isServer(_ server: RPCServer) -> Bool
-    func fetchLatestTransactions(fetchTypes: [TransactionFetchType]) -> AnyPublisher<[Transaction], PromiseError>
+    func fetchLatestTransactions(fetchTypes: [TransactionFetchType]) async -> AnyPublisher<[Transaction], PromiseError>
 }

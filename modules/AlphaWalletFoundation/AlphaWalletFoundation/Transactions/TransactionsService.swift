@@ -141,16 +141,15 @@ public class TransactionsService {
     }
 
     // when we receive a push notification in background we want to fetch latest transactions,
-    public func fetchLatestTransactions(server: RPCServer) -> AnyPublisher<[Transaction], PromiseError> {
+    public func fetchLatestTransactions(server: RPCServer) async -> AnyPublisher<[Transaction], PromiseError> {
         guard let provider = providers[server] else { return .empty() }
 
-        return provider.fetchLatestTransactions(fetchTypes: TransactionFetchType.allCases)
+        return await provider.fetchLatestTransactions(fetchTypes: TransactionFetchType.allCases)
     }
 
     public func forceResumeOrStart(server: RPCServer) async {
         guard let provider = providers[server] else { return }
-
-        switch provider.state {
+        switch await provider.state {
         case .pending:
             await provider.start()
         case .running:

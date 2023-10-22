@@ -102,7 +102,7 @@ public class AlphaWalletNotificationHandler: NotificationHandler {
         guard keystore.currentWallet?.address == walletData.wallet else { return .noData }
 
         if let dep = walletsDependencies.walletDependencies(walletAddress: walletData.wallet) {
-            dep.transactionsService.forceResumeOrStart(server: walletData.rpcServer)
+            await dep.transactionsService.forceResumeOrStart(server: walletData.rpcServer)
             return .newData
         }
 
