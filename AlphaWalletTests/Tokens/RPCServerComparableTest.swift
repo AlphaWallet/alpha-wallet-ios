@@ -27,8 +27,8 @@ final class RPCServerComparableTest: XCTestCase {
         XCTAssertTrue(sorted[2] == .arbitrum)
         XCTAssertTrue(sorted[3] == .custom(chainId: 101))
         XCTAssertTrue(sorted[4] == .custom(chainId: 102))
-        XCTAssertTrue(sorted[5] == .goerli)
-        XCTAssertTrue(sorted[6] == .binance_smart_chain_testnet)
+        XCTAssertTrue(sorted[5] == .binance_smart_chain_testnet)
+        XCTAssertTrue(sorted[6] == .goerli)
         XCTAssertTrue(sorted[7] == .arbitrumGoerli)
     }
 
