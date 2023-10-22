@@ -83,7 +83,9 @@ final class NFTCollectionViewModel {
     }
 
     func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput {
-        activitiesService.start()
+        Task {
+            await activitiesService.start()
+        }
 
         tokensService.tokenHoldersPublisher(for: token)
             .assign(to: \.value, on: tokenHolders)

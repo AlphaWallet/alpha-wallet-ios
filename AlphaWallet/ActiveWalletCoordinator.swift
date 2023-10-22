@@ -805,8 +805,8 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             .publisher(queue: .main)
     }
 
-    func reinject(viewController: ActivityViewController) {
-        activitiesPipeLine.reinject(activity: viewController.viewModel.activity)
+    func reinject(viewController: ActivityViewController) async {
+        await activitiesPipeLine.reinject(activity: viewController.viewModel.activity)
     }
 
     func goToToken(viewController: ActivityViewController) {
@@ -914,7 +914,9 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
         tokensService.refreshBalance(updatePolicy: .all)
-        activitiesPipeLine.start()
+        Task {
+            await activitiesPipeLine.start()
+        }
     }
 
     func blockieSelected(in coordinator: TokensCoordinator) {
