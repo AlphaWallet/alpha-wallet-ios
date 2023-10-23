@@ -9,23 +9,17 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
-public class TransactionProvider: SingleChainTransactionProvider {
+public actor TransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
     private let analytics: AnalyticsLogger
     private let ercTokenDetector: ErcTokenDetector
     private let networking: BlockchainExplorer
-    private lazy var pendingTransactionProvider: PendingTransactionProvider = {
-        return PendingTransactionProvider(
-            session: session,
-            transactionDataStore: transactionDataStore,
-            ercTokenDetector: ercTokenDetector)
-    }()
+    private let pendingTransactionProvider: PendingTransactionProvider
     private let schedulerProviders: [TransactionSchedulerProviderData]
     private var cancellable = Set<AnyCancellable>()
-    private let queue = DispatchQueue(label: "com.transactionProvider.updateQueue")
 
-    public var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProvider.PendingTransactionProviderError>, Never> {
+    public nonisolated var completeTransaction: AnyPublisher<Result<Transaction, PendingTransactionProvider.PendingTransactionProviderError>, Never> {
         pendingTransactionProvider.completeTransaction
     }
     public private (set) var state: TransactionProviderState = .pending
@@ -42,6 +36,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
         self.analytics = analytics
         self.transactionDataStore = transactionDataStore
         self.ercTokenDetector = ercTokenDetector
+        self.pendingTransactionProvider = PendingTransactionProvider(session: session, transactionDataStore: transactionDataStore, ercTokenDetector: ercTokenDetector)
         self.schedulerProviders = fetchTypes.map { fetchType in
             let schedulerProvider = TransactionSchedulerProvider(
                 session: session,
@@ -61,14 +56,20 @@ public class TransactionProvider: SingleChainTransactionProvider {
         self.schedulerProviders.forEach { data in
             data.schedulerProvider
                 .publisher
-                .sink { [weak self] in self?.handle(response: $0, provider: data.schedulerProvider) }
-                .store(in: &cancellable)
+                .sink { transactions in
+                    Task { [weak self] in
+                        await self?.handle(response: transactions, provider: data.schedulerProvider)
+                    }
+                }.store(in: &cancellable)
         }
 
         pendingTransactionProvider.completeTransaction
             .compactMap { try? $0.get() }
-            .sink { [weak self] in self?.forceFetchLatestTransactions(transaction: $0) }
-            .store(in: &cancellable)
+            .sink { transaction in
+                Task { [weak self] in
+                    await self?.forceFetchLatestTransactions(transaction: transaction)
+                }
+            }.store(in: &cancellable)
 
         /*
         pendingTransactionProvider.completeTransaction
@@ -138,7 +139,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
         guard state == .pending else { return }
         await pendingTransactionProvider.start()
         schedulerProviders.forEach { $0.start() }
-        queue.async { [weak self] in self?.removeUnknownTransactions() }
+        await removeUnknownTransactions()
         state = .running
     }
 
@@ -207,7 +208,7 @@ public class TransactionProvider: SingleChainTransactionProvider {
             .eraseToAnyPublisher()
     }
 
-    public func isServer(_ server: RPCServer) -> Bool {
+    public nonisolated func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
     }
 

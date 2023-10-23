@@ -147,30 +147,24 @@ public class OpenSeaNetworking: Networking {
 }
 
 public protocol OpenSeaNetworkingFactory {
-    func networking(for server: RPCServer) -> Networking
+    func networking(for server: RPCServer) async -> Networking
 }
 
-public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
+public final actor BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
     private var networkings: [URL: Networking] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background)
 
     public static let shared = BaseOpenSeaNetworkingFactory()
     private init() { }
 
-    public func networking(for server: RPCServer) -> Networking {
+    public func networking(for server: RPCServer) async -> Networking {
         var networking: Networking!
-
-        dispatchPrecondition(condition: .notOnQueue(queue))
-        queue.sync { [unowned self] in
-            let baseUrl = OpenSea.getBaseUrlForOpenSea(forServer: server)
-            if let _networking = self.networkings[baseUrl] {
-                networking = _networking
-            } else {
-                networking = OpenSeaNetworking()
-                self.networkings[baseUrl] = networking
-            }
+        let baseUrl = OpenSea.getBaseUrlForOpenSea(forServer: server)
+        if let _networking = self.networkings[baseUrl] {
+            networking = _networking
+        } else {
+            networking = OpenSeaNetworking()
+            self.networkings[baseUrl] = networking
         }
-
         return networking
     }
 }
@@ -307,11 +301,10 @@ public class OpenSea {
 
     //TODO reduce usage and remove
     private func send(request: Alamofire.URLRequestConvertible, server: RPCServer) -> AnyPublisher<JSON, OpenSeaApiError> {
-        networking.networking(for: server)
-            .send(request: request)
-            .tryMap { try JsonDecoder().decode(data: $0) }
-            .mapError { OpenSeaApiError(error: $0) }
-            .eraseToAnyPublisher()
+        return asFutureThrowable {
+            try await self.sendAsync(request: request, server: server)
+        }.mapError { OpenSeaApiError(error: $0) }
+        .eraseToAnyPublisher()
     }
 
     private func sendAsync(request: Alamofire.URLRequestConvertible, server: RPCServer) async throws -> JSON {
