@@ -22,7 +22,6 @@ public actor BlockiesGenerator {
         case none
     }
 
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.blockies.generator")
     private var cachedBlockieForPerformanceDevelopment: BlockiesImage?
 
     /// Address related icons cache with image size and scale

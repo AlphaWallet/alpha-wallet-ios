@@ -7,7 +7,6 @@ import AlphaWalletCore
 final class GetContractName {
     private let blockchainProvider: BlockchainProvider
     private var inFlightPromises: [String: Task<String, Error>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractName")
 
     init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider

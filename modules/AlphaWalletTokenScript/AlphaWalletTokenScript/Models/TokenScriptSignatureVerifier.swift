@@ -18,7 +18,6 @@ public protocol TokenScriptSignatureVerifieble {
 public final actor TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble {
     private let baseTokenScriptFiles: BaseTokenScriptFiles
     private let networking: TokenScriptSignatureNetworking
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.TokenScriptSignatureVerifier")
     private let reachability: ReachabilityManagerProtocol
     private var cancellable: [String: AnyCancellable] = .init()
     //TODO: remove later when replace with publisher, needed to add waiting for completion of single api call, to avoid multiple uploading of same file
@@ -102,7 +101,6 @@ public final actor TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
 
         cancellable[xml] = reachability
             .networkBecomeReachablePublisher
-            .receive(on: queue)
             .map { _ in xml }
             .setFailureType(to: SessionTaskError.self)
             .flatMapLatest { [networking, retryBehavior, retryPredicate] xml -> AnyPublisher<VerifierResult, SessionTaskError> in
@@ -111,7 +109,6 @@ public final actor TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble 
                     .retry(retryBehavior, shouldOnlyRetryIf: retryPredicate, scheduler: RunLoop.main)
                     .eraseToAnyPublisher()
             }.replaceError(with: .failed)
-            .receive(on: queue)
             .sink(receiveCompletion: { _ in
                 self.cancellable[xml] = nil
             }, receiveValue: { result in
