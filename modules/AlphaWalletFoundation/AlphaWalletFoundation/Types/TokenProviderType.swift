@@ -77,19 +77,31 @@ public class TokenProvider: TokenProviderType {
     }
 
     public func getErc20Balance(for address: AlphaWallet.Address) -> AnyPublisher<BigUInt, SessionTaskError> {
-        getErc20Balance.getErc20Balance(for: account.address, contract: address)
+        return asFutureThrowable {
+            try await self.getErc20Balance.getErc20Balance(for: self.account.address, contract: address)
+        }.mapError { SessionTaskError(error: $0) }
+        .eraseToAnyPublisher()
     }
 
     public func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError> {
-        getErc875Balance.getErc875TokenBalance(for: address, contract: contract)
+        return asFutureThrowable {
+            try await self.getErc875Balance.getErc875TokenBalance(for: address, contract: contract)
+        }.mapError { SessionTaskError(error: $0) }
+        .eraseToAnyPublisher()
     }
 
     public func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError> {
-        getErc721ForTicketsBalance.getErc721ForTicketsTokenBalance(for: account.address, contract: address)
+        return asFutureThrowable {
+            try await self.getErc721ForTicketsBalance.getErc721ForTicketsTokenBalance(for: self.account.address, contract: address)
+        }.mapError { SessionTaskError(error: $0) }
+        .eraseToAnyPublisher()
     }
 
     public func getErc721Balance(for address: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError> {
-        getErc721Balance.getErc721TokenBalance(for: account.address, contract: address)
+        return asFutureThrowable {
+            try await self.getErc721Balance.getErc721TokenBalance(for: self.account.address, contract: address)
+        }.mapError { SessionTaskError(error: $0) }
+        .eraseToAnyPublisher()
     }
 
     static func shouldRetry(error: Error) -> Bool {

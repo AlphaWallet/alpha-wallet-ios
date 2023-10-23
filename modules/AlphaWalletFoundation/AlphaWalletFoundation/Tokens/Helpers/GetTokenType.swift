@@ -6,151 +6,68 @@
 //
 
 import AlphaWalletCore
-import PromiseKit
 import BigInt
-import Combine
 
-final class GetTokenType {
-    private var inFlightPromises: [String: Task<TokenType, Error>] = [:]
+final actor GetTokenType {
+    private var inFlightTasks: [String: Task<TokenType, Error>] = [:]
     private lazy var isErc1155Contract = IsErc1155Contract(blockchainProvider: blockchainProvider)
     private lazy var isErc875Contract = IsErc875Contract(blockchainProvider: blockchainProvider)
     private lazy var erc721ForTickers = IsErc721ForTicketsContract(blockchainProvider: blockchainProvider)
     private lazy var erc721 = IsErc721Contract(blockchainProvider: blockchainProvider)
-
     private let blockchainProvider: BlockchainProvider
-    private var cancellable = Set<AnyCancellable>()
 
     public init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
     }
 
     public func getTokenType(for address: AlphaWallet.Address) async throws -> TokenType {
-        return try await Task { @MainActor in
-            let key = address.eip55String
-            if let promise = inFlightPromises[key] {
-                return try await promise.value
-            } else {
-                let promise = Task<TokenType, Error> {
-                    let tokenType = await getTokenTypeAsync(for: address)
-                    inFlightPromises[key] = nil
-                    return tokenType
-                }
-                inFlightPromises[key] = promise
-                return try await promise.value
+        let key = address.eip55String
+        if let task = inFlightTasks[key] {
+            return try await task.value
+        } else {
+            let task = Task<TokenType, Error> {
+                let tokenType = await _getTokenType(for: address)
+                inFlightTasks[key] = nil
+                return tokenType
             }
-        }.value
-    }
-
-    private func getTokenTypeAsync(for address: AlphaWallet.Address) async -> TokenType {
-        await withCheckedContinuation { continuation in
-            getTokenType(for: address) {
-                continuation.resume(returning: $0)
-            }
+            inFlightTasks[key] = task
+            return try await task.value
         }
     }
 
     /// `getTokenType` doesn't return .nativeCryptoCurrency type, fallback to erc20. Maybe need to throw an error?
-    // swiftlint:disable function_body_length
-    private func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void) {
-        enum Erc721Type {
-            case erc721
-            case erc721ForTickets
-            case notErc721
-        }
-
+    private func _getTokenType(for address: AlphaWallet.Address) async -> TokenType {
         let numberOfTimesToRetryFetchContractData = 2
-        let isErc875Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc875Contract] in
-                //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
-                //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
-                isErc875Contract.getIsERC875Contract(for: address).promise()
-            }.recover { _ -> Promise<Bool> in
-                return .value(false)
+        let isErc875: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc875Contract] in
+            //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
+            //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
+            try await isErc875Contract.getIsERC875Contract(for: address)
+        }
+        if let isErc875, isErc875 {
+            return .erc875
+        }
+
+        let isErc721: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [erc721] in
+            try await erc721.getIsERC721Contract(for: address)
+        }
+        if let isErc721, isErc721 {
+            let isErc21ForTickets: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [erc721ForTickers] in
+                try await erc721ForTickers.getIsErc721ForTicketContract(for: address)
+            }
+            if let isErc21ForTickets, isErc21ForTickets {
+                return .erc721ForTickets
+            } else {
+                return .erc721
             }
         }
 
-        let isErc721Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [erc721] in
-                erc721.getIsERC721Contract(for: address).promise()
-            }
-        }.then { [erc721ForTickers] isERC721 -> Promise<Erc721Type> in
-            if isERC721 {
-                return attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    erc721ForTickers.getIsErc721ForTicketContract(for: address).promise()
-                }.map { isERC721ForTickets -> Erc721Type in
-                    if isERC721ForTickets {
-                        return .erc721ForTickets
-                    } else {
-                        return .erc721
-                    }
-                }.recover { _ -> Promise<Erc721Type> in
-                    return .value(.erc721)
-                }
-            } else {
-                return .value(.notErc721)
-            }
-        }.recover { _ -> Promise<Erc721Type> in
-            return .value(.notErc721)
+        let isErc1155: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc1155Contract] in
+            try await isErc1155Contract.getIsErc1155Contract(for: address)
+        }
+        if let isErc1155, isErc1155 {
+            return .erc1155
         }
 
-        let isErc1155Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc1155Contract] in
-                isErc1155Contract.getIsErc1155Contract(for: address).promise()
-            }.recover { _ -> Promise<Bool> in
-                return .value(false)
-            }
-        }
-
-        firstly {
-            isErc721Promise
-        }.done { isErc721 in
-            switch isErc721 {
-            case .erc721:
-                completion(.erc721)
-            case .erc721ForTickets:
-                completion(.erc721ForTickets)
-            case .notErc721:
-                break
-            }
-        }.catch({ e in
-            logError(e, pref: "isErc721Promise", address: address)
-        })
-
-        firstly {
-            isErc875Promise
-        }.done { isErc875 in
-            if isErc875 {
-                completion(.erc875)
-            } else {
-                //no-op
-            }
-        }.catch({ e in
-            logError(e, pref: "isErc875Promise", address: address)
-        })
-
-        firstly {
-            isErc1155Promise
-        }.done { isErc1155 in
-            if isErc1155 {
-                completion(.erc1155)
-            } else {
-                //no-op
-            }
-        }.catch({ e in
-            logError(e, pref: "isErc1155Promise", address: address)
-        })
-
-        firstly {
-            when(fulfilled: isErc875Promise.asVoid(), isErc721Promise.asVoid(), isErc1155Promise.asVoid())
-        }.done { _, _, _ in
-            if isErc875Promise.value == false && isErc721Promise.value == .notErc721 && isErc1155Promise.value == false {
-                completion(.erc20)
-            } else {
-                //no-op
-            }
-        }.catch({ e in
-            logError(e, pref: "isErc20Promise", address: address)
-        })
+        return .erc20
     }
-    // swiftlint:enable function_body_length
 }
