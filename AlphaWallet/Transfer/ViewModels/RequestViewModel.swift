@@ -1,9 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
-import AlphaWalletFoundation
 import Combine
+import UIKit
+import AlphaWalletCore
+import AlphaWalletFoundation
 
 struct RequestViewModelInput {
     let copyEns: AnyPublisher<Void, Never>

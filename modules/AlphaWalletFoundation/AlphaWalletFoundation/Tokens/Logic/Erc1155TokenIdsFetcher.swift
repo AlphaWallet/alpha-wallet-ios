@@ -1,9 +1,10 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
-import AlphaWalletWeb3
 import Combine
+import AlphaWalletCore
+import AlphaWalletWeb3
+import BigInt
 
 struct Erc1155TokenIds: Codable {
     typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]

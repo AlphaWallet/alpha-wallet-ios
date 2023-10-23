@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import Combine
+import AlphaWalletCore
 import AlphaWalletTokenScript
 import AlphaWalletWeb3
 

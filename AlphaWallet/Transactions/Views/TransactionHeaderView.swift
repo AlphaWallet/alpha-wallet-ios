@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
 

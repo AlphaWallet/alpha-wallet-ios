@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import UIKit
 import AlphaWalletFoundation
+import AlphaWalletCore
 
 struct SwapOptionsViewModelInput {
     let selection: AnyPublisher<IndexPath, Never>

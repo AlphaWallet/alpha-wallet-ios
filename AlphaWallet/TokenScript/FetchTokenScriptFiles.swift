@@ -3,6 +3,7 @@
 import Foundation
 import Combine
 import AlphaWalletAttestation
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletTokenScript
 

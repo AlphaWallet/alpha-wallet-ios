@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 
