@@ -14,7 +14,6 @@ actor PartnerTokensAutodetector: TokensAutodetector {
     private let contractToImportStorage: ContractToImportStorage
     private let tokensDataStore: TokensDataStore
     private let importToken: TokenImportable & TokenOrContractFetchable
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.partnerTokensAutodetector")
     private var cancellable = Set<AnyCancellable>()
     private let server: RPCServer
 

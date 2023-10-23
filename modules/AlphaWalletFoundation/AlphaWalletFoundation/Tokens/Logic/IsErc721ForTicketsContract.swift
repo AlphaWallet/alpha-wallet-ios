@@ -3,7 +3,7 @@
 import Foundation
 import Combine
 
-public class IsErc721ForTicketsContract {
+public actor IsErc721ForTicketsContract {
     private let blockchainProvider: BlockchainProvider
     private lazy var isInterfaceSupported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
     //UEFA 721 balances function hash
@@ -13,7 +13,7 @@ public class IsErc721ForTicketsContract {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func getIsErc721ForTicketContract(for contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
-        return isInterfaceSupported165.getInterfaceSupported165(hash: IsErc721ForTicketsContract.balances165Hash721Ticket, contract: contract)
+    public func getIsErc721ForTicketContract(for contract: AlphaWallet.Address) async throws -> Bool {
+        return try await isInterfaceSupported165.getInterfaceSupported165(hash: IsErc721ForTicketsContract.balances165Hash721Ticket, contract: contract)
     }
 }
