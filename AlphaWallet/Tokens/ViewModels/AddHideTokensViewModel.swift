@@ -2,6 +2,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 struct AddHideTokensViewModelInput {

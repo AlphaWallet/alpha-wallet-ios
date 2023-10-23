@@ -81,3 +81,27 @@ public extension AnyPublisher {
         }
     }
 }
+
+//TODO remove most if not all callers once we migrate completely to async-await
+public func asFuture<T>(block: @escaping () async -> T) -> Future<T, Never> {
+    Future<T, Never> { promise in
+        Task { @MainActor in
+            let result: T = await block()
+            promise(.success(result))
+        }
+    }
+}
+
+//TODO remove most if not all callers once we migrate completely to async-await
+public func asFutureThrowable<T>(block: @escaping () async throws -> T) -> Future<T, Error> {
+    Future<T, Error> { promise in
+        Task { @MainActor in
+            do {
+                let result: T = try await block()
+                promise(.success(result))
+            } catch {
+                promise(.failure(error))
+            }
+        }
+    }
+}

@@ -7,8 +7,9 @@
 
 import UIKit
 import Combine
-import BigInt
+import AlphaWalletCore
 import AlphaWalletFoundation
+import BigInt
 
 struct SwapTokensViewModelInput {
     let cryptoValue: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>

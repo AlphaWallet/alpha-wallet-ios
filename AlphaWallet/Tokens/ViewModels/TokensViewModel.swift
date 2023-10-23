@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import Combine
 import AlphaWalletAttestation
+import AlphaWalletCore
 import AlphaWalletFoundation
 
 struct TokensViewModelInput {

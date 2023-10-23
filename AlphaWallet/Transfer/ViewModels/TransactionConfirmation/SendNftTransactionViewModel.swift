@@ -6,9 +6,10 @@
 //
 
 import UIKit
-import BigInt
-import AlphaWalletFoundation
 import Combine
+import AlphaWalletCore
+import AlphaWalletFoundation
+import BigInt
 
 extension TransactionConfirmationViewModel {
     class SendNftTransactionViewModel: TransactionConfirmationViewModelType {
