@@ -6,7 +6,6 @@ import AlphaWalletCore
 
 final class GetContractDecimals {
     private var inFlightPromises: [String: Task<Int, Error>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractDecimals")
 
     private let blockchainProvider: BlockchainProvider
 

@@ -12,7 +12,6 @@ import Combine
 
 final class GetTokenType {
     private var inFlightPromises: [String: Task<TokenType, Error>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getTokenType")
     private lazy var isErc1155Contract = IsErc1155Contract(blockchainProvider: blockchainProvider)
     private lazy var isErc875Contract = IsErc875Contract(blockchainProvider: blockchainProvider)
     private lazy var erc721ForTickers = IsErc721ForTicketsContract(blockchainProvider: blockchainProvider)

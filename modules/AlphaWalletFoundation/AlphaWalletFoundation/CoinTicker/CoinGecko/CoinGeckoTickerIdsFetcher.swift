@@ -21,7 +21,6 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     private var config: SupportedTickerIdsFetcherConfig
     private let pricesCacheLifetime: TimeInterval
     private var fetchSupportedTickerIdsTask: Task<Void, Never>?
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.coinGeckoTicker.IdsFetcher")
 
     /// Init method
     /// - pricesCacheLifetime - default value 604800, one week

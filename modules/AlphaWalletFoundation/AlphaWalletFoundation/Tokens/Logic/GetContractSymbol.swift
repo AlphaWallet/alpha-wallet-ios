@@ -6,7 +6,6 @@ import AlphaWalletCore
 
 final class GetContractSymbol {
     private var inFlightPromises: [String: Task<String, Error>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractSymbol")
 
     private let blockchainProvider: BlockchainProvider
 

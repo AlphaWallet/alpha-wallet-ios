@@ -11,7 +11,6 @@ public typealias Stats = AlphaWalletOpenSea.NftCollectionStats
 public final class OpenSea {
     private let analytics: AnalyticsLogger
     private let storage: Storage<[AddressAndRPCServer: OpenSeaAddressesToNonFungibles]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.openSea")
     private let config: Config
     private let server: RPCServer
     private let openSea: AlphaWalletOpenSea.OpenSea

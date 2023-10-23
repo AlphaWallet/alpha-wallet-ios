@@ -14,7 +14,6 @@ import Combine
 final class Erc1155BalanceFetcher {
     private let address: AlphaWallet.Address
     private var inFlightPromises: [String: Task<[BigInt: BigUInt], Error>] = [:]
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.erc1155BalanceFetcher")
     private let blockchainProvider: BlockchainProvider
 
     init(address: AlphaWallet.Address, blockchainProvider: BlockchainProvider) {
