@@ -18,17 +18,17 @@ public enum Eip20TokenType: String {
 public protocol TokensAutodetector {
     var detectedTokensOrContracts: AnyPublisher<[TokenOrContract], Never> { get }
 
-    func start()
+    func start() async
     func stop()
     func resume()
 }
 
-public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
+public actor SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private var cancellable = Set<AnyCancellable>()
     private let autodetectors: [TokensAutodetector]
     private let subject = PassthroughSubject<[TokenOrContract], Never>()
 
-    public var detectedTokensOrContracts: AnyPublisher<[TokenOrContract], Never> {
+    public nonisolated var detectedTokensOrContracts: AnyPublisher<[TokenOrContract], Never> {
         subject.eraseToAnyPublisher()
     }
 
@@ -42,7 +42,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             .store(in: &cancellable)
 
         super.init()
-        
+
         NotificationCenter.default.applicationState
             .receive(on: RunLoop.main)
             .sink { [weak self] state in
@@ -55,15 +55,17 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             }.store(in: &cancellable)
     }
 
-    public func start() {
-        autodetectors.forEach { $0.start() }
+    public nonisolated func start() async {
+        for each in autodetectors {
+            await each.start()
+        }
     }
 
-    public func stop() {
+    public nonisolated func stop() {
         autodetectors.forEach { $0.stop() }
     }
 
-    public func resume() {
+    public nonisolated func resume() {
         autodetectors.forEach { $0.resume() }
     }
 }

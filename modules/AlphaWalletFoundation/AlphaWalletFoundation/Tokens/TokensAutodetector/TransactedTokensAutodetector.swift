@@ -9,14 +9,14 @@ import Foundation
 import AlphaWalletCore
 import Combine
 
-class TransactedTokensAutodetector: NSObject, TokensAutodetector {
+actor TransactedTokensAutodetector: NSObject, TokensAutodetector {
     private let subject = PassthroughSubject<[TokenOrContract], Never>()
     private let tokensDataStore: TokensDataStore
     private var cancellable = Set<AnyCancellable>()
     private let session: WalletSession
-    private var schedulers: [Scheduler]
+    private let schedulers: [Scheduler]
 
-    var detectedTokensOrContracts: AnyPublisher<[TokenOrContract], Never> {
+    nonisolated var detectedTokensOrContracts: AnyPublisher<[TokenOrContract], Never> {
         subject.eraseToAnyPublisher()
     }
 
@@ -61,15 +61,15 @@ class TransactedTokensAutodetector: NSObject, TokensAutodetector {
         cancellable.cancellAll()
     }
 
-    func start() {
+    nonisolated func start() async {
         schedulers.forEach { $0.start() }
     }
 
-    func stop() {
+    nonisolated func stop() {
         schedulers.forEach { $0.cancel() }
     }
 
-    func resume() {
+    nonisolated func resume() {
         schedulers.forEach { $0.restart() }
     }
 
