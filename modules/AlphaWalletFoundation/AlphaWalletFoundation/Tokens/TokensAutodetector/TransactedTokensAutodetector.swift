@@ -49,7 +49,9 @@ actor TransactedTokensAutodetector: NSObject, TokensAutodetector {
                 let publishers = contracts.map {
                     importToken.fetchTokenOrContract(for: $0, onlyIfThereIsABalance: false).mapToResult()
                 }
-                return Publishers.MergeMany(publishers).collect()
+                //Arbitrary number that is not too big and not too small so we get a chance to process and finish auto-detecting some tokens without waiting for a few hundred to finish
+                //TODO for wallets that transacted with many tokens, this (the whole process of auto-detecting, not just a single batch in the next line) can take more than 10 minutes to process. We ought to save the contracts that have been detected but not processed yet. Otherwise we would have scrolled past that in the blockchain explorer history and if the app suspended, crashes or gets killed, we'll miss those tokens
+                return Publishers.MergeMany(publishers).collect(30)
             }.map { $0.compactMap { try? $0.get() } }
             .filter { !$0.isEmpty }
             .multicast(subject: subject)
@@ -73,7 +75,7 @@ actor TransactedTokensAutodetector: NSObject, TokensAutodetector {
         schedulers.forEach { $0.restart() }
     }
 
-    private func filter(detectedContracts: [AlphaWallet.Address]) async -> [AlphaWallet.Address] {
+    private nonisolated func filter(detectedContracts: [AlphaWallet.Address]) async -> [AlphaWallet.Address] {
         let alreadyAddedContracts = await tokensDataStore.tokens(for: [session.server]).map { $0.contractAddress }
         let deletedContracts = await tokensDataStore.deletedContracts(forServer: session.server).map { $0.contractAddress }
         let hiddenContracts = await tokensDataStore.hiddenContracts(forServer: session.server).map { $0.contractAddress }

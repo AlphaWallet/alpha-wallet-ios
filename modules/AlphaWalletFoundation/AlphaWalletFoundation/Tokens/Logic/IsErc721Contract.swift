@@ -25,13 +25,17 @@ public actor IsErc721Contract {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getIsERC721Contract(for contract: AlphaWallet.Address) async throws -> Bool {
+    private func setTask(_ task: Task<Bool, Error>?, forKey key: String) {
+        inFlightTasks[key] = task
+    }
+
+    nonisolated func getIsERC721Contract(for contract: AlphaWallet.Address) async throws -> Bool {
         if let value = functional.sureItsErc721(contract: contract) {
             return value
         }
 
         let key = "\(contract.eip55String)-\(blockchainProvider.server.chainID)"
-        if let task = inFlightTasks[key] {
+        if let task = await inFlightTasks[key] {
             return try await task.value
         } else {
             let task = Task<Bool, Error> {
@@ -46,7 +50,7 @@ public actor IsErc721Contract {
                 }
                 return false
             }
-            inFlightTasks[key] = task
+            await setTask(task, forKey: key)
             return try await task.value
         }
     }

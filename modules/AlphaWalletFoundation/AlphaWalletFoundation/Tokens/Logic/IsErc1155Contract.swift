@@ -6,7 +6,7 @@
 import Foundation
 import Combine
 
-public actor IsErc1155Contract {
+public class IsErc1155Contract {
     private let blockchainProvider: BlockchainProvider
     private lazy var resolver = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
 

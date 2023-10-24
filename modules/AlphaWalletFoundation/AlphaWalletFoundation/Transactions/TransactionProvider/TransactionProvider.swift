@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import AlphaWalletCore
 
+//TODO improve actor/nonisolated?
 public actor TransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession

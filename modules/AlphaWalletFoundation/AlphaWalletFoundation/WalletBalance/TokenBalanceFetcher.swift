@@ -107,7 +107,9 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         cancellable.removeAll()
         jsonFromTokenUri.clear()
         erc1155TokenIdsFetcher.clear()
-        erc1155BalanceFetcher.clear()
+        Task {
+            await erc1155BalanceFetcher.clear()
+        }
     }
 
     public func cancel() {

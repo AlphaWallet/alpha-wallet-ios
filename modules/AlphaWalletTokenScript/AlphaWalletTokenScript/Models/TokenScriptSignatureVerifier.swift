@@ -15,6 +15,7 @@ public protocol TokenScriptSignatureVerifieble {
     func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (TokenScriptSignatureVerifier.VerifierResult) -> Void)
 }
 
+//TODO improve actor/nonisolated? Not important at the moment since we don't verify signatures at the moment
 public final actor TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble {
     private let baseTokenScriptFiles: BaseTokenScriptFiles
     private let networking: TokenScriptSignatureNetworking

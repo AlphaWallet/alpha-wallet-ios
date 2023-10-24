@@ -20,21 +20,29 @@ public actor IsInterfaceSupported165 {
         self.fileName = fileName
     }
 
-    public func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) async throws -> Bool {
+    private func setTask(_ task: Task<Bool, Error>?, forKey key: String) {
+        inFlightTasks[key] = task
+    }
+
+    private func setStorageValue(_ value: Bool?, forKey key: String) {
+        storage.value[key] = value
+    }
+
+    public nonisolated func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) async throws -> Bool {
         let key = "\(hash)-\(contract)-\(blockchainProvider.server)"
-        if let value = storage.value[key] {
+        if let value = await storage.value[key] {
             return value
         }
-        if let task = inFlightTasks[key] {
+        if let task = await inFlightTasks[key] {
             return try await task.value
         } else {
             let task = Task<Bool, Error> {
                 let result = try await blockchainProvider.callAsync(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
-                storage.value[key] = result
-                inFlightTasks[key] = nil
+                await setStorageValue(result, forKey: key)
+                await setTask(nil, forKey: key)
                 return result
             }
-            inFlightTasks[key] = task
+            await setTask(task, forKey: key)
             return try await task.value
         }
     }
