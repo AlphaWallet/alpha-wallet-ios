@@ -15,7 +15,8 @@ extension AlphaWallet {
         private let crashlytics: Crashlytics = Crashlytics.crashlytics()
 
         //NOTE: to avoid warning `The default Firebase app has not yet been configured. FirebaseApp.configure()`, moving code to init method have no affect
-        static var instance: FirebaseCrashlyticsReporter = {
+        //@MainActor because crashlytics accesses the status bar (which is UI)
+        @MainActor static var instance: FirebaseCrashlyticsReporter = {
             //TODO use a shared instance of `Config` instead, or does it not matter?
             var config = Config()
             if config.sendCrashReportingEnabled == nil {
