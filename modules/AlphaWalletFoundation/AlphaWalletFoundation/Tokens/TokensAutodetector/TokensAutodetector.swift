@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletCore
 import Combine
 
-public enum Eip20TokenType: String {
+public enum EipTokenType: String {
     case erc20
     case erc721
     case erc1155
