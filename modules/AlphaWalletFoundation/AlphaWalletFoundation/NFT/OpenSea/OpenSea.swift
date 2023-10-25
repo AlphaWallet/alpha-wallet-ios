@@ -95,6 +95,7 @@ public final class OpenSea {
 }
 
 extension OpenSea: OpenSeaDelegate {
+    //TODO openSeaError() should be called for logging to analytics
     public func openSeaError(error: OpenSeaApiError) {
         switch error {
         case .rateLimited:
