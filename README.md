@@ -87,7 +87,7 @@ After the Podfile is updated, run `make install_pods` to update the pods in the 
 
 ### Add your token to AlphaWallet
 
-if you want to add your token you can use one of functions of `ImportToken` class. It allows used to import your own `erc` token
+if you want to add your token you can use one of functions of `ImportToken` class. It allows you to import your own `erc` token
 ```
 func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token
 ```
