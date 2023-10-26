@@ -78,6 +78,8 @@ final class SettingsViewModel {
         let reload = Publishers.Merge3(input.willAppear, assignedNameOrEns, askToEnableOrDisableNotifications)
 
         let sections = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
+            //Just so much simple to nip this here for UI updates (specifically table/diffable updates)
+            .receive(on: DispatchQueue.main)
             .map { [account] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
                 let sections = SettingsViewModel.functional.computeSections(account: account, blockscanChatUnreadCount: blockscanChatUnreadCount)
                 return sections.indices.map { sectionIndex -> SettingsViewModel.SectionViewModel in
@@ -107,6 +109,8 @@ final class SettingsViewModel {
             }.removeDuplicates()
 
         let viewState = Publishers.CombineLatest(sections, badge)
+            //Just so much simple to nip this here for UI updates (specifically table/diffable updates)
+            .receive(on: DispatchQueue.main)
             .map { sections, badge -> SettingsViewModel.ViewState in
                 let snapshot = self.buildSnapshot(for: sections)
                 return SettingsViewModel.ViewState(snapshot: snapshot, badge: badge)

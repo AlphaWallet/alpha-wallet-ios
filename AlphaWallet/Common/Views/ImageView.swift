@@ -28,6 +28,8 @@ class ImageView: UIImageView {
 
     private func bind() {
         subject.flatMapLatest { $0 }
+            //Just so much simple to nip this here for UI updates even if we appear to only subject.send() on main
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] image in
                 switch image {
                 case .url(let url):

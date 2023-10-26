@@ -87,7 +87,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
 
         let activitiesFilterStrategy = token.activitiesFilterStrategy
-        Task {
+        Task { @MainActor in
             let activitiesService = await self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
             let coordinator = NFTCollectionCoordinator(session: session, navigationController: navigationController, keystore: keystore, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, activitiesService: activitiesService, tokensService: tokensPipeline, sessionsProvider: sessionsProvider, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher, tokenActionsProvider: tokenActionsProvider)
             addCoordinator(coordinator)
