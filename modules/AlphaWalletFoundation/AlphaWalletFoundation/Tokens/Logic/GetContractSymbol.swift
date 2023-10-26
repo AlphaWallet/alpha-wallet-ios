@@ -5,25 +5,29 @@ import AlphaWalletWeb3
 import AlphaWalletCore
 
 final actor GetContractSymbol {
-    private var inFlightPromises: [String: Task<String, Error>] = [:]
+    private var inFlightTasks: [String: Task<String, Error>] = [:]
     private let blockchainProvider: BlockchainProvider
 
     init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
     }
 
-    func getSymbol(for contract: AlphaWallet.Address) async throws -> String {
+    private func setTask(_ task: Task<String, Error>?, forKey key: String) {
+        inFlightTasks[key] = task
+    }
+
+    nonisolated func getSymbol(for contract: AlphaWallet.Address) async throws -> String {
         let key = contract.eip55String
-        if let promise = inFlightPromises[key] {
-            return try await promise.value
+        if let task = await inFlightTasks[key] {
+            return try await task.value
         } else {
-            let promise = Task<String, Error> {
+            let task = Task<String, Error> {
                 let result = try await blockchainProvider.callAsync(Erc20SymbolMethodCall(contract: contract))
-                inFlightPromises[key] = nil
+                await setTask(nil, forKey: key)
                 return result
             }
-            inFlightPromises[key] = promise
-            return try await promise.value
+            await setTask(task, forKey: key)
+            return try await task.value
         }
     }
 }

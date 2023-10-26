@@ -14,29 +14,34 @@ final actor GetTokenType {
     private lazy var isErc875Contract = IsErc875Contract(blockchainProvider: blockchainProvider)
     private lazy var erc721ForTickers = IsErc721ForTicketsContract(blockchainProvider: blockchainProvider)
     private lazy var erc721 = IsErc721Contract(blockchainProvider: blockchainProvider)
+
     private let blockchainProvider: BlockchainProvider
 
     public init(blockchainProvider: BlockchainProvider) {
         self.blockchainProvider = blockchainProvider
     }
 
-    public func getTokenType(for address: AlphaWallet.Address) async throws -> TokenType {
+    private func setTask(_ task: Task<TokenType, Error>?, forKey key: String) {
+        inFlightTasks[key] = task
+    }
+
+    public nonisolated func getTokenType(for address: AlphaWallet.Address) async throws -> TokenType {
         let key = address.eip55String
-        if let task = inFlightTasks[key] {
+        if let task = await inFlightTasks[key] {
             return try await task.value
         } else {
             let task = Task<TokenType, Error> {
                 let tokenType = await _getTokenType(for: address)
-                inFlightTasks[key] = nil
+                await setTask(nil, forKey: key)
                 return tokenType
             }
-            inFlightTasks[key] = task
+            await setTask(task, forKey: key)
             return try await task.value
         }
     }
 
     /// `getTokenType` doesn't return .nativeCryptoCurrency type, fallback to erc20. Maybe need to throw an error?
-    private func _getTokenType(for address: AlphaWallet.Address) async -> TokenType {
+    private nonisolated func _getTokenType(for address: AlphaWallet.Address) async -> TokenType {
         let numberOfTimesToRetryFetchContractData = 2
         let isErc875: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc875Contract] in
             //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
@@ -51,10 +56,10 @@ final actor GetTokenType {
             try await erc721.getIsERC721Contract(for: address)
         }
         if let isErc721, isErc721 {
-            let isErc21ForTickets: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [erc721ForTickers] in
+            let isErc721ForTickets: Bool? = try? await attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [erc721ForTickers] in
                 try await erc721ForTickers.getIsErc721ForTicketContract(for: address)
             }
-            if let isErc21ForTickets, isErc21ForTickets {
+            if let isErc721ForTickets, isErc721ForTickets {
                 return .erc721ForTickets
             } else {
                 return .erc721

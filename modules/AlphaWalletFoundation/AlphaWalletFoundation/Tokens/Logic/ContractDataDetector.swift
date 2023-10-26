@@ -86,7 +86,6 @@ public class ContractDataDetector {
     //Have to use strong self in promises below, otherwise `self` will be destroyed before fetching completes
     public func fetch() -> AnyPublisher<ContractData, Never> {
         assetDefinitionStore.fetchXML(forContract: contract, server: nil)
-
         firstly {
             tokenTypePromise
         }.done { tokenType in

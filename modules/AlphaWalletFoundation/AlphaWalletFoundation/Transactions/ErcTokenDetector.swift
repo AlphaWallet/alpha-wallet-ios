@@ -28,6 +28,7 @@ public final class ErcTokenDetector {
     func detect(from transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
 
+        //TODO improve @MainActor usage
         Task { @MainActor in
             let (transactionsToPullContractsFrom, contractsAndTokenTypes) = await filterTransactionsToPullContracts(from: transactions)
             guard !transactionsToPullContractsFrom.isEmpty else { return }

@@ -16,6 +16,7 @@ public protocol NftAssetImageProvider: AnyObject {
     func assetImageUrl(for url: Eip155URL) async throws -> URL
 }
 
+//TODO improve actor/nonisolated?
 public actor BlockiesGenerator {
     private enum BlockieSize {
         case sized(size: Int, scale: Int)
@@ -49,6 +50,13 @@ public actor BlockiesGenerator {
         }
     }
 
+    private func getCachedBlockieForPerformanceDevelopment(setDefault block: @autoclosure () -> BlockiesImage) -> BlockiesImage {
+        if cachedBlockieForPerformanceDevelopment == nil {
+            cachedBlockieForPerformanceDevelopment = block()
+        }
+        return cachedBlockieForPerformanceDevelopment!
+    }
+
     //TODO speed up. Callers block if we want for generation at launch, without a default?
     public func getBlockieOrEnsAvatarImage(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) async throws -> BlockiesImage {
         if let cached = self.cachedBlockie(address: address, size: .sized(size: size, scale: scale)) {
@@ -57,15 +65,13 @@ public actor BlockiesGenerator {
 
         func generateBlockieFallback() async throws -> BlockiesImage {
             let blockie = try await createBlockieImage(address: address, size: size, scale: scale)
-            self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
+            await cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
             return blockie
         }
 
+        //Development only, so performance is less important
         if Config().development.shouldDisableBlockieGeneration {
-            if cachedBlockieForPerformanceDevelopment == nil {
-                cachedBlockieForPerformanceDevelopment = BlockiesImage.image(image: UIImage(), isEnsAvatar: false)
-            }
-            return cachedBlockieForPerformanceDevelopment!
+            return getCachedBlockieForPerformanceDevelopment(setDefault: BlockiesImage.image(image: UIImage(), isEnsAvatar: false))
         }
 
         do {

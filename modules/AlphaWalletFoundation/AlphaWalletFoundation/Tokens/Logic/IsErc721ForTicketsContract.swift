@@ -3,7 +3,7 @@
 import Foundation
 import Combine
 
-public actor IsErc721ForTicketsContract {
+public class IsErc721ForTicketsContract {
     private let blockchainProvider: BlockchainProvider
     private lazy var isInterfaceSupported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
     //UEFA 721 balances function hash

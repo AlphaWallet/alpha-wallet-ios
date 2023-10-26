@@ -4,7 +4,7 @@ import Foundation
 import Combine
 import AlphaWalletWeb3
 
-public actor IsErc875Contract {
+public class IsErc875Contract {
     private let blockchainProvider: BlockchainProvider
 
     public init(blockchainProvider: BlockchainProvider) {
