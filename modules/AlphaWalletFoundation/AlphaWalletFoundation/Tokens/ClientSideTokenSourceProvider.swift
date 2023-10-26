@@ -10,7 +10,7 @@ import AlphaWalletCore
 import Combine
 
 extension RPCServer {
-    var autodetectTokenTypes: [Eip20TokenType] {
+    var autodetectTokenTypes: [EipTokenType] {
         return [.erc20, .erc721, .erc1155]
     }
 }

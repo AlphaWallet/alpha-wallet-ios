@@ -367,7 +367,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         }
     }
 
-    static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: Eip20TokenType) -> [Transaction] {
+    static func decodeTokenTransferTransactions(json: JSON, server: RPCServer, tokenType: EipTokenType) -> [Transaction] {
         let filteredResult: [(String, JSON)] = json["result"].filter { $0.1["to"].stringValue.hasPrefix("0x") }
         let transactions: [Transaction] = filteredResult.compactMap { result -> Transaction? in
             let transactionJson = result.1

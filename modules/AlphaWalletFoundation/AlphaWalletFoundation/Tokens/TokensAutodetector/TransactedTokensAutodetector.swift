@@ -20,7 +20,7 @@ actor TransactedTokensAutodetector: NSObject, TokensAutodetector {
         subject.eraseToAnyPublisher()
     }
 
-    init(tokensDataStore: TokensDataStore, importToken: TokenImportable & TokenOrContractFetchable, session: WalletSession, blockchainExplorer: BlockchainExplorer, tokenTypes: [Eip20TokenType]) {
+    init(tokensDataStore: TokensDataStore, importToken: TokenImportable & TokenOrContractFetchable, session: WalletSession, blockchainExplorer: BlockchainExplorer, tokenTypes: [EipTokenType]) {
         self.session = session
         self.tokensDataStore = tokensDataStore
 
@@ -85,7 +85,7 @@ actor TransactedTokensAutodetector: NSObject, TokensAutodetector {
 
 extension TransactedTokensAutodetector {
 
-    private static func interactionsPaginationKey(server: RPCServer, tokenType: Eip20TokenType) -> String {
+    private static func interactionsPaginationKey(server: RPCServer, tokenType: EipTokenType) -> String {
         return "interactionsPagination-\(server.chainID)-\(tokenType.rawValue)"
     }
 
@@ -94,7 +94,7 @@ extension TransactedTokensAutodetector {
         private let blockchainExplorer: BlockchainExplorer
         private var storage: PaginationStorage
         private let subject = PassthroughSubject<Result<[AlphaWallet.Address], PromiseError>, Never>()
-        private let tokenType: Eip20TokenType
+        private let tokenType: EipTokenType
         private let stateProvider: SchedulerStateProvider
 
         let interval: TimeInterval
@@ -107,7 +107,7 @@ extension TransactedTokensAutodetector {
             subject.eraseToAnyPublisher()
         }
 
-        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, storage: PaginationStorage, tokenType: Eip20TokenType, interval: TimeInterval, stateProvider: SchedulerStateProvider) {
+        init(session: WalletSession, blockchainExplorer: BlockchainExplorer, storage: PaginationStorage, tokenType: EipTokenType, interval: TimeInterval, stateProvider: SchedulerStateProvider) {
             self.stateProvider = stateProvider
             self.interval = interval
             self.tokenType = tokenType
