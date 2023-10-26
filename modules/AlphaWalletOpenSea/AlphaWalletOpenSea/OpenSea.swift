@@ -309,7 +309,17 @@ public class OpenSea {
 
     private func sendAsync(request: Alamofire.URLRequestConvertible, server: RPCServer) async throws -> JSON {
         let response = try await networking.networking(for: server).sendAsync(request: request)
-        return try JsonDecoder().decode(data: response)
+        do {
+            return try JsonDecoder().decode(data: response)
+        } catch let error as OpenSeaApiError {
+            switch error {
+            case .internal, .invalidJson, .rateLimited:
+                break
+            case .invalidApiKey, .expiredApiKey:
+                infoLog("[OpenSea] API key error: \(error)")
+            }
+            throw error
+        }
     }
 
     private func fetchAssets(owner: AlphaWallet.Address, server: RPCServer, next: String? = nil, assets: OpenSeaAddressesToNonFungibles = [:], excludeContracts: [(AlphaWallet.Address, RPCServer)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
