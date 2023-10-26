@@ -37,7 +37,16 @@ public actor IsInterfaceSupported165 {
             return try await task.value
         } else {
             let task = Task<Bool, Error> {
-                let result = try await blockchainProvider.callAsync(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
+                let result: Erc20SupportsInterfaceMethodCall.Response
+                do {
+                    result = try await blockchainProvider.callAsync(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
+                } catch let error as Web3Error {
+                    if isNodeErrorExecutionReverted(error: error) {
+                        result = false
+                    } else {
+                        throw error
+                    }
+                }
                 await setStorageValue(result, forKey: key)
                 await setTask(nil, forKey: key)
                 return result
@@ -45,5 +54,17 @@ public actor IsInterfaceSupported165 {
             await setTask(task, forKey: key)
             return try await task.value
         }
+    }
+}
+
+func isNodeErrorExecutionReverted(error: Error) -> Bool {
+    if case Web3Error.nodeError(let message) = error {
+        if message.contains("execution reverted") {
+            return true
+        } else {
+            return false
+        }
+    } else {
+        return false
     }
 }
