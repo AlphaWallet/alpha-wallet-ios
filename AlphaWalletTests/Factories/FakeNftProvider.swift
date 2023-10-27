@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 import Combine
 
 final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
-    func assetImageUrl(for url: Eip155URL) async throws -> URL {
+    func assetImageUrl(contract: AlphaWallet.Address, id: BigUInt) async throws -> URL {
         throw ProviderError()
     }
 

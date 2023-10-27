@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletAddress
 import BigInt
 import SwiftyJSON
 
@@ -25,10 +26,11 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     public static let generationTraitName = "generation"
     static let cooldownIndexTraitName = "cooldown_index"
 
+    public let contract: AlphaWallet.Address
     public let tokenId: String
     public let tokenType: NonFungibleFromJsonTokenType
     public var value: BigInt
-    public let contractName: String
+    public var contractName: String
     public let decimals: Int
     public let symbol: String
     public let name: String
@@ -37,7 +39,7 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     public let imageUrl: String
     public let animationUrl: String?
     public let previewUrl: String
-    public let contractImageUrl: String
+    public var contractImageUrl: String
     public let imageOriginalUrl: String
     public let externalLink: String
     public let backgroundColor: String?
@@ -46,13 +48,14 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
         return traits.first { $0.type == NftAsset.generationTraitName }
     }
     public let collectionCreatedDate: Date?
-    public let collectionDescription: String?
+    public var collectionDescription: String?
     public var collection: AlphaWalletOpenSea.NftCollection?
 
     public var creator: AssetCreator?
     public let collectionId: String
 
-    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String, animationUrl: String?) {
+    public init(contract: AlphaWallet.Address, tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String, animationUrl: String?) {
+        self.contract = contract
         self.imageOriginalUrl = imageOriginalUrl
         self.tokenId = tokenId
         self.tokenType = tokenType

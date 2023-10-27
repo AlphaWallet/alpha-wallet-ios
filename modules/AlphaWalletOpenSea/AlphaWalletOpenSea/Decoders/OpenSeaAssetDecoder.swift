@@ -27,13 +27,6 @@ struct NftAssetsPage {
     let error: Error?
 }
 
-struct NftCollectionsPage {
-    let collections: [CollectionKey: NftCollection]
-    let count: Int
-    let hasNextPage: Bool
-    let error: Error?
-}
-
 public struct NftAssetsPageDecoder {
     enum DecoderError: Error {
         case jsonInvalidError
@@ -51,57 +44,38 @@ public struct NftAssetsPageDecoder {
 
     func decode(json: JSON) -> NftAssetsPage {
         var assets = assets
-        let results = (json["assets"].array ?? json["results"].array ?? [])
+        let results = (json["nfts"].array ?? json["assets"].array ?? json["results"].array ?? [])
         let nextPage = json["next"].string
-
         for each in results {
-            guard let assetContract = try? PrimaryAssetContract(json: each["asset_contract"]) else {
-                continue
-            }
-            let collection = NftCollection(json: each, contracts: [assetContract])
-            guard let cat = NftAsset(json: each) else {
-                continue
-            }
-
-            if var list = assets[assetContract.address] {
-                list.append(cat)
-                assets[assetContract.address] = list
-            } else {
-                let list = [cat]
-                assets[assetContract.address] = list
-            }
+            guard let nftAsset = NftAsset(json: each) else { continue }
+            let contract = nftAsset.contract
+            var list = assets[contract, default: []]
+            list.append(nftAsset)
+            assets[contract] = list
         }
-
         return .init(assets: assets, count: results.count, next: nextPage, error: nil)
     }
 }
 
 extension NftAsset {
     init?(json: JSON) {
-        let assetContractJson = json["asset_contract"]
-        let collectionJson = json["collection"]
-
-        guard let contract = AlphaWallet.Address(string: assetContractJson["address"].stringValue) else {
-            return nil
-        }
-        guard let tokenType = NonFungibleFromJsonTokenType(rawValue: assetContractJson["schema_name"].stringValue) else {
-            return nil
-        }
+        guard let contract = AlphaWallet.Address(string: json["contract"].stringValue) else { return nil }
+        //Some results from OpenSea are .erc20. We exclude those
+        guard let tokenType = NonFungibleFromJsonTokenType(rawValue: json["token_standard"].stringValue) else { return nil }
         let tokenId = json["token_id"].stringValue
-        let contractName = assetContractJson["name"].stringValue
-        //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
-        let decimals = json["decimals"].intValue
+        let decimals: Int = 0
         let value: BigInt
         switch tokenType {
         case .erc721:
             value = 1
         case .erc1155:
-            //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract before we update the database
             value = 0
         }
-        let symbol = assetContractJson["symbol"].stringValue
         let name = json["name"].stringValue
         let description = json["description"].stringValue
+        let collectionId = json["collection"].stringValue
+
+        //Images might be limited to "image_url" as of OpenSea API v2
         let thumbnailUrl = json["image_thumbnail_url"].stringValue
         //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
         var imageUrl = json["image_preview_url"].stringValue
@@ -110,37 +84,18 @@ extension NftAsset {
         }
         let previewUrl = json["image_preview_url"].stringValue
         let imageOriginalUrl = json["image_original_url"].stringValue
-        let contractImageUrl = assetContractJson["image_url"].stringValue
-        let externalLink = json["external_link"].stringValue
+
+        //We'll get the real one from the collection level later
+        let contractImageUrl = json["image_url"].stringValue
+        let externalLink = json["external_link"].string ?? json["project_url"].stringValue
         let backgroundColor = json["background_color"].stringValue
+
+        //TODO have to fetch single NFTs from OpenSea v2 API to get traits, animation_url and creator contract https://docs.opensea.io/reference/get_nft The creator information has to be fetched with an additional call. Maybe make these 2 calls when the user tap to show the token?
+        //TODO use "metadata_url" if it's useful: "https://resources.smarttokenlabs.com/137/0xd5ca946ac1c1f24eb26dae9e1a53ba6a02bd97fe/1913046616" Might also access it first before OpenSea API?
         let animationUrl = json["animation_url"].string
         let traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
-        let collectionId = collectionJson["slug"].stringValue
-        let collectionCreatedDate = assetContractJson["created_date"].string
-                .flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
-        let collectionDescription = assetContractJson["description"].string
         let creator = try? AssetCreator(json: json["creator"])
 
-        self.init(tokenId: tokenId,
-                  tokenType: tokenType,
-                  value: value,
-                  contractName: contractName,
-                  decimals: decimals,
-                  symbol: symbol,
-                  name: name,
-                  description: description,
-                  thumbnailUrl: thumbnailUrl,
-                  imageUrl: imageUrl,
-                  contractImageUrl: contractImageUrl,
-                  externalLink: externalLink,
-                  backgroundColor: backgroundColor,
-                  traits: traits,
-                  collectionCreatedDate: collectionCreatedDate,
-                  collectionDescription: collectionDescription,
-                  creator: creator,
-                  collectionId: collectionId,
-                  imageOriginalUrl: imageOriginalUrl,
-                  previewUrl: previewUrl,
-                  animationUrl: animationUrl)
+        self.init(contract: contract, tokenId: tokenId, tokenType: tokenType, value: value, contractName: "", decimals: decimals, symbol: "", name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: creator, collectionId: collectionId, imageOriginalUrl: imageOriginalUrl, previewUrl: previewUrl, animationUrl: animationUrl)
     }
 }

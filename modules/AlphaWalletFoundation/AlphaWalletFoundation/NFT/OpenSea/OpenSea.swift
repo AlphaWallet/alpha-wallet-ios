@@ -1,10 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import Combine
+import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletOpenSea
 import AlphaWalletTokenScript
-import Combine
+import BigInt
 
 public typealias Stats = AlphaWalletOpenSea.NftCollectionStats
 
@@ -64,13 +66,13 @@ public final class OpenSea {
             }.eraseToAnyPublisher()
     }
 
-    public func fetchAsset(for value: Eip155URL) async throws -> NftAsset {
+    public func fetchAsset(contract: AlphaWallet.Address, id: BigUInt) async throws -> NftAsset {
         //OK and safer to return a promise that never resolves so we don't mangle with real OpenSea data we stored previously, since this is for development only
         //TODO fix
         struct DisabledError: Error {}
         guard !config.development.isOpenSeaFetchingDisabled else { throw DisabledError() }
 
-        return try await openSea.fetchAsset(asset: value.path, server: server)
+        return try await openSea.fetchAsset(contract: contract, id: id, server: server)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {
