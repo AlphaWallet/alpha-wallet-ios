@@ -6,14 +6,16 @@
 //
 
 import Foundation
-import BlockiesSwift
 import UIKit.UIImage
 import Combine
-import AlphaWalletENS
+import AlphaWalletAddress
 import AlphaWalletCore
+import AlphaWalletENS
+import BigInt
+import BlockiesSwift
 
 public protocol NftAssetImageProvider: AnyObject {
-    func assetImageUrl(for url: Eip155URL) async throws -> URL
+    func assetImageUrl(contract: AlphaWallet.Address, id: BigUInt) async throws -> URL
 }
 
 //TODO improve actor/nonisolated?
@@ -90,13 +92,13 @@ public actor BlockiesGenerator {
         case .image(let img, _):
             return img
         case .eip155(let url, let raw):
-            return try await getImageFromOpenSea(for: url, rawUrl: raw, nameOrAddress: ens ?? address.eip55String)
+            return try await getImageFromOpenSea(contract: url.contract, id: url.id, rawUrl: raw, nameOrAddress: ens ?? address.eip55String)
         }
     }
 
-    private func getImageFromOpenSea(for url: Eip155URL, rawUrl: String, nameOrAddress: String) async throws -> BlockiesImage {
+    private func getImageFromOpenSea(contract: AlphaWallet.Address, id: BigUInt, rawUrl: String, nameOrAddress: String) async throws -> BlockiesImage {
         do {
-            let url = try await assetImageProvider.assetImageUrl(for: url)
+            let url = try await assetImageProvider.assetImageUrl(contract: contract, id: id)
             //NOTE: cache fetched open sea image url and rewrite ens avatar with new image
             let key = DomainNameLookupKey(nameOrAddress: nameOrAddress, server: .forResolvingDomainNames, record: .avatar)
             await storage.addOrUpdate(record: .init(key: key, value: .record(url.absoluteString)))

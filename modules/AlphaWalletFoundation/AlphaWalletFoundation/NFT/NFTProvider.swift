@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import Combine
 import AlphaWalletCore
 import AlphaWalletOpenSea
-import Combine
+import BigInt
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: Void)
 
@@ -19,8 +20,9 @@ public protocol NFTProvider {
 }
 
 extension OpenSea: NftAssetImageProvider {
-    public func assetImageUrl(for url: Eip155URL) async throws -> URL {
-        let asset = try await fetchAsset(for: url)
+    public func assetImageUrl(contract: AlphaWallet.Address, id: BigUInt) async throws -> URL {
+        //TODO skip fetch if we already have it
+        let asset = try await fetchAsset(contract: contract, id: id)
         let imageUrls = [asset.imageUrl, asset.thumbnailUrl, asset.imageOriginalUrl].compactMap { URL(string: $0) }
         if let url = imageUrls.first {
             return url

@@ -48,7 +48,8 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = NftAsset(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, collectionId: "", imageOriginalUrl: "", previewUrl: "", animationUrl: animationUrl)
+        //TODO probably not the best to use Constants.nullAddress
+        let result = NftAsset(contract: Constants.nullAddress, tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, collectionId: "", imageOriginalUrl: "", previewUrl: "", animationUrl: animationUrl)
         return result
     }
 }

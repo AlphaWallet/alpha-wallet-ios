@@ -10,7 +10,7 @@ import SwiftyJSON
 
 public struct NftCollection: Codable {
     public let id: String
-    public let ownedAssetCount: Int
+    public var ownedAssetCount: Int
     public let wikiUrl: String?
     public let instagramUsername: String?
     public let twitterUsername: String?
@@ -25,13 +25,13 @@ public struct NftCollection: Codable {
     public var stats: NftCollectionStats?
     public let name: String
     public let externalUrl: String?
-    public let contracts: [PrimaryAssetContract]
+    public let imageUrl: String?
     public let bannerUrl: String?
 
-    init(json: JSON, contracts: [PrimaryAssetContract]) {
-        self.contracts = contracts
-        id = json["slug"].stringValue
-        ownedAssetCount = json["owned_asset_count"].intValue
+    init(json: JSON) {
+        id = json["collection"].stringValue
+        //To update later in the process
+        ownedAssetCount = 0
         wikiUrl = json["wiki_url"].stringValue
         instagramUsername = json["instagram_username"].string
         twitterUsername = json["twitter_username"].string
@@ -46,6 +46,7 @@ public struct NftCollection: Codable {
         stats = json["stats"] != .null ? NftCollectionStats(json: json["stats"]) : nil
         name = json["name"].stringValue
         externalUrl = json["external_url"].string
+        imageUrl = json["image_url"].string
         bannerUrl = json["banner_image_url"].string
     }
 }

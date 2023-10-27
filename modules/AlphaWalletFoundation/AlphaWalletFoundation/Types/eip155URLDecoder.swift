@@ -7,11 +7,39 @@
 
 import Foundation
 import AlphaWalletCore
+import BigInt
 
 public struct Eip155URL {
     let tokenType: TokenInterfaceType?
     let server: RPCServer?
-    let path: String
+    let contractAndIdString: String
+    let contract: AlphaWallet.Address
+    let id: BigUInt
+
+    public init?(tokenType: TokenInterfaceType?, server: RPCServer?, path contractAndIdString: String) {
+        self.tokenType = tokenType
+        self.server = server
+        self.contractAndIdString = contractAndIdString
+        guard let (_contract, _id) = functional.parseContractAndId(contractAndIdString) else { return nil }
+        self.contract = _contract
+        self.id = _id
+    }
+}
+
+extension Eip155URL {
+    enum functional {
+    }
+}
+
+extension Eip155URL.functional {
+    static func parseContractAndId(_ contractAndIdString: String) -> (contract: AlphaWallet.Address, id: BigUInt)? {
+        let components = contractAndIdString.split(separator: "/")
+        if components.indices.contains(0) && components.indices.contains(1), let contract = AlphaWallet.Address(string: String(components[0])), let id = BigUInt(String(components[1])) {
+            return (contract: contract, id: id)
+        } else {
+            return nil
+        }
+    }
 }
 
 extension Eip155URL: CustomStringConvertible {
@@ -19,7 +47,7 @@ extension Eip155URL: CustomStringConvertible {
         return [
             tokenType?.rawValue ?? "",
             server.flatMap { String($0.chainID) } ?? "",
-            path
+            contractAndIdString
         ].joined(separator: "-")
     }
 }
