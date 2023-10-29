@@ -66,6 +66,11 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
 
     // MARK: - Configuration and Construction
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        chainIconView.image = nil
+    }
+
     // MARK: Public
 
     func configure(viewModel: ServerImageTableViewCellViewModelType) {
