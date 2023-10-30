@@ -310,7 +310,7 @@ public typealias ImagePublisher = AnyPublisher<ImageOrWebImageUrl<Image>?, Never
 
 public actor RPCServerImageFetcher {
     public static var instance = RPCServerImageFetcher()
-    private var subscribables: [Int: ImagePublisher] = .init()
+    private var cachedPublishers: [Int: ImagePublisher] = .init()
     private var cancellables: Set<AnyCancellable> = .init()
 
     public nonisolated func image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
@@ -332,11 +332,11 @@ public actor RPCServerImageFetcher {
     }
 
     private func _image(server: RPCServer, iconImage: UIImage) -> ImagePublisher {
-        if let sub = subscribables[server.chainID] {
+        if let sub = cachedPublishers[server.chainID] {
             return sub
         } else {
             let sub = CurrentValueSubject<ImageOrWebImageUrl<Image>?, Never>(.image(iconImage))
-            subscribables[server.chainID] = sub.eraseToAnyPublisher()
+            cachedPublishers[server.chainID] = sub.eraseToAnyPublisher()
             return sub.eraseToAnyPublisher()
         }
     }
