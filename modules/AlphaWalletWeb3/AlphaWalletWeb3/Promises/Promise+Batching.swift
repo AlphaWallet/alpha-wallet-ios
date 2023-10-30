@@ -208,8 +208,9 @@ protocol BatchDelegate: AnyObject {
 }
 
 class DictionaryStore<K: Hashable, V> {
-    private var values: [K: V] = [:]
     private let queue: DispatchQueue
+
+    var values: [K: V] = [:]
 
     public init(queue: DispatchQueue = DispatchQueue(label: "RealmStore.syncQueue", qos: .background)) {
         self.queue = queue

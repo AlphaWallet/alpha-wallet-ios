@@ -40,7 +40,11 @@ final class JsonFromTokenUri {
         ])
     }
 
-    func clear() {
+    deinit {
+        clear()
+    }
+
+    private func clear() {
         inFlightPublishers.removeAll()
     }
 
