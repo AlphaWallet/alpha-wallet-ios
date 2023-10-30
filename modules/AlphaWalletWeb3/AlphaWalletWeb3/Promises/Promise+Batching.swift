@@ -139,20 +139,38 @@ extension JSONRPCrequestDispatcher: BatchDelegate {
         provider
             .sendAsync(requestsBatch, queue: queue)
             .done(on: queue, { [weak batches] batchResponse in
-                for response in batchResponse.responses {
-                    guard let id = response.id else { continue }
-                    guard let value = batch.promises[UInt64(id)] else {
-                        guard let keys = batch.promises.keys() else { return }
-                        for key in keys {
-                            guard let value = batch.promises[key] else { continue }
-                            value.seal.reject(Web3Error.nodeError("Unknown request id"))
+                //Handle when chains like Binance Smart Chain respond to errors in batches (of 1 or more requests) with a single error in an array, but with id = null:
+                //[
+                //  {
+                //    "jsonrpc": "2.0",
+                //    "id": null,
+                //    "error": {
+                //      "code": -32005,
+                //      "message": "method eth_getLogs in batch triggered rate limit"
+                //    }
+                //  }
+                //]
+                if batchResponse.responses.count == 1, let onlyResponse = batchResponse.responses.first, let error = onlyResponse.error {
+                    for each in batchResponse.responses {
+                        for (_, (_, seal)) in batch.promises.values {
+                            seal.reject(Web3Error.nodeError(error.message))
                         }
-                        return
                     }
-                    value.seal.fulfill(response)
+                } else {
+                    for response in batchResponse.responses {
+                        guard let id = response.id else { continue }
+                        guard let value = batch.promises[UInt64(id)] else {
+                            guard let keys = batch.promises.keys() else { return }
+                            for key in keys {
+                                guard let value = batch.promises[key] else { continue }
+                                value.seal.reject(Web3Error.nodeError("Unknown request id"))
+                            }
+                            return
+                        }
+                        value.seal.fulfill(response)
+                    }
+                    batches?.removeAll(batch)
                 }
-
-                batches?.removeAll(batch)
             }).catch(on: queue, { [weak batches] err in
                 guard let keys = batch.promises.keys() else { return }
 
