@@ -39,17 +39,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             transporter: transporter)
     }()
 
-    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(
-        analytics: analytics,
-        blockNumberProvider: session.blockNumberProvider,
-        blockchainProvider: session.blockchainProvider,
-        wallet: session.account,
-        server: session.server,
-        config: session.config)
+    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, blockNumberProvider: session.blockNumberProvider, blockchainProvider: session.blockchainProvider, wallet: session.account, server: session.server, config: session.config)
+    private let identifier = UUID().uuidString
 
-    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(
-        address: session.account.address,
-        blockchainProvider: session.blockchainProvider)
+    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, blockchainProvider: session.blockchainProvider)
 
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
         let fetcher = NonFungibleErc1155JsonBalanceFetcher(
@@ -105,11 +98,6 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     deinit {
         cancellable.values.forEach { $0.value.cancel() }
         cancellable.removeAll()
-        jsonFromTokenUri.clear()
-        erc1155TokenIdsFetcher.clear()
-        Task {
-            await erc1155BalanceFetcher.clear()
-        }
     }
 
     public func cancel() {

@@ -75,13 +75,7 @@ public class Erc1155TokenIdsFetcher {
     private var inFlightPromise: AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError>?
     private let config: Config
 
-    public init(analytics: AnalyticsLogger,
-                blockNumberProvider: BlockNumberProvider,
-                blockchainProvider: BlockchainProvider,
-                wallet: Wallet,
-                server: RPCServer,
-                config: Config) {
-
+    public init(analytics: AnalyticsLogger, blockNumberProvider: BlockNumberProvider, blockchainProvider: BlockchainProvider, wallet: Wallet, server: RPCServer, config: Config) {
         self.config = config
         self.blockchainProvider = blockchainProvider
         self.analytics = analytics
@@ -92,7 +86,11 @@ public class Erc1155TokenIdsFetcher {
         migrateToStorageV2()
     }
 
-    func clear() {
+    deinit {
+        clear()
+    }
+
+    private func clear() {
         inFlightPromise = nil
     }
 
@@ -209,7 +207,6 @@ public class Erc1155TokenIdsFetcher {
         guard let (fromBlockNumber, toBlockNumber) = Erc1155TokenIdsFetcher.functional.makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, server: server, excludingRanges: tokenIds.blockNumbersProcessed) else {
             throw Erc1155TokenIdsFetcherError.fromAndToBlockNumberNotFound
         }
-
         return try await fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
     }
 

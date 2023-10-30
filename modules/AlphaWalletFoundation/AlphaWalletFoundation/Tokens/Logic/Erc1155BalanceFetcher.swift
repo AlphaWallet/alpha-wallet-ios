@@ -21,11 +21,16 @@ final actor Erc1155BalanceFetcher {
         self.address = address
     }
 
+    deinit {
+        clear()
+    }
+
     private func setTask(_ task: Task<[BigInt: BigUInt], Error>?, forKey key: String) {
         inFlightTasks[key] = task
     }
 
-    func clear() {
+    //Do not make non-private and call from another class/type's deinit with await
+    private func clear() {
         inFlightTasks.removeAll()
     }
 
