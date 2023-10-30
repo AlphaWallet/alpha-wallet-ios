@@ -37,9 +37,9 @@ public actor IsInterfaceSupported165 {
             return try await task.value
         } else {
             let task = Task<Bool, Error> {
-                let result: Erc20SupportsInterfaceMethodCall.Response
+                let result: SupportsInterfaceMethodCall.Response
                 do {
-                    result = try await blockchainProvider.callAsync(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
+                    result = try await blockchainProvider.callAsync(SupportsInterfaceMethodCall(contract: contract, hash: hash))
                 } catch let error as Web3Error {
                     if isNodeErrorExecutionReverted(error: error) {
                         result = false

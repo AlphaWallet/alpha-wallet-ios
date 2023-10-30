@@ -12,7 +12,7 @@ public class IsErc875Contract {
     }
 
     public func getIsERC875Contract(for contract: AlphaWallet.Address) async throws -> Bool {
-        let result: Erc20SupportsInterfaceMethodCall.Response
+        let result: SupportsInterfaceMethodCall.Response
         do {
             return try await blockchainProvider.callAsync(Erc875IsStormBirdContractMethodCall(contract: contract))
         } catch let error as Web3Error {
