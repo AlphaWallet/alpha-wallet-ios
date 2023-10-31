@@ -1,15 +1,10 @@
-//
-//  Erc20SupportsInterfaceMethodCall.swift
-//  AlphaWalletFoundation
-//
-//  Created by Vladyslav Shepitko on 17.01.2023.
-//
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 
-public struct Erc20SupportsInterfaceMethodCall: ContractMethodCall {
+public struct SupportsInterfaceMethodCall: ContractMethodCall {
     public typealias Response = Bool
 
     private let hash: String
