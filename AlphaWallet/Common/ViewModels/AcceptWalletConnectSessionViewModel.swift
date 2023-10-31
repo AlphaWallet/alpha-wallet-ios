@@ -36,7 +36,8 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
 
         self.proposal = proposal
         //TODO: refactor later with using servers from each level of received namepaces
-        self.serversToConnect = proposal.requiredNamespaces.flatMap { Array($0.chains) } + proposal.optionalNamespaces.flatMap { Array($0.chains) }
+        //We have to make chains unique as required and optional can have overlapping chains because they are requesting for different permissions for the same chain. eg. required mainnet+chainChanged and optional mainnet+eth_sendTransaction
+        self.serversToConnect = functional.uniqueSortedServersFromServers(proposal.requiredNamespaces.flatMap { Array($0.chains) } + proposal.optionalNamespaces.flatMap { Array($0.chains) })
         self.methods = []//proposal.methods
         self.serversProvider = serversProvider
     }
@@ -161,6 +162,17 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
         }
 
         return _viewModels
+    }
+}
+
+extension AcceptWalletConnectSessionViewModel {
+    enum functional {}
+}
+
+fileprivate extension AcceptWalletConnectSessionViewModel.functional {
+    static func uniqueSortedServersFromServers(_ servers: [RPCServer]) -> [RPCServer] {
+        let uniqueChains = Set(servers)
+        return Array(uniqueChains).sorted(by: { $0.displayOrderPriority > $1.displayOrderPriority })
     }
 }
 
