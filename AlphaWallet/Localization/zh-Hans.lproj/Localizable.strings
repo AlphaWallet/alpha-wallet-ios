@@ -684,8 +684,8 @@
 "signature.confirmation.message.title" = "Message";
 "signature.confirmation.personalmessage.title" = "Personal message";
 "signature.confirmation.title" = "Signature Request";
-"server.warning.serverIsDisabled" = "%@ is disabled. Please enable it in Settings > Select Active Networks";
-"server.warning.serversAreDisabled" = "%@ are disabled. Please enable them in Settings > Select Active Networks";
+"server.warning.serverIsDisabled" = "%@ is disabled";
+"server.warning.serversAreDisabled" = "%@ are disabled";
 "settings.wallet.rename" = "Name this Wallet";
 "settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Save Name";

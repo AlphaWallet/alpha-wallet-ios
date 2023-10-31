@@ -684,8 +684,8 @@
 "signature.confirmation.message.title" = "Viesti";
 "signature.confirmation.personalmessage.title" = "Henkilökohtainen viesti";
 "signature.confirmation.title" = "Allekirjoituspyyntö";
-"server.warning.serverIsDisabled" = "%@ on kytketty pois. Kytke päälle kohdassa Asetukset > Kytketyt verkot";
-"server.warning.serversAreDisabled" = "%@ on kytketty pois. Kytke päälle kohdassa Asetukset > Kytketyt verkot";
+"server.warning.serverIsDisabled" = "%@ is disabled";
+"server.warning.serversAreDisabled" = "%@ are disabled";
 "settings.wallet.rename" = "Nimeä lompakko";
 "settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Tallenna";
