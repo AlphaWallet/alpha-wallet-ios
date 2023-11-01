@@ -126,7 +126,8 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
         var errors: [Error] = []
         var warnings: [Warning] = []
 
-        if gasPrice <= 0 {
+        //We explicitly allow gas price to be zero because some private chains use that
+        if gasPrice < 0 {
             errors += [ConfigureTransactionError.gasPriceTooLow]
         }
 
