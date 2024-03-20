@@ -77,23 +77,23 @@ enum OriginalDapps {
         Dapp(name: "DerivaDEX Insurance Fund", description: "DerivaDEX is the next generation of crypto derivatives. Begin earning DDX by bootstrapping the insurance fund.", url: "https://insurance.derivadex.com/", cat: "Finance"),
         Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool"),
         Dapp(name: "Mushrooms Finance", description: "Sustainable crypto earning in DeFi", url: "https://mushrooms.finance/", cat: "Finance"),
-        Dapp(name: "Levinswap", description: "Decentralized exchange for trading crypto and serurities tokens", url: "https://app.levinswap.org/", cat: "Exchange")
-        Dapp(name: "Matic Faucet", description: "Matic Faucet to access Mumbai and Goerli testnet tokens", url: "https://faucet.matic.network/", cat: "Tool")
-        Dapp(name: "Eth Gas Station", description: "Consumer oriented metrics for Eth Gas Market", url: "https://ethgasstation.info", cat: "Tool")
-        Dapp(name: "Gas Now", description: "Eth Gas Price forecast system", url: "https://www.gasnow.org/", cat: "Tool")
-        Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool")
-        Dapp(name: ".bit (Previously DAS)", description: "Your decentralized identity for Web3.0 life", url: "https://did.id/", cat: "Tool")
-        Dapp(name: "CNCUK", description: "CNCUK Tokenomics", url: "https://alpha.cynocoin.co.uk", cat: "Tool",
+        Dapp(name: "Levinswap", description: "Decentralized exchange for trading crypto and serurities tokens", url: "https://app.levinswap.org/", cat: "Exchange"),
+        Dapp(name: "Matic Faucet", description: "Matic Faucet to access Mumbai and Goerli testnet tokens", url: "https://faucet.matic.network/", cat: "Tool"),
+        Dapp(name: "Eth Gas Station", description: "Consumer oriented metrics for Eth Gas Market", url: "https://ethgasstation.info", cat: "Tool"),
+        Dapp(name: "Gas Now", description: "Eth Gas Price forecast system", url: "https://www.gasnow.org/", cat: "Tool"),
+        Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool"),
+        Dapp(name: ".bit (Previously DAS)", description: "Your decentralized identity for Web3.0 life", url: "https://did.id/", cat: "Tool"),
+        Dapp(name: "CNCUK", description: "CNCUK Tokenomics", url: "https://alpha.cynocoin.co.uk", cat: "Tool"),
         Dapp(name: "Swapzone", description: "Swapzone is a custody-free cryptocurrency exchange aggregator with no registration needed.", url: "https://swapzone.io/", cat: "Exchange"),
         Dapp(name: "MetaPath", description: "Assets can be routed across different blockchains", url: "https://dapp.path.finance?source=alpha", cat: "Exchange"),  
-        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange")
-        Dapp(name: "PancakeSwap", description: " A next evolution DeFi exchange on BNB Smart Chain (BSC)", url: "https://pancakeswap.finance/info", cat: "Exchange")
-        Dapp(name: "mail³", description: "Decentralized mail system for web3 natives.", url: "https://app.mail3.me/", cat: "Social Media")
-        Dapp(name: "ApeNow", description: "Buy now, pay later marketplace for NFTs.", url: "https://www.apenowpaylater.com/", cat: "Marketplace")
+        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange"),
+        Dapp(name: "PancakeSwap", description: " A next evolution DeFi exchange on BNB Smart Chain (BSC)", url: "https://pancakeswap.finance/info", cat: "Exchange"),
+        Dapp(name: "mail³", description: "Decentralized mail system for web3 natives.", url: "https://app.mail3.me/", cat: "Social Media"),
+        Dapp(name: "ApeNow", description: "Buy now, pay later marketplace for NFTs.", url: "https://www.apenowpaylater.com/", cat: "Marketplace"),
         Dapp(name: "Blur", description: "The fastest NFT marketplace", url: "https://www.blur.io", cat: "Marketplace"),
-        Dapp(name: "Onramper", description: "Fiat-Crypto Onramp Aggregator", url: "https://buy.onramper.com/?apiKey=pk_prod_01GRNVSF7Q68BP7HF0SDRXXBYW", cat: "Exchange")
-        Dapp(name: "Verse DEX", description: "Bitcoin.com's multichain Verse DEX aims to bring everyone permissionless and non-custodial trading access, with a special focus on newcomers to DeFi", url: "https://verse.bitcoin.com/", cat: "Exchange")
-),
+        Dapp(name: "Onramper", description: "Fiat-Crypto Onramp Aggregator", url: "https://buy.onramper.com/?apiKey=pk_prod_01GRNVSF7Q68BP7HF0SDRXXBYW", cat: "Exchange"),
+        Dapp(name: "Verse DEX", description: "Bitcoin.com's multichain Verse DEX aims to bring everyone permissionless and non-custodial trading access, with a special focus on newcomers to DeFi", url: "https://verse.bitcoin.com/", cat: "Exchange"),
+        Dapp(name: "Eth Inscription", description: "A ethereum inscription mint tool that supports ERC-20 token, domain, and NFT ethscriptions minting.", url: "https://ethinscription.org/", cat: "Tool"),
     ]
 
     struct Category {
