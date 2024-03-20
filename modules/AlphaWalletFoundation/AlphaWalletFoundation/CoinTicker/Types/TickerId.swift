@@ -72,6 +72,7 @@ extension RPCServer {
         case "xdai": self = .xDai
         case "binance-smart-chain": self = .binance_smart_chain
         case "avalanche": self = .avalanche
+        case "rootstock": self = .rootstock
         case "polygon-pos": self = .polygon
         case "fantom": self = .fantom
         case "arbitrum-one": self = .arbitrum

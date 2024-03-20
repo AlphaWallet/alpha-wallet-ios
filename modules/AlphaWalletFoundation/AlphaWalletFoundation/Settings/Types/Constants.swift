@@ -21,6 +21,8 @@ public struct Constants {
     static let fantomTestMagicLinkHost = "test-fantom.aw.app"
     static let avalancheMagicLinkHost = "avalanche.aw.app"
     static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
+    static let rootstockMagicLinkHost = "rootstock.aw.app"
+    static let rootstockTestMagicLinkHost = "test-rootstock.aw.app"
     static let maticMagicLinkHost = "polygon.aw.app"
     static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
     static let optimisticMagicLinkHost = "optimistic.aw.app"

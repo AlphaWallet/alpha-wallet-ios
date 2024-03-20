@@ -94,6 +94,8 @@ struct Configuration {
             static let blockChainFantomTestnet = UIColor.red
             static let blockChainAvalanche = UIColor.red
             static let blockChainAvalancheTestnet = UIColor.red
+            static let blockChainRootstock = UIColor.black
+            static let blockChainRootstockTestnet = UIColor.black
             static let blockChainPolygon = UIColor(red: 130, green: 71, blue: 229)
             static let blockChainOptimistic = UIColor.red
             static let blockChainCronosTestnet = UIColor.red

@@ -471,6 +471,8 @@ private extension RPCServer {
         case .fantom_testnet: return ""
         case .avalanche: return ""
         case .avalanche_testnet: return ""
+        case .rootstock: return ""
+        case .rootstock_testnet: return ""
         case .polygon: return ""
         case .mumbai_testnet: return ""
         case .optimistic: return ""
