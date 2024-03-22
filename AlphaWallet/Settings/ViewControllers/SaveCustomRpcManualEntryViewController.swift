@@ -115,7 +115,7 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
             case .explorerEndpointInvalidField:
                 editView.explorerEndpointTextField.status = .error(R.string.localizable.addrpcServerBlockExplorerUrlError())
             case .chainIDDuplicateField:
-                editView.chainIDTextField.status = .error(R.string.localizable.editCustomRPCChainIDErrorDuplicate(preferredLanguages: nil))
+                editView.chainIDTextField.status = .error(R.string.localizable.editCustomRPCChainIDErrorDuplicate())
             }
         }
         editView.allTextFields.first(where: { !$0.statusLabel.text.isEmpty })?.becomeFirstResponder()

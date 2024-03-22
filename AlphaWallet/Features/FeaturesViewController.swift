@@ -39,7 +39,7 @@ class FeaturesViewController: UIViewController {
     private func configureViewController() {
         addTableViewController()
         addButton()
-        navigationItem.title = R.string.localizable.advancedSettingsFeaturesTitle(preferredLanguages: nil)
+        navigationItem.title = R.string.localizable.advancedSettingsFeaturesTitle()
     }
 
     private func addTableViewController() {

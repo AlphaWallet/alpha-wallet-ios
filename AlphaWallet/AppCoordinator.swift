@@ -9,6 +9,7 @@ import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletTrackAPICalls
 import AlphaWalletNotifications
+ 
 
 class AppCoordinator: NSObject, Coordinator, ApplicationNavigatable {
     private let navigationSubject = CurrentValueSubject<ApplicationNavigation, Never>(.onboarding)
