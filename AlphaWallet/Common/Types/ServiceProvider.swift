@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import AlphaWalletFoundation
+import Foundation
 
 public enum URLServiceProvider {
     case discord
-    case telegramCustomer
     case twitter
     case reddit
     case facebook
@@ -16,9 +15,7 @@ public enum URLServiceProvider {
     public var deepLinkURL: URL? {
         switch self {
         case .discord:
-            return URL(string: "https://discord.com/invite/mx23YWRTYf")
-        case .telegramCustomer:
-            return URL(string: "https://t.me/AlphaWalletSupport")
+            return URL(string: "https://discord.gg/nbb9VSF85A")
         case .twitter:
             return URL(string: "twitter://user?screen_name=\(Constants.twitterUsername)")
         case .reddit:
@@ -33,9 +30,7 @@ public enum URLServiceProvider {
     public var remoteURL: URL {
         switch self {
         case .discord:
-            return URL(string: "https://discord.com/invite/mx23YWRTYf")!
-        case .telegramCustomer:
-            return URL(string: "https://t.me/AlphaWalletSupport")!
+            return URL(string: "https://discord.gg/nbb9VSF85A")!
         case .twitter:
             return URL(string: "https://twitter.com/\(Constants.twitterUsername)")!
         case .reddit:

@@ -47,7 +47,6 @@ public enum Analytics {
         case deepLink = "Screen: DeepLink"
         case faq = "Screen: FAQ"
         case discord = "Screen: Discord"
-        case telegramCustomerSupport = "Screen: Telegram: Customer Support"
         case twitter = "Screen: Twitter"
         case reddit = "Screen: Reddit"
         case facebook = "Screen: Facebook"
@@ -259,8 +258,8 @@ public enum Analytics {
     }
 
     public enum WalletConnectAction: String {
-       case bridgeUrl
-       case connectionUrl
+        case bridgeUrl
+        case connectionUrl
     }
 
     public enum ShortcutType: String {

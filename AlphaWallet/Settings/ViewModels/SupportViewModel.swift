@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 04.06.2020.
 //
 
-import UIKit
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
+import UIKit
 
 struct SupportViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -22,7 +22,7 @@ struct SupportViewModelOutput {
 
 class SupportViewModel: NSObject {
     private let analytics: AnalyticsLogger
-    private let supportedRows: [SupportCase] = [.telegramCustomer, .discord, .email, .twitter, .github, .faq]
+    private let supportedRows: [SupportCase] = [.discord, .email, .twitter, .github, .faq]
 
     init(analytics: AnalyticsLogger) {
         self.analytics = analytics
@@ -61,9 +61,6 @@ class SupportViewModel: NSObject {
         case .discord:
             logAccessDiscord()
             return .openUrl(.discord)
-        case .telegramCustomer:
-            logAccessTelegramCustomerSupport()
-            return .openUrl(.telegramCustomer)
         case .twitter:
             logAccessTwitter()
             return .openUrl(.twitter)
@@ -92,10 +89,6 @@ class SupportViewModel: NSObject {
 
     private func logAccessDiscord() {
         analytics.log(navigation: Analytics.Navigation.discord)
-    }
-
-    private func logAccessTelegramCustomerSupport() {
-        analytics.log(navigation: Analytics.Navigation.telegramCustomerSupport)
     }
 
     private func logAccessTwitter() {
@@ -136,7 +129,6 @@ extension SupportViewModel {
 
     enum SupportCase: String {
         case discord
-        case telegramCustomer
         case twitter
         case reddit
         case facebook
@@ -154,13 +146,10 @@ extension SupportViewModel {
 }
 
 extension SupportViewModel.SupportCase {
-
     var urlProvider: URLServiceProvider? {
         switch self {
         case .discord:
             return URLServiceProvider.discord
-        case .telegramCustomer:
-            return URLServiceProvider.telegramCustomer
         case .twitter:
             return URLServiceProvider.twitter
         case .reddit:
@@ -180,8 +169,6 @@ extension SupportViewModel.SupportCase {
         switch self {
         case .discord:
             return URLServiceProvider.discord.title
-        case .telegramCustomer:
-            return URLServiceProvider.telegramCustomer.title
         case .twitter:
             return URLServiceProvider.twitter.title
         case .reddit:
@@ -205,8 +192,6 @@ extension SupportViewModel.SupportCase {
             return R.image.iconsSettingsEmail()
         case .discord:
             return URLServiceProvider.discord.image
-        case .telegramCustomer:
-            return URLServiceProvider.telegramCustomer.image
         case .twitter:
             return URLServiceProvider.twitter.image
         case .reddit:
@@ -224,13 +209,10 @@ extension SupportViewModel.SupportCase {
 }
 
 extension URLServiceProvider {
-
     var title: String {
         switch self {
         case .discord:
             return R.string.localizable.urlDiscord()
-        case .telegramCustomer:
-            return R.string.localizable.urlTelegramCustomer()
         case .twitter:
             return R.string.localizable.urlTwitter()
         case .reddit:
@@ -248,8 +230,6 @@ extension URLServiceProvider {
         switch self {
         case .discord:
             return R.image.iconsSettingsDiscord()
-        case .telegramCustomer:
-            return R.image.settings_telegram()
         case .twitter:
             return R.image.settings_twitter()
         case .reddit:

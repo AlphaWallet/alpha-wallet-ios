@@ -782,7 +782,6 @@
 "nonfungibles.value.rarity" = "%d%@ have this trait";
 "nonfungibles.value.rarity.unique" = "Unique";
 "url.discord" = "Discord";
-"url.telegramCustomer" = "Telegram (Customer Support)";
 "url.twitter" = "Twitter";
 "url.reddit" = "Reddit";
 "url.facebook" = "Facebook";
