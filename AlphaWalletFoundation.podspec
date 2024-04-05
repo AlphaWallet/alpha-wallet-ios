@@ -10,19 +10,19 @@ Pod::Spec.new do |spec|
   spec.name         = "AlphaWalletFoundation"
   spec.version      = "1.0.0"
   spec.summary      = "AlphaWallet functionality"
-  spec.description      = "Core wallet functionality"
-  spec.license      = { :type => "MIT", :file => "LICENSE" }
-  spec.author             = { "Vladyslav Shepitko" => "vladyslav.shepitko@gmail.com" }
-  spec.homepage     = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletFoundation"
+  spec.description = "Core wallet functionality"
+  spec.license = { :type => "MIT", :file => "LICENSE" }
+  spec.author = { "Vladyslav Shepitko" => "vladyslav.shepitko@gmail.com" }
+  spec.homepage = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletFoundation"
   spec.ios.deployment_target = '13.0'
   spec.swift_version    = '5.0'
   spec.platform         = :ios, "13.0"
   spec.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{spec.version}" }
   spec.source_files     = 'modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{h,m,swift}'
-  spec.resource_bundles = {'AlphaWalletFoundation' => ['modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{graphql,json}'] }
+  spec.resource_bundles = { 'AlphaWalletFoundation' => ['modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{graphql,json}'] }
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
-  #Other pods should almost never include AlphaWalletFoundation as a dependency in any other pod
+  # Other pods should almost never include AlphaWalletFoundation as a dependency in any other pod
 
   spec.dependency 'AlphaWalletWeb3'
   spec.dependency 'AlphaWalletWeb3Provider'
@@ -53,5 +53,4 @@ Pod::Spec.new do |spec|
   spec.dependency 'Apollo', '0.53.0'
   spec.dependency 'CombineExt', '1.8.0'
   spec.dependency 'SwiftProtobuf', '~> 1.18.0'
-
 end
