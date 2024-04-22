@@ -6,9 +6,11 @@
 //
 
 @testable import AlphaWallet
+import Combine
+
 import AlphaWalletCore
 import AlphaWalletFoundation
-import Combine
+import BigInt
 
 final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
     func assetImageUrl(contract: AlphaWallet.Address, id: BigUInt) async throws -> URL {
