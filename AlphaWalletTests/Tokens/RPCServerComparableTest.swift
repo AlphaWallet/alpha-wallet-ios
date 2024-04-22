@@ -6,11 +6,10 @@
 //
 
 @testable import AlphaWallet
-import XCTest
 import AlphaWalletFoundation
+import XCTest
 
 final class RPCServerComparableTest: XCTestCase {
-
     func testRPCServerComparable() {
         let sorted: [RPCServer] = [
             .custom(CustomRPC.custom(chainId: 102)), // chainId 102
@@ -20,7 +19,7 @@ final class RPCServerComparableTest: XCTestCase {
             .arbitrum, // chainId 42161
             .binance_smart_chain_testnet, // chainId 97 - testnet
             .binance_smart_chain, // chainId 56
-            .custom(CustomRPC.custom(chainId: 101)) // chainId 101
+            .custom(CustomRPC.custom(chainId: 101)), // chainId 101
         ].sorted()
         XCTAssertTrue(sorted[0] == .main)
         XCTAssertTrue(sorted[1] == .binance_smart_chain)

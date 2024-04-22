@@ -1,11 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
 @testable import AlphaWalletFoundation
+import XCTest
 
 class RPCServerTests: XCTestCase {
-
     func testMainNetwork() {
         let server = RPCServer(chainID: 1)
 

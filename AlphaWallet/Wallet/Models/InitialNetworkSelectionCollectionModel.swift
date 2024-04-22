@@ -5,11 +5,10 @@
 //  Created by Jerome Chan on 10/5/22.
 //
 
-import UIKit
 import AlphaWalletFoundation
+import UIKit
 
 struct InitialNetworkSelectionCollectionModel {
-
     static let defaultMainnetServers: Set<RPCServer> = [.main, .xDai, .polygon]
     static let defaultTestnetServers: Set<RPCServer> = [.goerli, .sepolia]
 

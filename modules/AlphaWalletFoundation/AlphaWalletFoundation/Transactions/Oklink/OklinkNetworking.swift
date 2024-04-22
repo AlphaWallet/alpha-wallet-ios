@@ -1,9 +1,9 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import Foundation
 import SwiftyJSON
 
 //NOTE: as api dosn't return localized operation contract, symbol and decimal for transfer transactions, fetch them from rpc node
@@ -41,7 +41,6 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
     public func normalTransactions(walletAddress: AlphaWallet.Address,
                                    sortOrder: GetTransactions.SortOrder,
                                    pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -78,15 +77,14 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
         let publishers = transactions.map { transactionBuilder.buildTransaction(from: $0) }
 
         return Publishers.MergeMany(publishers)
-           .collect()
-           .map { $0.compactMap { $0 } }
-           .setFailureType(to: PromiseError.self)
-           .eraseToAnyPublisher()
+            .collect()
+            .map { $0.compactMap { $0 } }
+            .setFailureType(to: PromiseError.self)
+            .eraseToAnyPublisher()
     }
 
     public func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -123,7 +121,6 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
 
     public func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -160,7 +157,6 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
 
     public func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
                                                 pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? PageBasedTransactionsPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -197,25 +193,21 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
 
     public func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                        pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
                                         pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     public func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         return .fail(PromiseError(error: BlockchainExplorerError.methodNotSupported))
     }
 
     private func map(erc20TokenTransferTransactions transactions: [Oklink.Transaction],
                      operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
-
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
@@ -252,7 +244,6 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
 
     private func map(erc721TokenTransferTransactions transactions: [Oklink.Transaction],
                      operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
-
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
@@ -289,7 +280,6 @@ public class OklinkBlockchainExplorer: BlockchainExplorer {
 
     private func map(erc1155TokenTransferTransactions transactions: [Oklink.Transaction],
                      operations: [AlphaWallet.Address: ContractData]) -> [Transaction] {
-
         return transactions.compactMap { tx -> Transaction? in
             guard let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: tx.tokenContractAddress) else { return nil }
             let operation = operations[contract]
@@ -378,7 +368,6 @@ fileprivate extension TransactionState {
 }
 
 extension OklinkBlockchainExplorer {
-
     struct Response<T> {
         let transactions: [T]
         let nextPage: PageBasedTransactionsPagination
@@ -396,8 +385,7 @@ extension OklinkBlockchainExplorer {
         func decode(data: Data) throws -> Response<Oklink.Transaction> {
             guard
                 let json = try? JSON(data: data),
-                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
-            else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
+                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
             guard let transactionsData = response.data.first else { return .init(transactions: [], nextPage: pagination) }
 
@@ -414,8 +402,7 @@ extension OklinkBlockchainExplorer {
         func decode(data: Data) throws -> Response<NormalTransaction> {
             guard
                 let json = try? JSON(data: data),
-                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json)
-            else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
+                let response = Oklink.TransactionListResponse<Oklink.Transaction>(json: json) else { throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "")) }
 
             guard let transactionsData = response.data.first else { return .init(transactions: [], nextPage: pagination) }
 
@@ -452,7 +439,7 @@ extension OklinkBlockchainExplorer {
                 "protocolType": protocolType.rawValue,
                 "chainShortName": chainShortName,
                 "page": "\(page)",
-                "limit": "\(limit)"
+                "limit": "\(limit)",
             ])
         }
     }

@@ -1,12 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import Alamofire
+import AlphaWalletCore
+import AlphaWalletLogger
+import BigInt
+import Combine
 import Foundation
 import SwiftyJSON
-import Combine
-import AlphaWalletCore
-import BigInt
-import AlphaWalletLogger
-import Alamofire
 
 // swiftlint:disable type_body_length
 class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
@@ -29,7 +29,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
     func erc20TokenInteractions(walletAddress: AlphaWallet.Address,
                                 pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -38,19 +37,18 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc20) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc20) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     func erc721TokenInteractions(walletAddress: AlphaWallet.Address,
                                  pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -66,19 +64,18 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc721) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc721) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     func erc1155TokenInteractions(walletAddress: AlphaWallet.Address,
                                   pagination: TransactionsPagination?) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -94,19 +91,18 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc1155) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data), tokenType: .erc1155) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                         pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -128,7 +124,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
     func erc721TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -151,7 +146,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     public func normalTransactions(walletAddress: AlphaWallet.Address,
                                    sortOrder: GetTransactions.SortOrder,
                                    pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -161,44 +155,43 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .mapError { PromiseError(error: $0) }
-                .flatMap { [transactionBuilder] result -> AnyPublisher<TransactionsResponse, PromiseError> in
-                    if result.response.statusCode == 404 {
-                        return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
-                    }
-                    do {
-                        let promises = try JSONDecoder().decode(ArrayResponse<NormalTransaction>.self, from: result.data)
-                                .result.map { transactionBuilder.buildTransaction(from: $0) }
-                        return Publishers.MergeMany(promises)
-                                .collect()
-                                .map {
-                                    let transactions = functional.filter(
-                                            transactions: $0.compactMap { $0 },
-                                            startBlock: pagination.startBlock,
-                                            endBlock: pagination.endBlock)
-                                    let (_, _, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
-                                    if maxBlockNumber > 0 {
-                                        let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
-                                        return TransactionsResponse(transactions: transactions, nextPage: nextPage)
-                                    } else {
-                                        return TransactionsResponse(transactions: transactions, nextPage: nil)
-                                    }
-                                }.setFailureType(to: PromiseError.self)
-                                .eraseToAnyPublisher()
-                    } catch {
-                        return .fail(.some(error: error))
-                    }
-                }.eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .mapError { PromiseError(error: $0) }
+            .flatMap { [transactionBuilder] result -> AnyPublisher<TransactionsResponse, PromiseError> in
+                if result.response.statusCode == 404 {
+                    return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
+                }
+                do {
+                    let promises = try JSONDecoder().decode(ArrayResponse<NormalTransaction>.self, from: result.data)
+                        .result.map { transactionBuilder.buildTransaction(from: $0) }
+                    return Publishers.MergeMany(promises)
+                        .collect()
+                        .map {
+                            let transactions = functional.filter(
+                                transactions: $0.compactMap { $0 },
+                                startBlock: pagination.startBlock,
+                                endBlock: pagination.endBlock)
+                            let (_, _, maxBlockNumber) = Self.extractBoundingBlockNumbers(fromTransactions: transactions)
+                            if maxBlockNumber > 0 {
+                                let nextPage = BlockBasedPagination(startBlock: maxBlockNumber + 1, endBlock: nil)
+                                return TransactionsResponse(transactions: transactions, nextPage: nextPage)
+                            } else {
+                                return TransactionsResponse(transactions: transactions, nextPage: nil)
+                            }
+                        }.setFailureType(to: PromiseError.self)
+                        .eraseToAnyPublisher()
+                } catch {
+                    return .fail(.some(error: error))
+                }
+            }.eraseToAnyPublisher()
     }
 
     func erc1155TokenTransferTransaction(walletAddress: AlphaWallet.Address,
                                          pagination: TransactionsPagination?) -> AnyPublisher<TransactionsResponse, PromiseError> {
-
         guard let pagination = (pagination ?? defaultPagination) as? BlockBasedPagination else {
             return .fail(PromiseError(error: BlockchainExplorerError.paginationTypeNotSupported))
         }
@@ -227,20 +220,19 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
     private func erc20TokenTransferTransactions(walletAddress: AlphaWallet.Address,
                                                 server: RPCServer,
                                                 startBlock: Int? = nil) -> AnyPublisher<[Transaction], PromiseError> {
-
         let delay = self.randomDelay()
         let request = Request(baseUrl: baseUrl, startBlock: startBlock, apiKey: apiKey, walletAddress: walletAddress, action: .tokentx, delay: delay)
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc20) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     private func getErc721Transactions(walletAddress: AlphaWallet.Address,
@@ -257,14 +249,14 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc721) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     private func getErc1155Transactions(walletAddress: AlphaWallet.Address,
@@ -281,21 +273,20 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         let analytics = analytics
         let domainName = baseUrl.host!
 
-        return Just(Void())
-                .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
-                .setFailureType(to: SessionTaskError.self)
-                .flatMap { _ in self.transporter.dataTaskPublisher(request) }
-                .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
-                .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
-                .mapError { PromiseError.some(error: $0) }
-                .eraseToAnyPublisher()
+        return Just(())
+            .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { _ in self.transporter.dataTaskPublisher(request) }
+            .handleEvents(receiveOutput: { [server] in Self.log(response: $0, server: server, analytics: analytics, domainName: domainName) })
+            .tryMap { Self.decodeTokenTransferTransactions(json: JSON($0.data), server: server, tokenType: .erc1155) }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     private func backFillTransactionGroup(walletAddress: AlphaWallet.Address,
                                           transactions: [Transaction],
                                           startBlock: Int,
                                           endBlock: Int) -> AnyPublisher<[Transaction], PromiseError> {
-
         guard !transactions.isEmpty else { return .just([]) }
         let pagination = BlockBasedPagination(startBlock: startBlock, endBlock: endBlock)
 
@@ -318,7 +309,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
                 LegacyGasEstimates(standard: BigUInt(estimates.standard), others: [
                     GasSpeed.slow: BigUInt(estimates.slow),
                     GasSpeed.fast: BigUInt(estimates.fast),
-                    GasSpeed.rapid: BigUInt(estimates.rapid)
+                    GasSpeed.rapid: BigUInt(estimates.rapid),
                 ])
             }.mapError { PromiseError.some(error: $0) }
             .receive(on: RunLoop.main)
@@ -388,36 +379,36 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 
             //TODO: implement saving tokenValue
             let localizedTokenObj = LocalizedOperation(
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                    type: operationType.rawValue,
-                    value: transactionJson["value"].stringValue,
-                    tokenId: transactionJson["tokenID"].stringValue,
-                    symbol: transactionJson["tokenSymbol"].stringValue,
-                    name: transactionJson["tokenName"].stringValue,
-                    decimals: transactionJson["tokenDecimal"].intValue)
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                type: operationType.rawValue,
+                value: transactionJson["value"].stringValue,
+                tokenId: transactionJson["tokenID"].stringValue,
+                symbol: transactionJson["tokenSymbol"].stringValue,
+                name: transactionJson["tokenName"].stringValue,
+                decimals: transactionJson["tokenDecimal"].intValue)
 
             let gasPrice = transactionJson["gasPrice"].string.flatMap { BigUInt($0) }.flatMap { GasPrice.legacy(gasPrice: $0) }
 
             return Transaction(
-                    id: transactionJson["hash"].stringValue,
-                    server: server,
-                    blockNumber: transactionJson["blockNumber"].intValue,
-                    transactionIndex: transactionJson["transactionIndex"].intValue,
-                    from: transactionJson["from"].stringValue,
-                    to: transactionJson["to"].stringValue,
-                    //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                    value: "0",
-                    gas: transactionJson["gas"].stringValue,
-                    gasPrice: gasPrice,
-                    gasUsed: transactionJson["gasUsed"].stringValue,
-                    nonce: transactionJson["nonce"].stringValue,
-                    date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                    localizedOperations: [localizedTokenObj],
-                    //The API only returns successful transactions
-                    state: .completed,
-                    isErc20Interaction: true)
+                id: transactionJson["hash"].stringValue,
+                server: server,
+                blockNumber: transactionJson["blockNumber"].intValue,
+                transactionIndex: transactionJson["transactionIndex"].intValue,
+                from: transactionJson["from"].stringValue,
+                to: transactionJson["to"].stringValue,
+                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                value: "0",
+                gas: transactionJson["gas"].stringValue,
+                gasPrice: gasPrice,
+                gasUsed: transactionJson["gasUsed"].stringValue,
+                nonce: transactionJson["nonce"].stringValue,
+                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                localizedOperations: [localizedTokenObj],
+                //The API only returns successful transactions
+                state: .completed,
+                isErc20Interaction: true)
         }
 
         return functional.mergeTransactionOperationsIntoSingleTransaction(transactions)
@@ -460,7 +451,6 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
 // swiftlint:enable type_body_length
 
 extension EtherscanCompatibleBlockchainExplorer {
-
     struct EtherscanPriceEstimatesResponse: Decodable {
         let result: EtherscanPriceEstimates
     }
@@ -478,7 +468,6 @@ extension EtherscanCompatibleBlockchainExplorer {
 
         init(baseUrl: URL,
              apiKey: String? = nil) {
-
             self.baseUrl = baseUrl
             self.apiKey = apiKey
         }
@@ -488,7 +477,7 @@ extension EtherscanCompatibleBlockchainExplorer {
             var request = try URLRequest(url: baseUrl, method: .get)
             var params: Parameters = [
                 "module": "gastracker",
-                "action": "gasoracle"
+                "action": "gasoracle",
             ]
 
             if let apiKey = apiKey {
@@ -533,7 +522,7 @@ extension EtherscanCompatibleBlockchainExplorer {
             var params: Parameters = [
                 "module": "account",
                 "action": action.rawValue,
-                "address": walletAddress.eip55String
+                "address": walletAddress.eip55String,
             ]
             if let startBlock = startBlock {
                 params["startblock"] = String(startBlock)

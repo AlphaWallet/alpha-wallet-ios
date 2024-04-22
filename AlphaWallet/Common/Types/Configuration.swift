@@ -20,9 +20,9 @@ fileprivate func colorFrom(trait: UITraitCollection, lightColor: UIColor, darkCo
 
 // swiftlint:disable type_body_length
 
-struct Configuration {
-    struct Color {
-        struct Semantic {
+enum Configuration {
+    enum Color {
+        enum Semantic {
             static let walletSummaryApprecationForeground = UIColor.gray
             static let transitionButtonShrinkBorder = UIColor.lightGray
             static let borderClear = UIColor.clear
@@ -105,7 +105,7 @@ struct Configuration {
             static let blockChainCustom = UIColor.red
             static let blockChainOkx = UIColor.black
             static let blockChainSepolia = UIColor(hex: "87ff65")
-            
+
             static let openSeaNonFungibleTokenCardRowIconText = UIColor(red: 192, green: 192, blue: 192)
             static let openSeaNonFungibleTokenCardRowIdText = UIColor(red: 155, green: 155, blue: 155)
             static let openSeaNonFungibleTokenCardRowGenerationText = UIColor(red: 155, green: 155, blue: 155)
@@ -239,7 +239,7 @@ struct Configuration {
             static let refreshControl = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: .black, darkColor: .white)
             }
-            
+
             static let collectionViewCellBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
@@ -306,7 +306,7 @@ struct Configuration {
             static let searchbarPlaceholder = UIColor.lightGray
 
             static let seedText = UIColor.lightGray
-            
+
             static let tabBarBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
@@ -340,7 +340,7 @@ struct Configuration {
             }
 
             static let textFieldContrastText = UIColor(red: 86, green: 153, blue: 8)
-            
+
             static let textFieldBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
@@ -364,7 +364,7 @@ struct Configuration {
             static let addressTextFieldControlsContainerBackground = UIColor.clear
             static let addressTextFieldScanQRCodeButtonBackground = UIColor.clear
             static let addressTextFieldTargetAddressRightViewBackground = UIColor.clear
-            
+
             static let shadow = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
             }
@@ -432,8 +432,7 @@ extension Configuration {
     }
 }
 
-class UIKitFactory {
-
+enum UIKitFactory {
     static func defaultView(autoResizingMarkIntoConstraints: Bool = false) -> UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = autoResizingMarkIntoConstraints
@@ -447,5 +446,5 @@ class UIKitFactory {
 
     @discardableResult static func decorateAsDefaultView(_ views: [UIView]) -> [UIView] {
         return views.map { decorateAsDefaultView($0) }
-    } 
+    }
 }

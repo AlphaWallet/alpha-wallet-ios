@@ -175,7 +175,7 @@ extension RPCServer: Codable {
 }
 
 fileprivate class Config {
-    struct Keys {
+    enum Keys {
         static let customRpcServers = "customRpcServers"
     }
 

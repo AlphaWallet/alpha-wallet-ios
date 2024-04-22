@@ -1,8 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
-import Combine
 import AlphaWalletCore
+import Combine
+import Foundation
 
 public final actor CoinTickers {
     private var fetchers: [CoinTickersFetcher] = []

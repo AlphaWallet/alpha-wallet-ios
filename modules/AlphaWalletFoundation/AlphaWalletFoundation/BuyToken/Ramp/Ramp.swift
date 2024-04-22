@@ -5,14 +5,14 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
+import Combine
+import Foundation
 
 public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
-    private (set) public var assets: Loadable<[Asset], PromiseError> = .loading
+    public private (set) var assets: Loadable<[Asset], PromiseError> = .loading
     private let queue: DispatchQueue = .init(label: "org.alphawallet.swift.Ramp")
     private var cancelable = Set<AnyCancellable>()
     private let reachability: ReachabilityManagerProtocol
@@ -32,7 +32,6 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
                 networking: RampNetworking,
                 reachability: ReachabilityManagerProtocol = ReachabilityManager(),
                 retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
-
         self.action = action
         self.reachability = reachability
         self.networking = networking
@@ -62,8 +61,8 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
         //We only operate for mainnets. This is because we store native cryptos for Ethereum testnets like `.goerli` with symbol "ETH" which would match Ramp's Ethereum token
         func isAssetMatchesForToken(token: TokenActionsIdentifiable, asset: Asset) -> Bool {
             return asset.symbol.lowercased() == token.symbol.trimmingCharacters(in: .controlCharacters).lowercased()
-                    && asset.decimals == token.decimals
-                    && (asset.address == nil ? token.contractAddress == Constants.nativeCryptoAddressInDatabase : asset.address! == token.contractAddress)
+                && asset.decimals == token.decimals
+                && (asset.address == nil ? token.contractAddress == Constants.nativeCryptoAddressInDatabase : asset.address! == token.contractAddress)
         }
 
         guard let assets = assets.value, !token.server.isTestnet else { return nil }

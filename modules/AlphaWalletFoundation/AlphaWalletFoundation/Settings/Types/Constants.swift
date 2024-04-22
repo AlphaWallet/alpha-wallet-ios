@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct Constants {
+public enum Constants {
     static let xdaiDropPrefix = Data(bytes: [0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]).hex()
 
     static let mainnetMagicLinkHost = "aw.app"
@@ -74,12 +74,12 @@ public struct Constants {
     static let highStandardEthereumMainnetGasThresholdGwei = BigInt(130)
 
     static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
-                                            AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
+                                     AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
     static let legacy721Addresses = [
         AlphaWallet.Address(string: "0x06012c8cf97bead5deae237070f9587f8e7a266d")!,
         AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!,
         AlphaWallet.Address(string: "0x71c118b00759b0851785642541ceb0f4ceea0bd5")!,
-        AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!
+        AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!,
     ]
 
     public static let defaultEnabledServers: [RPCServer] = [.main, .binance_smart_chain, .polygon, .xDai]
@@ -137,10 +137,10 @@ public struct Constants {
     //EtherNumberFormatter
     public static let etherFormatterFractionDigits = 4
 
-    public static let defaultSortTokensParams: [SortTokensParam] =  [
+    public static let defaultSortTokensParams: [SortTokensParam] = [
         .byField(field: .name, direction: .ascending),
         .byField(field: .name, direction: .descending),
         .byField(field: .value, direction: .ascending),
-        .byField(field: .value, direction: .descending)
+        .byField(field: .value, direction: .descending),
     ]
 }

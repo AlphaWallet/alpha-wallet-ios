@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 08.07.2022.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletTokenScript
 import protocol AlphaWalletWeb3.BlockchainCallable
+import Combine
+import Foundation
 
 public protocol SessionsProvider: AnyObject {
     var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> { get }
@@ -48,7 +48,6 @@ open class BaseSessionsProvider: SessionsProvider {
                 reachability: ReachabilityManagerProtocol,
                 wallet: Wallet,
                 apiTransporterFactory: ApiTransporterFactory) {
-
         self.apiTransporterFactory = apiTransporterFactory
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
