@@ -39,7 +39,7 @@ class URLTests: XCTestCase {
         XCTAssertNil(u22?.googleContentSizeIfAvailable)
 
         let u3 = WebImageURL(string: "https://d32ju6eqdh546d.cloudfront.net/rivermengift/石质兽首蛇.png")
-        XCTAssertNil(u3)
+        XCTAssertNotNil(u3)
 
         let u4 = WebImageURL(string: "https://gateway.pinata.cloud/ipfs/QmXp1KjrTtR9oVNZxhKjzMFXWtgoyTM6ZJyFEXodzgEZQ1/263.png")
         XCTAssertNotNil(u4)
