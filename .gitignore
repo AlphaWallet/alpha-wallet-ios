@@ -88,6 +88,7 @@ Trust.zip
 
 #Local/developer-specific
 post-build
+buildServer.json
 
 # node
 node_modules
