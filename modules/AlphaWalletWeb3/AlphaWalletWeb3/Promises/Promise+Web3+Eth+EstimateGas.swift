@@ -21,9 +21,9 @@ extension Web3.Eth {
             return rp.map(on: web3.queue) { response in
                 guard let value: BigUInt = response.getValue() else {
                     if response.error != nil {
-                        throw Web3Error.nodeError(response.error!.message)
+                        throw Web3Error.nodeError(response.error!.message, response.error)
                     }
-                    throw Web3Error.nodeError("Invalid value from Ethereum node")
+                    throw Web3Error.nodeError("Invalid value from Ethereum node", response.error)
                 }
                 return value
             }

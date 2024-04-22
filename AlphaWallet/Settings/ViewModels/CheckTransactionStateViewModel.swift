@@ -60,7 +60,7 @@ extension AlphaWalletWeb3.Web3Error: LocalizedError {
         switch self {
         case .connectionError: return "Connection Error"
         case .inputError(let e): return e
-        case .nodeError(let e): return e
+        case .nodeError(let e, _): return e
         case .generalError(let e): return e.localizedDescription
         case .rateLimited: return "Rate limited"
         case .responseError(let e): return e.localizedDescription

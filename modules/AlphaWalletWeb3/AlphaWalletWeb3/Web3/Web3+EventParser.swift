@@ -204,9 +204,9 @@ extension Web3.Contract {
             let fetchLogsPromise = self.web3.dispatch(request).map(on: queue) { response throws -> [EventParserResult] in
                 guard let value: [EventLog] = response.getValue() else {
                     if response.error != nil {
-                        throw Web3Error.nodeError(response.error!.message)
+                        throw Web3Error.nodeError(response.error!.message, response.error)
                     }
-                    throw Web3Error.nodeError("Empty or malformed response")
+                    throw Web3Error.nodeError("Empty or malformed response", response.error)
                 }
                 let allLogs = value
                 let decodedLogs = allLogs.compactMap({ (log) -> EventParserResult? in

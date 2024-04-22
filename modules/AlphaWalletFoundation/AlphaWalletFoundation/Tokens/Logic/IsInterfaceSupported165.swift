@@ -58,7 +58,7 @@ public actor IsInterfaceSupported165 {
 }
 
 func isNodeErrorExecutionReverted(error: Error) -> Bool {
-    if case Web3Error.nodeError(let message) = error {
+    if case Web3Error.nodeError(let message, _) = error {
         if message.contains("execution reverted") {
             return true
         } else {

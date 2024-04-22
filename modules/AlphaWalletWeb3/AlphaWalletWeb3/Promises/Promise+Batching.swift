@@ -87,7 +87,7 @@ public class JSONRPCrequestDispatcher {
 
         fileprivate func add(_ request: JSONRPCrequest, maxWaitTime: TimeInterval) throws -> Promise<JSONRPCresponse> {
             guard !triggered else {
-                throw Web3Error.nodeError("Batch is already in flight")
+                throw Web3Error.nodeError("Batch is already in flight", nil)
             }
 
             let (promise, seal) = Promise<JSONRPCresponse>.pending()
@@ -153,7 +153,7 @@ extension JSONRPCrequestDispatcher: BatchDelegate {
                 if batchResponse.responses.count == 1, let onlyResponse = batchResponse.responses.first, let error = onlyResponse.error {
                     for each in batchResponse.responses {
                         for (_, (_, seal)) in batch.promises.values {
-                            seal.reject(Web3Error.nodeError(error.message))
+                            seal.reject(Web3Error.nodeError(error.message, error))
                         }
                     }
                 } else {
@@ -163,7 +163,7 @@ extension JSONRPCrequestDispatcher: BatchDelegate {
                             guard let keys = batch.promises.keys() else { return }
                             for key in keys {
                                 guard let value = batch.promises[key] else { continue }
-                                value.seal.reject(Web3Error.nodeError("Unknown request id"))
+                                value.seal.reject(Web3Error.nodeError("Unknown request id", nil))
                             }
                             return
                         }

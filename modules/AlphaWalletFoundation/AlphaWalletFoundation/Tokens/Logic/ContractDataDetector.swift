@@ -36,7 +36,7 @@ public enum ContractDataDetectorError: Error {
     case other(error: Error, networkReachable: Bool, ContractDataPromise)
 
     init(error: Error, networkReachable: Bool, _ callData: ContractDataPromise) {
-        if let e = error as? SessionTaskError, case AlphaWalletWeb3.Web3Error.nodeError(let nodeError) = e.unwrapped {
+        if let e = error as? SessionTaskError, case AlphaWalletWeb3.Web3Error.nodeError(let nodeError, _) = e.unwrapped {
             self = .nodeError(message: nodeError, callData)
         } else {
             self = .other(error: error, networkReachable: networkReachable, callData)

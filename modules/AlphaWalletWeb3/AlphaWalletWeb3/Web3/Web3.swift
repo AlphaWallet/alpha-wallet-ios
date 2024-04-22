@@ -14,7 +14,7 @@ public enum Web3Error: Error {
     case connectionError(Error)
     case responseError(Error)
     case inputError(String)
-    case nodeError(String)
+    case nodeError(String, JSONRPCresponse.ErrorMessage?)
     case generalError(Error)
     case rateLimited
 }
