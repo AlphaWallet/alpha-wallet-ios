@@ -453,7 +453,7 @@ private extension RPCServer {
         case .binance_smart_chain_testnet: return ""
         case .heco: return ""
         case .heco_testnet: return ""
-        case .main, .callisto, .classic, .goerli: return ""
+        case .main, .callisto, .classic: return ""
         case .fantom: return ""
         case .fantom_testnet: return ""
         case .avalanche: return ""

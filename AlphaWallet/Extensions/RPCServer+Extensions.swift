@@ -24,7 +24,7 @@ extension RPCServer {
         case .binance_smart_chain_testnet: return R.string.localizable.blockchainBinanceTest()
         case .heco: return R.string.localizable.blockchainHeco()
         case .heco_testnet: return R.string.localizable.blockchainHecoTest()
-        case .main, .callisto, .classic, .goerli: return R.string.localizable.blockchainEthereum()
+        case .main, .callisto, .classic: return R.string.localizable.blockchainEthereum()
         case .fantom: return R.string.localizable.blockchainFantom()
         case .fantom_testnet: return R.string.localizable.blockchainFantomTest()
         case .avalanche: return R.string.localizable.blockchainAvalanche()
@@ -57,7 +57,7 @@ extension RPCServer {
         case .callisto: return R.image.tokenCallisto()
         case .binance_smart_chain: return R.image.tokenBnb()
         case .cronosMainnet: return R.image.cronos()
-        case .goerli, .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
+        case .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
         case .heco: return R.image.hthecoMainnet()
         case .heco_testnet: return R.image.hthecoTestnet()
         case .fantom, .fantom_testnet: return R.image.iconsTokensFantom()
@@ -83,7 +83,6 @@ extension RPCServer {
         case .main: return Configuration.Color.Semantic.blockChainMain
         case .classic: return Configuration.Color.Semantic.blockChainClassic
         case .callisto: return Configuration.Color.Semantic.blockChainCallisto
-        case .goerli: return Configuration.Color.Semantic.blockChainGoerli
         case .xDai: return Configuration.Color.Semantic.blockChainXDai
         case .binance_smart_chain, .binance_smart_chain_testnet: return Configuration.Color.Semantic.blockChainBinanceSmartChain
         case .heco, .heco_testnet: return Configuration.Color.Semantic.blockChainHeco
@@ -117,7 +116,7 @@ extension RPCServer {
         case .classic: return nil
         case .callisto: return R.image.iconsNetworkCallisto()
         case .binance_smart_chain: return R.image.iconsNetworkBsc()
-        case .goerli, .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
+        case .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
         case .heco, .heco_testnet: return R.image.iconsNetworkHeco()
         case .cronosMainnet: return R.image.iconsNetworkCronos()
         case .fantom, .fantom_testnet: return R.image.iconsNetworkFantom()

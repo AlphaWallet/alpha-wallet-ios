@@ -44,7 +44,7 @@ public enum GasPriceEstimatorState {
 extension RPCServer {
     var supportsEip1559: Bool {
         switch self {
-        case .main, .polygon, .goerli: return true
+        case .main, .polygon: return true
         case .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .xDai, .custom, .callisto, .classic, .binance_smart_chain_testnet, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .optimistic, .cronosTestnet, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet, .okx, .sepolia: return false
         }
     }

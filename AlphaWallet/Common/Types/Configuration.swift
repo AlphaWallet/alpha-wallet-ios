@@ -87,7 +87,6 @@ enum Configuration {
             static let blockChainClassic = UIColor(red: 55, green: 137, blue: 55)
             static let blockChainCallisto = UIColor(red: 88, green: 56, blue: 163)
             static let blockChainPoa = UIColor(red: 88, green: 56, blue: 163)
-            static let blockChainGoerli = UIColor(red: 187, green: 174, blue: 154)
             static let blockChainXDai = UIColor(red: 253, green: 176, blue: 61)
             static let blockChainBinanceSmartChain = UIColor(red: 255, green: 211, blue: 0)
             static let blockChainFantom = UIColor.red

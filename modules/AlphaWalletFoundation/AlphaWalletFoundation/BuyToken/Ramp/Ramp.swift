@@ -58,7 +58,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     }
 
     private func asset(for token: TokenActionsIdentifiable) -> Asset? {
-        //We only operate for mainnets. This is because we store native cryptos for Ethereum testnets like `.goerli` with symbol "ETH" which would match Ramp's Ethereum token
+        //We only operate for mainnets. This is because we store native cryptos for Ethereum testnets like `.sepolia` with symbol "ETH" which would match Ramp's Ethereum token
         func isAssetMatchesForToken(token: TokenActionsIdentifiable, asset: Asset) -> Bool {
             return asset.symbol.lowercased() == token.symbol.trimmingCharacters(in: .controlCharacters).lowercased()
                 && asset.decimals == token.decimals

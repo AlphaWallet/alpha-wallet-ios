@@ -10,7 +10,7 @@ import UIKit
 
 struct InitialNetworkSelectionCollectionModel {
     static let defaultMainnetServers: Set<RPCServer> = [.main, .xDai, .polygon]
-    static let defaultTestnetServers: Set<RPCServer> = [.goerli, .sepolia]
+    static let defaultTestnetServers: Set<RPCServer> = [.sepolia]
 
     // MARK: - enums
 

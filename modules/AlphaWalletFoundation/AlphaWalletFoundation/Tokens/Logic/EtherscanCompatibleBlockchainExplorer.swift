@@ -436,7 +436,7 @@ class EtherscanCompatibleBlockchainExplorer: BlockchainExplorer {
         switch server {
         case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .arbitrumGoerli, .avalanche, .avalanche_testnet, .heco, .heco_testnet, .sepolia:
             return true
-        case .goerli, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
+        case .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli:
             return false
         case .custom(let customRpc):
             switch customRpc.etherscanCompatibleType {
@@ -589,7 +589,7 @@ fileprivate extension EtherscanCompatibleBlockchainExplorer.functional {
         switch server {
         case .main, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .optimistic, .cronosMainnet, .arbitrum, .avalanche, .avalanche_testnet:
             return true
-        case .goerli, .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli, .custom:
+        case .heco, .heco_testnet, .fantom, .fantom_testnet, .mumbai_testnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .okx, .sepolia, .arbitrumGoerli, .classic, .xDai, .callisto, .cronosTestnet, .palm, .palmTestnet, .optimismGoerli, .custom:
             return false
         }
     }

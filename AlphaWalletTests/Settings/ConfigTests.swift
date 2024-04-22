@@ -30,8 +30,8 @@ class ConfigTests: XCTestCase {
     func testChangeChainID() {
         let testDefaults = UserDefaults.test
         XCTAssertEqual(1, Config.getChainId(defaults: testDefaults))
-        Config.setChainId(RPCServer.goerli.chainID, defaults: testDefaults)
-        XCTAssertEqual(RPCServer.goerli.chainID, Config.getChainId(defaults: testDefaults))
+        Config.setChainId(RPCServer.sepolia.chainID, defaults: testDefaults)
+        XCTAssertEqual(RPCServer.sepolia.chainID, Config.getChainId(defaults: testDefaults))
     }
 
     func testTokensNavigationTitle() {

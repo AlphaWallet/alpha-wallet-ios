@@ -15,7 +15,6 @@ public enum RPCServer: Hashable, CaseIterable {
     //As of 20210601, `.callisto` doesn't support eth_call according to https://testnet-explorer.callisto.network/eth-rpc-api-docs
     case callisto
     case xDai
-    case goerli
     case binance_smart_chain
     case binance_smart_chain_testnet
     case heco
@@ -48,7 +47,6 @@ public enum RPCServer: Hashable, CaseIterable {
         case .classic: return 61
         case .callisto: return 104729
         case .xDai: return 100
-        case .goerli: return 5
         case .binance_smart_chain: return 56
         case .binance_smart_chain_testnet: return 97
         case .heco: return 128
@@ -84,7 +82,6 @@ public enum RPCServer: Hashable, CaseIterable {
             .main,
             .classic,
             .xDai,
-            .goerli,
             .binance_smart_chain_testnet,
             .binance_smart_chain,
             .heco,

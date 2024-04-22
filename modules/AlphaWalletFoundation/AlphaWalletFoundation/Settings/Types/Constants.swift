@@ -11,7 +11,6 @@ public enum Constants {
     static let classicMagicLinkHost = "classic.aw.app"
     static let callistoMagicLinkHost = "callisto.aw.app"
     static let xDaiMagicLinkHost = "xdai.aw.app"
-    static let goerliMagicLinkHost = "goerli.aw.app"
     static let binanceMagicLinkHost = "binance.aw.app"
     static let binanceTestMagicLinkHost = "test-binance.aw.app"
     static let hecoMagicLinkHost = "heco.aw.app"
@@ -83,7 +82,7 @@ public enum Constants {
     ]
 
     public static let defaultEnabledServers: [RPCServer] = [.main, .binance_smart_chain, .polygon, .xDai]
-    public static let defaultEnabledTestnetServers: [RPCServer] = [.sepolia, .goerli]
+    public static let defaultEnabledTestnetServers: [RPCServer] = [.sepolia]
 
     enum Enjin {
         static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!

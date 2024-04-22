@@ -13,7 +13,7 @@ final class RPCServerComparableTest: XCTestCase {
     func testRPCServerComparable() {
         let sorted: [RPCServer] = [
             .custom(CustomRPC.custom(chainId: 102)), // chainId 102
-            .goerli, // chainId 5 - testnet
+            .sepolia, // testnet
             .main, // chainId 1
             .arbitrumGoerli, // chainId 421613 - testnet
             .arbitrum, // chainId 42161
@@ -27,7 +27,7 @@ final class RPCServerComparableTest: XCTestCase {
         XCTAssertTrue(sorted[3] == .custom(chainId: 101))
         XCTAssertTrue(sorted[4] == .custom(chainId: 102))
         XCTAssertTrue(sorted[5] == .binance_smart_chain_testnet)
-        XCTAssertTrue(sorted[6] == .goerli)
+        XCTAssertTrue(sorted[6] == .sepolia)
         XCTAssertTrue(sorted[7] == .arbitrumGoerli)
     }
 
