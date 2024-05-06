@@ -276,8 +276,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     }
 
     private func showWhatsNew() {
-        whatsNewExperimentCoordinator.start()
-        addCoordinator(whatsNewExperimentCoordinator)
+        //whatsNewExperimentCoordinator.start()
+        //addCoordinator(whatsNewExperimentCoordinator)
     }
 
     private func donateWalletShortcut() {
