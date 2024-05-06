@@ -872,6 +872,7 @@
 		C601B18D24407F4300C763D9 /* SettingTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18C24407F4300C763D9 /* SettingTableViewCellViewModel.swift */; };
 		C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */; };
 		C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */ = {isa = PBXBuildFile; fileRef = C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */; };
+		C84F3C9C2BE88DAD00F7D30A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C84F3C9B2BE88DAD00F7D30A /* PrivacyInfo.xcprivacy */; };
 		C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
 		C868C536205409160059672B /* redeemInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C868C534205409160059672B /* redeemInfo.html */; };
 		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
@@ -1802,6 +1803,7 @@
 		C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.tsml; path = "XDAI-bridge.tsml"; sourceTree = "<group>"; };
 		C825940EC6CB472A443A7997 /* Pods-AlphaWalletUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		C846409321B6DFA200031CA2 /* libxslt.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxslt.tbd; path = usr/lib/libxslt.tbd; sourceTree = SDKROOT; };
+		C84F3C9B2BE88DAD00F7D30A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C868C5282053BDE00059672B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C868C535205409160059672B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/redeemInfo.html; sourceTree = "<group>"; };
 		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -2055,6 +2057,7 @@
 				5E7C7D784300C463FF3C7514 /* HardwareWallet */,
 				5E7C7864DB8E82BACE2F5F1F /* ImportedTypes.swift */,
 				5E7C7CA7694367E5D9D8DE99 /* Attestation */,
+				C84F3C9B2BE88DAD00F7D30A /* PrivacyInfo.xcprivacy */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -4793,6 +4796,7 @@
 				C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */,
 				5E7C73AB79C2C5FC6C76CDFF /* ERC20-TokenScript.tsml in Resources */,
 				5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */,
+				C84F3C9C2BE88DAD00F7D30A /* PrivacyInfo.xcprivacy in Resources */,
 				5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */,
 				5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */,
 				877239CB28F7DCE00062DC14 /* GoogleService-InfoTests.plist in Resources */,
