@@ -21,7 +21,7 @@ public enum Constants {
     static let avalancheMagicLinkHost = "avalanche.aw.app"
     static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
     static let maticMagicLinkHost = "polygon.aw.app"
-    static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
+    static let amoyTestMagicLinkHost = "amoy-polygon.aw.app"
     static let optimisticMagicLinkHost = "optimistic.aw.app"
     static let cronosMagicLinkHost = "cronos.aw.app"
     static let cronosTestMagicLinkHost = "test-cronos.aw.app"

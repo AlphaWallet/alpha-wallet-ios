@@ -5,13 +5,13 @@
 //  Created by Vladyslav Shepitko on 18.01.2023.
 //
 
-import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3
 import APIKit
 import BigInt
+import Combine
+import Foundation
 import JSONRPCKit
 import PromiseKit
 
@@ -51,7 +51,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .arbitrum: 2,
             .avalanche: 2,
             .avalanche_testnet: 2,
-            .mumbai_testnet: 2,
+            .amoy_testnet: 2,
             .optimismGoerli: 2,
         ]
         //Not too low to avoid unnecessary RPC node requests
@@ -71,7 +71,6 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     public init(server: RPCServer,
                 analytics: AnalyticsLogger,
                 params: BlockchainParams) {
-
         self.params = params
         self.analytics = analytics
         self.server = server
@@ -136,10 +135,10 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         let result = APIKitSession.sendPublisher(request, server: server, analytics: analytics)
         return result.handleEvents(receiveOutput: { [server] response in
-                    inflight.send(response)
-                    BlockNumbers.lastFetchedBlockTimes[server] = (blockNumber: response, fetchedTime: Date())
-                    verboseLog("Fetched block number server: \(server) number: \(response)")
-                    BlockNumbers.inflightBlockTimesFetchers[server] = nil
+            inflight.send(response)
+            BlockNumbers.lastFetchedBlockTimes[server] = (blockNumber: response, fetchedTime: Date())
+            verboseLog("Fetched block number server: \(server) number: \(response)")
+            BlockNumbers.inflightBlockTimesFetchers[server] = nil
         }).eraseToAnyPublisher()
     }
 

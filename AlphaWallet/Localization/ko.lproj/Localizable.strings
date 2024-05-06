@@ -472,7 +472,7 @@
 "blockchain.Avalanche" = "Avalanche Mainnet C-Chain";
 "blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
 "blockchain.Polygon" = "Polygon Mainnet";
-"blockchain.Mumbai" = "Mumbai Testnet";
+"blockchain.Amoy" = "Amoy Testnet";
 "blockchain.Optimistic" = "Optimistic Testnet";
 "blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "blockchain.Cronos.Mainnet" = "Cronos";

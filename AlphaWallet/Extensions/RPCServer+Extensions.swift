@@ -30,7 +30,7 @@ extension RPCServer {
         case .avalanche: return R.string.localizable.blockchainAvalanche()
         case .avalanche_testnet: return R.string.localizable.blockchainAvalancheTest()
         case .polygon: return R.string.localizable.blockchainPolygon()
-        case .mumbai_testnet: return R.string.localizable.blockchainMumbai()
+        case .amoy_testnet: return R.string.localizable.blockchainAmoy()
         case .optimistic: return R.string.localizable.blockchainOptimistic()
         case .cronosMainnet: return R.string.localizable.blockchainCronosMainnet()
         case .cronosTestnet: return R.string.localizable.blockchainCronosTestnet()
@@ -62,7 +62,7 @@ extension RPCServer {
         case .heco_testnet: return R.image.hthecoTestnet()
         case .fantom, .fantom_testnet: return R.image.iconsTokensFantom()
         case .avalanche, .avalanche_testnet: return R.image.iconsTokensAvalanche()
-        case .polygon, .mumbai_testnet: return R.image.iconsTokensPolygon()
+        case .polygon, .amoy_testnet: return R.image.iconsTokensPolygon()
         case .optimistic: return R.image.iconsTokensOptimistic()
         case .arbitrum: return R.image.arbitrum()
         case .palm: return R.image.iconsTokensPalm()
@@ -90,7 +90,7 @@ extension RPCServer {
         case .fantom_testnet: return Configuration.Color.Semantic.blockChainFantomTestnet
         case .avalanche: return Configuration.Color.Semantic.blockChainAvalanche
         case .avalanche_testnet: return Configuration.Color.Semantic.blockChainAvalancheTestnet
-        case .polygon, .mumbai_testnet: return Configuration.Color.Semantic.blockChainPolygon
+        case .polygon, .amoy_testnet: return Configuration.Color.Semantic.blockChainPolygon
         case .optimistic: return Configuration.Color.Semantic.blockChainOptimistic
         case .cronosMainnet: return Configuration.Color.Semantic.blockChainCronosMainnet
         case .cronosTestnet: return Configuration.Color.Semantic.blockChainCronosTestnet
@@ -122,7 +122,7 @@ extension RPCServer {
         case .fantom, .fantom_testnet: return R.image.iconsNetworkFantom()
         case .avalanche, .avalanche_testnet: return R.image.iconsNetworkAvalanche()
         case .polygon: return R.image.iconsNetworkPolygon()
-        case .mumbai_testnet: return nil
+        case .amoy_testnet: return nil
         case .optimistic: return R.image.iconsNetworkOptimism()
         case .arbitrum: return R.image.iconsNetworkArbitrum()
         case .palm, .palmTestnet: return R.image.iconsTokensPalm()

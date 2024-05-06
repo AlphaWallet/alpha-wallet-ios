@@ -24,7 +24,7 @@ public enum RPCServer: Hashable, CaseIterable {
     case avalanche
     case avalanche_testnet
     case polygon
-    case mumbai_testnet
+    case amoy_testnet
     case optimistic
     case cronosMainnet
     case cronosTestnet
@@ -57,7 +57,7 @@ public enum RPCServer: Hashable, CaseIterable {
         case .avalanche: return 0xa86a
         case .avalanche_testnet: return 0xa869
         case .polygon: return 137
-        case .mumbai_testnet: return 80001
+        case .amoy_testnet: return 80002
         case .optimistic: return 10
         case .cronosTestnet: return 338
         case .cronosMainnet: return 25
@@ -92,7 +92,7 @@ public enum RPCServer: Hashable, CaseIterable {
             .avalanche_testnet,
             .polygon,
             .callisto,
-            .mumbai_testnet,
+            .amoy_testnet,
             .optimistic,
             .cronosMainnet,
             .cronosTestnet,

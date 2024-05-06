@@ -459,7 +459,7 @@ private extension RPCServer {
         case .avalanche: return ""
         case .avalanche_testnet: return ""
         case .polygon: return ""
-        case .mumbai_testnet: return ""
+        case .amoy_testnet: return ""
         case .optimistic: return ""
         case .cronosMainnet: return ""
         case .cronosTestnet: return ""
