@@ -1,11 +1,11 @@
-import UIKit
-import PromiseKit
-import Combine
 import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletNotifications
+import Combine
+import PromiseKit
+import UIKit
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {
@@ -164,7 +164,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          serversProvider: ServersProvidable,
          transactionsService: TransactionsService,
          pushNotificationsService: PushNotificationsService) {
-
         self.transactionsService = transactionsService
         self.pushNotificationsService = pushNotificationsService
         self.serversProvider = serversProvider
@@ -473,7 +472,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
         switch (type, wallet.type) {
         case (.send, .real), (.swap, .real), (.request, _),
-            (_, _) where Config().development.shouldPretendIsRealWallet:
+             (_, _) where Config().development.shouldPretendIsRealWallet:
             let coordinator = PaymentCoordinator(
                 navigationController: navigationController,
                 flow: type,
@@ -609,7 +608,6 @@ extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
 
 // swiftlint:enable type_body_length
 extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
-
     func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
         let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         buyCrypto(wallet: wallet, token: token, viewController: viewController, source: source)
@@ -618,7 +616,6 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
     func requestSwitchChain(server: RPCServer,
                             currentUrl: URL?,
                             targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError> {
-
         let coordinator = DappRequestSwitchExistingChainCoordinator(
             config: config,
             server: server,
@@ -648,7 +645,6 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
     func requestAddCustomChain(server: RPCServer,
                                customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError> {
-
         let coordinator = DappRequestSwitchCustomChainCoordinator(
             config: config,
             server: server,
@@ -719,8 +715,7 @@ extension ActiveWalletCoordinator: CanOpenURL {
     }
 }
 
-extension ActiveWalletCoordinator: TransactionsCoordinatorDelegate {
-}
+extension ActiveWalletCoordinator: TransactionsCoordinatorDelegate {}
 
 extension ActiveWalletCoordinator: ConsoleCoordinatorDelegate {
     func didCancel(in coordinator: ConsoleCoordinator) {
@@ -729,7 +724,6 @@ extension ActiveWalletCoordinator: ConsoleCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
-
     private func showConsole(navigationController: UINavigationController) {
         let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore, navigationController: navigationController)
         coordinator.delegate = self
@@ -759,7 +753,6 @@ extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator {
-
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer) {
         let presentationNavigationController: UINavigationController = {
             if let nc = UIApplication.shared.presentedViewController(or: navigationController) as? UINavigationController {
@@ -784,13 +777,11 @@ extension ActiveWalletCoordinator {
 }
 
 extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
-
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-
         infoLog("[\(source)] signMessage: \(message)")
 
         return SignMessageCoordinator.promise(
@@ -868,7 +859,6 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
 }
 
 extension ActiveWalletCoordinator: UITabBarControllerDelegate {
-
     private func isViewControllerDappBrowserTab(_ viewController: UIViewController) -> Bool {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return false }
         return dappBrowserCoordinator.rootViewController.navigationController == viewController
@@ -911,7 +901,6 @@ extension ActiveWalletCoordinator: UITabBarControllerDelegate {
 }
 
 extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
-
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
         tokensService.refreshBalance(updatePolicy: .all)
         Task {
@@ -1194,7 +1183,6 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
 
 //TODO: Move handle requests logic to the Application
 extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
-
     func requestSignTransaction(session: WalletSession,
                                 source: Analytics.TransactionConfirmationSource,
                                 requester: RequesterViewModel?,
@@ -1218,7 +1206,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                                    source: Analytics.TransactionConfirmationSource,
                                    requester: DappRequesterViewModel?,
                                    transaction: String) -> AnyPublisher<String, PromiseError> {
-
         infoLog("[\(source)] signRawTransaction: \(transaction)")
         return firstly {
             showAskSendRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: transaction)
@@ -1267,7 +1254,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                                 requester: RequesterViewModel?,
                                 transaction: UnconfirmedTransaction,
                                 configuration: TransactionType.Configuration) -> AnyPublisher<SentTransaction, PromiseError> {
-
         infoLog("[\(source)] sendTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
@@ -1304,7 +1290,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
                         data: String,
                         source: Analytics.SignMessageRequestSource,
                         session: WalletSession) -> AnyPublisher<String, PromiseError> {
-
         infoLog("[\(source)] ethCall")
         let provider = session.blockchainProvider
         return provider.call(from: from, to: to, value: value, data: data)
@@ -1322,11 +1307,9 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     }
 }
 
-extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {
-}
+extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {}
 
 extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
-
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
         guard let navigationController = viewController.navigationController else { return }
 
@@ -1426,7 +1409,6 @@ extension ActiveWalletCoordinator: WalletPupupCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator {
-
     enum PendingOperation {
         case swapToken
         case sendToken(recipient: AddressOrDomainName?)
