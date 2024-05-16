@@ -43,7 +43,7 @@ extension RPCServer: Hashable, CaseIterable {
         case .avalanche_testnet: return "Avalanche FUJI C-Chain"
         case .polygon: return "Polygon Mainnet"
         case .amoy_testnet: return "Polygon Amoy Testnet"
-        case .optimistic: return "Optimistic Ethereum"
+        case .optimistic: return "OP Mainnet"
         case .cronosMainnet: return "Cronos"
         case .cronosTestnet: return "Cronos Testnet"
         case .arbitrum: return "Arbitrum One"
