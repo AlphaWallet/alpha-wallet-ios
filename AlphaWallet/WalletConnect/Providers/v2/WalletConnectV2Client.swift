@@ -5,17 +5,16 @@
 //  Created by Vladyslav Shepitko on 07.01.2023.
 //
 
-import Foundation
-import WalletConnectSign
-import WalletConnectSigner
 import AlphaWalletFoundation
-import Starscream
-import Combine
-import AlphaWalletWeb3
-import Web3Wallet
 import AlphaWalletLogger
+import AlphaWalletWeb3
+import Combine
+import Foundation
+import Starscream
+import WalletConnectSign
+import Web3Wallet
 
-extension WebSocket: WebSocketConnecting { }
+extension WebSocket: WebSocketConnecting {}
 
 struct SocketFactory: WebSocketFactory {
     func create(with url: URL) -> WebSocketConnecting {

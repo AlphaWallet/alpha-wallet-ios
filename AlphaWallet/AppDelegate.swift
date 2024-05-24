@@ -1,7 +1,8 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import UIKit
 import AlphaWalletNotifications
+import BigInt
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

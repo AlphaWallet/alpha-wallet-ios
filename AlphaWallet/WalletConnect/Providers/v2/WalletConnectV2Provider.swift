@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 10.11.2021.
 //
 
-import Foundation
-import Combine
-import WalletConnectSign
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import Foundation
+import WalletConnectSign
 import Web3Wallet
 
 enum ProposalOrServer {
@@ -18,7 +18,6 @@ enum ProposalOrServer {
 }
 
 final class WalletConnectV2Provider: WalletConnectServer {
-
     private var currentProposal: WalletConnectSign.Session.Proposal?
     private var pendingProposals: [WalletConnectSign.Session.Proposal] = []
     private var currentAuthRequest: AuthRequest?
@@ -45,7 +44,6 @@ final class WalletConnectV2Provider: WalletConnectServer {
          serversProvider: ServersProvidable,
          decoder: WalletConnectRequestDecoder = WalletConnectRequestDecoder(),
          client: WalletConnectV2Client) {
-
         self.client = client
         self.decoder = decoder
         self.storage = storage
@@ -208,7 +206,6 @@ final class WalletConnectV2Provider: WalletConnectServer {
     }
 
     private func didSettle(session: WalletConnectSign.Session) {
-
         infoLog("[WalletConnect2] WC: Did settle session")
         for each in client.getSessions() {
             storage.addOrUpdate(session: each)
@@ -286,7 +283,6 @@ final class WalletConnectV2Provider: WalletConnectServer {
 }
 
 fileprivate extension AlphaWallet.WalletConnect.Proposal {
-
     init?(proposal: WalletConnectSign.Session.Proposal) {
         name = proposal.proposer.name
         guard let dappUrl = URL(string: proposal.proposer.url) else { return nil }
