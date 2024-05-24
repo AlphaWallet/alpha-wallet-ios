@@ -16,9 +16,9 @@ class OrderSigningTests: XCTestCase {
         var indices = [UInt16]()
         indices.append(14)
 
-        let testOrder1 = Order(price: BigUInt("0")!,
+        let testOrder1 = Order(price: BigUInt("0"),
                                indices: indices,
-                               expiry: BigUInt("0")!,
+                               expiry: BigUInt("0"),
                                contractAddress: contractAddress,
                                count: 3,
                                nonce: BigUInt(0),

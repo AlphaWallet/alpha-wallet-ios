@@ -183,14 +183,14 @@ class SendViewControllerTests: XCTestCase {
 
         let viewModel = await dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel)
-        XCTAssertEqual(viewModel?.value, BigUInt("2020224719101120")!)
+        XCTAssertEqual(viewModel?.value, BigUInt("2020224719101120"))
 
         let task2 = dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("10000000000000")), for: token)
         _ = await task2.value
 
         let viewModel_2 = await dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel_2)
-        XCTAssertEqual(viewModel_2?.value, BigUInt("10000000000000")!)
+        XCTAssertEqual(viewModel_2?.value, BigUInt("10000000000000"))
     }
 
     @MainActor func testERC20AllFundsEnglish() async {

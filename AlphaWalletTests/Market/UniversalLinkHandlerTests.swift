@@ -26,9 +26,9 @@ class UniversalLinkHandlerTests: XCTestCase {
         var indices = [UInt16]()
         indices.append(1)
         let contractAddress = AlphaWallet.Address.make()
-        let testOrder1 = Order(price: BigUInt("1000000000")!,
+        let testOrder1 = Order(price: BigUInt("1000000000"),
                                indices: indices,
-                               expiry: BigUInt("0")!,
+                               expiry: BigUInt("0"),
                                contractAddress: contractAddress,
                                count: 3,
                                nonce: BigUInt(0),

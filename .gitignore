@@ -36,6 +36,16 @@ xcuserdata/
 timeline.xctimeline
 playground.xcworkspace
 
+# xcodegen
+AlphaWallet.xcodeproj
+# Can't do only `AlphaWallet.xcworkspace` otherwise `Package.resolved` can't be made an exception as the directory isn't scanned
+AlphaWallet.xcworkspace/*
+## We want the SwiftPM lock file
+AlphaWallet.xcworkspace/xcshareddata/*
+!AlphaWallet.xcworkspace/xcshareddata/
+!AlphaWallet.xcworkspace/xcshareddata/swiftpm
+!AlphaWallet.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
 # Swift Package Manager
 #
 # Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.

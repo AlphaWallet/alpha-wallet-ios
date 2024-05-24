@@ -1,0 +1,359 @@
+name: AlphaWallet
+options:
+  bundleIdPrefix: com.stormbird
+  deploymentTarget:
+    iOS: 13.0
+settings:
+  base:
+    GENERATE_INFOPLIST_FILE: YES
+    DEVELOPMENT_TEAM: LRAW5PL536
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 511
+    MARKETING_VERSION: 3.72
+
+targets:
+  AlphaWallet:
+    type: application
+    platform: iOS
+    sources:
+      - path: AlphaWallet
+        excludes:
+          - Browser/ViewModel/Dapps.swift
+    scheme:
+      configVariants:
+    dependencies:
+      - package: WalletConnect
+        products: 
+          - WalletConnectAuth
+          - WalletConnectChat
+          - WalletConnectEcho
+          - WalletConnectNetworking
+          - WalletConnectPairing
+          - WalletConnectPush
+          - WalletConnectRouter
+          - WalletConnectVerify
+          - Web3Inbox
+          - Web3Wallet
+      - target: AlphaWalletShare
+      - target: AlphaWalletSafariExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stormbird.alphawallet
+        PRODUCT_NAME: AlphaWallet
+        CODE_SIGN_ENTITLEMENTS: AlphaWallet/AlphaWallet.entitlements
+    info:
+      path: AlphaWallet/Info.plist
+      properties:
+        CFBundleDisplayName: AlphaWallet
+        FirebaseAppDelegateProxyEnabled: false
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: TokenScript
+            LSHandlerRank: Default
+            LSItemContentTypes:
+              - public.text
+          - CFBundleTypeName: TokenScript
+            LSHandlerRank: Default
+            LSItemContentTypes:
+              - com.stormbird.alphawallet.tsml
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - awallet
+          - CFBundleTypeRole: Ethereum Links
+            CFBundleURLSchemes:
+              - ethereum
+          - CFBundleTypeRole: WalletConnect Links
+            CFBundleURLName: 
+            CFBundleURLSchemes:
+              - wc
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationQueriesSchemes:
+          - tg
+          - fb
+          - twitter
+          - org-appextension-feature-password-management
+        LSRequiresIPhoneOS: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        NSCameraUsageDescription: $(PRODUCT_NAME) uses the camera to scan QR codes
+        NSFaceIDUsageDescription: Access your wallet
+        NSLocationWhenInUseUsageDescription: Location data may be accessed when you are using the in-app browser and tap on a link to retrieve your current location
+        NSMicrophoneUsageDescription: $(PRODUCT_NAME) might capture audio if a website needs to perform KYC (with your permission)
+        NSPhotoLibraryAddUsageDescription: Sending QR Code to your contacts
+        NSPhotoLibraryUsageDescription: Sending QR Code to your contacts
+        NSUserActivityTypes:
+          - com.alphawallet.ethereum-wallet-qr-code
+          - com.alphawallet.camera
+        UIAppFonts:
+          - SourceSansPro-Black.otf
+          - SourceSansPro-Italic.ttf
+          - SourceSansPro-BlackIt.otf
+          - SourceSansPro-Bold.otf
+          - SourceSansPro-BoldIt.otf
+          - SourceSansPro-ExtraLight.otf
+          - SourceSansPro-ExtraLightIt.otf
+          - SourceSansPro-It.otf
+          - SourceSansPro-Light.otf
+          - SourceSansPro-LightIt.otf
+          - SourceSansPro-Regular.otf
+          - SourceSansPro-Semibold.otf
+          - SourceSansPro-SemiboldIt.otf
+        UIApplicationShortcutItems:
+          - UIApplicationShortcutItemIconFile: qr_code_icon
+            UIApplicationShortcutItemTitle: Scan QR Code
+            UIApplicationShortcutItemType: $(PRODUCT_BUNDLE_IDENTIFIER).qrScanner
+        UIBackgroundModes:
+          - remote-notification
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UIStatusBarHidden: true
+        UIStatusBarStyle: UIStatusBarStyleDefault
+        UIStatusBarTintParameters:
+          UINavigationBar:
+            Style: UIBarStyleDefault
+            Translucent: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIUserInterfaceStyle: Automatic
+        UTExportedTypeDeclarations:
+          - UTTypeConformsTo:
+            - public.xml
+            UTTypeDescription: TokenScript file
+            UTTypeIdentifier: com.stormbird.alphawallet.tsml
+            UTTypeTagSpecification:
+              public.filename-extension: tsml
+              public.mime-type: text/xml
+        com.apple.security.get-task-allow: true
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+    entitlements:
+      path: AlphaWallet/AlphaWallet.entitlements
+      properties:
+        aps-environment: development
+        com.apple.developer.associated-domains:
+          - applinks:app.awallet.io
+          - applinks:aw.app
+          - applinks:classic.aw.app
+          - applinks:callisto.aw.app
+          - applinks:kovan.aw.app
+          - applinks:ropsten.aw.app
+          - applinks:rinkeby.aw.app
+          - applinks:poa.aw.app
+          - applinks:sokol.aw.app
+          - applinks:xdai.aw.app
+          - applinks:custom.aw.app
+          - applinks:goerli.aw.app
+          - applinks:binance.aw.app
+          - applinks:test-binance.aw.app
+          - applinks:www.smartlayer.network
+          - applinks:smartlayer.network
+          - applinks:smart-layer.vercel.app
+        com.apple.developer.default-data-protection: NSFileProtectionComplete
+        com.apple.security.application-groups:
+          - group.com.stormbird.alphawallet
+    preBuildScripts:
+      - name: "[CP] Check Pods Manifest.lock"
+        script: |
+                diff "${PODS_PODFILE_DIR_PATH}/Podfile.lock" "${PODS_ROOT}/Manifest.lock" > /dev/null
+                if [ $? != 0 ] ; then
+                    # print error to STDERR
+                    echo "error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation." >&2
+                    exit 1
+                fi
+                # This output is used by Xcode 'outputs' to avoid re-running this script phase.
+                echo "SUCCESS" > "${SCRIPT_OUTPUT_FILE_0}"
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: Apollo
+        script: |
+                # Don't run this during index builds
+                if [ $ACTION = "indexbuild" ]; then exit 0; fi
+                SCRIPT_PATH="${PODS_ROOT}/Apollo/scripts"
+                SCHEMA_PATH="${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/NFT/Enjin"
+                cd "${SCHEMA_PATH}"
+                "${SCRIPT_PATH}"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile="${SCHEMA_PATH}/schema.json" API.swift
+                #Download graphql scheme 
+                #"${SCRIPT_PATH}"/run-bundled-codegen.sh schema:download --endpoint="https://cloud.enjin.io/graphql/default" API.swift
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: Check correct credentials used for API keys
+        script: |
+                FILE=modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift
+                if test -f "$FILE"; then
+                    #echo "Found: $FILE"
+                    echo ""
+                else
+                    echo "Not found credentials file. Could be due to a refactoring and we forgot to update this Run Script Phase: $FILE"
+                    exit 1
+                fi
+                if [ "${CONFIGURATION}" = "Release" ]; then
+                  if [ "${PRODUCT_BUNDLE_IDENTIFIER}" = "com.stormbird.alphawallet" ]; then
+                    if grep -q 'static let infuraKey = "3f22' "$FILE"; then
+                        echo ""
+                    else
+                        echo "Expecting production infuraKey. Check credentials"
+                        exit 1
+                    fi
+                    #We use `ag` because grep is much slower. Since this only runs on the Release configuration, this is not a problem for day to day development
+                    if /opt/homebrew/bin/ag --silent 'static let analyticsKey = ""' --ignore project.yml; then
+                        echo "Found development analytics key (which is empty). Check credentials. Probably just need to remove the extension entirely"
+                        exit 1
+                    else
+                        echo ""
+                    fi
+                  fi
+                fi
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: Check correct GoogleService-Info.plist (for Crashlytics)
+        script: |
+                if [ "${CONFIGURATION}" = "Release" ]; then
+                  if [ "${PRODUCT_BUNDLE_IDENTIFIER}" = "com.stormbird.alphawallet" ]; then
+                    if grep -q '598539835570' "AlphaWallet/GoogleService-Info.plist"; then
+                        exit 0
+                    else
+                        echo "Make sure GoogleService-Info.plist is for production builds"
+                        exit 1
+                    fi
+                  fi
+                fi
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: R.Swift
+        script: '"$PODS_ROOT/R.swift/rswift" generate --disable-input-output-files-validation "$SRCROOT/AlphaWallet/R.generated.swift"'
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: Swift Format
+        script: |
+          if [ "${CONFIGURATION}" = "Debug" ]; then
+              files_list = ""
+              while read F; do
+                  files_list+="${F} "
+              done < $SCRIPT_INPUT_FILE_LIST_0
+              "${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat" $files_list
+          fi
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+    postBuildScripts:
+      - name: Run SwiftLint
+        script: |
+                if [ "${CONFIGURATION}" = "Debug" ]; then
+                    "${PODS_ROOT}/SwiftLint/swiftlint"
+                fi
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+      - name: Upload debug symbols to Crashlytics
+        script: '"${PODS_ROOT}/FirebaseCrashlytics/run"'
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+
+  AlphaWalletShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: AlphaWalletShare
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stormbird.alphawallet.AlphaWalletShare
+        PRODUCT_NAME: AlphaWalletShare
+        CODE_SIGN_ENTITLEMENTS: AlphaWalletShare/AlphaWalletShare.entitlements
+        SKIP_INSTALL: YES
+    info:
+      path: AlphaWalletShare/Info.plist
+      properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleDisplayName: AlphaWallet
+        NSExtension:
+          NSExtensionAttributes:
+              IntentsSupported:
+                - Intent
+              NSExtensionActivationRule:
+                NSExtensionServiceRoleType: NSExtensionServiceRoleTypeViewer
+                NSExtensionActivationSupportsText: false
+                NSExtensionActivationSupportsWebPageWithMaxCount: 1
+                NSExtensionActivationSupportsWebURLWithMaxCount: 1
+                NSExtensionActivationDictionaryVersion: 2
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: ShareContextHandler
+          NSExtensionActionWantsFullScreenPresentation: false
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+    entitlements:
+      path: AlphaWalletShare/AlphaWalletShare.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.stormbird.alphawallet
+
+  AlphaWalletSafariExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: AlphaWalletSafariExtension
+        excludes:
+          - Resources
+      - path: AlphaWalletSafariExtension
+        includes:
+          - Resources/*.js
+          - Resources/*.html
+          - Resources/*.css
+          - Resources/manifest.json
+      - path: AlphaWalletSafariExtension/Resources/_locales
+        #Keeps the folder in the build output. See it in the Copy Bundle Resources phase in Xcode
+        type: folder
+        #Keeps the folder at the right place, instead of at the project root. See it in the Project Navigator in Xcode
+        createIntermediateGroups: true
+      - path: AlphaWalletSafariExtension/Resources/images
+        type: folder
+        createIntermediateGroups: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stormbird.alphawallet.AlphaWalletSafariExtension
+        PRODUCT_NAME: AlphaWalletSafariExtension
+        CODE_SIGN_ENTITLEMENTS: AlphaWalletSafariExtension/AlphaWalletSafariExtension.entitlements
+        SKIP_INSTALL: YES
+    info:
+      path: AlphaWalletSafariExtension/Info.plist
+      properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleDisplayName: AlphaWallet
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+    entitlements:
+      path: AlphaWalletSafariExtension/AlphaWalletSafariExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.stormbird.alphawallet
+
+  AlphaWalletTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [AlphaWalletTests]
+    scheme:
+      configVariants:
+    dependencies:
+      - target: AlphaWallet
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stormbird.AlphaWalletTests
+        PRODUCT_NAME: AlphaWalletTests
+    info:
+      path: AlphaWalletTests/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+
+packages:
+  WalletConnect:
+    url: https://github.com/WalletConnect/WalletConnectSwiftV2
+    exactVersion: 1.6.8

@@ -71,11 +71,12 @@ We want to give businesses the whitelabel tools they need to develop their ether
 1. [Download Xcode](https://developer.apple.com/download/more/). Check [here](.xcode-version) for the Xcode we are building with.
 2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
-4. Open the `AlphaWallet.xcworkspace` file (not `AlphaWallet.xcodeproj`) to begin.
+4. Run `make` to generate the project file
+5. Open the `AlphaWallet.xcworkspace` file (not `AlphaWallet.xcodeproj`) to begin.
+
+Whenever you add/remove/move source files, re-run `make` to update the project and workspace files. Do not edit `AlphaWallet.xcodeproj` and `AlphaWallet.xcworkspace` directly.
 
 If you get a "Bundle does not exist. Please install bundle." error, please consult with your macOS guru because a vital part of your system is missing.
-
-This makefile has been tested to run on "Monterey"-12.0.1. It will not work on "Catalina" or "Big Sur".
 
 Read [INTRODUCTION-CODE.md](docs/INTRODUCTION-CODE.md).
 

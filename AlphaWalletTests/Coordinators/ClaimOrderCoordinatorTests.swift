@@ -19,7 +19,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         expectations.append(expectation)
         var indices = [UInt16]()
         indices.append(14)
-        let expiry = BigUInt("0")!
+        let expiry = BigUInt("0")
 
         let token = Token(
             contract: AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!,

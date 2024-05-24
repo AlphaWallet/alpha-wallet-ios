@@ -47,6 +47,7 @@ target 'AlphaWallet' do # rubocop:disable Metrics/BlockLength
   pod 'SwiftLint', '0.50.3', configuration: 'Debug'
   pod 'SwiftFormat/CLI', '~> 0.49', configuration: 'Debug'
   pod 'Firebase/Crashlytics'
+  # TODO: maybe can remove this. Is this v1?
   pod 'WalletConnectSwift', git: 'https://github.com/AlphaWallet/WalletConnectSwift.git', branch: 'alphaWallet'
   pod 'Starscream', '3.1.1'
 
@@ -54,6 +55,7 @@ target 'AlphaWallet' do # rubocop:disable Metrics/BlockLength
     inherit! :search_paths
     # Pods for testing
     pod 'iOSSnapshotTestCase', '6.2.0'
+    pod 'BigInt', '~> 3.1'
   end
 end
 

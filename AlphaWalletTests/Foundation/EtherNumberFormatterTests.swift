@@ -49,7 +49,7 @@ class EtherNumberFormatterTests: XCTestCase {
             formatter.maximumFractionDigits = 4
             return formatter
         }()
-        XCTAssertEqual(formatter3.string(from: BigInt("819947500000000000")!), "0.81")
+        XCTAssertEqual(formatter3.string(from: BigInt("819947500000000000")), "0.81")
     }
 
     func testMinimumFractionDigits() {
@@ -71,18 +71,18 @@ class EtherNumberFormatterTests: XCTestCase {
     }
 
     func testDigits() {
-        let number = BigInt("1234567890123456789012345678901")!
+        let number = BigInt("1234567890123456789012345678901")
         XCTAssertEqual(fullFormatter.string(from: number), "1,234,567,890,123.456789012345678901")
         XCTAssertEqual(shortFormatter.string(from: number), "1,234,567,890,123.4567")
     }
 
     func testDigits2() {
-        let number = BigInt("819947500000000000")!
+        let number = BigInt("819947500000000000")
         XCTAssertEqual(shortFormatter.string(from: number), "0.8199")
     }
 
     func testDigits3() {
-        let number = BigInt("165700487753527")!
+        let number = BigInt("165700487753527")
         XCTAssertEqual(shortFormatter.string(from: number), "0.0001")
     }
 
@@ -93,28 +93,28 @@ class EtherNumberFormatterTests: XCTestCase {
             formatter.maximumFractionDigits = 0
             return formatter
         }()
-        let number = BigInt("1000000000000000")!
+        let number = BigInt("1000000000000000")
         XCTAssertEqual(formatter.string(from: number), "0")
     }
 
     func testNegative() {
-        let number = BigInt("-437258644730000000000")!
+        let number = BigInt("-437258644730000000000")
         XCTAssertEqual(fullFormatter.string(from: number), "-437.25864473")
         XCTAssertEqual(shortFormatter.string(from: number), "-437.2586")
     }
 
     func testRound() {
-        let number = BigInt("123456789012345678901")!
+        let number = BigInt("123456789012345678901")
         XCTAssertEqual(shortFormatter.string(from: number), "123.4567")
     }
 
     func testRoundNegative() {
-        let number = BigInt("-123456789012345678901")!
+        let number = BigInt("-123456789012345678901")
         XCTAssertEqual(shortFormatter.string(from: number), "-123.4567")
     }
 
     func testDecimals() {
-        let number = BigInt("987654321")!
+        let number = BigInt("987654321")
         XCTAssertEqual(shortFormatter.string(from: number, decimals: 4), "98,765.4321")
     }
 

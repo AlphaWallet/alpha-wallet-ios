@@ -45,7 +45,7 @@ class TokenBalanceTests: XCTestCase {
         _cancelable2 = pipeline
                 .tokenViewModelPublisher(for: token)
                 .sink { value in
-                    if value?.balance.value == BigUInt("3000000020224719101120")! {
+                    if value?.balance.value == BigUInt("3000000020224719101120") {
                         if _cancelable2 != nil {
                             _cancelable2?.cancel()
                             _cancelable2 = nil
@@ -54,7 +54,7 @@ class TokenBalanceTests: XCTestCase {
                     }
                 }
 
-        let task2 = tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")!), for: token)
+        let task2 = tokensService.setBalanceTestsOnly(balance: .init(value: BigUInt("3000000020224719101120")), for: token)
         _ = await task2.value
         await fulfillment(of: [tokenBalanceUpdateCallbackExpectation2], timeout: 2)
 
