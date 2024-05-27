@@ -1,9 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
-import Foundation
 import BigInt
+import Foundation
 
-public struct GasPriceConfiguration {
+public enum GasPriceConfiguration {
     public static let defaultPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "9", units: UnitConfiguration.gasPriceUnit)!)
     public static let minPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!)
     public static let oneGwei: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!)
