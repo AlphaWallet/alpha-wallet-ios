@@ -1,12 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import AlphaWalletAttestation
 import AlphaWalletAddress
+import AlphaWalletAttestation
 import AlphaWalletCore
+import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
-import AlphaWalletFoundation
+import UIKit
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)
@@ -143,7 +143,7 @@ class TokensCoordinator: Coordinator {
 
         tokensViewController.navigationItem.rightBarButtonItems = [
             moreBarButton,
-            qrCodeBarButton
+            qrCodeBarButton,
         ]
         tokensViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: tokensViewController.blockieImageView)
         tokensViewController.blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
@@ -266,7 +266,6 @@ extension UIPasteboard {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
-
     func buyCryptoSelected(in viewController: UIViewController) {
         delegate?.buyCrypto(wallet: wallet, server: .main, viewController: viewController, source: .walletTab)
     }
@@ -393,7 +392,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 }
 
 extension TokensCoordinator: RenameWalletViewControllerDelegate {
-
     func didFinish(in viewController: RenameWalletViewController) {
         navigationController.popViewController(animated: true)
     }
@@ -474,7 +472,6 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 }
 
 extension TokensCoordinator: NewTokenCoordinatorDelegate {
-
     func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Token) {
         removeCoordinator(coordinator)
     }
@@ -485,7 +482,6 @@ extension TokensCoordinator: NewTokenCoordinatorDelegate {
 }
 
 extension TokensCoordinator: WalletCoordinatorDelegate {
-
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
         removeCoordinator(coordinator)
 
@@ -606,8 +602,7 @@ extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
     }
 }
 
-extension TokensCoordinator: AttestationViewControllerDelegate {
-}
+extension TokensCoordinator: AttestationViewControllerDelegate {}
 
 extension TokensCoordinator: AttestationsViewControllerDelegate {
     func openAttestation(_ attestation: Attestation, fromViewController: AttestationsViewController) {

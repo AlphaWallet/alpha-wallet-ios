@@ -5,14 +5,14 @@
 //  Created by Vladyslav Shepitko on 06.03.2023.
 //
 
-import Foundation
-import UIKit
-import WebKit
-import JavaScriptCore
 import AlphaWalletBrowser
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import Combine
+import Foundation
+import JavaScriptCore
+import UIKit
+import WebKit
 
 struct BrowserViewModelInput {
     let progress: AnyPublisher<Double, Never>
@@ -161,13 +161,12 @@ extension BrowserViewModel: WKScriptMessageHandler {
 }
 
 extension BrowserViewModel {
-
     enum KeyboardAction {
         case hideKeyboard
         case adjustBottomInset(height: CGFloat)
     }
 
-    struct Keys {
+    enum Keys {
         static let developerExtrasEnabled = "developerExtrasEnabled"
         static let ClientName = "AlphaWallet"
     }

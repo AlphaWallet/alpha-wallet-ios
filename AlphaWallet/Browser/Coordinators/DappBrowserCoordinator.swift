@@ -1,11 +1,11 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import Combine
-import UIKit
-import WebKit
 import AlphaWalletBrowser
 import AlphaWalletCore
 import AlphaWalletFoundation
+import Combine
+import UIKit
+import WebKit
 
 protocol DappBrowserCoordinatorDelegate: DappRequesterDelegate, CanOpenURL {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
@@ -65,7 +65,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
          wallet: Wallet,
          networkService: NetworkService,
          serversProvider: ServersProvidable) {
-
         self.serversProvider = serversProvider
         self.networkService = networkService
         self.wallet = wallet
@@ -133,7 +132,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                         delegate: DappBrowserCoordinatorDelegate,
                                         callbackId: Int,
                                         transaction: UnconfirmedTransaction) {
-
         delegate.requestSignTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
@@ -148,7 +146,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                         delegate: DappBrowserCoordinatorDelegate,
                                         callbackId: Int,
                                         transaction: UnconfirmedTransaction) {
-
         delegate.requestSendTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .signThenSend))
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
@@ -166,7 +163,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                 to: AlphaWallet.Address?,
                                 value: String?,
                                 data: String) {
-
         delegate.requestEthCall(from: from, to: to, value: value, data: data, source: .dappBrowser, session: session)
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure(let error) = result else { return }
@@ -225,7 +221,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                     delegate: DappBrowserCoordinatorDelegate,
                                     message: SignMessageType,
                                     callbackId: Int) {
-
         validateMessage(session: session, message: message)
             .flatMap { _ in
                 delegate.requestSignMessage(
@@ -308,7 +303,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             (action: addBookmarkAction, flag: !browserOnly),
             (action: switchNetworkAction, flag: !browserOnly),
             (action: scanQrCodeAction, flag: !browserOnly),
-            (action: cancelAction, flag: true)
+            (action: cancelAction, flag: true),
         ]
 
         for each in mappedAlertActionsToDisplay {
@@ -407,7 +402,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                        delegate: DappBrowserCoordinatorDelegate,
                                        callbackId: Int,
                                        customChain: WalletAddEthereumChainObject) {
-
         delegate.requestAddCustomChain(server: server, customChain: customChain)
             .sink(receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
@@ -434,7 +428,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                     delegate: DappBrowserCoordinatorDelegate,
                                     callbackId: Int,
                                     targetChain: WalletSwitchEthereumChainObject) {
-
         delegate.requestSwitchChain(server: server, currentUrl: currentUrl, targetChain: targetChain)
             .sink(receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
@@ -461,7 +454,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 // swiftlint:enable type_body_length
 
 extension DappBrowserCoordinator: BrowserViewControllerDelegate {
-
     private func performDappAction(action: DappAction,
                                    callbackId: Int,
                                    session: WalletSession,
@@ -568,7 +560,6 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
     func didVisitURL(url: URL, title: String, in viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
         if let mostRecentUrl = browserHistoryStorage.firstHistoryRecord?.url, mostRecentUrl == url {
-
         } else {
             browserHistoryStorage.addRecord(url: url, title: title)
         }
@@ -656,7 +647,6 @@ extension DappBrowserCoordinator: WKUIDelegate {
 }
 
 extension DappBrowserCoordinator: BrowserHomeViewControllerDelegate {
-
     private func showMyDapps() {
         logShowDapps()
         let viewController = createMyDappsViewController()
@@ -693,7 +683,6 @@ extension DappBrowserCoordinator: BrowserHomeViewControllerDelegate {
 }
 
 extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
-
     private func createEditBookmarkViewController(bookmark: BookmarkObject) -> EditBookmarkViewController {
         let viewModel = EditBookmarkViewModel(bookmark: bookmark, bookmarksStore: bookmarksStore)
         let viewController = EditBookmarkViewController(viewModel: viewModel)
@@ -721,7 +710,6 @@ extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
 }
 
 extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
-
     func didTapHome(sender: UIView, in navigationBar: DappBrowserNavigationBar) {
         if let url = config.homePageURL {
             open(url: url, animated: true)
@@ -773,7 +761,6 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 }
 
 extension DappBrowserCoordinator: EditBookmarkViewControllerDelegate {
-
     func didSave(in viewController: EditBookmarkViewController) {
         browserNavBar?.setBrowserBar(hidden: false)
 

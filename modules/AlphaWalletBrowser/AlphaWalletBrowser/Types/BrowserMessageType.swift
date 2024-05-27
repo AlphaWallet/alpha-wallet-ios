@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 30.08.2022.
 //
 
+import AlphaWalletLogger
 import Foundation
 import WebKit
-import AlphaWalletLogger
 
 public enum Browser {
     public static let locationChangedEventName = "locationChanged"
