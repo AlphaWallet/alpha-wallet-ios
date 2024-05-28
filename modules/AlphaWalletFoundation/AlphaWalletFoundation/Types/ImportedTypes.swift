@@ -1,6 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
 import AlphaWalletCore
+public typealias AddressAndRPCServer = AlphaWalletCore.AddressAndRPCServer
 public typealias CustomRPC = AlphaWalletCore.CustomRPC
 public typealias NetworkService = AlphaWalletCore.NetworkService
 public typealias RPCServer = AlphaWalletCore.RPCServer

@@ -7,6 +7,8 @@
 
 import Foundation
 
+import AlphaWalletAddress
+
 public struct AddressAndRPCServer: Hashable, Codable, CustomStringConvertible {
     public let address: AlphaWallet.Address
     public let server: RPCServer
