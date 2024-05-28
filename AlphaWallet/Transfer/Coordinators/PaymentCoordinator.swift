@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit
-import Combine
 import AlphaWalletCore
 import AlphaWalletFoundation
+import Combine
+import Foundation
+import UIKit
 
 protocol PaymentCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator)
@@ -60,7 +60,6 @@ class PaymentCoordinator: Coordinator {
          transactionDataStore: TransactionDataStore,
          tokenImageFetcher: TokenImageFetcher,
          tokensService: TokensService) {
-
         self.tokensService = tokensService
         self.tokenImageFetcher = tokenImageFetcher
         self.transactionDataStore = transactionDataStore
@@ -262,7 +261,6 @@ class PaymentCoordinator: Coordinator {
 }
 
 extension PaymentCoordinator: SwapTokensCoordinatorDelegate {
-
     func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator) {
         delegate?.didFinish(result, in: self)
     }

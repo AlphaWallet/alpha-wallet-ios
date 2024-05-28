@@ -5,10 +5,10 @@
 //  Created by Vladyslav Shepitko on 31.01.2022.
 //
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 import BigInt
+import Foundation
 import SwiftyJSON
 
 struct NftAssetsFilter {

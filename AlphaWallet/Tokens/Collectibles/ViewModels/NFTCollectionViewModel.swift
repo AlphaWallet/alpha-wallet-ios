@@ -6,11 +6,11 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Foundation
-import BigInt
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletTokenScript
+import BigInt
+import Combine
+import Foundation
 
 struct NFTCollectionViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
@@ -71,7 +71,6 @@ final class NFTCollectionViewModel {
          nftProvider: NFTProvider,
          config: Config,
          tokenImageFetcher: TokenImageFetcher) {
-
         self.config = config
         self.activitiesService = activitiesService
         self.nftProvider = nftProvider
@@ -121,7 +120,7 @@ final class NFTCollectionViewModel {
                 return URL(string: "https://opensea.io/collection/\(collection.id)")
             }
         }.map { $0.flatMap { [NonFungibleTokenAction.openInUrl(url: $0)] } ?? [] }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func refreshTokenHolders(input: AnyPublisher<Void, Never>) -> AnyPublisher<Loadable<Void, Error>, Never> {

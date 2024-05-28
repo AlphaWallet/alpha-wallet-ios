@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 30.03.2020.
 //
 
-import Foundation
 import BigInt
+import Foundation
 
 public protocol TokenScriptOverridesSupportable {
     var tokenScriptOverrides: TokenScriptOverrides? { get }
@@ -16,7 +16,7 @@ public protocol TokenBalanceSupportable {
     var balance: BalanceViewModel { get }
 }
 
-public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable { }
+public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable {}
 
 public protocol TokenSortable {
     var name: String { get }
@@ -194,7 +194,6 @@ public class TokensFilter {
     }
 
     public func sortDisplayedTokens<T>(tokens: [T]) -> [T] where T: TokenSortable & TokenBalanceSupportable {
-
         func sortTokensByFiatValues(_ token1: T, _ token2: T) -> Bool {
             let value1 = token1.balance.ticker.flatMap { ticker in
                 TickerHelper(ticker: ticker).fiatValue(value: token1.valueDecimal)
@@ -258,7 +257,6 @@ public class TokensFilter {
 }
 
 fileprivate extension TokenFilterable {
-
     var nonZeroBalance: [TokenBalanceValue] {
         return Array(balanceNft.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
     }

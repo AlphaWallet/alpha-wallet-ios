@@ -1,11 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletLogger
 import CryptoKit
+import Foundation
 
 public class AssetDefinitionDiskBackingStore {
     public static let officialDirectoryName = "assetDefinitions"

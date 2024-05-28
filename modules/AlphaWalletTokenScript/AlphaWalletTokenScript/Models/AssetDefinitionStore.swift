@@ -1,11 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Combine
 import AlphaWalletAddress
 import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletWeb3
+import Combine
 import PromiseKit
 
 fileprivate enum AttestationOrToken {
@@ -199,35 +199,35 @@ public class AssetDefinitionStore: NSObject {
 
         return await withCheckedContinuation { continuation in
             networking.fetchXml(request: request)
-                    .sinkAsync(receiveCompletion: { _ in
-                        //no-op
-                    }, receiveValue: { [weak self] response in
-                        guard let strongSelf = self else {
-                            continuation.resume(returning: ())
-                            return
-                        }
+                .sinkAsync(receiveCompletion: { _ in
+                    //no-op
+                }, receiveValue: { [weak self] response in
+                    guard let strongSelf = self else {
+                        continuation.resume(returning: ())
+                        return
+                    }
 
-                        switch response {
-                        case .error:
+                    switch response {
+                    case .error:
+                        continuation.resume(returning: ())
+                        return
+                    case .unmodified:
+                        continuation.resume(returning: ())
+                        return
+                    case .xml(let xml):
+                        //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
+                        if xml == strongSelf.backingStore.getXml(byScriptUri: url) {
                             continuation.resume(returning: ())
                             return
-                        case .unmodified:
+                        } else if functional.isTruncatedXML(xml: xml) {
                             continuation.resume(returning: ())
                             return
-                        case .xml(let xml):
-                            //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
-                            if xml == strongSelf.backingStore.getXml(byScriptUri: url) {
-                                continuation.resume(returning: ())
-                                return
-                            } else if functional.isTruncatedXML(xml: xml) {
-                                continuation.resume(returning: ())
-                                return
-                            } else {
-                                strongSelf.handleDownloadedOfficialTokenScript(fromUrl: url, xml: xml, urlSource: AttestationOrToken.attestation(attestation))
-                                continuation.resume(returning: ())
-                            }
+                        } else {
+                            strongSelf.handleDownloadedOfficialTokenScript(fromUrl: url, xml: xml, urlSource: AttestationOrToken.attestation(attestation))
+                            continuation.resume(returning: ())
                         }
-                    })
+                    }
+                })
         }
     }
 

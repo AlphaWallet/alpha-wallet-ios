@@ -6,20 +6,19 @@
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
-import Combine
-import Foundation
 import AlphaWalletOpenSea
 import AlphaWalletTokenScript
 import BigInt
+import Combine
+import Foundation
 
-extension TokenHolder: ObservableObject { }
+extension TokenHolder: ObservableObject {}
 
 private var subjectCancellableKey: Void?
 extension TokenHolder {
-
     fileprivate var cancellable: Cancellable? {
-      get { objc_getAssociatedObject(self, &subjectCancellableKey) as? Cancellable }
-      set { objc_setAssociatedObject(self, &subjectCancellableKey, newValue, .OBJC_ASSOCIATION_RETAIN) }
+        get { objc_getAssociatedObject(self, &subjectCancellableKey) as? Cancellable }
+        set { objc_setAssociatedObject(self, &subjectCancellableKey, newValue, .OBJC_ASSOCIATION_RETAIN) }
     }
 }
 
@@ -33,7 +32,6 @@ public struct TokenAdaptor {
                 eventsDataStore: NonActivityEventsDataStore,
                 wallet: Wallet,
                 nftProvider: NFTProvider) {
-
         self.nftProvider = nftProvider
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
@@ -72,7 +70,7 @@ public struct TokenAdaptor {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = assetDefinitionStore.xmlHandler(forContract: token.contractAddress, tokenType: token.type)
-            //TODO Event support, if/when designed for fungibles
+        //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: token.server, account: wallet.address)
         let tokenScriptToken = TokenScript.Token(
             tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
@@ -310,21 +308,21 @@ public struct TokenAdaptor {
             status = .available
         }
         return TokenScript.Token(
-                tokenIdOrEvent: tokenIdOrEvent,
-                tokenType: nonFungible.tokenType.asTokenType,
-                index: 0,
-                name: nonFungible.contractName,
-                symbol: "",
-                status: status,
-                values: values)
+            tokenIdOrEvent: tokenIdOrEvent,
+            tokenType: nonFungible.tokenType.asTokenType,
+            index: 0,
+            name: nonFungible.contractName,
+            symbol: "",
+            status: status,
+            values: values)
     }
 
     private func getTokenHolder(for tokens: [TokenScript.Token], token: TokenScriptSupportable) -> TokenHolder {
         let xmlHandler = xmlHandler(token: token)
         return TokenHolder(
-                tokens: tokens,
-                contractAddress: token.contractAddress,
-                hasAssetDefinition: xmlHandler.hasAssetDefinition)
+            tokens: tokens,
+            contractAddress: token.contractAddress,
+            hasAssetDefinition: xmlHandler.hasAssetDefinition)
     }
 
 }

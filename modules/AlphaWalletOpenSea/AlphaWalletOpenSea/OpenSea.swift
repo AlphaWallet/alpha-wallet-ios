@@ -5,11 +5,11 @@
 //  Created by Hwee-Boon Yar on Apr/29/22.
 //
 
-import Combine
+import Alamofire
 import AlphaWalletAddress
 import AlphaWalletCore
-import Alamofire
 import BigInt
+import Combine
 import SwiftyJSON
 
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [NftAsset]]
@@ -45,7 +45,6 @@ public protocol Networking {
 }
 
 final class OpenSeaRetryPolicy: RetryPolicy {
-
     init() {
         super.init(retryableHTTPStatusCodes: Set([429, 408, 500, 502, 503, 504]))
     }
@@ -54,7 +53,6 @@ final class OpenSeaRetryPolicy: RetryPolicy {
                         for session: Session,
                         dueTo error: Error,
                         completion: @escaping (RetryResult) -> Void) {
-
         if request.retryCount < retryLimit, shouldRetry(request: request, dueTo: error) {
             if let httpResponse = request.response, let delay = OpenSeaRetryPolicy.retryDelay(from: httpResponse) {
                 completion(.retryWithDelay(delay))
@@ -72,7 +70,6 @@ final class OpenSeaRetryPolicy: RetryPolicy {
 }
 
 public class OpenSeaNetworking: Networking {
-
     //Important to be static so it's for *all* OpenSea calls
     private static let callCounter = CallCounter()
     private let rootQueue = DispatchQueue(label: "org.alamofire.customQueue")
@@ -155,7 +152,7 @@ public final actor BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
     private var networkings: [URL: Networking] = [:]
 
     public static let shared = BaseOpenSeaNetworkingFactory()
-    private init() { }
+    private init() {}
 
     public func networking(for server: RPCServer) async -> Networking {
         var networking: Networking!
@@ -175,7 +172,7 @@ public class OpenSea {
     private let networking: OpenSeaNetworkingFactory
     private let apiKeys: [RPCServer: String]
 
-    weak public var delegate: OpenSeaDelegate?
+    public weak var delegate: OpenSeaDelegate?
 
     public init(apiKeys: [RPCServer: String], networking: OpenSeaNetworkingFactory = BaseOpenSeaNetworkingFactory.shared) {
         self.apiKeys = apiKeys
@@ -277,7 +274,7 @@ public class OpenSea {
         return asFutureThrowable {
             try await self.sendAsync(request: request, server: server)
         }.mapError { OpenSeaApiError(error: $0) }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func sendAsync(request: Alamofire.URLRequestConvertible, server: RPCServer) async throws -> JSON {
@@ -482,7 +479,7 @@ extension OpenSea {
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
             var parameters: Parameters = [
-                "limit": String(limit)
+                "limit": String(limit),
             ]
             if let next {
                 parameters["next"] = next
