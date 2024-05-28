@@ -24,4 +24,3 @@ public struct AddressAndOptionalRPCServer: Hashable, Codable, CustomStringConver
         self.server = server
     }
 }
-
