@@ -21,6 +21,7 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
     func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator)
     func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
+    func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController?
 }
 
 class SingleChainTokenCoordinator: Coordinator {
@@ -165,6 +166,10 @@ extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: NFTCollectionCoordinator) {
         delegate?.didPostTokenScriptTransaction(transaction, in: self)
+    }
+
+    func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController? {
+        return delegate?.tokenScriptViewController(tokenHolder: tokenHolder, tokenId: tokenId, server: server)
     }
 }
 

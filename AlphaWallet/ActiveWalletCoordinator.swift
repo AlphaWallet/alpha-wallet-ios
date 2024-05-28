@@ -575,6 +575,15 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         }
         return isSuccessful
     }
+
+    private func createBrowserViewController(url: URL) -> UIViewController {
+        //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
+        let browserCoordinator = createBrowserCoordinator(browserOnly: true)
+        let controller = browserCoordinator.navigationController
+        browserCoordinator.open(url: url, animated: false)
+        controller.makePresentationFullScreenForiOS13Migration()
+        return controller
+    }
 }
 
 extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
@@ -686,11 +695,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
 extension ActiveWalletCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
-        //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
-        let browserCoordinator = createBrowserCoordinator(browserOnly: true)
-        let controller = browserCoordinator.navigationController
-        browserCoordinator.open(url: url, animated: false)
-        controller.makePresentationFullScreenForiOS13Migration()
+        let controller = createBrowserViewController(url: url)
         viewController.present(controller, animated: true)
     }
 
@@ -1097,6 +1102,11 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
             infoLog("Attestation: \(attestation) for wallet: \(String(describing: attestation.recipient)) recipient is nil. Importing…")
             return await importAttestation(attestation, intoWallet: wallet.address)
         }
+    }
+
+    func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController {
+        let url = URL(string: "https://viewer.tokenscript.org/?viewType=alphawallet&chain=\(server.chainID)&contract=\(tokenHolder.contractAddress.eip55String)&tokenId=\(tokenId)")!
+        return createBrowserViewController(url: url)
     }
 }
 

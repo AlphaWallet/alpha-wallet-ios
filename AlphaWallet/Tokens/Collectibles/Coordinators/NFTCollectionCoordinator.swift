@@ -20,6 +20,7 @@ protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator)
     func didTap(transaction: Transaction, in coordinator: NFTCollectionCoordinator)
     func didTap(activity: Activity, in coordinator: NFTCollectionCoordinator)
+    func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController?
 }
 
 class NFTCollectionCoordinator: NSObject, Coordinator {
@@ -86,6 +87,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
          currencyService: CurrencyService,
          tokenImageFetcher: TokenImageFetcher,
          tokenActionsProvider: SupportedTokenActionsProvider) {
+        assetDefinitionStore.prefetchHasTokenScript(contract: token.contractAddress, server: session.server)
         self.tokenActionsProvider = tokenActionsProvider
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
@@ -167,15 +169,20 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     private func showNftAsset(tokenHolder: TokenHolder,
                               mode: NFTAssetViewModel.InterationMode = .interactive,
                               navigationController: UINavigationController?) {
-        let vc: UIViewController
-        switch tokenHolder.type {
-        case .collectible:
-            vc = createNFTAssetListViewController(tokenHolder: tokenHolder)
-        case .single:
-            vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, mode: mode)
+        Task { @MainActor in
+            let vc: UIViewController
+            switch tokenHolder.type {
+            case .collectible:
+                vc = createNFTAssetListViewController(tokenHolder: tokenHolder)
+            case .single:
+                vc = await createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, mode: mode)
+            }
+            if vc is UINavigationController {
+                navigationController?.present(vc, animated: true)
+            } else {
+                navigationController?.pushViewController(vc, animated: true)
+            }
         }
-
-        navigationController?.pushViewController(vc, animated: true)
     }
 
     private func createNFTAssetListViewController(tokenHolder: TokenHolder) -> NFTAssetListViewController {
@@ -191,9 +198,14 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         return viewController
     }
 
-    private func createNFTAssetViewController(tokenHolder: TokenHolder,
-                                              tokenId: TokenId,
-                                              mode: NFTAssetViewModel.InterationMode = .interactive) -> UIViewController {
+    @MainActor private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: NFTAssetViewModel.InterationMode = .interactive) async -> UIViewController {
+        let hasTokenScript = await assetDefinitionStore.hasTokenScript(contract: tokenHolder.contractAddress, server: session.server)
+        if hasTokenScript {
+            if let tokenScriptViewer = delegate?.tokenScriptViewController(tokenHolder: tokenHolder, tokenId: tokenId, server: session.server) {
+                return tokenScriptViewer
+            }
+        }
+
         let viewModel = NFTAssetViewModel(
             tokenId: tokenId,
             token: token,
@@ -226,15 +238,19 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     }
 
     func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
-        let vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
-        viewController.navigationController?.pushViewController(vc, animated: true)
+        Task { @MainActor in
+            let vc = await createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
+            viewController.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 
 extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
     func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenHolder: TokenHolder, tokenId: TokenId) {
-        let vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenId)
-        viewController.navigationController?.pushViewController(vc, animated: true)
+        Task { @MainActor in
+            let vc = await createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenId)
+            viewController.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 

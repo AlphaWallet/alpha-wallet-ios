@@ -151,6 +151,7 @@ public class TokensFilter {
                     filteredTokens = tokens.filter { ($0.hasNonZeroBalance).toggleIf(isNegate: isNegate) }
                 }
             case .tokenscript(let isNegate):
+                //TODO this is broken for when the TokenScript is available via /script-uri since it doesn't check by that
                 filteredTokens = tokens.filter { each in
                     let result: Bool = {
                         guard let overrides = each.tokenScriptOverrides else { return false }

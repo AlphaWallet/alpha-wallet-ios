@@ -46,6 +46,7 @@ public class AssetDefinitionStore: NSObject {
     private let tokenScriptStatusResolver: TokenScriptStatusResolver
     private let baseTokenScriptFiles: BaseTokenScriptFiles
     private let blockchainsProvider: BlockchainsProvider
+    private let launchpadScriptURIChecker = LaunchpadScriptURIChecker()
 
     public let assetAttributeResolver: AssetAttributeResolver
     public var listOfBadTokenScriptFiles: AnyPublisher<[Filename], Never> {
@@ -323,6 +324,15 @@ public class AssetDefinitionStore: NSObject {
         } else {
             return false
         }
+    }
+
+    //This checks /script-uri instead of our the older by standard TokenScript repo. So it means local TokenScript overriding is broken if /script-uri already returns a URL
+    public func hasTokenScript(contract: AlphaWallet.Address, server: RPCServer) async -> Bool {
+        return await launchpadScriptURIChecker.hasTokenScript(contract: contract, server: server)
+    }
+
+    public func prefetchHasTokenScript(contract: AlphaWallet.Address, server: RPCServer) {
+        launchpadScriptURIChecker.prefetchHasTokenScript(contract: contract, server: server)
     }
 
     //Test only
