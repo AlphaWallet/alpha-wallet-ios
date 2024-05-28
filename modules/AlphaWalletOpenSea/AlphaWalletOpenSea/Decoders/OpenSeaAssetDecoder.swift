@@ -62,7 +62,7 @@ extension NftAsset {
         guard let contract = AlphaWallet.Address(string: json["contract"].stringValue) else { return nil }
         //Some results from OpenSea are .erc20. We exclude those
         guard let tokenType = NonFungibleFromJsonTokenType(rawValue: json["token_standard"].stringValue) else { return nil }
-        let tokenId = json["token_id"].stringValue
+        let tokenId = json["identifier"].string ?? json["token_id"].stringValue
         let decimals: Int = 0
         let value: BigInt
         switch tokenType {
