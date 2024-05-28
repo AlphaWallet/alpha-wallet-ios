@@ -44,7 +44,6 @@ public struct TokenMappedToTicker {
 }
 
 extension TokenMappedToTicker: Hashable, Codable {
-
     public init(token: Token) {
         symbol = token.symbol
         name = token.name
@@ -55,7 +54,6 @@ extension TokenMappedToTicker: Hashable, Codable {
 }
 
 extension TokenMappedToTicker: Equatable {
-
     /// Checks for matching of ticker id
     public static func == (lhs: TokenMappedToTicker, rhs: AddressAndRPCServer) -> Bool {
         return lhs.contractAddress == rhs.address && lhs.server == rhs.server

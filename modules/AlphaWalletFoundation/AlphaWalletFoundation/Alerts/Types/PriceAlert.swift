@@ -23,7 +23,6 @@ public struct PriceAlert {
 }
 
 extension AlertType: Codable, Hashable {
-
     private enum CodingKeys: String, CodingKey {
         case priceTarget
         case value
@@ -54,7 +53,6 @@ extension AlertType: Codable, Hashable {
 }
 
 extension PriceAlert: Codable, Hashable, Equatable {
-
     public init(type: AlertType, token: Token, isEnabled: Bool) {
         self.addressAndRPCServer = token.addressAndRPCServer
         self.type = type

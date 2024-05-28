@@ -1,10 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
+
 import AlphaWalletOpenSea
+
 import BigInt
 import RealmSwift
-import Combine
 
 public enum DataStoreError: Error {
     case objectTypeMismatch
@@ -34,7 +36,6 @@ public protocol TokensDataStore: NSObjectProtocol {
 }
 
 extension TokensDataStore {
-
     @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenFieldUpdate) async -> Bool? {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: addressAndRpcServer.address, server: addressAndRpcServer.server)
         return await updateToken(primaryKey: primaryKey, action: action)
@@ -56,11 +57,11 @@ extension TokensDataStore {
     func enabledTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
         return tokensChangesetPublisher(for: servers, predicate: nil)
             .map { changeset in
-                  switch changeset {
-                  case .initial(let tokens): return tokens
-                  case .update(let tokens, _, _, _): return tokens
-                  case .error: return []
-                  }
+                switch changeset {
+                case .initial(let tokens): return tokens
+                case .update(let tokens, _, _, _): return tokens
+                case .error: return []
+                }
             }.eraseToAnyPublisher()
     }
 }
@@ -609,7 +610,6 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 // swiftlint:enable type_body_length
 
 extension TokenObject {
-
     convenience init(ercToken token: ErcToken, shouldUpdateBalance: Bool) {
         self.init(contract: token.contract, server: token.server, name: token.name, symbol: token.symbol, decimals: token.decimals, value: token.value.description, isCustom: true, type: token.type)
 
@@ -663,20 +663,20 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             contractPredicate(contract: contract),
             isDisabledPredicate(isDisabled: isDisabled),
-            chainIdPredicate(servers: [server])
+            chainIdPredicate(servers: [server]),
         ])
     }
 
     static func tokenPredicate(server: RPCServer, contract: AlphaWallet.Address) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             contractPredicate(contract: contract),
-            chainIdPredicate(servers: [server])
+            chainIdPredicate(servers: [server]),
         ])
     }
 
     static func tokenPredicate(contract: AlphaWallet.Address) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
-            contractPredicate(contract: contract)
+            contractPredicate(contract: contract),
         ])
     }
 
@@ -684,7 +684,7 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isDisabledPredicate(isDisabled: isDisabled),
             chainIdPredicate(servers: servers),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
@@ -692,26 +692,26 @@ extension MultipleChainsTokensDataStore.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isDisabledPredicate(isDisabled: isDisabled),
             chainIdPredicate(servers: servers),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
     static func nonEmptyContractTokenPredicate(server: RPCServer) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(servers: [server]),
-            nonEmptyContractPredicate()
+            nonEmptyContractPredicate(),
         ])
     }
 
     public static func etherToken(forServer server: RPCServer) -> Token {
         return Token(
-                contract: Constants.nativeCryptoAddressInDatabase,
-                server: server,
-                name: server.name,
-                symbol: server.symbol,
-                decimals: server.decimals,
-                value: .zero,
-                type: .nativeCryptocurrency
+            contract: Constants.nativeCryptoAddressInDatabase,
+            server: server,
+            name: server.name,
+            symbol: server.symbol,
+            decimals: server.decimals,
+            value: .zero,
+            type: .nativeCryptocurrency
         )
     }
 
