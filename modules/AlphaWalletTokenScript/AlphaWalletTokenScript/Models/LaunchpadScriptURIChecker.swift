@@ -1,18 +1,19 @@
 // Copyright © 2024 Stormbird PTE. LTD.
 
-import Alamofire
 import AlphaWalletAddress
 import AlphaWalletCore
+
+import Alamofire
 
 fileprivate struct LaunchpadScriptURI: Decodable {
     let scriptURI: [String: [String]?]
 }
 
 public class LaunchpadScriptURIChecker {
-    private var cacheHasTokenScript: [AddressAndOptionalRPCServer: Bool] = [:]
+    private var cacheHasTokenScript: [AddressAndRPCServer: Bool] = [:]
 
     public func hasTokenScript(contract: AlphaWallet.Address, server: RPCServer) async -> Bool {
-        let key = AddressAndOptionalRPCServer(address: contract, server: server)
+        let key = AddressAndRPCServer(address: contract, server: server)
         if let result = cacheHasTokenScript[key] {
             return result
         }
