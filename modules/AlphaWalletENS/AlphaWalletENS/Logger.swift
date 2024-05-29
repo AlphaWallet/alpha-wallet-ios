@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ens")
 
 func verboseLog(_ message: Any, callerFunctionName: String = #function) {
     guard ENS.isLoggingEnabled else { return }
-    NSLog("\(message) from: \(callerFunctionName)")
+    logger.debug("\(String(describing: message)) from: \(callerFunctionName)")
 }
