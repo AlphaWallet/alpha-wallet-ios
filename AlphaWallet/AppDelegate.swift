@@ -1,8 +1,11 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import AlphaWalletNotifications
-import BigInt
 import UIKit
+
+import AlphaWalletLogger
+import AlphaWalletNotifications
+
+import BigInt
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         //Keep this log because it's really useful for debugging things without requiring a new TestFlight/app store submission
-        NSLog("--- Application launched with launchOptions: \(String(describing: launchOptions)) with documents directory: \(URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]))")
+        infoLog("--- Application launched with launchOptions: \(String(describing: launchOptions)) with documents directory: \(URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]))")
 
         self.application = Application.shared
         UNUserNotificationCenter.current().delegate = self
@@ -51,12 +54,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // URI scheme links and AirDrop
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         //Keep this log because it's really useful for debugging things without requiring a new TestFlight/app store submission
-        NSLog("Application open url: \(url.absoluteString) options: \(options)")
+        infoLog("Application open url: \(url.absoluteString) options: \(options)")
         return self.application.applicationOpenUrl(url, options: options)
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        NSLog("Application open userActivity: \(userActivity)")
+        infoLog("Application open userActivity: \(userActivity)")
         return self.application.applicationContinueUserActivity(userActivity, restorationHandler: restorationHandler)
     }
 
@@ -69,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async -> UIBackgroundFetchResult {
-        NSLog("Application receive remote notification: \(userInfo)")
+        infoLog("Application receive remote notification: \(userInfo)")
 
         let task: BackgroundTaskIdentifier?
         switch UIApplication.shared.applicationState {
