@@ -10,7 +10,6 @@ import UIKit
 @objc(ShareContextHandler)
 @available(iOSApplicationExtension, unavailable)
 class ShareContextHandler: UIResponder, NSExtensionRequestHandling {
-
     enum AnyError: Error {
         case canceled
     }
