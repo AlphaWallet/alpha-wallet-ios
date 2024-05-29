@@ -8,7 +8,8 @@
 import os.log
 import SafariServices
 
-let SFExtensionMessageKey = "message"
+private let SFExtensionMessageKey = "message"
+
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems[0] as! NSExtensionItem
