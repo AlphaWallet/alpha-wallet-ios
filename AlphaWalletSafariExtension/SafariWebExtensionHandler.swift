@@ -8,13 +8,14 @@
 import os.log
 import SafariServices
 
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "app")
 private let SFExtensionMessageKey = "message"
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems[0] as! NSExtensionItem
         let message = item.userInfo?[SFExtensionMessageKey]
-        os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
+        logger.info("Received message from browser.runtime.sendNativeMessage: \(String(describing: message as! CVarArg))")
 
         let response = NSExtensionItem()
         response.userInfo = [ SFExtensionMessageKey: [ "Response to": message ] ]
