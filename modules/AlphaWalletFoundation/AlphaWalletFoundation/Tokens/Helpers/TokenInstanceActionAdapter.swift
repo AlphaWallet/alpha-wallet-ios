@@ -6,8 +6,10 @@
 //
 
 import Foundation
+
 import AlphaWalletLogger
 import AlphaWalletTokenScript
+
 import BigInt
 
 public struct TokenInstanceActionAdapter {
@@ -20,7 +22,6 @@ public struct TokenInstanceActionAdapter {
                 token: Token,
                 tokenHolder: TokenHolder,
                 tokenActionsProvider: SupportedTokenActionsProvider) {
-
         self.tokenActionsProvider = tokenActionsProvider
         self.session = session
         self.token = token
@@ -44,7 +45,7 @@ public struct TokenInstanceActionAdapter {
                 case .erc875, .erc721ForTickets:
                     results = [
                         .init(type: .nftSell),
-                        .init(type: .nonFungibleTransfer)
+                        .init(type: .nonFungibleTransfer),
                     ]
                 case .nativeCryptocurrency, .erc20:
                     results = []
@@ -66,7 +67,7 @@ public struct TokenInstanceActionAdapter {
                 case .erc20, .nativeCryptocurrency:
                     let actions: [TokenInstanceAction] = [
                         .init(type: .erc20Send),
-                        .init(type: .erc20Receive)
+                        .init(type: .erc20Receive),
                     ]
 
                     return actions + tokenActionsProvider.actions(token: token)
@@ -85,7 +86,7 @@ public struct TokenInstanceActionAdapter {
                         //TODO .erc20Send and .erc20Receive names aren't appropriate
                         let actions: [TokenInstanceAction] = [
                             .init(type: .erc20Send),
-                            .init(type: .erc20Receive)
+                            .init(type: .erc20Receive),
                         ]
 
                         return actions + tokenActionsProvider.actions(token: token)
@@ -97,7 +98,6 @@ public struct TokenInstanceActionAdapter {
 
     public func state(for action: TokenInstanceAction,
                       fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.ActionState {
-
         state(
             for: action,
             selectedTokenHolders: [tokenHolder],
@@ -106,7 +106,6 @@ public struct TokenInstanceActionAdapter {
 
     public func tokenScriptWarningMessage(for action: TokenInstanceAction,
                                           fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.TokenScriptWarningMessage? {
-
         tokenScriptWarningMessage(
             for: action,
             selectedTokenHolders: [tokenHolder],
@@ -116,7 +115,6 @@ public struct TokenInstanceActionAdapter {
     private func tokenScriptWarningMessage(for action: TokenInstanceAction,
                                            selectedTokenHolders: [TokenHolder],
                                            fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.TokenScriptWarningMessage? {
-
         if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
             if let denialMessage = selection.denial {
                 return .warning(string: denialMessage)
@@ -132,7 +130,6 @@ public struct TokenInstanceActionAdapter {
     private func state(for action: TokenInstanceAction,
                        selectedTokenHolders: [TokenHolder],
                        fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.ActionState {
-
         func _configButton(action: TokenInstanceAction) -> TokenInstanceActionAdapter.ActionState {
             if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: fungibleBalance) {
                 if selection.denial == nil {
@@ -156,7 +153,6 @@ public struct TokenInstanceActionAdapter {
 }
 
 extension TokenInstanceActionAdapter {
-
     public enum TokenScriptWarningMessage {
         case warning(string: String)
         case undefined
