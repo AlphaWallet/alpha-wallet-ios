@@ -21,7 +21,7 @@ protocol NonFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
 
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
     private var previewView: NFTPreviewViewRepresentable
-    private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
     private var cancelable = Set<AnyCancellable>()

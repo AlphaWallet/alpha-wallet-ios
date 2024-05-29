@@ -20,7 +20,7 @@ protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
 
 class FungibleTokenDetailsViewController: UIViewController {
     private let containerView: ScrollableStackView = ScrollableStackView()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     private lazy var headerView: FungibleTokenHeaderView = {
         let view = FungibleTokenHeaderView(viewModel: viewModel.headerViewModel)
         view.delegate = self
