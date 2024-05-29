@@ -84,7 +84,7 @@ public enum RPCServer: Hashable, CaseIterable {
             .xDai,
             .binance_smart_chain_testnet,
             .binance_smart_chain,
-            .heco,
+            //.heco, TODO: doesn't seem to work anymore. Remove once confirmed
             //.heco_testnet, TODO: Enable if find another working rpc url
             .fantom,
             .fantom_testnet,
