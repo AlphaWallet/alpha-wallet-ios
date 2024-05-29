@@ -19,6 +19,10 @@ targets:
       - path: AlphaWallet
         excludes:
           - Browser/ViewModel/Dapps.swift
+      - path: AlphaWalletSafariExtension
+        includes:
+            - Resources/config.js
+            - Resources/helpers.js
     scheme:
       configVariants:
     dependencies:
