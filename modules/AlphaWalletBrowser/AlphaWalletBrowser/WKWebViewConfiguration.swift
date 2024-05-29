@@ -302,7 +302,7 @@ extension WKWebViewConfiguration: WKURLSchemeHandler {
 }
 
 private enum HackToAllowUsingSafaryExtensionCodeInDappBrowser {
-    private static func javaScriptForSafaryExtension() -> String {
+    private static func javaScriptForSafariExtension() -> String {
         var js = String()
 
         if let filepath = Bundle.main.path(forResource: "config", ofType: "js"), let content = try? String(contentsOfFile: filepath) {
@@ -319,7 +319,7 @@ private enum HackToAllowUsingSafaryExtensionCodeInDappBrowser {
             let plainData = fromString.data(using: .utf8)
             return plainData?.base64EncodedString(options: [])
         }
-        var js = javaScriptForSafaryExtension()
+        var js = javaScriptForSafariExtension()
         js += """
                     const overridenElementsForAlphaWalletExtension = new Map();
                     function runOnStart() {
