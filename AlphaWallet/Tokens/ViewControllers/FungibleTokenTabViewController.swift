@@ -5,8 +5,9 @@
 //  Created by Vladyslav Shepitko on 20.11.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
+
 import AlphaWalletFoundation
 import AlphaWalletTokenScript
 

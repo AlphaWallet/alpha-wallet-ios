@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import UIKit
-import Combine
 import AlphaWalletFoundation
+import Combine
+import UIKit
 
 protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenDetailsViewController)
@@ -53,7 +53,7 @@ class FungibleTokenDetailsViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
         buttonsBar.viewController = self
@@ -61,9 +61,7 @@ class FungibleTokenDetailsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-
         bind(viewModel: viewModel)
     }
 
@@ -185,7 +183,6 @@ class FungibleTokenDetailsViewController: UIViewController {
 }
 
 extension FungibleTokenDetailsViewController: FungibleTokenHeaderViewDelegate {
-
     func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: viewModel.token.contractAddress, server: viewModel.token.server, in: self)
     }

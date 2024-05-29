@@ -5,8 +5,9 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
 import Combine
+import UIKit
+
 import AlphaWalletFoundation
 
 protocol NonFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
@@ -47,7 +48,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             session: viewModel.session,
             edgeInsets: viewModel.previewEdgeInsets,
             playButtonPositioning: .bottomRight)
-        
+
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)
@@ -68,7 +69,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: view),
-            previewHeightConstraint
+            previewHeightConstraint,
         ])
 
         previewView.configure(params: viewModel.previewViewParams)

@@ -5,9 +5,10 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import Foundation
-import AlphaWalletFoundation
 import Combine
+import Foundation
+
+import AlphaWalletFoundation
 
 protocol FungibleTokenCoordinatorDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: FungibleTokenCoordinator)
