@@ -2,7 +2,7 @@ name: AlphaWallet
 options:
   bundleIdPrefix: com.stormbird
   deploymentTarget:
-    iOS: 13.0
+    iOS: 14.0
 settings:
   base:
     GENERATE_INFOPLIST_FILE: YES

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-platform :ios, '13.0'
+platform :ios, '14.0'
 inhibit_all_warnings!
 source 'https://cdn.cocoapods.org/'
 
@@ -107,7 +107,7 @@ post_install do |installer| # rubocop:disable Metrics/BlockLength
     end
 
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
     end
 
     target.build_configurations
