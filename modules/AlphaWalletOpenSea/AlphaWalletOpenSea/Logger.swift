@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "opensea")
 
 func infoLog(_ message: Any, callerFunctionName: String = #function) {
     guard AlphaWalletOpenSea.OpenSea.isLoggingEnabled else { return }
-    NSLog("\(message) from: \(callerFunctionName)")
+    logger.info("\(String(describing: message)) from: \(callerFunctionName)")
 }
