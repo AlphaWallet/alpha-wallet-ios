@@ -138,10 +138,10 @@ class FungibleTokenCoordinator: Coordinator {
     @MainActor private static func createRootViewController(token: Token, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, sessionsProvider: SessionsProvider, tokenImageFetcher: TokenImageFetcher, activitiesService: ActivitiesServiceType, analytics: AnalyticsLogger, tokensPipeline: TokensProcessingPipeline, tokensService: TokensService, coinTickersProvider: CoinTickersProvider, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService, alertService: PriceAlertServiceType, delegate: FungibleTokenTabViewControllerDelegate & FungibleTokenDetailsViewControllerDelegate & ActivitiesViewControllerDelegate & PriceAlertsViewControllerDelegate, cancelable: inout Set<AnyCancellable>) async -> FungibleTokenTabViewController {
         let viewModel = await FungibleTokenTabViewModel(token: token, session: session, tokensPipeline: tokensPipeline, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
         let viewController = FungibleTokenTabViewController(viewModel: viewModel)
-        let viewControlers = viewModel.tabBarItems.map {
+        let viewControllers = viewModel.tabBarItems.map {
             buildViewController(tabBarItem: $0, analytics: analytics, keystore: keystore, sessionsProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher, activitiesService: activitiesService, token: token, coinTickersProvider: coinTickersProvider, tokensPipeline: tokensPipeline, session: session, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService, alertService: alertService, delegate: delegate, cancelable: &cancelable)
         }
-        viewController.set(viewControllers: viewControlers)
+        viewController.set(viewControllers: viewControllers)
         viewController.delegate = delegate
 
         return viewController
