@@ -1,7 +1,7 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol CoinTickersFetcher {
     func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool, currency: Currency) async
