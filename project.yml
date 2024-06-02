@@ -26,6 +26,7 @@ targets:
     scheme:
       configVariants:
     dependencies:
+      - package: Inject
       - package: WalletConnect
         products: 
           - WalletConnectAuth
@@ -45,6 +46,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.stormbird.alphawallet
         PRODUCT_NAME: AlphaWallet
         CODE_SIGN_ENTITLEMENTS: AlphaWallet/AlphaWallet.entitlements
+      configs:
+        debug:
+          OTHER_LDFLAGS: "-Xlinker -interposable"
     info:
       path: AlphaWallet/Info.plist
       properties:
@@ -358,6 +362,9 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
 
 packages:
+  Inject:
+    url: https://github.com/krzysztofzablocki/Inject
+    from: 1.3.0
   WalletConnect:
     url: https://github.com/WalletConnect/WalletConnectSwiftV2
     exactVersion: 1.6.8

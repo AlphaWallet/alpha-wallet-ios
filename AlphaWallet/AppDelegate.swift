@@ -15,6 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private let backgroundTaskService: BackgroundTaskService = BackgroundTaskServiceImplementation()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        #if DEBUG
+            Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()
+        #endif
+
         //Keep this log because it's really useful for debugging things without requiring a new TestFlight/app store submission
         infoLog("--- Application launched with launchOptions: \(String(describing: launchOptions)) with documents directory: \(URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]))")
 

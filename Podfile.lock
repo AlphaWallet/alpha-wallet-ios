@@ -200,6 +200,7 @@ PODS:
   - GoogleUtilities/UserDefaults (7.11.0):
     - GoogleUtilities/Logger
   - GzipSwift (5.1.1)
+  - InjectHotReload (1.5.0)
   - iOSSnapshotTestCase (6.2.0):
     - iOSSnapshotTestCase/SwiftSupport (= 6.2.0)
   - iOSSnapshotTestCase/Core (6.2.0)
@@ -296,6 +297,7 @@ DEPENDENCIES:
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - Firebase/Crashlytics
   - FloatingPanel
+  - InjectHotReload
   - iOSSnapshotTestCase (= 6.2.0)
   - IQKeyboardManager
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
@@ -340,6 +342,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - GzipSwift
+    - InjectHotReload
     - iOSSnapshotTestCase
     - IQKeyboardManager
     - JSONRPCKit
@@ -479,7 +482,7 @@ SPEC CHECKSUMS:
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
-  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
@@ -496,6 +499,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   GzipSwift: 893f3e48e597a1a4f62fafcb6514220fcf8287fa
+  InjectHotReload: 7cc2f8cf983a4e22d378711f0634ccc7e9d0267c
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   IQKeyboardManager: 45a1fa55c1a5b02c61ac0fd7fd5b62bb4ad20d97
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -531,6 +535,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 29d33a226ac4add8e6dcd522cd9fdc27a5901ffb
+PODFILE CHECKSUM: 96bb67fec86d4668fc1ac0e145b17fe25925e450
 
 COCOAPODS: 1.12.1
