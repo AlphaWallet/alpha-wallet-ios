@@ -1,7 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import Combine
+import UIKit
+
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
@@ -36,10 +37,10 @@ final class FungibleTokenDetailsViewModel {
     private let tokenImageFetcher: TokenImageFetcher
     private var actionAdapter: TokenInstanceActionAdapter {
         return TokenInstanceActionAdapter(
-           session: session,
-           token: token,
-           tokenHolder: tokenHolder,
-           tokenActionsProvider: tokenActionsProvider)
+            session: session,
+            token: token,
+            tokenHolder: tokenHolder,
+            tokenActionsProvider: tokenActionsProvider)
     }
 
     let token: Token
@@ -137,7 +138,7 @@ final class FungibleTokenDetailsViewModel {
 
         if token.server.isTestnet {
             views = [
-                .testnet
+                .testnet,
             ]
         } else {
             views = [
@@ -151,7 +152,7 @@ final class FungibleTokenDetailsViewModel {
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
                 .field(viewModel: markerCapViewModel(for: ticker)),
                 .field(viewModel: yearLowViewModel),
-                .field(viewModel: yearHighViewModel)
+                .field(viewModel: yearHighViewModel),
             ]
         }
 
@@ -260,7 +261,6 @@ final class FungibleTokenDetailsViewModel {
 }
 
 extension FungibleTokenDetailsViewModel {
-
     enum ViewType {
         case charts
         case testnet

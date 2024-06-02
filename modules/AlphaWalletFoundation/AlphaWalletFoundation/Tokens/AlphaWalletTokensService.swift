@@ -5,9 +5,11 @@
 //  Created by Vladyslav Shepitko on 08.07.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
+
 import AlphaWalletWeb3
+
 import CombineExt
 
 public class AlphaWalletTokensService: TokensService {

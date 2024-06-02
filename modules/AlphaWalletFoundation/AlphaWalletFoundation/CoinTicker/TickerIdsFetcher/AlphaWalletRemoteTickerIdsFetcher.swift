@@ -5,10 +5,12 @@
 //  Created by Vladyslav Shepitko on 05.09.2022.
 //
 
-import Foundation
 import Combine
-import CombineExt
+import Foundation
+
 import AlphaWalletCore
+
+import CombineExt
 
 /// Looks up for tokens groups, and searches for each token matched in group to resolve ticker id. We know that tokens in group relate to same coin, on different chaing.
 /// - Loads tokens groups

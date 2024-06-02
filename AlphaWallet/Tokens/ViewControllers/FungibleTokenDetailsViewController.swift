@@ -5,9 +5,11 @@
 //  Created by Vladyslav Shepitko on 19.11.2022.
 //
 
-import AlphaWalletFoundation
 import Combine
 import UIKit
+
+import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenDetailsViewController)

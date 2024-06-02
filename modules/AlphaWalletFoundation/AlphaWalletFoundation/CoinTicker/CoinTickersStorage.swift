@@ -6,9 +6,11 @@
 //
 
 import Combine
-import RealmSwift
+
 import AlphaWalletCore
+
 import CombineExt
+import RealmSwift
 
 public typealias TickerIdString = String
 
@@ -36,25 +38,24 @@ public protocol TickerIdsStorage {
 }
 
 extension RealmStore: TickerIdsStorage {
-
     public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
         let publisher = PassthroughSubject<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never>()
         Task {
             await performSync { realm in
                 realm.objects(KnownTickerIdObject.self)
-                        .changesetPublisher
-                        .compactMap { changeset -> [AssignedCoinTickerId]? in
-                            switch changeset {
-                            case .error, .initial:
-                                return nil
-                            case .update(let values, let deletions, let insertions, let modifications):
-                                let objects = insertions.map { values[$0] } + modifications.map { values[$0] }
-                                return objects.map { AssignedCoinTickerId(tickerId: $0.tickerIdString, primaryToken: .init(address: $0.contractAddress, server: $0.server)) }
-                            }
-                        }.map { $0.map { (tickerId: $0.tickerId, key: $0.primaryToken) } }
-                        .sink { value in
-                            publisher.send(value)
-                        }.store(in: &self.cancellables)
+                    .changesetPublisher
+                    .compactMap { changeset -> [AssignedCoinTickerId]? in
+                        switch changeset {
+                        case .error, .initial:
+                            return nil
+                        case .update(let values, let deletions, let insertions, let modifications):
+                            let objects = insertions.map { values[$0] } + modifications.map { values[$0] }
+                            return objects.map { AssignedCoinTickerId(tickerId: $0.tickerIdString, primaryToken: .init(address: $0.contractAddress, server: $0.server)) }
+                        }
+                    }.map { $0.map { (tickerId: $0.tickerId, key: $0.primaryToken) } }
+                    .sink { value in
+                        publisher.send(value)
+                    }.store(in: &self.cancellables)
             }
         }
         return publisher.eraseToAnyPublisher()
@@ -139,7 +140,6 @@ extension RealmStore: TickerIdsStorage {
 }
 
 extension RealmStore: ChartHistoryStorage {
-
     public func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId, currency: Currency) async -> MappedChartHistory? {
         var history: MappedChartHistory?
         await perform { realm in
@@ -196,21 +196,21 @@ extension RealmStore: CoinTickersStorage {
         Task {
             await performSync { realm in
                 realm.objects(AssignedCoinTickerIdObject.self)
-                        .changesetPublisher
-                        .mapToVoid()
-                        .sink { value in
-                            publisher.send(value)
-                        }.store(in: &self.cancellables)
+                    .changesetPublisher
+                    .mapToVoid()
+                    .sink { value in
+                        publisher.send(value)
+                    }.store(in: &self.cancellables)
             }
         }
         Task {
             await performSync { realm in
                 realm.objects(CoinTickerObject.self)
-                        .changesetPublisher
-                        .mapToVoid()
-                        .sink { value in
-                            publisher.send(value)
-                        }.store(in: &self.cancellables)
+                    .changesetPublisher
+                    .mapToVoid()
+                    .sink { value in
+                        publisher.send(value)
+                    }.store(in: &self.cancellables)
             }
         }
         return publisher.eraseToAnyPublisher()

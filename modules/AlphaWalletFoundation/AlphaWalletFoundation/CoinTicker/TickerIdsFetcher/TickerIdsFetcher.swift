@@ -5,8 +5,8 @@
 //  Created by Vladyslav Shepitko on 14.06.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public protocol TickerIdsFetcher: AnyObject {
     func tickerId(for token: TokenMappedToTicker) async -> TickerIdString?

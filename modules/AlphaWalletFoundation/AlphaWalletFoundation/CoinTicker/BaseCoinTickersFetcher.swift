@@ -5,8 +5,9 @@
 //  Created by Vladyslav Shepitko on 16.09.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
+
 import AlphaWalletCore
 
 public class BaseCoinTickersFetcher: CoinTickersFetcher {

@@ -7,7 +7,9 @@
 
 import Combine
 import Foundation
+
 import AlphaWalletCore
+
 import CombineExt
 
 public protocol SupportedTickerIdsFetcherConfig {
@@ -55,12 +57,12 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
             return
         }
         if let lastFetchingDate = config.tickerIdsLastFetchedDate, Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime, await storage.hasTickerIds() {
-           return
+            return
         } else {
             if let task = fetchSupportedTickerIdsTask {
                 return await task.value
             } else {
-                let task: Task<Void, Never> = Task { () -> Void in
+                let task: Task<Void, Never> = Task { () in
                     do {
                         let tickerIds = try await networking.fetchSupportedTickerIds()
                         storage.addOrUpdate(tickerIds: tickerIds)

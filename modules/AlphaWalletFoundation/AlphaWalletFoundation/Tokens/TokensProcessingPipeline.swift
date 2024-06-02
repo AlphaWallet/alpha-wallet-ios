@@ -9,6 +9,7 @@ import Combine
 import Foundation
 
 import AlphaWalletCore
+
 import CombineExt
 
 public protocol TokensProcessingPipeline {

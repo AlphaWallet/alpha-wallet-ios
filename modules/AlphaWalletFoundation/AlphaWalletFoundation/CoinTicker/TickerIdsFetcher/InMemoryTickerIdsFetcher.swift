@@ -5,10 +5,12 @@
 //  Created by Vladyslav Shepitko on 14.06.2022.
 //
 
-import Foundation
 import Combine
-import CombineExt
+import Foundation
+
 import AlphaWalletCore
+
+import CombineExt
 
 public class InMemoryTickerIdsFetcher: TickerIdsFetcher {
     private let storage: TickerIdsStorage

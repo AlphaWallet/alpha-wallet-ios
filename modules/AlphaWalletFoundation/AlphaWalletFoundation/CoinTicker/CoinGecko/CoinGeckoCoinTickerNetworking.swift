@@ -5,11 +5,13 @@
 //  Created by Vladyslav Shepitko on 24.05.2022.
 //
 
-import Foundation
 import Combine
-import SwiftyJSON
+import Foundation
+
 import AlphaWalletCore
 import AlphaWalletLogger
+
+import SwiftyJSON
 
 public class FakeCoinTickerNetworking: CoinTickerNetworking {
     public init() {}
@@ -27,7 +29,6 @@ public class FakeCoinTickerNetworking: CoinTickerNetworking {
 }
 
 public class CoinGeckoCoinTickerNetworking: CoinTickerNetworking {
-
     static var allHTTPHeaderFields: [String: String]? = [
         "Content-type": "application/json",
         "client": Bundle.main.bundleIdentifier ?? "",
@@ -184,7 +185,7 @@ extension CoinGeckoCoinTickerNetworking {
 
             return try URLEncoding().encode(request, with: [
                 "vs_currency": currency,
-                "days": days
+                "days": days,
             ])
         }
     }
