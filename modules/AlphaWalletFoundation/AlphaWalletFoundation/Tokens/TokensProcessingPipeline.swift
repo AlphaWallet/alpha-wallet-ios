@@ -171,7 +171,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        return Publishers.Merge4(tokensService.tokenPublisher(for: contract, server: server), whenTickersHasChanged, whenSignatureOrBodyChanged, whenEventHasChanged)
+        return Publishers.Merge4(wrapWithCurrentValueSubject(tokensService.tokenPublisher(for: contract, server: server), initialValue: nil), whenTickersHasChanged, whenSignatureOrBodyChanged, whenEventHasChanged)
             .map { $0.flatMap { TokenViewModel(token: $0) } }
             .flatMap { [weak self] tokenViewModels in asFuture { await self?.applyTicker(token: tokenViewModels) } }
             .map { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
@@ -294,3 +294,4 @@ public extension TokensProcessingPipeline {
     func tokenViewModel(for token: Token) async -> TokenViewModel? {
         return await tokenViewModel(for: token.contractAddress, server: token.server)
     }
+}

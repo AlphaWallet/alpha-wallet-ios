@@ -278,7 +278,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        //We don't want the initial `nil`, it's wrong (and unnecessary) since we are just waiting for the database read to get an actual value, so we must not use CurrentValueSubject
+        //We don't want the initial `nil`, it's wrong (and unnecessary) since we are just waiting for the database read to get an actual value, so we must not use CurrentValueSubject. But this could cause problems if the value is emitted before the downstream is ready for it
         let publisher: PassthroughSubject<Token?, DataStoreError> = .init()
 
         Task {
