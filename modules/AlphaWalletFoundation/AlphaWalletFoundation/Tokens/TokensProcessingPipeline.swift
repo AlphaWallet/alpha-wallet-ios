@@ -5,8 +5,9 @@
 //  Created by Vladyslav Shepitko on 09.07.2022.
 //
 
-import Foundation
 import Combine
+import Foundation
+
 import AlphaWalletCore
 import CombineExt
 
@@ -75,11 +76,11 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .receive(on: queue)
 
         let whenCollectionHasChanged = Publishers.Merge5(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged, whenAttestationXMLChanged, whenCurrencyChanged)
-                .map { $0.map { TokenViewModel(token: $0) } }
-                .flatMapLatest { tokenViewModels in asFuture { await self.applyTickers(tokens: tokenViewModels) ?? [] } }
-                .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
-                .receive(on: RunLoop.main)
-                .eraseToAnyPublisher()
+            .map { $0.map { TokenViewModel(token: $0) } }
+            .flatMapLatest { tokenViewModels in asFuture { await self.applyTickers(tokens: tokenViewModels) ?? [] } }
+            .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
 
         let initialSnapshot: AnyPublisher<[TokenViewModel], Never> = asFuture { await self.tokensService.tokens }
             .map { $0.map { TokenViewModel(token: $0) } }
@@ -100,7 +101,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 eventsDataStore: NonActivityEventsDataStore,
                 currencyService: CurrencyService,
                 sessionsProvider: SessionsProvider) {
-
         self.sessionsProvider = sessionsProvider
         self.wallet = wallet
         self.currencyService = currencyService
@@ -211,11 +211,11 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                     let tokens = (tokens + nativeCryptoForAllChains).filter { !$0.server.isTestnet && ($0.type == .nativeCryptocurrency || $0.type == .erc20) }
                     let uniqueTokens = Set(tokens).map {
                         TokenMappedToTicker(
-                                symbol: $0.symbol,
-                                name: $0.name,
-                                contractAddress: $0.contractAddress,
-                                server: $0.server,
-                                coinGeckoId: $0.info.coinGeckoId)
+                            symbol: $0.symbol,
+                            name: $0.name,
+                            contractAddress: $0.contractAddress,
+                            server: $0.server,
+                            coinGeckoId: $0.info.coinGeckoId)
                     }
 
                     await coinTickersFetcher.fetchTickers(for: uniqueTokens, force: false, currency: currency)
@@ -224,22 +224,22 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             }.store(in: &cancelable)
 
         coinTickersProvider.updateTickerIds
-                .flatMap { [tokensService] (data: [(tickerId: TickerIdString, key: AddressAndRPCServer)]) in
-                    asFuture { () -> [(Token, TickerIdString)] in
-                        await data.asyncCompactMap { each in
-                            await tokensService.token(for: each.key.address, server: each.key.server).flatMap {
-                                ($0, each.tickerId)
-                            }
+            .flatMap { [tokensService] (data: [(tickerId: TickerIdString, key: AddressAndRPCServer)]) in
+                asFuture { () -> [(Token, TickerIdString)] in
+                    await data.asyncCompactMap { each in
+                        await tokensService.token(for: each.key.address, server: each.key.server).flatMap {
+                            ($0, each.tickerId)
                         }
                     }
                 }
-                .map { (each: [(Token, TickerIdString)]) in each.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) } }
-                .eraseToAnyPublisher()
-                .sink { [tokensService] actions in
-                    Task { @MainActor in
-                        await tokensService.addOrUpdate(with: actions)
-                    }
-                }.store(in: &cancelable)
+            }
+            .map { (each: [(Token, TickerIdString)]) in each.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) } }
+            .eraseToAnyPublisher()
+            .sink { [tokensService] actions in
+                Task { @MainActor in
+                    await tokensService.addOrUpdate(with: actions)
+                }
+            }.store(in: &cancelable)
     }
 
     private func applyTokenScriptOverrides(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {
@@ -287,7 +287,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
 }
 
 public extension TokensProcessingPipeline {
-
     func tokenViewModelPublisher(for token: Token) -> AnyPublisher<TokenViewModel?, Never> {
         return tokenViewModelPublisher(for: token.contractAddress, server: token.server)
     }
@@ -295,4 +294,3 @@ public extension TokensProcessingPipeline {
     func tokenViewModel(for token: Token) async -> TokenViewModel? {
         return await tokenViewModel(for: token.contractAddress, server: token.server)
     }
-}
