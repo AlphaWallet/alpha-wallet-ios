@@ -5,22 +5,26 @@
 //  Created by Vladyslav Shepitko on 13.05.2022.
 //
 
+import AlphaWalletLogger
+import Kingfisher
 import UIKit
 import WebKit
-import Kingfisher
-import AlphaWalletLogger
 
 private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
-    let preferences = WKPreferences()
-    preferences.javaScriptEnabled = false
     let configuration = WKWebViewConfiguration()
-    configuration.preferences = preferences
+
+    if #available(iOS 14.0, *) {
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = false
+    } else {
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = false
+        configuration.preferences = preferences
+    }
 
     return configuration
 }()
 
 final class SvgImageView: WKWebView {
-
     private (set) var pageHasLoaded: Bool = false
     var rounding: ViewRounding = .none {
         didSet { layoutSubviews() }
@@ -70,7 +74,6 @@ extension SvgImageView: WKNavigationDelegate {
 }
 
 extension SvgImageView {
-
     func html(svgString: String) -> String {
         """
         <!DOCTYPE html>
