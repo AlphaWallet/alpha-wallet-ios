@@ -471,7 +471,7 @@ class ImportWalletViewController: UIViewController {
         if #available(iOS 14.0, *) {
             controller = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: true)
         } else {
-            controller = UIDocumentPickerViewController(documentTypes: types.map { $0.identifier }, in: .import)
+            controller = UIDocumentPickerViewController(documentTypes: types.map{ $0.identifier }, in: .import)
         }
 
         controller.delegate = self
@@ -592,7 +592,6 @@ class ImportWalletViewController: UIViewController {
 
 extension ImportWalletViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        guard controller.documentPickerMode == UIDocumentPickerMode.import else { return }
         let text = try? String(contentsOfFile: url.path)
         if let text = text {
             keystoreJSONTextView.value = text
