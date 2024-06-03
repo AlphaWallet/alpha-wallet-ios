@@ -466,8 +466,14 @@ class ImportWalletViewController: UIViewController {
     }
 
     func showDocumentPicker() {
-        let types = ["public.text", "public.content", "public.item", "public.data"]
-        let controller = UIDocumentPickerViewController(documentTypes: types, in: .import)
+        let controller: UIDocumentPickerViewController
+        let types: [UTType] = [.text, .content, .item, .data]
+        if #available(iOS 14.0, *) {
+            controller = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: true)
+        } else {
+            controller = UIDocumentPickerViewController(documentTypes: types.map { $0.identifier }, in: .import)
+        }
+
         controller.delegate = self
 
         switch UIDevice.current.userInterfaceIdiom {
@@ -622,7 +628,6 @@ extension ImportWalletViewController: TextFieldDelegate {
 }
 
 extension ImportWalletViewController: TextViewDelegate {
-
     func didPaste(in textView: TextView) {
         view.endEditing(true)
         showCorrectTab()
