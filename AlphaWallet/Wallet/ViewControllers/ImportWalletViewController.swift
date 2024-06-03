@@ -471,7 +471,7 @@ class ImportWalletViewController: UIViewController {
         if #available(iOS 14.0, *) {
             controller = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: true)
         } else {
-            controller = UIDocumentPickerViewController(documentTypes: types.map{ $0.identifier }, in: .import)
+            controller = UIDocumentPickerViewController(documentTypes: types.map { $0.identifier }, in: .import)
         }
 
         controller.delegate = self
