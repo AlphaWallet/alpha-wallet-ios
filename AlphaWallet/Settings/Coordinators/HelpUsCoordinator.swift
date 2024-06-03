@@ -1,7 +1,7 @@
-// Copyright SIX DAY LLC. All rights reserved.
 import Foundation
-import UIKit
 import StoreKit
+import UIKit
+
 import AlphaWalletFoundation
 
 class HelpUsCoordinator: Coordinator {
