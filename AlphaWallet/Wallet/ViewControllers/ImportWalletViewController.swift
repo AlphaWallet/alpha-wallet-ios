@@ -1,7 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
 import Combine
+import UIKit
+import UniformTypeIdentifiers
+
 import AlphaWalletFoundation
 import AlphaWalletTrustWalletCoreExtensions
 
@@ -101,7 +103,7 @@ class ImportWalletViewController: UIViewController {
             .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTextFieldToStatusLabel),
             [.spacerWidth(DataEntry.Metric.shadowRadius), mnemonicTextView, .spacerWidth(DataEntry.Metric.shadowRadius)].asStackView(axis: .horizontal),
             .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTextFieldToStatusLabel),
-            row2
+            row2,
         ].asStackView(axis: .vertical, distribution: .fill)
         mnemonicControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -219,7 +221,7 @@ class ImportWalletViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: tabBar.bottomAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            footerBar.anchorsConstraint(to: view),
         ])
 
         configure()
@@ -456,7 +458,7 @@ class ImportWalletViewController: UIViewController {
         alertController.addAction(UIAlertAction(
             title: R.string.localizable.importWalletImportAlertSheetOptionTitle(),
             style: .default
-        ) {  [weak self] _ in
+        ) { [weak self] _ in
             self?.showDocumentPicker()
         })
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in })
@@ -593,7 +595,6 @@ extension ImportWalletViewController: UIDocumentPickerDelegate {
 }
 
 extension ImportWalletViewController: TextFieldDelegate {
-
     func didScanQRCode(_ result: String) {
         setValueForCurrentField(string: result)
     }
