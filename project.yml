@@ -259,7 +259,10 @@ targets:
         basedOnDependencyAnalysis: false
         showEnvVars: false
       - name: Upload debug symbols to Crashlytics
-        script: '"${PODS_ROOT}/FirebaseCrashlytics/run"'
+        script: |
+                if [ "${CONFIGURATION}" != "Debug" ]; then
+                    "${PODS_ROOT}/FirebaseCrashlytics/run"
+                fi
         basedOnDependencyAnalysis: false
         showEnvVars: false
 
