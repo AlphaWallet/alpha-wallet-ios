@@ -52,7 +52,16 @@ class HelpUsCoordinator: Coordinator {
     }
 
     private func rateUs() {
-        SKStoreReviewController.requestReview()
+        if #available(iOS 14.0, *) {
+            //Have to wait so the scene becomes active (at launch)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                    SKStoreReviewController.requestReview(in: scene)
+                }
+            }
+        } else {
+            SKStoreReviewController.requestReview()
+        }
         appTracker.completedRating = true
     }
 
