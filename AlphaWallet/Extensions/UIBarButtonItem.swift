@@ -40,7 +40,6 @@ enum GridOrListLayout: Int {
 }
 
 extension UIBarButtonItem {
-
     func toggleSelection() {
         guard var gridOrListLayout = gridOrListLayout else { return }
         gridOrListLayout.toggle()
@@ -110,7 +109,7 @@ extension UIBarButtonItem {
 
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: 30),
-            imageView.heightAnchor.constraint(equalToConstant: 30)
+            imageView.heightAnchor.constraint(equalToConstant: 30),
         ])
 
         return .init(customView: imageView)
@@ -124,7 +123,7 @@ extension UIBarButtonItem {
         return .init(image: R.image.tab_settings(), style: .plain, target: target, action: selector)
     }
 
-    private struct AssociatedObject {
+    private enum AssociatedObject {
         static var key = "action_closure_key"
         static var selectionState = "is_selected_state_key"
     }
