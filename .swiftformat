@@ -19,6 +19,8 @@
 --enable emptyBraces
 --emptybraces no-space
 
+--enable spaceAroundBraces
+
 --enable enumNamespaces
 --enumnamespaces always
 
