@@ -31,14 +31,6 @@ Deploy a new version to the App Store
 
 Screenshots
 
-### ios travis_tests
-
-```sh
-[bundle exec] fastlane ios travis_tests
-```
-
-
-
 ### ios tests
 
 ```sh
