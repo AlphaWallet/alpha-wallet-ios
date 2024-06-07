@@ -68,18 +68,34 @@ final class FungibleTokenDetailsViewModel {
     }
 
     func transform(input: FungibleTokenDetailsViewModelInput) -> FungibleTokenDetailsViewModelOutput {
+        let hasTokenScriptSubject = CurrentValueSubject<Bool, Never>(false)
+
+        Task {
+            let hasTokenScript = await assetDefinitionStore.hasTokenScript(contract: token.contractAddress, server: session.server)
+            hasTokenScriptSubject.send(hasTokenScript)
+        }
+
         input.willAppear.flatMapLatest { [coinTickersProvider, token, currencyService] _ in
             asFuture {
                 await coinTickersProvider.chartHistories(for: .init(token: token), currency: currencyService.currency)
             }
         }.assign(to: \.value, on: chartHistoriesSubject)
-        .store(in: &cancelable)
+            .store(in: &cancelable)
 
         let viewTypes = Publishers.CombineLatest(coinTicker, chartHistoriesSubject)
             .compactMap { [weak self] ticker, _ in self?.buildViewTypes(for: ticker) }
 
-        let viewState = Publishers.CombineLatest(tokenActionButtonsPublisher(), viewTypes)
-            .map { FungibleTokenDetailsViewModel.ViewState(actionButtons: $0, views: $1) }
+        let viewState = Publishers.CombineLatest3(tokenActionButtonsPublisher(), hasTokenScriptSubject, viewTypes)
+            .map {
+                let buttons: [ActionButton]
+                if $1 {
+                    let tokenScriptViewerBtn = FungibleTokenDetailsViewModel.ActionButton(actionType: TokenInstanceAction(type: TokenInstanceAction.ActionType.openTokenScriptViewer), name: "Open", state: TokenInstanceActionAdapter.ActionState.isDisplayed(true))
+                    buttons = $0 + [tokenScriptViewerBtn ]
+                } else {
+                    buttons = $0
+                }
+                return FungibleTokenDetailsViewModel.ViewState(actionButtons: buttons, views: $2)
+            }
 
         let action = input.action
             .flatMap { action in asFuture { await self.buildFungibleTokenAction(for: action) } }.compactMap { $0 }
@@ -95,6 +111,8 @@ final class FungibleTokenDetailsViewModel {
         case .erc20Send: return .erc20Transfer(token: token)
         case .erc20Receive: return .erc20Receive(token: token)
         case .nftRedeem, .nftSell, .nonFungibleTransfer: return nil
+        case .openTokenScriptViewer:
+            return .tokenScriptViewer(token: token)
         case .tokenScript:
             let fungibleBalance = await tokensService.tokenViewModel(for: token)?.balance.value
             if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: fungibleBalance) {
@@ -284,6 +302,7 @@ extension FungibleTokenDetailsViewModel {
         case erc20Transfer(token: Token)
         case erc20Receive(token: Token)
         case tokenScript(action: TokenInstanceAction, token: Token)
+        case tokenScriptViewer(token: Token)
         case bridge(token: Token, service: TokenActionProvider)
         case buy(token: Token, service: TokenActionProvider)
         case display(warning: String)

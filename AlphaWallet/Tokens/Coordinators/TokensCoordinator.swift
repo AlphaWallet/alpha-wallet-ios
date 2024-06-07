@@ -24,6 +24,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
     func viewWillAppearOnce(in coordinator: TokensCoordinator)
     func importAttestation(_ attestation: Attestation) async -> Bool
     func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController
+    func tokenScriptViewController(forFungibleContract contract: AlphaWallet.Address, server: RPCServer) -> UIViewController
 }
 
 class TokensCoordinator: Coordinator {
@@ -574,6 +575,10 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController? {
         delegate?.tokenScriptViewController(tokenHolder: tokenHolder, tokenId: tokenId, server: server)
+    }
+
+    func tokenScriptViewController(forFungibleContract contract: AlphaWallet.Address, server: RPCServer) -> UIViewController? {
+        delegate?.tokenScriptViewController(forFungibleContract: contract, server: server)
     }
 }
 

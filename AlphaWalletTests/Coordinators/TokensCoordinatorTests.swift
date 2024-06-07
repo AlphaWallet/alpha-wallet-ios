@@ -1,13 +1,12 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import XCTest
 @testable import AlphaWallet
-import Combine
 import AlphaWalletAttestation
 import AlphaWalletFoundation
+import Combine
+import XCTest
 
-final class FakeSwapTokenService: TokenActionsService {
-}
+final class FakeSwapTokenService: TokenActionsService {}
 
 extension PromptBackupCoordinator {
     static func make(wallet: Wallet = .make()) -> PromptBackupCoordinator {
@@ -19,7 +18,6 @@ extension PromptBackupCoordinator {
     }
 }
 class TokensCoordinatorTests: XCTestCase {
-
     func testRootViewController() {
         let sessionsProvider = FakeSessionsProvider.make(servers: [.main])
         let config: Config = .make()
@@ -61,7 +59,6 @@ extension ImportToken {
                      wallet: Wallet = .make(),
                      contractDataFetcher: ContractDataFetchable = FakeContractDataFetcher(),
                      server: RPCServer = .main) -> ImportToken {
-
         return .init(
             tokensDataStore: tokensDataStore,
             contractDataFetcher: contractDataFetcher,
@@ -89,7 +86,6 @@ final class FakeContractDataFetcher: ContractDataFetchable {
 }
 
 fileprivate extension Token {
-
     init(ercToken token: ErcToken, shouldUpdateBalance: Bool) {
         self.init(contract: token.contract, server: token.server, name: token.name, symbol: token.symbol, decimals: token.decimals, value: token.value, isCustom: true, type: token.type, balance: [])
     }

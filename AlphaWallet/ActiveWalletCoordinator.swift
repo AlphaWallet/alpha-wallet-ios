@@ -1108,6 +1108,14 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController {
         let url = URL(string: "https://viewer.tokenscript.org/?viewType=alphawallet&chain=\(server.chainID)&contract=\(tokenHolder.contractAddress.eip55String)&tokenId=\(tokenId)")!
+        infoLog("Opening TokenScript Viewer for NFT with url: \(url.absoluteString)")
+        return createBrowserViewController(url: url)
+    }
+
+    func tokenScriptViewController(forFungibleContract contract: AlphaWallet.Address, server: RPCServer) -> UIViewController {
+        let specialERC20TokenID = "ERC20"
+        let url = URL(string: "https://viewer.tokenscript.org/?viewType=alphawallet&chain=\(server.chainID)&contract=\(contract.eip55String)&tokenId=\(specialERC20TokenID)")!
+        infoLog("Opening TokenScript Viewer for fungible with url: \(url.absoluteString)")
         return createBrowserViewController(url: url)
     }
 }

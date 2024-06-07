@@ -5,11 +5,11 @@
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
-import BigInt
-import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import BigInt
+import Combine
+import UIKit
 
 struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
@@ -35,10 +35,10 @@ class NFTAssetViewModel {
     private let service: TokensProcessingPipeline
     private var actionAdapter: TokenInstanceActionAdapter {
         return TokenInstanceActionAdapter(
-           session: session,
-           token: token,
-           tokenHolder: tokenHolder,
-           tokenActionsProvider: tokenActionsProvider)
+            session: session,
+            token: token,
+            tokenHolder: tokenHolder,
+            tokenActionsProvider: tokenActionsProvider)
     }
     private var tokenHolder: TokenHolder
     private let tokenActionsProvider: SupportedTokenActionsProvider
@@ -99,7 +99,6 @@ class NFTAssetViewModel {
          session: WalletSession,
          service: TokensProcessingPipeline,
          tokenActionsProvider: SupportedTokenActionsProvider) {
-
         self.tokenActionsProvider = tokenActionsProvider
         self.service = service
         self.nftProvider = nftProvider
@@ -155,7 +154,7 @@ class NFTAssetViewModel {
             return .redeem(token: token, tokenHolder: tokenHolder)
         case .nftSell:
             return .sell(tokenHolder: tokenHolder)
-        case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
+        case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .openTokenScriptViewer:
             //TODO when we support TokenScript views for ERC20s, we need to perform the action here
             return nil
         case .nonFungibleTransfer:
@@ -269,7 +268,7 @@ class NFTAssetViewModel {
             nftAssetDisplayHelper.totalSupply,
             nftAssetDisplayHelper.owners,
             nftAssetDisplayHelper.averagePrice,
-            nftAssetDisplayHelper.floorPrice
+            nftAssetDisplayHelper.floorPrice,
         ].compactMap { viewModel -> NFTAssetViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
@@ -283,28 +282,28 @@ class NFTAssetViewModel {
         if let viewModel = nftAssetDisplayHelper.descriptionViewModel {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
-                .field(viewModel: viewModel)
+                .field(viewModel: viewModel),
             ]
         }
 
         if !attributes.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: .init(traits: attributes))
+                .attributeCollection(viewModel: .init(traits: attributes)),
             ]
         }
 
         if !nftAssetDisplayHelper.stats.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.stats))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.stats)),
             ]
         }
 
         if !nftAssetDisplayHelper.rankings.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
-                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.rankings))
+                .attributeCollection(viewModel: .init(traits: nftAssetDisplayHelper.rankings)),
             ]
         }
 
@@ -322,7 +321,6 @@ class NFTAssetViewModel {
 }
 
 extension NFTAssetViewModel {
-
     enum AttributeSelectionAction {
         case showCopiedToClipboard(title: String)
         case openContractWebPage(url: URL)
@@ -377,6 +375,9 @@ extension TokenInstanceAction {
             return service.action
         case .bridge(let service):
             return service.action
+        case .openTokenScriptViewer:
+            //Doesn't matter at the moment because it's only for fungibles
+            return "Open"
         }
     }
 }

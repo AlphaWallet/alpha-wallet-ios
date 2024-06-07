@@ -22,6 +22,7 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator)
     func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
     func tokenScriptViewController(tokenHolder: TokenHolder, tokenId: TokenId, server: RPCServer) -> UIViewController?
+    func tokenScriptViewController(forFungibleContract contract: AlphaWallet.Address, server: RPCServer) -> UIViewController?
 }
 
 class SingleChainTokenCoordinator: Coordinator {
@@ -140,6 +141,10 @@ extension SingleChainTokenCoordinator: FungibleTokenCoordinatorDelegate {
 
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: FungibleTokenCoordinator) {
         delegate?.didTap(activity: activity, viewController: viewController, in: self)
+    }
+
+    func tokenScriptViewController(forFungibleContract contract: AlphaWallet.Address, server: RPCServer) -> UIViewController? {
+        delegate?.tokenScriptViewController(forFungibleContract: contract, server: server)
     }
 
     func didClose(in coordinator: FungibleTokenCoordinator) {

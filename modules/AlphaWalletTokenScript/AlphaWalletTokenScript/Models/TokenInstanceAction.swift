@@ -1,9 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
 import BigInt
+import Foundation
 
 extension TokenInstanceAction.ActionType: Equatable {
     public static func == (lhs: TokenInstanceAction.ActionType, rhs: TokenInstanceAction.ActionType) -> Bool {
@@ -44,13 +44,14 @@ public struct TokenInstanceAction {
         case swap(service: TokenActionProvider)
         case bridge(service: TokenActionProvider)
         case buy(service: TokenActionProvider)
+        case openTokenScriptViewer
     }
 
     public var attributes: [AttributeId: AssetAttribute] {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             return .init()
-        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return .init()
         case .tokenScript(_, _, _, let attributes, _, _):
             return attributes
@@ -80,7 +81,7 @@ public struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             return nil
-        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
         case .tokenScript(_, _, _, _, let transactionFunction, _):
             return transactionFunction
@@ -90,7 +91,7 @@ public struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             return nil
-        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
         case .tokenScript(let contract, _, _, _, _, _):
             return contract
@@ -107,7 +108,7 @@ public struct TokenInstanceAction {
     //TODO we can live-reload the action view screen now if we observe for changes
     public func viewHtml(tokenId: TokenId) -> (html: String, urlFragment: String?) {
         switch type {
-        case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nonFungibleTransfer, .nftRedeem, .nftSell:
+        case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nonFungibleTransfer, .nftRedeem, .nftSell, .openTokenScriptViewer:
             return (html: "", urlFragment: nil)
         case .tokenScript(_, _, (html: let html, let urlFragment, style: let style), _, _, _):
             return (html: wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId), urlFragment: urlFragment)

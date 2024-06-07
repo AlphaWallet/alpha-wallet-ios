@@ -5,12 +5,12 @@
 //  Created by Vladyslav Shepitko on 13.12.2021.
 //
 
-import UIKit
-import Combine
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletTokenScript
 import BigInt
+import Combine
+import UIKit
 
 protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)
@@ -50,7 +50,6 @@ class TokenScriptCoordinator: Coordinator {
          action: TokenInstanceAction,
          tokensService: TokensProcessingPipeline,
          networkService: NetworkService) {
-
         self.networkService = networkService
         self.tokensService = tokensService
         self.action = action
@@ -91,7 +90,7 @@ class TokenScriptCoordinator: Coordinator {
                 //TODO need to handle this for no-view cards too?
                 subscribeForEthereumEventChanges()
             }
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .bridge, .buy:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .bridge, .buy, .openTokenScriptViewer:
             preconditionFailure("Should only be TokenScript actions")
         }
     }
@@ -120,13 +119,11 @@ class TokenScriptCoordinator: Coordinator {
 }
 
 extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
-
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-
         return SignMessageCoordinator.promise(
             analytics: analytics,
             navigationController: navigationController,
@@ -171,12 +168,9 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
     }
 }
 
-extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {
-
-}
+extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {}
 
 extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
-
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)

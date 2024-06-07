@@ -18,6 +18,7 @@ protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapSend(for token: Token, in viewController: FungibleTokenDetailsViewController)
     func didTapReceive(for token: Token, in viewController: FungibleTokenDetailsViewController)
     func didTap(action: TokenInstanceAction, token: Token, in viewController: FungibleTokenDetailsViewController)
+    func tokenScriptViewController(forFungibleContract: AlphaWallet.Address, server: RPCServer) -> UIViewController?
 }
 
 class FungibleTokenDetailsViewController: UIViewController {
@@ -120,6 +121,7 @@ class FungibleTokenDetailsViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
         output.viewState
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] viewState in
                 guard let strongSelf = self else { return }
 
@@ -175,6 +177,10 @@ class FungibleTokenDetailsViewController: UIViewController {
             delegate?.didTapBridge(for: token, service: service, in: self)
         case .buy(let token, let service):
             delegate?.didTapBuy(for: token, service: service, in: self)
+        case .tokenScriptViewer(let token):
+            if let viewController = delegate?.tokenScriptViewController(forFungibleContract: token.contractAddress, server: token.server) {
+                navigationController?.present(viewController, animated: true, completion: nil)
+            }
         }
     }
 

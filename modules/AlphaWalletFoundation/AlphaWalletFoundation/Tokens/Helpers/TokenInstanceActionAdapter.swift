@@ -170,7 +170,7 @@ extension TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             return nil
-        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
         case .tokenScript(_, _, _, _, _, let selection):
             guard let selection = selection else { return nil }
@@ -191,7 +191,7 @@ extension TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             return nil
-        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
         case .tokenScript(_, _, _, _, _, let selection):
             guard let selection = selection,
