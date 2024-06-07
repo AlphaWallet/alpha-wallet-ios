@@ -130,10 +130,14 @@ extension UIBarButtonItem {
 
     var selectionClosure: ((UIBarButtonItem) -> Void)? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedObject.key) as? (UIBarButtonItem) -> Void
+            withUnsafePointer(to: AssociatedObject.key) {
+                return objc_getAssociatedObject(self, $0) as? (UIBarButtonItem) -> Void
+            }
         }
         set {
-            objc_setAssociatedObject(self, &AssociatedObject.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            withUnsafePointer(to: AssociatedObject.key) {
+                objc_setAssociatedObject(self, $0, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
             target = self
             action = #selector(didTapButton)
         }
@@ -141,10 +145,14 @@ extension UIBarButtonItem {
 
     var gridOrListLayout: GridOrListLayout? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedObject.selectionState) as? GridOrListLayout
+            withUnsafePointer(to: AssociatedObject.selectionState) {
+                return objc_getAssociatedObject(self, $0) as? GridOrListLayout
+            }
         }
         set {
-            objc_setAssociatedObject(self, &AssociatedObject.selectionState, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            withUnsafePointer(to: AssociatedObject.selectionState) {
+                objc_setAssociatedObject(self, $0, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
         }
     }
 
