@@ -7,6 +7,7 @@ default: generate_project
 generate_project:
 	touch ./AlphaWallet/R.generated.swift
 	xcodegen
+	cp project.yml .project-last.yml
 	bundle exec pod install
 
 bootstrap: install_xcodegen install_gems generate_project

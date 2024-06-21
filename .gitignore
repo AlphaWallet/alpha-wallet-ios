@@ -45,6 +45,8 @@ AlphaWallet.xcworkspace/xcshareddata/*
 !AlphaWallet.xcworkspace/xcshareddata/
 !AlphaWallet.xcworkspace/xcshareddata/swiftpm
 !AlphaWallet.xcworkspace/xcshareddata/swiftpm/Package.resolved
+## track last generated project.yml so we can check if Xcode project is in sync when building
+.project-last.yml
 
 # Swift Package Manager
 #

@@ -168,6 +168,16 @@ targets:
         com.apple.security.application-groups:
           - group.com.stormbird.alphawallet
     preBuildScripts:
+      - name: "[xcodegen] Check project.yml in-sync"
+        script: |
+                diff project.yml ".project-last.yml" > /dev/null
+                if [ $? != 0 ] ; then
+                    # print error to STDERR
+                    echo "error: project.yml has been modified. Run 'just xcodegen'." >&2
+                    exit 1
+                fi
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
       - name: "[CP] Check Pods Manifest.lock"
         script: |
                 diff "${PODS_PODFILE_DIR_PATH}/Podfile.lock" "${PODS_ROOT}/Manifest.lock" > /dev/null
