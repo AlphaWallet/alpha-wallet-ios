@@ -93,7 +93,9 @@ enum OriginalDapps {
         Dapp(name: "Blur", description: "The fastest NFT marketplace", url: "https://www.blur.io", cat: "Marketplace"),
         Dapp(name: "Onramper", description: "Fiat-Crypto Onramp Aggregator", url: "https://buy.onramper.com/?apiKey=pk_prod_01GRNVSF7Q68BP7HF0SDRXXBYW", cat: "Exchange")
         Dapp(name: "Verse DEX", description: "Bitcoin.com's multichain Verse DEX aims to bring everyone permissionless and non-custodial trading access, with a special focus on newcomers to DeFi", url: "https://verse.bitcoin.com/", cat: "Exchange")
-),
+        Dapp(name: "IGO dApp", description: "Staking and future developing services on the platform and make profit", url: "https://igo.dapp.add3.io/", cat: "Defi")
+           ),
+    
     ]
 
     struct Category {
