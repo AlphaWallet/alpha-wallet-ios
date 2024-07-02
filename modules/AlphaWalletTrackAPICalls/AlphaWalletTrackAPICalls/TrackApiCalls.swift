@@ -39,25 +39,25 @@ public class TrackApiCalls: URLProtocol {
         method_exchangeImplementations(method1, method2)
     }
 
-    public override func startLoading() {
+    override public func startLoading() {
         //no-op
     }
 
-    public override func stopLoading() {
+    override public func stopLoading() {
         //no-op
     }
 
-    public override class func canInit(with task: URLSessionTask) -> Bool {
+    override public class func canInit(with task: URLSessionTask) -> Bool {
         clock(url: task.originalRequest?.url)
         return false
     }
 
-    public override class func canInit(with request: URLRequest) -> Bool {
+    override public class func canInit(with request: URLRequest) -> Bool {
         clock(url: request.url)
         return false
     }
 
-    public override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override public class func canonicalRequest(for request: URLRequest) -> URLRequest {
         return request
     }
 
