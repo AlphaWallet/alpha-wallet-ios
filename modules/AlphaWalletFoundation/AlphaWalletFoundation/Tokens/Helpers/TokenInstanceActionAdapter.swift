@@ -34,7 +34,7 @@ public struct TokenInstanceActionAdapter {
         switch token.type {
         case .erc1155, .erc721, .erc721ForTickets, .erc875:
             let actionsFromTokenScript = xmlHandler.actions
-            infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.type))")
+            infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.debugName))")
             let results: [TokenInstanceAction]
             if xmlHandler.hasAssetDefinition {
                 results = actionsFromTokenScript
@@ -59,7 +59,7 @@ public struct TokenInstanceActionAdapter {
             }
         case .erc20, .nativeCryptocurrency:
             let actionsFromTokenScript = xmlHandler.actions
-            infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.type))")
+            infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.debugName))")
             if actionsFromTokenScript.isEmpty {
                 switch token.type {
                 case .erc875, .erc721, .erc721ForTickets, .erc1155:

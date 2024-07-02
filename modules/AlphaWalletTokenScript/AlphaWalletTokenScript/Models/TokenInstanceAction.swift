@@ -100,6 +100,16 @@ public struct TokenInstanceAction {
     public var hasTransactionFunction: Bool {
         return transactionFunction != nil
     }
+
+    public var debugName: String {
+        switch type {
+        case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
+            return String(describing: self)
+        case .tokenScript(_, let title, _, _, _, _):
+            return "tokenScript: \(title)"
+        }
+    }
+
     public let type: ActionType
 
     public init(type: ActionType) {
