@@ -5,14 +5,14 @@
 //  Created by Vladyslav Shepitko on 20.07.2022.
 //
 
-import Foundation
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
 import AlphaWalletWeb3
-import SwiftyJSON
-import Combine
 import BigInt
+import Combine
+import Foundation
+import SwiftyJSON
 
 final class JsonFromTokenUri {
     typealias Publisher = AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>
@@ -28,7 +28,6 @@ final class JsonFromTokenUri {
     public init(blockchainProvider: BlockchainProvider,
                 tokensDataStore: TokensDataStore,
                 transporter: ApiTransporter) {
-
         self.transporter = transporter
         self.blockchainProvider = blockchainProvider
         self.tokensDataStore = tokensDataStore
@@ -36,7 +35,7 @@ final class JsonFromTokenUri {
         self.uriMapper = TokenUriMapper(hostMappers: [
             HostBasedTokenUriMapper(host: "api.mintkudos.xyz"),
             HostBasedTokenUriMapper(host: "api.walletads.io"),
-            HostBasedTokenUriMapper(host: "gateway.pinata.cloud")
+            HostBasedTokenUriMapper(host: "gateway.pinata.cloud"),
         ])
     }
 
@@ -51,7 +50,6 @@ final class JsonFromTokenUri {
     func fetchJsonFromTokenUri(for tokenId: String,
                                tokenType: NonFungibleFromJsonTokenType,
                                address: AlphaWallet.Address) -> Publisher {
-
         return Just(tokenId)
             .setFailureType(to: SessionTaskError.self)
             .flatMap { [weak self, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
@@ -134,7 +132,7 @@ final class JsonFromTokenUri {
             var jsonDictionary = json
             if let token = await tokensDataStore.token(for: address, server: blockchainProvider.server) {
                 jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
-                    //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
+                //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
                 jsonDictionary["contractName"] = JSON(token.name)
                 jsonDictionary["symbol"] = JSON(token.symbol)
                 jsonDictionary["tokenId"] = JSON(tokenId)
@@ -142,7 +140,7 @@ final class JsonFromTokenUri {
                 jsonDictionary["name"] = JSON(json["name"].stringValue)
                 jsonDictionary["imageUrl"] = JSON(json["image"].string ?? json["image_url"].stringValue)
                 jsonDictionary["thumbnailUrl"] = JSON(json["thumbnail_url"].string ?? json["imageUrl"].stringValue)
-                    //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
+                //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
                 jsonDictionary["externalLink"] = JSON(json["home_url"].string ?? json["external_url"].string ?? "")
                 jsonDictionary["animationUrl"] = JSON(jsonDictionary["animation_url"].stringValue)
             }
@@ -160,7 +158,6 @@ final class JsonFromTokenUri {
                                 tokenType: NonFungibleFromJsonTokenType,
                                 uri originalUri: URL,
                                 address: AlphaWallet.Address) -> Publisher {
-
         let uri = originalUri.rewrittenIfIpfs
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
         return asFutureThrowable {

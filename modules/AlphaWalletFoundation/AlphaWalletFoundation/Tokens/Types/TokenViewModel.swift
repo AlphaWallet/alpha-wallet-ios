@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import AlphaWalletTokenScript
+
 import BigInt
 
 public protocol TokenIdentifiable {
@@ -54,9 +56,9 @@ public struct TokenScriptOverrides {
     }
 }
 
-extension TokenViewModel: BalanceRepresentable { }
+extension TokenViewModel: BalanceRepresentable {}
 
-extension TokenScriptOverrides: Hashable { }
+extension TokenScriptOverrides: Hashable {}
 
 extension TokenViewModel: TokenFilterable {
     public var balanceNft: [TokenBalanceValue] { balance.balance }
@@ -67,8 +69,8 @@ extension TokenViewModel: TokenSortable {
     public var value: BigUInt { balance.value }
 }
 
-extension TokenViewModel: TokenScriptOverridesSupportable { }
-extension TokenViewModel: TokenBalanceSupportable { }
+extension TokenViewModel: TokenScriptOverridesSupportable {}
+extension TokenViewModel: TokenBalanceSupportable {}
 
 extension TokenViewModel: Equatable {
     public static func == (lhs: TokenViewModel, rhs: TokenViewModel) -> Bool {
@@ -81,7 +83,6 @@ extension TokenViewModel: Equatable {
 }
 
 extension TokenViewModel: Hashable {
-
     public var nonZeroBalance: [TokenBalanceValue] {
         return Array(balance.balance.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
     }

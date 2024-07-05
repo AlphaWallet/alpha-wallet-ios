@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+
 import AlphaWalletFoundation
 
 protocol ServerTableViewCellViewModelType {
@@ -32,7 +33,6 @@ protocol ServerImageTableViewCellViewModelType {
 }
 
 struct ServerImageViewModel: ServerImageTableViewCellViewModelType, Hashable {
-
     let isSelected: Bool
     let server: RPCServerOrAuto
     let isTopSeparatorHidden: Bool

@@ -5,8 +5,9 @@
 //  Created by Vladyslav Shepitko on 20.05.2022.
 //
 
-import UIKit
 import Combine
+import UIKit
+
 import AlphaWalletFoundation
 
 struct FungibleTokenHeaderViewModelInput {
@@ -38,7 +39,6 @@ final class FungibleTokenHeaderViewModel {
     init(token: Token,
          tokensService: TokensProcessingPipeline,
          tokenImageFetcher: TokenImageFetcher) {
-
         self.tokenImageFetcher = tokenImageFetcher
         self.token = token
         self.tokensService = tokensService
@@ -70,7 +70,7 @@ final class FungibleTokenHeaderViewModel {
 
     private func runRefreshHeaderTimer() {
         let timer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
-           self?.tiggleIsShowingValue()
+            self?.tiggleIsShowingValue()
         }
 
         RunLoop.main.add(timer, forMode: .default)
@@ -143,21 +143,21 @@ fileprivate extension FungibleTokenHeaderViewModel.functional {
 
         return NSAttributedString(string: R.string.localizable.aWalletTokenValue(string), attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 
     static var testnetValueHintLabelAttributedString: NSAttributedString {
         return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 
     static func asTitleAttributedString(_ title: String) -> NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 
@@ -172,13 +172,13 @@ fileprivate extension FungibleTokenHeaderViewModel.functional {
 
         let mutableAttributedString = NSMutableAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
 
         let range = NSRange(valuePercentageChangeRange, in: string)
         mutableAttributedString.setAttributes([
             .font: Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 14 : 17),
-            .foregroundColor: Screen.TokenCard.Color.valueChangeValue(ticker: balance.ticker)
+            .foregroundColor: Screen.TokenCard.Color.valueChangeValue(ticker: balance.ticker),
         ], range: range)
 
         return mutableAttributedString
@@ -205,4 +205,4 @@ fileprivate extension FungibleTokenHeaderViewModel.functional {
     }
 }
 
-extension FungibleTokenHeaderViewModel.ViewState: Equatable { }
+extension FungibleTokenHeaderViewModel.ViewState: Equatable {}

@@ -7,13 +7,14 @@
 
 import Combine
 import UIKit
+
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletLogger
-import AlphaWalletTrackAPICalls
 import AlphaWalletNotifications
 import AlphaWalletTokenScript
+import AlphaWalletTrackAPICalls
 
 extension TokenScript {
     static let baseTokenScriptFiles: [TokenType: String] = [
@@ -134,8 +135,8 @@ class Application: WalletDependenciesProvidable {
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
         self.systemSettingsRequestableDelegate = SystemSettingsRequestableDelegate()
         self.blockchainsProvider = BlockchainsProviderImplementation(
-                serversProvider: serversProvider,
-                blockchainFactory: BaseBlockchainFactory(analytics: analytics))
+            serversProvider: serversProvider,
+            blockchainFactory: BaseBlockchainFactory(analytics: analytics))
         let tokenScriptFeatures = TokenScriptFeatures()
         Self.copyFeatures(Features.current, toTokenScriptFeatures: tokenScriptFeatures)
         self.tokenScriptFeatures = tokenScriptFeatures
@@ -208,12 +209,12 @@ class Application: WalletDependenciesProvidable {
         self.shortcutHandler = ShortcutHandler()
         self.launchOptionsService = LaunchOptionsService(handlers: [
             shortcutHandler,
-            PushNotificationLaunchOptionsHandler(pushNotificationsService: pushNotificationsService)
+            PushNotificationLaunchOptionsHandler(pushNotificationsService: pushNotificationsService),
         ])
 
         self.donationUserActivityHandler = DonationUserActivityHandler(analytics: analytics)
         self.userActivityService = UserActivityService(handlers: [
-            donationUserActivityHandler
+            donationUserActivityHandler,
         ])
 
         Features.delegate = self
@@ -395,7 +396,7 @@ class Application: WalletDependenciesProvidable {
             ReportUsersActiveChains(serversProvider: serversProvider),
             MigrateToSupportEip1559Transactions(
                 serversProvider: serversProvider,
-                keychain: keystore)
+                keychain: keystore),
         ]
         services.forEach { $0.perform() }
     }
@@ -419,7 +420,7 @@ class Application: WalletDependenciesProvidable {
     }
 
     func buildDependencies(for wallet: Wallet) -> WalletDependencies {
-        if let dep = dependencies[wallet] { return dep  }
+        if let dep = dependencies[wallet] { return dep }
 
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet))
         let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
@@ -539,7 +540,7 @@ extension Application: WalletApiCoordinatorDelegate {
     }
 }
 
-extension Application: ShortcutNavigatable { }
+extension Application: ShortcutNavigatable {}
 
 extension Application: FeaturesDelegate {
     func featuresModified(_ features: Features) {
@@ -585,7 +586,6 @@ extension AlphaWalletNotificationHandler {
     static func instance(dependencies: WalletDependenciesProvidable,
                          navigationHandler: ApplicationNavigationHandler,
                          keystore: Keystore) -> NotificationHandler {
-
         return AlphaWalletNotificationHandler(
             application: .shared,
             notificationCenter: .default,
@@ -599,7 +599,6 @@ extension BasePushNotificationsService {
     static func instance(keystore: Keystore,
                          notificationHandler: NotificationHandler,
                          systemSettingsRequestable: SystemSettingsRequestable) -> PushNotificationsService {
-
         let unUserNotificationService = UNUserNotificationsService(
             application: .shared,
             systemSettingsRequestable: systemSettingsRequestable)

@@ -6,8 +6,10 @@
 //
 
 import Foundation
-import BigInt
+
 import AlphaWalletWeb3
+
+import BigInt
 
 public struct WalletBalance {
     fileprivate struct BalanceRepresentable: Hashable {
@@ -89,7 +91,7 @@ extension Balance: CustomStringConvertible {
     }
 }
 
-extension WalletBalance: Hashable { }
+extension WalletBalance: Hashable {}
 
 public extension WalletBalance {
     public struct ValueForCurrency: Equatable, Hashable {
@@ -128,7 +130,6 @@ fileprivate extension WalletBalance.functional {
         var totalAmount: Double? = 0
 
         for token in tokens {
-
             if totalAmount == nil {
                 totalAmount = 0.0
             }

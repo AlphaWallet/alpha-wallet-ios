@@ -13,7 +13,7 @@ class OpenSeaNonFungibleTokenView: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isSymbolLabelHidden = true
         imageView.loading = .disabled
-        
+
         return imageView
     }()
     private let imageHolder = UIView()
@@ -58,7 +58,7 @@ class OpenSeaNonFungibleTokenView: UIView {
             background.anchorsConstraint(to: self, edgeInsets: .zero),
 
             stackView.anchorsConstraint(to: background),
-            tokenImageView.anchorsConstraint(to: imageHolder)
+            tokenImageView.anchorsConstraint(to: imageHolder),
         ])
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -96,7 +96,7 @@ struct OpenSeaNonFungibleTokenPairTableCellViewModel {
 extension OpenSeaNonFungibleTokenPairTableCellViewModel: Hashable {
     static func == (lhs: OpenSeaNonFungibleTokenPairTableCellViewModel, rhs: OpenSeaNonFungibleTokenPairTableCellViewModel) -> Bool {
         return lhs.leftViewModel == rhs.leftViewModel && lhs.rightViewModel == rhs.rightViewModel
-    } 
+    }
 }
 
 protocol OpenSeaNonFungibleTokenPairTableCellDelegate: AnyObject {
@@ -149,7 +149,7 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
             right.bottomAnchor.constraint(equalTo: background.bottomAnchor),
             right.widthAnchor.constraint(equalToConstant: cellSize.width),
 
-            right.leadingAnchor.constraint(equalTo: left.trailingAnchor, constant: 16)
+            right.leadingAnchor.constraint(equalTo: left.trailingAnchor, constant: 16),
         ])
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellSelected))
@@ -160,7 +160,7 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
     required init?(coder: NSCoder) {
         return nil
     }
-    
+
     @objc private func cellSelected(_ sender: UITapGestureRecognizer) {
         guard let indexPath = self.indexPath else { return }
 

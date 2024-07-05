@@ -1,8 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import UIKit
-import Combine
+
 import AlphaWalletAttestation
 import AlphaWalletCore
 import AlphaWalletFoundation
@@ -111,7 +112,7 @@ final class TokensViewModel {
     }
 
     var shouldShowBackupPromptViewHolder: Bool {
-            //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
+        //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filterInUserInterface {
         case .all, .keyword:
             return true
@@ -256,7 +257,7 @@ final class TokensViewModel {
                 .map { $0 ?? wallet.address.truncateMiddle }
                 .eraseToAnyPublisher()
         }.prepend(wallet.address.truncateMiddle)
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func pullToRefreshState(input pullToRefresh: AnyPublisher<Void, Never>) -> AnyPublisher<RefreshControlState, Never> {
@@ -438,24 +439,24 @@ final class TokensViewModel {
             return tokenOrServer(at: current.next).isRemovable
         }()
         switch (canRemovePreviousItem, canRemoveCurrentItem, canRemoveNextItem) {
-            // Truth table for deletion
-            // previous, current, next
-            // 0, 0, 0
-            // return []
-            // 0, 0, 1
-            // return []
-            // 0, 1, 0
-            // return [current.previous, current]
-            // 0, 1, 1
-            // return [current]
-            // 1, 0, 0
-            // return []
-            // 1, 0, 1
-            // return []
-            // 1, 1, 0
-            // return [current]
-            // 1, 1, 1
-            // return [current]
+        // Truth table for deletion
+        // previous, current, next
+        // 0, 0, 0
+        // return []
+        // 0, 0, 1
+        // return []
+        // 0, 1, 0
+        // return [current.previous, current]
+        // 0, 1, 1
+        // return [current]
+        // 1, 0, 0
+        // return []
+        // 1, 0, 1
+        // return []
+        // 1, 1, 0
+        // return [current]
+        // 1, 1, 1
+        // return [current]
         case (_, false, _):
             return []
         case (false, true, false):
@@ -641,9 +642,9 @@ extension TokensViewModel {
     }
 }
 
-extension TokensViewModel.ViewState: Hashable { }
-extension TokensViewModel.SectionViewModel: Hashable { }
-extension TokensViewModel.ViewModelType: Hashable { }
+extension TokensViewModel.ViewState: Hashable {}
+extension TokensViewModel.SectionViewModel: Hashable {}
+extension TokensViewModel.ViewModelType: Hashable {}
 
 extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
@@ -766,7 +767,7 @@ fileprivate extension TokensViewModel.functional {
                 return TokensViewModel.SectionViewModel(section: section, views: [])
             }
 
-            let viewModels = (0 ..< numberOfItems).map { row -> TokensViewModel.ViewModelType in
+            let viewModels = (0..<numberOfItems).map { row -> TokensViewModel.ViewModelType in
                 let indexPath = IndexPath(row: row, section: sectionIndex)
                 return TokensViewModel.functional.viewModel(for: indexPath, sections: sections, filteredTokens: filteredTokens, collectiblePairs: collectiblePairs, tokenImageFetcher: tokenImageFetcher, assetDefinitionStore: assetDefinitionStore)
             }

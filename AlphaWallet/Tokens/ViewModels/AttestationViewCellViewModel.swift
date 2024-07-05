@@ -1,8 +1,9 @@
 // Copyright © 2023 Stormbird PTE. LTD.
 
+import Combine
+
 import AlphaWalletAttestation
 import AlphaWalletFoundation
-import Combine
 
 struct AttestationViewCellViewModel {
     private let attestation: Attestation
@@ -36,8 +37,7 @@ struct AttestationViewCellViewModel {
     }
 }
 
-extension AttestationViewCellViewModel: Hashable {
-}
+extension AttestationViewCellViewModel: Hashable {}
 
 extension AttestationViewCellViewModel {
     enum functional {}
@@ -57,7 +57,7 @@ fileprivate extension AttestationViewCellViewModel.functional {
         }
         return NSAttributedString(string: subtitle.trimmed, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Screen.TokenCard.Font.subtitle,
         ])
     }
 
@@ -65,7 +65,7 @@ fileprivate extension AttestationViewCellViewModel.functional {
         let name = assetDefinitionStore.xmlHandler(forAttestation: attestation)?.getAttestationName() ?? attestation.name
         return NSAttributedString(string: name, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
-            .font: Screen.TokenCard.Font.title
+            .font: Screen.TokenCard.Font.title,
         ])
     }
 }

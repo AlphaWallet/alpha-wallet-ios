@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import Combine
 import AlphaWalletAttestation
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import Combine
+import UIKit
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
@@ -409,14 +409,12 @@ extension TokensViewController: UITableViewDelegate {
 }
 
 extension TokensViewController: ActiveWalletSessionViewDelegate {
-
     func view(_ view: ActiveWalletSessionView, didSelectTap sender: UITapGestureRecognizer) {
         delegate?.walletConnectSelected(in: self)
     }
 }
 
 extension TokensViewController {
-
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return viewModel.cellHeight(for: indexPath)
     }
@@ -526,7 +524,7 @@ extension TokensViewController {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [filterView] in
             //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
-            if let selection = selection, case let ControlSelection.selected(index) = selection {
+            if let selection = selection, case ControlSelection.selected(let index) = selection {
                 filterView.setSelection(cellIndex: Int(index))
             }
         }
@@ -545,7 +543,6 @@ extension TokensViewController {
 }
 
 extension TokensViewController: UISearchControllerDelegate {
-
     func didDismissSearchController(_ searchController: UISearchController) {
         guard viewModel.isSearchActive else { return }
 
@@ -591,7 +588,6 @@ extension TokensViewController: UISearchResultsUpdating {
 }
 
 extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
-
     func didSelect(cell: OpenSeaNonFungibleTokenPairTableCell, indexPath: IndexPath, isLeftCardSelected: Bool) {
         selection.send(.gridItem(indexPath: indexPath, isLeftCardSelected: isLeftCardSelected))
     }

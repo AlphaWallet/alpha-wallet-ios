@@ -1,10 +1,12 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
+import Combine
 import Foundation
 import UIKit
-import BigInt
+
 import AlphaWalletFoundation
-import Combine
+
+import BigInt
 
 struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
     private let safeShortTitleInPluralForm: String
@@ -22,7 +24,6 @@ struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
          isVisible: Bool = true,
          accessoryType: UITableViewCell.AccessoryType = .none,
          tokenImageFetcher: TokenImageFetcher) {
-
         self.type = token.type
         self.contractAddress = token.contractAddress
         self.server = token.server
@@ -41,14 +42,14 @@ struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
     var titleAttributedString: NSAttributedString {
         return .init(string: safeShortTitleInPluralForm, attributes: [
             .font: Screen.TokenCard.Font.title,
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 
     var tickersAmountAttributedString: NSAttributedString {
         return .init(string: "\(nonZeroBalanceCount) \(symbol)", attributes: [
             .font: Screen.TokenCard.Font.subtitle,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
         ])
     }
 
@@ -62,4 +63,4 @@ struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
 
 }
 
-extension NonFungibleTokenViewCellViewModel: Hashable { }
+extension NonFungibleTokenViewCellViewModel: Hashable {}
