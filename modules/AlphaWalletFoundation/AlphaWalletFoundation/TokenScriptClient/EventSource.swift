@@ -124,7 +124,7 @@ final class EventSource {
             switch server {
             case .any:
                 let enabledServers = sessionsProvider.activeSessions.map { $0.key }
-                return await enabledServers.asyncCompactMap { server in await tokensService.token(for: token.contractAddress, server: server) }
+                return await enabledServers.asyncCompactMap { server in await self.tokensService.token(for: token.contractAddress, server: server) }
             case .server(let server):
                 return [token]
             }

@@ -121,7 +121,7 @@ final class EventSourceForActivities {
             switch server {
             case .any:
                 let enabledServers: [RPCServer] = sessionsProvider.activeSessions.map { $0.key }
-                return await enabledServers.asyncCompactMap { server in await tokensService.token(for: token.contractAddress, server: server) }.compactMap { $0 }
+                return await enabledServers.asyncCompactMap { server in await self.tokensService.token(for: token.contractAddress, server: server) }.compactMap { $0 }
             case .server(let server):
                 return [token]
             }

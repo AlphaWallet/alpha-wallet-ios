@@ -243,7 +243,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         if Config().development.shouldDisableApplyingTickers {
             return tokens
         }
-        return await tokens.asyncCompactMap { await applyTicker(token: $0) }
+        return await tokens.asyncCompactMap { await self.applyTicker(token: $0) }
     }
 
     private func applyTicker(token: TokenViewModel?) async -> TokenViewModel? {

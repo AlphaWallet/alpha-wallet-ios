@@ -177,7 +177,7 @@ actor EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 }.eraseToAnyPublisher()
         }
 
-        let publishers = await fetchTypes.asyncCompactMap { getSchedulerProvider(fetchType: $0) }
+        let publishers = await fetchTypes.asyncCompactMap { self.getSchedulerProvider(fetchType: $0) }
             .map {
                 fetchLatestTransactions(schedulerProvider: $0.schedulerProvider)
                     .replaceError(with: [])

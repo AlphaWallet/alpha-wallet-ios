@@ -312,7 +312,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
 
             let contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])] = await contractsToTokenIds.asyncCompactMap { contract, tokenIds -> (contract: AlphaWallet.Address, balances: [BigInt: BigUInt])? in
-                if let balance: [BigInt: BigUInt] = try? await erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds)) {
+                if let balance: [BigInt: BigUInt] = try? await self.erc1155BalanceFetcher.getErc1155Balance(contract: contract, tokenIds: Set(tokenIds)) {
                     return (contract: contract, balances: balance)
                 } else {
                     return nil

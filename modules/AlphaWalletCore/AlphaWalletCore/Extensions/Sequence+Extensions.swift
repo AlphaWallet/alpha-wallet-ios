@@ -3,30 +3,45 @@
 import Foundation
 
 public extension Sequence {
-    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
-        var values = [T]()
-        for element in self {
-            try await values.append(transform(element))
-        }
-        return values
-    }
-
-    func asyncCompactMap<T>(_ transform: (Self.Element) async throws -> T?) async rethrows -> [T] {
-        var values = [T]()
-        for element in self {
-            if let result = try await transform(element) {
+    func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
+        return try await withThrowingTaskGroup( of: T.self) { [self] group in
+            for element in self {
+                group.addTask { try await transform(element) }
+            }
+            var values = [T]()
+            for try await result in group {
                 values.append(result)
             }
+            return values
         }
-        return values
     }
 
-    func asyncFlatMap<T: Sequence>(_ transform: (Element) async throws -> T) async rethrows -> [T.Element] {
-        var values = [T.Element]()
-        for element in self {
-            try await values.append(contentsOf: transform(element))
+    func asyncCompactMap<T>(_ transform: @escaping (Element) async throws -> T?) async rethrows -> [T] {
+        return try await withThrowingTaskGroup( of: T?.self) { [self] group in
+            for element in self {
+                group.addTask { try await transform(element) }
+            }
+            var values = [T]()
+            for try await result in group {
+                if let result {
+                    values.append(result)
+                }
+            }
+            return values
         }
-        return values
+    }
+
+    func asyncFlatMap<T: Sequence>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T.Element] {
+        return try await withThrowingTaskGroup( of: T.self) { [self] group in
+            for element in self {
+                group.addTask { try await transform(element) }
+            }
+            var values = [T.Element]()
+            for try await result in group {
+                values.append(contentsOf: result)
+            }
+            return values
+        }
     }
 
     func asyncContains(where predicate: (Self.Element) async throws -> Bool) async rethrows -> Bool {

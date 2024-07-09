@@ -112,7 +112,7 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
         if Config().development.isAutoFetchingDisabled {
             return [:]
         }
-        let unorderedHistoryToPeriods = await periods.asyncMap { await fetchChartHistory(force: force, period: $0, for: token, currency: currency) }
+        let unorderedHistoryToPeriods = await periods.asyncMap { await self.fetchChartHistory(force: force, period: $0, for: token, currency: currency) }
         let historyToPeriods = unorderedHistoryToPeriods.reorder(by: periods)
         var values: [ChartHistoryPeriod: ChartHistory] = [:]
         for each in historyToPeriods {
@@ -173,7 +173,7 @@ public class BaseCoinTickersFetcher: CoinTickersFetcher {
 
     private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker], currency: Currency) async throws -> [AssignedCoinTickerId: CoinTicker] {
         let assignedCoinTickerIds: [AssignedCoinTickerId] = await tokens.asyncCompactMap { token in
-            if let tickerId = await tickerIdsFetcher.tickerId(for: token) {
+            if let tickerId = await self.tickerIdsFetcher.tickerId(for: token) {
                 return AssignedCoinTickerId(tickerId: tickerId, token: token)
             } else {
                 return nil

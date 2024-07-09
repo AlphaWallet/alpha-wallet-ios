@@ -148,7 +148,7 @@ public actor ActivitiesService: ActivitiesServiceType {
         let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
 
         return await counters.asyncMap {
-            await generateRowModels(activityOrTransactions: $0.value, blockNumber: $0.key)
+            await self.generateRowModels(activityOrTransactions: $0.value, blockNumber: $0.key)
         }.flatMap { $0 }
     }
 
@@ -178,7 +178,7 @@ public actor ActivitiesService: ActivitiesServiceType {
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
                     results.append(contentsOf: await transaction.localizedOperations.asyncMap {
-                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: self.tokensService, wallet: self.wallet.address)
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
                     for each in activities {
@@ -205,7 +205,7 @@ public actor ActivitiesService: ActivitiesServiceType {
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: await transaction.localizedOperations.asyncMap {
-                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: tokensService, wallet: wallet.address)
+                        let activity = await functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensService: self.tokensService, wallet: self.wallet.address)
 
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
