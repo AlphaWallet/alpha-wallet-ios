@@ -30,7 +30,7 @@ struct NonFungibleTokenViewCellViewModel: TokenIdentifiable {
         self.iconImage = tokenImageFetcher.image(token: token, size: .s750)
         self.nonZeroBalanceCount = token.nonZeroBalance.count
         self.symbol = token.symbol
-        self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""
+        self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? token.name
         self.isVisible = isVisible
         self.accessoryType = accessoryType
     }

@@ -17,7 +17,7 @@ struct OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return .init(string: token.tokenScriptOverrides?.titleInPluralForm ?? "", attributes: [
+        return .init(string: token.tokenScriptOverrides?.titleInPluralForm ?? token.name, attributes: [
             .font: Fonts.regular(size: 20),
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
@@ -54,7 +54,7 @@ extension OpenSeaNonFungibleTokenViewCellViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(token.contractAddress)
         hasher.combine(token.server)
-        hasher.combine(token.tokenScriptOverrides?.titleInPluralForm)
+        hasher.combine(token.tokenScriptOverrides?.titleInPluralForm ?? token.name)
         hasher.combine(token.nonZeroBalance)
     }
 }

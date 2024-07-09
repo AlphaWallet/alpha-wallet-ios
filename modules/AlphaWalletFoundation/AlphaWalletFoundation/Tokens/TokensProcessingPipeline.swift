@@ -79,14 +79,12 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let whenCollectionHasChanged = Publishers.Merge5(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged, whenAttestationXMLChanged, whenCurrencyChanged)
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { tokenViewModels in asFuture { await self.applyTickers(tokens: tokenViewModels) ?? [] } }
-            .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         let initialSnapshot: AnyPublisher<[TokenViewModel], Never> = asFuture { await self.tokensService.tokens }
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMap { [weak self] tokenViewModels in asFuture { await self?.applyTickers(tokens: tokenViewModels) ?? [] } }
-            .flatMap { self.applyTokenScriptOverrides(tokens: $0) }
             .eraseToAnyPublisher()
 
         return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
@@ -138,7 +136,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     public func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) async -> TokenViewModel? {
         if let token = await tokensService.token(for: contract, server: server) {
             let viewModel = await applyTicker(token: TokenViewModel(token: token))
-            applyTokenScriptOverrides(token: viewModel)
             return viewModel
         } else {
             return nil
@@ -175,7 +172,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         return Publishers.Merge4(wrapWithCurrentValueSubject(tokensService.tokenPublisher(for: contract, server: server), initialValue: nil), whenTickersHasChanged, whenSignatureOrBodyChanged, whenEventHasChanged)
             .map { $0.flatMap { TokenViewModel(token: $0) } }
             .flatMap { [weak self] tokenViewModels in asFuture { await self?.applyTicker(token: tokenViewModels) } }
-            .map { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
             .eraseToAnyPublisher()
     }
 
@@ -241,26 +237,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                     await tokensService.addOrUpdate(with: actions)
                 }
             }.store(in: &cancelable)
-    }
-
-    private func applyTokenScriptOverrides(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {
-        if Config().development.shouldDisableTokenScriptEffects {
-            return .just(tokens)
-        }
-        let overrides = tokens.map { token -> TokenViewModel in
-            guard let session = sessionsProvider.session(for: token.server) else { return token }
-            let overrides = session.tokenAdaptor.tokenScriptOverrides(token: token)
-
-            return token.override(tokenScriptOverrides: overrides)
-        }
-        return .just(overrides)
-    }
-
-    private func applyTokenScriptOverrides(token: TokenViewModel?) -> TokenViewModel? {
-        guard let token = token else { return token }
-        guard let session = sessionsProvider.session(for: token.server) else { return token }
-        let overrides = session.tokenAdaptor.tokenScriptOverrides(token: token)
-        return token.override(tokenScriptOverrides: overrides)
     }
 
     private func applyTickers(tokens: [TokenViewModel]) async -> [TokenViewModel] {

@@ -28,9 +28,9 @@ struct EthTokenViewCellViewModel: TokenIdentifiable {
          accessoryType: UITableViewCell.AccessoryType = .none,
          tokenImageFetcher: TokenImageFetcher) {
         self.type = token.type
-        self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""
+        self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? token.name
         self.amountShort = token.balance.amountShort
-        self.symbolInPluralForm = token.tokenScriptOverrides?.symbolInPluralForm ?? ""
+        self.symbolInPluralForm = token.tokenScriptOverrides?.symbolInPluralForm ?? token.symbol
         self.ticker = token.balance.ticker
         self.contractAddress = token.contractAddress
         self.server = token.server

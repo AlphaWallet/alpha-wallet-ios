@@ -33,7 +33,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "", attributes: [
+        return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? token.name, attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title,
         ])

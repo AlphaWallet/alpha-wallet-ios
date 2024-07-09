@@ -298,6 +298,7 @@ class Application: WalletDependenciesProvidable {
                 var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
 
                 for wallet in wallets {
+                    //TODO faster if we only load one wallet. Avoid loading all wallets or reduce priority/frequency?
                     let dep = self.buildDependencies(for: wallet)
                     fetchers[wallet] = dep.fetcher
                 }

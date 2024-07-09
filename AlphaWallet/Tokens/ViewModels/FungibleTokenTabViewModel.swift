@@ -53,7 +53,7 @@ class FungibleTokenTabViewModel {
 
         let viewState = tokensPipeline
             .tokenViewModelPublisher(for: token)
-            .map { $0?.tokenScriptOverrides?.titleInPluralForm }
+            .map { $0?.tokenScriptOverrides?.titleInPluralForm ?? $0?.name }
             .map { FungibleTokenTabViewModel.ViewState(title: $0) }
             .eraseToAnyPublisher()
 

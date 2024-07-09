@@ -108,8 +108,7 @@ public class TokensFilter {
             return token.name.trimmed.lowercased().contains(string) ||
                 token.symbol.trimmed.lowercased().contains(string) ||
                 token.contractAddress.eip55String.lowercased().contains(string) ||
-                (token.tokenScriptOverrides?.titleInPluralForm.trimmed.lowercased().contains(string) ?? false) ||
-                (token.tokenScriptOverrides?.title.trimmed.lowercased().contains(string) ?? false)
+                ((token.tokenScriptOverrides?.titleInPluralForm ?? token.tokenScriptOverrides?.title ?? token.name).trimmed.lowercased().contains(string) ?? false)
         }
 
         switch filter {

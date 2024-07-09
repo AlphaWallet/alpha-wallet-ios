@@ -95,7 +95,7 @@ final class NFTCollectionViewModel {
         let actions = actions(for: tokenHolder)
 
         let title = tokensService.tokenViewModelPublisher(for: token)
-            .compactMap { $0?.tokenScriptOverrides?.titleInPluralForm ?? "-" }
+            .compactMap { $0?.tokenScriptOverrides?.titleInPluralForm ?? $0?.name ?? "-" }
 
         let viewState = Publishers.CombineLatest3(title, tokenHolders, actions)
             .map { title, tokenHolders, actions in
