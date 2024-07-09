@@ -5,11 +5,13 @@
 //  Created by Vladyslav Shepitko on 17.05.2021.
 //
 
-import Foundation
 import Combine
 import CoreFoundation
+import Foundation
+
 import AlphaWalletCore
 import AlphaWalletTokenScript
+
 import BigInt
 import CombineExt
 
@@ -63,7 +65,6 @@ public actor ActivitiesService: ActivitiesServiceType {
          activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
          transactionsFilterStrategy: TransactionsFilterStrategy = .all,
          tokensService: TokensService) {
-
         self.sessionsProvider = sessionsProvider
         self.eventsActivityDataStore = eventsActivityDataStore
         self.activitiesFilterStrategy = activitiesFilterStrategy
@@ -284,7 +285,7 @@ fileprivate func == (activity: Activity, operation: LocalizedOperation) -> Bool 
             return activity.nativeViewType == .nativeCryptoSent || activity.nativeViewType == .nativeCryptoReceived
         case .erc20TokenTransfer:
             return (activity.nativeViewType == .erc20Sent || activity.nativeViewType == .erc20Received) && isSameAmount() && isSameFrom() && isSameTo()
-            //TODO name seems wrong since it's checking for ERC721 approvals too
+        //TODO name seems wrong since it's checking for ERC721 approvals too
         case .erc20TokenApprove:
             return activity.nativeViewType == .erc20OwnerApproved || activity.nativeViewType == .erc20ApprovalObtained || activity.nativeViewType == .erc721OwnerApproved || activity.nativeViewType == .erc721ApprovalObtained
         case .erc721TokenTransfer, .erc1155TokenTransfer:
@@ -349,19 +350,19 @@ fileprivate extension ActivitiesService.functional {
                 }
             case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer), (.completed, .erc1155TokenTransfer):
                 if let address = transactionRow.operation?.contractAddress {
-                    erc20TokenOperation =  await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.completedTransfer($0) }
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server).flatMap { TokenOperation.completedTransfer($0) }
                 } else {
                     erc20TokenOperation = nil
                 }
             case (.pending, .erc20TokenApprove):
                 if let address = transactionRow.operation?.contractAddress {
-                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.pendingErc20Approval($0) }
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server).flatMap { TokenOperation.pendingErc20Approval($0) }
                 } else {
                     erc20TokenOperation = nil
                 }
             case (.completed, .erc20TokenApprove):
                 if let address = transactionRow.operation?.contractAddress {
-                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server) .flatMap { TokenOperation.completedErc20Approval($0) }
+                    erc20TokenOperation = await tokensService.token(for: address, server: transactionRow.server).flatMap { TokenOperation.completedErc20Approval($0) }
                 } else {
                     erc20TokenOperation = nil
                 }
@@ -427,7 +428,7 @@ fileprivate extension ActivitiesService.functional {
             state = .completed
         case .error, .failed:
             state = .failed
-                //TODO we don't need the other states at the moment
+        //TODO we don't need the other states at the moment
         case .unknown:
             state = .completed
         }
@@ -441,24 +442,24 @@ fileprivate extension ActivitiesService.functional {
             rowType = .item
         }
         return .init(
-                //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
-                id: transactionRow.blockNumber + 10000000,
-                rowType: rowType,
-                token: token,
-                server: transactionRow.server,
-                name: activityName,
-                eventName: activityName,
-                blockNumber: transactionRow.blockNumber,
-                transactionId: transactionRow.id,
-                transactionIndex: transactionRow.transactionIndex,
-                //We don't use this for transactions, so it's ok
-                logIndex: 0,
-                date: transactionRow.date,
-                values: (token: .init(), card: cardAttributes),
-                view: (html: "", urlFragment: nil, style: ""),
-                itemView: (html: "", urlFragment: nil, style: ""),
-                isBaseCard: true,
-                state: state
+            //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
+            id: transactionRow.blockNumber + 10000000,
+            rowType: rowType,
+            token: token,
+            server: transactionRow.server,
+            name: activityName,
+            eventName: activityName,
+            blockNumber: transactionRow.blockNumber,
+            transactionId: transactionRow.id,
+            transactionIndex: transactionRow.transactionIndex,
+            //We don't use this for transactions, so it's ok
+            logIndex: 0,
+            date: transactionRow.date,
+            values: (token: .init(), card: cardAttributes),
+            view: (html: "", urlFragment: nil, style: ""),
+            itemView: (html: "", urlFragment: nil, style: ""),
+            isBaseCard: true,
+            state: state
         )
     }
 }

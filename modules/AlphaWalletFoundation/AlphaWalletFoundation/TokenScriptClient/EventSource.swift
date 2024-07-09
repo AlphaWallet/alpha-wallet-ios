@@ -1,11 +1,13 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
 import Combine
+import Foundation
+
 import AlphaWalletCore
 import AlphaWalletTokenScript
 import AlphaWalletWeb3
+
+import BigInt
 
 // swiftlint:disable type_body_length
 final class EventSource {
@@ -25,7 +27,6 @@ final class EventSource {
          eventsDataStore: NonActivityEventsDataStore,
          config: Config,
          sessionsProvider: SessionsProvider) {
-
         self.sessionsProvider = sessionsProvider
         self.config = config
         self.tokensService = tokensService
@@ -110,7 +111,6 @@ final class EventSource {
              sessionsProvider: SessionsProvider,
              eventsDataStore: NonActivityEventsDataStore,
              assetDefinitionStore: AssetDefinitionStore) {
-
             self.eventsDataStore = eventsDataStore
             self.assetDefinitionStore = assetDefinitionStore
             self.sessionsProvider = sessionsProvider
@@ -144,7 +144,6 @@ final class EventSource {
              session: WalletSession,
              eventsFetcher: TokenEventsForTickersFetcher,
              tokenScriptChanges: TokenScriptChangedTokens) {
-
             self.tokenScriptChanges = tokenScriptChanges
             self.eventsFetcher = eventsFetcher
             self.session = session
@@ -313,7 +312,6 @@ final class EventSource {
         init(eventsDataStore: NonActivityEventsDataStore,
              sessionsProvider: SessionsProvider,
              eventFetcher: EventFetcher) {
-
             self.sessionsProvider = sessionsProvider
             self.eventFetcher = eventFetcher
             self.eventsDataStore = eventsDataStore

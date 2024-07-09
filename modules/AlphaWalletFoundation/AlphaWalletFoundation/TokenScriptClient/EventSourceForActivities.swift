@@ -1,10 +1,12 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import Foundation
 import Combine
+import Foundation
+
 import AlphaWalletCore
 import AlphaWalletTokenScript
 import AlphaWalletWeb3
+
 import BigInt
 
 final class EventSourceForActivities {
@@ -25,7 +27,6 @@ final class EventSourceForActivities {
          assetDefinitionStore: AssetDefinitionStore,
          eventsDataStore: EventsActivityDataStoreProtocol,
          sessionsProvider: SessionsProvider) {
-
         self.config = config
         self.tokensService = tokensService
         self.eventsDataStore = eventsDataStore
@@ -107,7 +108,6 @@ final class EventSourceForActivities {
         init(tokensService: TokensService,
              sessionsProvider: SessionsProvider,
              assetDefinitionStore: AssetDefinitionStore) {
-
             self.assetDefinitionStore = assetDefinitionStore
             self.sessionsProvider = sessionsProvider
             self.tokensService = tokensService
@@ -144,7 +144,6 @@ final class EventSourceForActivities {
              session: WalletSession,
              eventsFetcher: TokenEventsForActivitiesTickersFetcher,
              tokenScriptChanges: TokenScriptChangedTokens) {
-
             self.tokenScriptChanges = tokenScriptChanges
             self.eventsFetcher = eventsFetcher
             self.session = session
@@ -299,7 +298,6 @@ final class EventSourceForActivities {
         init(eventsDataStore: EventsActivityDataStoreProtocol,
              sessionsProvider: SessionsProvider,
              eventFetcher: EventForActivitiesFetcher) {
-
             self.sessionsProvider = sessionsProvider
             self.eventFetcher = eventFetcher
             self.eventsDataStore = eventsDataStore
@@ -339,17 +337,17 @@ final class EventSourceForActivities {
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
 
         return EventActivityInstance(
-                contract: eventOrigin.contract,
-                tokenContract: tokenContract,
-                server: server,
-                date: date,
-                eventName: eventOrigin.eventName,
-                blockNumber: Int(eventLog.blockNumber),
-                transactionId: transactionId,
-                transactionIndex: Int(eventLog.transactionIndex),
-                logIndex: Int(eventLog.logIndex),
-                filter: filterText,
-                json: json)
+            contract: eventOrigin.contract,
+            tokenContract: tokenContract,
+            server: server,
+            date: date,
+            eventName: eventOrigin.eventName,
+            blockNumber: Int(eventLog.blockNumber),
+            transactionId: transactionId,
+            transactionIndex: Int(eventLog.transactionIndex),
+            logIndex: Int(eventLog.logIndex),
+            filter: filterText,
+            json: json)
     }
 
     static func formFilterFrom(fromParameter parameter: EventParameter, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {

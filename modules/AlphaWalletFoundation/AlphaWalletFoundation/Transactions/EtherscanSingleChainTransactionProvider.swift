@@ -1,9 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
-import BigInt
 import Combine
+import Foundation
+
 import AlphaWalletCore
+
+import BigInt
 
 actor EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
@@ -36,7 +38,6 @@ actor EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
          ercTokenDetector: ErcTokenDetector,
          blockchainExplorer: BlockchainExplorer,
          fetchTypes: [TransactionFetchType] = TransactionFetchType.allCases) {
-
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.ercTokenDetector = ercTokenDetector
@@ -100,16 +101,16 @@ actor EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             .store(in: &cancellable)
 
         /*
-        pendingTransactionProvider.completeTransaction
-            .compactMap { try? self.transactionFetchType(transaction: $0.get()) }
-            .setFailureType(to: PromiseError.self)
-            .flatMap { self.fetchLatestTransactions(fetchTypes: [$0]) }
-            .sink(receiveCompletion: { result in
+         pendingTransactionProvider.completeTransaction
+             .compactMap { try? self.transactionFetchType(transaction: $0.get()) }
+             .setFailureType(to: PromiseError.self)
+             .flatMap { self.fetchLatestTransactions(fetchTypes: [$0]) }
+             .sink(receiveCompletion: { result in
 
-            }, receiveValue: { transactions in
+             }, receiveValue: { transactions in
 
-            }).store(in: &cancellable)
-        */
+             }).store(in: &cancellable)
+         */
 
         pendingTransactionProvider.completeTransaction
             .compactMap { try? $0.get() }
@@ -266,7 +267,6 @@ private protocol LatestTransactionProvidable {
 }
 
 extension EtherscanSingleChainTransactionProvider {
-
     private struct SchedulerProviderData {
         private let scheduler: Scheduler
 
@@ -275,7 +275,6 @@ extension EtherscanSingleChainTransactionProvider {
 
         init(fetchType: TransactionFetchType,
              schedulerProvider: SchedulerProvider & LatestTransactionProvidable) {
-
             self.fetchType = fetchType
             self.scheduler = Scheduler(provider: schedulerProvider)
             self.schedulerProvider = schedulerProvider

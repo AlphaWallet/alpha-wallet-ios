@@ -5,11 +5,13 @@
 //  Created by Vladyslav Shepitko on 26.05.2021.
 //
 
-import Foundation
 import Combine
+import Foundation
+
 import AlphaWalletCore
 import AlphaWalletLogger
 import AlphaWalletOpenSea
+
 import BigInt
 import SwiftyJSON
 
@@ -60,8 +62,8 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let transporter: ApiTransporter
     private var cancellable = AtomicDictionary<String, AnyCancellable>()
 
-    weak public var delegate: TokenBalanceFetcherDelegate?
-    weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
+    public weak var delegate: TokenBalanceFetcherDelegate?
+    public weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     public init(session: WalletSession,
                 tokensDataStore: TokensDataStore,
@@ -69,7 +71,6 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,
                 transporter: ApiTransporter) {
-
         self.session = session
         self.transporter = transporter
         self.nftProvider = session.nftProvider
@@ -244,7 +245,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                     guard let token = await tokensDataStore.token(for: contract, server: strongSelf.session.server) else { return }
                     let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
                     strongSelf.notifyUpdateBalance([
-                        .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets)))
+                        .update(token: token, field: .nonFungibleBalance(.assets(listOfAssets))),
                     ])
                 }
             })
@@ -253,7 +254,6 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]]) async -> [AddOrUpdateTokenAction] {
         var actions: [AddOrUpdateTokenAction] = []
         for (contract, nonFungibles) in contractToNonFungibles {
-
             var listOfAssets = [NonFungibleBalance.NftAssetRawValue]()
             var anyNonFungible: T? = nonFungibles.compactMap { $0.value }.first
             for each in nonFungibles {
