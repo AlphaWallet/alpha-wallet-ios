@@ -104,29 +104,6 @@ public struct TokenInstanceActionAdapter {
             fungibleBalance: fungibleBalance)
     }
 
-    public func tokenScriptWarningMessage(for action: TokenInstanceAction,
-                                          fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.TokenScriptWarningMessage? {
-        tokenScriptWarningMessage(
-            for: action,
-            selectedTokenHolders: [tokenHolder],
-            fungibleBalance: fungibleBalance)
-    }
-
-    private func tokenScriptWarningMessage(for action: TokenInstanceAction,
-                                           selectedTokenHolders: [TokenHolder],
-                                           fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.TokenScriptWarningMessage? {
-        if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
-            if let denialMessage = selection.denial {
-                return .warning(string: denialMessage)
-            } else {
-                //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                return .undefined
-            }
-        } else {
-            return nil
-        }
-    }
-
     private func state(for action: TokenInstanceAction,
                        selectedTokenHolders: [TokenHolder],
                        fungibleBalance: BigUInt?) -> TokenInstanceActionAdapter.ActionState {
@@ -153,11 +130,6 @@ public struct TokenInstanceActionAdapter {
 }
 
 extension TokenInstanceActionAdapter {
-    public enum TokenScriptWarningMessage {
-        case warning(string: String)
-        case undefined
-    }
-
     public enum ActionState {
         case isDisplayed(Bool)
         case isEnabled(Bool)
@@ -172,18 +144,6 @@ extension TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
-        case .tokenScript(_, _, _, _, _, let selection):
-            guard let selection = selection else { return nil }
-            //TODO handle multiple TokenHolder. We only do single-selections now
-            let tokenHolder = selectedTokenHolders[0]
-            let parser = TokenScriptFilterParser(expression: selection.filter)
-            let filterExpressionIsTrue = parser.parse(withValues: tokenHolder.values, ownerAddress: walletAddress, symbol: tokenHolder.symbol, fungibleBalance: fungibleBalance)
-
-            if filterExpressionIsTrue {
-                return selection
-            } else {
-                return nil
-            }
         }
     }
 
@@ -193,18 +153,6 @@ extension TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
-        case .tokenScript(_, _, _, _, _, let selection):
-            guard let selection = selection,
-                  let values = tokenHolder.values(tokenId: tokenId),
-                  let symbol = tokenHolder.symbol(tokenId: tokenId) else { return nil }
-            let parser = TokenScriptFilterParser(expression: selection.filter)
-
-            let filterExpressionIsTrue = parser.parse(withValues: values, ownerAddress: walletAddress, symbol: symbol, fungibleBalance: fungibleBalance)
-            if filterExpressionIsTrue {
-                return selection
-            } else {
-                return nil
-            }
         }
     }
 }

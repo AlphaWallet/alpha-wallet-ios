@@ -16,7 +16,6 @@ protocol NonFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressTransfer(token: Token, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
     func didPressViewRedemptionInfo(in viewController: NFTAssetViewController)
     func didTapURL(url: URL, in viewController: NFTAssetViewController)
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NFTAssetViewController)
 }
 
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -151,8 +150,6 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             delegate?.didPressTransfer(token: token, tokenHolder: tokenHolder, paymentFlow: .send(type: .transaction(transactionType)), in: self)
         case .display(let warning):
             UIAlertController.alert(message: warning, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.default], viewController: self)
-        case .tokenScript(let action, let tokenHolder):
-            delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
         }
     }
 

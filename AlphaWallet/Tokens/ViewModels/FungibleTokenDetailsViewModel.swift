@@ -87,6 +87,7 @@ final class FungibleTokenDetailsViewModel {
 
         let viewState = Publishers.CombineLatest3(tokenActionButtonsPublisher(), hasTokenScriptSubject, viewTypes)
             .map {
+                //This does work for creating button to open TokenScript viewer for fungible, but /script-uri must say the fungible token has a TokenScript URL (file)
                 let buttons: [ActionButton]
                 if $1 {
                     let tokenScriptViewerBtn = FungibleTokenDetailsViewModel.ActionButton(actionType: TokenInstanceAction(type: TokenInstanceAction.ActionType.openTokenScriptViewer), name: "Open", state: TokenInstanceActionAdapter.ActionState.isDisplayed(true))
@@ -113,14 +114,6 @@ final class FungibleTokenDetailsViewModel {
         case .nftRedeem, .nftSell, .nonFungibleTransfer: return nil
         case .openTokenScriptViewer:
             return .tokenScriptViewer(token: token)
-        case .tokenScript:
-            let fungibleBalance = await tokensService.tokenViewModel(for: token)?.balance.value
-            if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: fungibleBalance) {
-                guard case .warning(let string) = message else { return nil }
-                return .display(warning: string)
-            } else {
-                return .tokenScript(action: action, token: token)
-            }
         case .bridge(let service): return .bridge(token: token, service: service)
         case .buy(let service): return .buy(token: token, service: service)
         }
@@ -301,7 +294,6 @@ extension FungibleTokenDetailsViewModel {
         case swap(swapTokenFlow: SwapTokenFlow)
         case erc20Transfer(token: Token)
         case erc20Receive(token: Token)
-        case tokenScript(action: TokenInstanceAction, token: Token)
         case tokenScriptViewer(token: Token)
         case bridge(token: Token, service: TokenActionProvider)
         case buy(token: Token, service: TokenActionProvider)

@@ -17,6 +17,8 @@ import PromiseKit
 
 public typealias XMLFile = String
 
+//TODO most if not all of XMLHandler.swift can be removed since we don't have a TokenScript engine embedded anymore?
+
 // swiftlint:disable file_length
 public enum SingularOrPlural {
     case singular
@@ -242,56 +244,7 @@ public class PrivateXMLHandler {
     }()
 
     lazy var actions: [TokenInstanceAction] = {
-        var results: [TokenInstanceAction] = []
-        threadSafe.performSync {
-            guard hasValidTokenScriptFile else { return }
-            let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionCardElements(fromRoot: xml, xmlContext: xmlContext))
-            let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
-            let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
-            for actionElement in actionElements {
-                if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty {
-                    let html: String
-                    let urlFragment: String?
-                    let style: String
-                    if let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext), let cardElements = XMLHandler.getTokenScriptCardsElement(fromRoot: xml, xmlContext: xmlContext) {
-                        let (html: html1, urlFragment: urlFragment1, style: style1) = extractHtml(fromViewElement: viewElement, cardElements: cardElements)
-                        html = html1
-                        urlFragment = urlFragment1
-                        style = style1
-                        guard !html.isEmpty else { continue }
-                    } else {
-                        html = ""
-                        urlFragment = nil
-                        style = ""
-                    }
-                    let attributes = extractFields(forActionElement: actionElement)
-                    let functionOrigin = XMLHandler.getActionTransactionFunctionElement(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { self.createFunctionOriginFrom(ethereumFunctionElement: $0) }
-                    let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
-                        self.selections.first { $0.id == id }
-                    }
-                    switch target {
-                    case .token(let contractAddress):
-                        results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, urlFragment: urlFragment, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
-                    case .attestation:
-                        //TODO attestations+TokenScript to implement support for `actions
-                        break
-                    }
-                }
-            }
-            if fromActionAsTopLevel.isEmpty {
-                if let baseTokenType = baseTokenType, features.isActivityEnabled {
-                    results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
-                } else {
-                    _tokenType.flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
-                }
-            } else {
-                //TODO "erc20Send" name is not good for cryptocurrency
-                let defaultActionsForCryptoCurrency: [TokenInstanceAction] = [.init(type: .erc20Send), .init(type: .erc20Receive)]
-                results.append(contentsOf: defaultActionsForCryptoCurrency)
-            }
-        }
-
-        return results
+        return []
     }()
 
     lazy var attributesWithEventSource: [AssetAttribute] = {

@@ -206,9 +206,11 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         let hasTokenScript = await assetDefinitionStore.hasTokenScript(contract: tokenHolder.contractAddress, server: session.server)
         if hasTokenScript {
             if let tokenScriptViewer = delegate?.tokenScriptViewController(tokenHolder: tokenHolder, tokenId: tokenId, server: session.server) {
+                logger.info("Create TokenScript viewer for NFT: \(tokenHolder.contractAddress.eip55String) server: \(self.session.server.chainID)")
                 return tokenScriptViewer
             }
         }
+        logger.info("Can't create TokenScript viewer for NFT: \(tokenHolder.contractAddress.eip55String) server: \(self.session.server.chainID)")
 
         let viewModel = NFTAssetViewModel(
             tokenId: tokenId,
@@ -323,12 +325,6 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         controller.makePresentationFullScreenForiOS13Migration()
         viewController.present(controller, animated: true)
-    }
-
-    func didTap(action: TokenInstanceAction,
-                tokenHolder: TokenHolder,
-                viewController: NFTAssetViewController) {
-        delegate?.didPress(for: .send(type: .tokenScript(action: action, token: token, tokenHolder: tokenHolder)), inViewController: viewController, in: self)
     }
 
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController) {

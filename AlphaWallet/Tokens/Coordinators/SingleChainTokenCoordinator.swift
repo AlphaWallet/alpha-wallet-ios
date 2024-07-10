@@ -111,11 +111,6 @@ class SingleChainTokenCoordinator: Coordinator {
             }
         }
     }
-
-    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject token: Token, navigationController: UINavigationController) {
-        let tokenHolder = session.tokenAdaptor.getTokenHolder(token: token)
-        delegate?.didPress(for: .send(type: .tokenScript(action: action, token: token, tokenHolder: tokenHolder)), viewController: navigationController, in: self)
-    }
 }
 
 extension SingleChainTokenCoordinator: FungibleTokenCoordinatorDelegate {

@@ -19,8 +19,6 @@ extension TokenInstanceAction.ActionType: Equatable {
             return true
         case (.nonFungibleTransfer, .nonFungibleTransfer):
             return true
-        case (.tokenScript(_, let title1, _, _, _, _), .tokenScript(_, let title2, _, _, _, _)):
-            return title1 == title2
         case (.swap(let s1), .swap(let s2)):
             return s1.action == s2.action
         case (.bridge(let s1), .bridge(let s2)):
@@ -40,7 +38,6 @@ public struct TokenInstanceAction {
         case nftRedeem
         case nftSell
         case nonFungibleTransfer
-        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, urlFragment: String?, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?)
         case swap(service: TokenActionProvider)
         case bridge(service: TokenActionProvider)
         case buy(service: TokenActionProvider)
@@ -53,8 +50,6 @@ public struct TokenInstanceAction {
             return .init()
         case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return .init()
-        case .tokenScript(_, _, _, let attributes, _, _):
-            return attributes
         }
     }
     public var attributesDependencies: [AttributeId: AssetAttribute] {
@@ -83,8 +78,6 @@ public struct TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
-        case .tokenScript(_, _, _, _, let transactionFunction, _):
-            return transactionFunction
         }
     }
     public var contract: AlphaWallet.Address? {
@@ -93,8 +86,6 @@ public struct TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return nil
-        case .tokenScript(let contract, _, _, _, _, _):
-            return contract
         }
     }
     public var hasTransactionFunction: Bool {
@@ -105,8 +96,6 @@ public struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nftRedeem, .nftSell, .nonFungibleTransfer, .openTokenScriptViewer:
             return String(describing: self)
-        case .tokenScript(_, let title, _, _, _, _):
-            return "tokenScript: \(title)"
         }
     }
 
@@ -120,8 +109,6 @@ public struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nonFungibleTransfer, .nftRedeem, .nftSell, .openTokenScriptViewer:
             return (html: "", urlFragment: nil)
-        case .tokenScript(_, _, (html: let html, let urlFragment, style: let style), _, _, _):
-            return (html: wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId), urlFragment: urlFragment)
         }
     }
 }

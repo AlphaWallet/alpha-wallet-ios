@@ -4,14 +4,11 @@ import Foundation
 
 public enum PaymentFlowType {
     case transaction(TransactionType)
-    case tokenScript(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder)
 
     public var server: RPCServer {
         switch self {
         case .transaction(let transactionType):
             return transactionType.server
-        case .tokenScript(_, let token, _):
-            return token.server
         }
     }
 }
@@ -32,8 +29,6 @@ public enum PaymentFlow {
             switch type {
             case .transaction(let value):
                 return value
-            case .tokenScript:
-                return nil
             }
         case .request, .swap:
             return nil

@@ -19,7 +19,6 @@ protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapBuy(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenDetailsViewController)
     func didTapSend(for token: Token, in viewController: FungibleTokenDetailsViewController)
     func didTapReceive(for token: Token, in viewController: FungibleTokenDetailsViewController)
-    func didTap(action: TokenInstanceAction, token: Token, in viewController: FungibleTokenDetailsViewController)
     func tokenScriptViewController(forFungibleContract: AlphaWallet.Address, server: RPCServer) -> UIViewController?
 }
 
@@ -171,8 +170,6 @@ class FungibleTokenDetailsViewController: UIViewController {
             delegate?.didTapSend(for: token, in: self)
         case .erc20Receive(let token):
             delegate?.didTapReceive(for: token, in: self)
-        case .tokenScript(let action, let token):
-            delegate?.didTap(action: action, token: token, in: self)
         case .display(let warning):
             show(message: warning)
         case .bridge(let token, let service):
@@ -181,7 +178,10 @@ class FungibleTokenDetailsViewController: UIViewController {
             delegate?.didTapBuy(for: token, service: service, in: self)
         case .tokenScriptViewer(let token):
             if let viewController = delegate?.tokenScriptViewController(forFungibleContract: token.contractAddress, server: token.server) {
+                logger.info("Opening TokenScript Viewer for fungible: \(token.contractAddress) server: \(token.server.chainID)")
                 navigationController?.present(viewController, animated: true, completion: nil)
+            } else {
+                logger.info("No TokenScript Viewer to open for fungible: \(token.contractAddress) server: \(token.server.chainID)")
             }
         }
     }

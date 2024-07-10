@@ -140,25 +140,6 @@ class PaymentCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func startWithTokenScriptCoordinator(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(
-            session: session,
-            navigationController: navigationController,
-            keystore: keystore,
-            tokenHolder: tokenHolder,
-            tokenObject: token,
-            assetDefinitionStore: assetDefinitionStore,
-            analytics: analytics,
-            domainResolutionService: domainResolutionService,
-            action: action,
-            tokensService: tokensPipeline,
-            networkService: networkService)
-
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
-    }
-
     private func startWithSwapCoordinator(swapPair: SwapPair) {
         let configurator = SwapOptionsConfigurator(
             sessionProvider: sessionsProvider,
@@ -205,8 +186,6 @@ class PaymentCoordinator: Coordinator {
                 case .erc721ForTicketToken(let token, let tokenHolders), .erc875Token(let token, let tokenHolders), .erc721Token(let token, let tokenHolders):
                     startWithSendNFTCoordinator(transactionType: transactionType, token: token, tokenHolder: tokenHolders[0])
                 }
-            case .tokenScript(let action, let token, let tokenHolder):
-                startWithTokenScriptCoordinator(action: action, token: token, tokenHolder: tokenHolder)
             }
         }
 
@@ -284,16 +263,6 @@ extension PaymentCoordinator: TransferNFTCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: TransferNFTCoordinator) {
-        delegate?.didCancel(in: self)
-    }
-}
-
-extension PaymentCoordinator: TokenScriptCoordinatorDelegate {
-    func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator) {
-        delegate?.didFinish(result, in: self)
-    }
-
-    func didCancel(in coordinator: TokenScriptCoordinator) {
         delegate?.didCancel(in: self)
     }
 }

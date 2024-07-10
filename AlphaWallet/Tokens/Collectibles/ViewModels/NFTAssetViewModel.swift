@@ -162,14 +162,6 @@ class NFTAssetViewModel {
             let transactionType = TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
 
             return .transfer(token: token, tokenHolder: tokenHolder, transactionType: transactionType)
-        case .tokenScript:
-            if let message = actionAdapter.tokenScriptWarningMessage(for: action, fungibleBalance: nil) {
-                guard case .warning(let denialMessage) = message else { return nil }
-
-                return .display(warning: denialMessage)
-            } else {
-                return .tokenScript(action: action, tokenHolder: tokenHolder)
-            }
         }
     }
 
@@ -350,7 +342,6 @@ extension NFTAssetViewModel {
         case sell(tokenHolder: TokenHolder)
         case transfer(token: Token, tokenHolder: TokenHolder, transactionType: TransactionType)
         case display(warning: String)
-        case tokenScript(action: TokenInstanceAction, tokenHolder: TokenHolder)
     }
 }
 
@@ -367,8 +358,6 @@ extension TokenInstanceAction {
             return R.string.localizable.aWalletTokenSellButtonTitle()
         case .nonFungibleTransfer:
             return R.string.localizable.aWalletTokenTransferButtonTitle()
-        case .tokenScript(_, let title, _, _, _, _):
-            return title
         case .swap(let service):
             return service.action
         case .buy(let service):
