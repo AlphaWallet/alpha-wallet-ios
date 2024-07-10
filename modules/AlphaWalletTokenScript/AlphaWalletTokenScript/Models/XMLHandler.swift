@@ -7,9 +7,11 @@
 
 import Foundation
 import UIKit
+
 import AlphaWalletAddress
 import AlphaWalletAttestation
 import AlphaWalletCore
+
 import Kanna
 import PromiseKit
 
@@ -403,7 +405,7 @@ public class PrivateXMLHandler {
             case .attestation:
                 break
             }
-            if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+            if let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
                 labelInPluralForm = name
             } else {
                 labelInPluralForm = _labelInSingularForm
@@ -412,7 +414,7 @@ public class PrivateXMLHandler {
         return labelInPluralForm
     }()
 
-    static private var lang: String {
+    private static var lang: String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -580,18 +582,18 @@ public class PrivateXMLHandler {
             return (html: "", urlFragment: nil, style: "")
         } else {
             return (html: """
-                          <script type="text/javascript">
-                          \(script)
-                          </script>
-                          \(sanitizedHtml)
-                          """,
+                <script type="text/javascript">
+                \(script)
+                </script>
+                \(sanitizedHtml)
+                """,
                     urlFragment: urlFragment,
                     style: """
-                           \(XMLHandler.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           """)
+                        \(XMLHandler.standardTokenScriptStyles)
+                        <style type="text/css">
+                        \(style)
+                        </style>
+                        """)
         }
     }
 
@@ -723,10 +725,10 @@ public class PrivateXMLHandler {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
             guard let server = server else { return nil }
             return XMLHandler.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses)
-                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         } else {
             return XMLHandler.getRecipientAddress(fromEthereumFunctionElement: ethereumFunctionElement, xmlContext: xmlContext)
-                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         }
     }
 
@@ -761,10 +763,10 @@ public class PrivateXMLHandler {
 
     private func extractSelectionsForToken() -> [TokenScriptSelection] {
         XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
-            guard let id = each["name"], let filter = each["filter"]  else { return nil }
+            guard let id = each["name"], let filter = each["filter"] else { return nil }
             let names = (
-                    singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
-                    plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+                singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
             )
             let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
             return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
@@ -817,14 +819,14 @@ public class PrivateXMLHandler {
 
     fileprivate static func getHoldingContracts(xml: XMLDocument, xmlContext: XmlContext) -> [(AlphaWallet.Address, Int)] {
         let fromTokenAsTopLevel: [(AlphaWallet.Address, Int)] = XMLHandler.getAddressElementsForHoldingContracts(fromRoot: xml, xmlContext: xmlContext)
-                .map { (contract: $0.text, chainId: $0["network"]) }
-                .compactMap { (contract, chainId) in
-                    if let contract = contract.flatMap({ AlphaWallet.Address(string: $0) }), let chainId = chainId.flatMap({ Int($0) }) {
-                        return (contract: contract, chainId: chainId)
-                    } else {
-                        return nil
-                    }
+            .map { (contract: $0.text, chainId: $0["network"]) }
+            .compactMap { (contract, chainId) in
+                if let contract = contract.flatMap({ AlphaWallet.Address(string: $0) }), let chainId = chainId.flatMap({ Int($0) }) {
+                    return (contract: contract, chainId: chainId)
+                } else {
+                    return nil
                 }
+            }
         let fromActionAsTopLevel: [(AlphaWallet.Address, Int)]
         if let server = XMLHandler.getServerForNativeCurrencyAction(fromRoot: xml, xmlContext: xmlContext) {
             fromActionAsTopLevel = [(Constants.nativeCryptoAddressInDatabase, server.chainID)]
@@ -911,7 +913,7 @@ fileprivate extension PrivateXMLHandler.functional {
         guard let tokensElement = XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext) else { return "" }
         let attestationIssuerKey: String? = getAttestationIssuerKey(xml: xml, xmlContext: xmlContext)
         var results: [String] = [
-            Attestation.convertSignerAddressToFormatForComputingCollectionId(signer: attestationIssuerKey.flatMap { deriveAddressFromPublicKey($0) })
+            Attestation.convertSignerAddressToFormatForComputingCollectionId(signer: attestationIssuerKey.flatMap { deriveAddressFromPublicKey($0) }),
         ]
         let collectionFieldElements = XMLHandler.getAttestationCollectionFieldElements(fromAttributeElement: tokensElement, xmlContext: xmlContext)
         for each in collectionFieldElements {
@@ -992,7 +994,7 @@ public struct XMLHandler {
 
     public var fields: [AttributeId: AssetAttribute] {
         var fields: [AttributeId: AssetAttribute] = [:]
-            //TODO cache?
+        //TODO cache?
         if let baseXMLHandler = baseXMLHandler {
             let overrides = privateXMLHandler.fields
             let base = baseXMLHandler.fields
@@ -1117,36 +1119,36 @@ public struct XMLHandler {
     public static var standardTokenScriptStyles: String {
         //TODO restore the background color after it works with Smart Cats
         return """
-               <style type="text/css">
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
-               font-weight: lighter;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
-               font-weight: normal;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
-               font-weight: bolder;
-               }
-               @font-face {
-               font-family: 'SourceSansPro';
-               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
-               font-weight: bold;
-               }
-               :root {
-                   color-scheme: light dark;
-               }
-               .token-card {
-               padding: 0pt;
-               margin: 0pt;
-               }
-               </style>
-               """
+            <style type="text/css">
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
+            font-weight: lighter;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
+            font-weight: normal;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
+            font-weight: bolder;
+            }
+            @font-face {
+            font-family: 'SourceSansPro';
+            src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
+            font-weight: bold;
+            }
+            :root {
+                color-scheme: light dark;
+            }
+            .token-card {
+            padding: 0pt;
+            margin: 0pt;
+            }
+            </style>
+            """
     }
 
     var attestationCollectionId: String? {
@@ -1170,14 +1172,14 @@ public struct XMLHandler {
             let overriddenValues = overriden.values
 
             return TokenScript.Token(
-                    tokenIdOrEvent: overriden.tokenIdOrEvent,
-                    tokenType: overriden.tokenType,
-                    index: overriden.index,
-                    name: overriden.name,
-                    symbol: overriden.symbol,
-                    status: overriden.status,
-                    //TODO cache?
-                    values: baseValues.merging(overriddenValues) { _, new in new }
+                tokenIdOrEvent: overriden.tokenIdOrEvent,
+                tokenType: overriden.tokenType,
+                index: overriden.index,
+                name: overriden.name,
+                symbol: overriden.symbol,
+                status: overriden.status,
+                //TODO cache?
+                values: baseValues.merging(overriddenValues) { _, new in new }
             )
         } else {
             return overriden
