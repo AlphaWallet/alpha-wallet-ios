@@ -6,10 +6,12 @@
 //
 
 import Combine
+import os.log
 import UIKit
 
 import AlphaWalletFoundation
-import AlphaWalletLogger
+
+private let logger = Logger(subsystem: MyApp.appBundleIdentifier, category: "UI")
 
 protocol FungibleTokenDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenDetailsViewController)
