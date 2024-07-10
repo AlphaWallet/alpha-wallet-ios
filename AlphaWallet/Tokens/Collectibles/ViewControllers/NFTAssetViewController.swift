@@ -153,7 +153,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         }
     }
 
-    private func configureActionButtons(_ buttons: [FungibleTokenDetailsViewModel.ActionButton]) {
+    private func configureActionButtons(_ buttons: [TokenInstanceActionButton]) {
         buttonsBar.cancellable.cancellAll()
 
         buttonsBar.configure(.combined(buttons: buttons.count))

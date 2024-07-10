@@ -139,7 +139,7 @@ class FungibleTokenDetailsViewController: UIViewController {
         return nil
     }
 
-    private func configureActionButtons(with buttons: [FungibleTokenDetailsViewModel.ActionButton]) {
+    private func configureActionButtons(with buttons: [TokenInstanceActionButton]) {
         buttonsBar.configure(.combined(buttons: buttons.count))
 
         for (button, view) in zip(buttons, buttonsBar.buttons) {

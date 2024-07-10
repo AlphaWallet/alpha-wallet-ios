@@ -88,9 +88,9 @@ final class FungibleTokenDetailsViewModel {
         let viewState = Publishers.CombineLatest3(tokenActionButtonsPublisher(), hasTokenScriptSubject, viewTypes)
             .map {
                 //This does work for creating button to open TokenScript viewer for fungible, but /script-uri must say the fungible token has a TokenScript URL (file)
-                let buttons: [ActionButton]
+                let buttons: [TokenInstanceActionButton]
                 if $1 {
-                    let tokenScriptViewerBtn = FungibleTokenDetailsViewModel.ActionButton(actionType: TokenInstanceAction(type: TokenInstanceAction.ActionType.openTokenScriptViewer), name: "Open", state: TokenInstanceActionAdapter.ActionState.isDisplayed(true))
+                    let tokenScriptViewerBtn = TokenInstanceActionButton(actionType: TokenInstanceAction(type: TokenInstanceAction.ActionType.openTokenScriptViewer), name: "Open", state: TokenInstanceActionAdapter.ActionState.isDisplayed(true))
                     buttons = $0 + [tokenScriptViewerBtn ]
                 } else {
                     buttons = $0
@@ -119,7 +119,7 @@ final class FungibleTokenDetailsViewModel {
         }
     }
 
-    private func tokenActionButtonsPublisher() -> AnyPublisher<[ActionButton], Never> {
+    private func tokenActionButtonsPublisher() -> AnyPublisher<[TokenInstanceActionButton], Never> {
         let whenTokenHolderHasChanged = tokenHolder.objectWillChange
             .flatMap { [tokensService, token] _ in asFuture { await tokensService.tokenViewModel(for: token) } }
             .receive(on: RunLoop.main)
@@ -138,7 +138,7 @@ final class FungibleTokenDetailsViewModel {
                 asFuture {
                     let fungibleBalance = await tokensService.tokenViewModel(for: token)?.balance.value
                     return actions.map {
-                        ActionButton(actionType: $0, name: $0.name, state: self.actionAdapter.state(for: $0, fungibleBalance: fungibleBalance))
+                        TokenInstanceActionButton(actionType: $0, name: $0.name, state: self.actionAdapter.state(for: $0, fungibleBalance: fungibleBalance))
                     }
                 }
             }.eraseToAnyPublisher()
@@ -280,14 +280,8 @@ extension FungibleTokenDetailsViewModel {
     }
 
     struct ViewState {
-        let actionButtons: [ActionButton]
+        let actionButtons: [TokenInstanceActionButton]
         let views: [FungibleTokenDetailsViewModel.ViewType]
-    }
-
-    struct ActionButton {
-        let actionType: TokenInstanceAction
-        let name: String
-        let state: TokenInstanceActionAdapter.ActionState
     }
 
     enum FungibleTokenAction {

@@ -192,12 +192,12 @@ class NFTAssetViewModel {
         }
     }
 
-    private func buildActionButtons(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<[FungibleTokenDetailsViewModel.ActionButton], Never> {
+    private func buildActionButtons(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<[TokenInstanceActionButton], Never> {
         return trigger
             .map { _ in self.actionAdapter.availableActions() }
             .map { actions in
                 actions.map {
-                    FungibleTokenDetailsViewModel.ActionButton(
+                    TokenInstanceActionButton(
                         actionType: $0,
                         name: $0.name,
                         state: self.actionAdapter.state(for: $0, fungibleBalance: nil))
@@ -331,7 +331,7 @@ extension NFTAssetViewModel {
 
     struct ViewState {
         let title: String
-        let actionButtons: [FungibleTokenDetailsViewModel.ActionButton]
+        let actionButtons: [TokenInstanceActionButton]
         let viewTypes: [NFTAssetViewModel.ViewType]
         let previewViewParams: NFTPreviewViewType.Params
         let previewViewContentBackgroundColor: UIColor
