@@ -8,14 +8,16 @@
 import Combine
 import Foundation
 import MessageUI
+import os.log
 import SafariServices
 import UIKit
 
 import AlphaWalletFoundation
-import AlphaWalletLogger
 import AlphaWalletTokenScript
 
 import BigInt
+
+private let logger = Logger(subsystem: MyApp.appBundleIdentifier, category: "UI")
 
 protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)
@@ -108,7 +110,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     func start() {
         let (html, urlFragment, style) = rootViewController.viewModel.tokenScriptFileStatusHandler.tokenViewHtml
-        infoLog("[TokenScript] Display token: \(token.contractAddress) has TokenScript: \(rootViewController.viewModel.tokenScriptFileStatusHandler.hasAssetDefinition) view: \(html.count) urlFragment: \(String(describing: urlFragment)) style: \(style.count)")
+        logger.info("[TokenScript] Display token: \(self.token.contractAddress) has TokenScript: \(self.rootViewController.viewModel.tokenScriptFileStatusHandler.hasAssetDefinition) view: \(html.count) urlFragment: \(String(describing: urlFragment)) style: \(style.count)")
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
