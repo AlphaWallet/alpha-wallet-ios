@@ -7,7 +7,7 @@ source 'https://cdn.cocoapods.org/'
 target 'AlphaWallet' do # rubocop:disable Metrics/BlockLength
   use_frameworks!
   pod 'BigInt', '~> 3.1'
-  pod 'R.swift'
+  pod 'R.swift','7.3.2'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', git: 'https://github.com/AlphaWallet/QRCodeReaderViewController.git', commit: '09da2d4b835589972ecacd022a75bc27b2c1d1bd'
