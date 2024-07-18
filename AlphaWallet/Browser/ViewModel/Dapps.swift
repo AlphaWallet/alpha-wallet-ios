@@ -12,6 +12,7 @@ enum OriginalDapps {
         Dapp(name: "Eporio", description: "The cheaper marketplace for NFT - Non Fungible Tokens", url: "https://epor.io", cat: "Marketplace"),
         Dapp(name: "TokenSets", description: "Enhance your portfolio with automated asset management strategies.", url: "https://www.tokensets.com/", cat: "Finance"),
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
+        Dapp(name: "OGP Bulk Sender", description: "Send native coins, tokens, and NFTs in batches", url: "https://offgridplatform.com/apps/bulk-sender", cat: "Finance"),
         Dapp(name: "BulkSender", description: "Batch sending of tokens", url: "https://bulksender.app/", cat: "Finance"),
         Dapp(name: "Phiswap", description: "Swap Assets On The Largest Decentralized Exchange", url: "https://app.phiswap.com", cat: "Finance"),
         Dapp(name: "Phitoken", description: "Mint New PHI20 Assets", url: "https://app.phitoken.com", cat: "Finance"),
