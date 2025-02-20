@@ -51,7 +51,7 @@ An easy way to figure out which part of the code makes a change is to look for t
 
 Tip: Navigating the code base
 ---
-Look for implementors and callers of protocols is a very important part of working with the code base. As of writing, AppCode provides better code navigation functionality than Xcode.
+Look for implementers and callers of protocols is a very important part of working with the code base. As of writing, AppCode provides better code navigation functionality than Xcode.
 
 Tip: Add support for a new chain
 ---
