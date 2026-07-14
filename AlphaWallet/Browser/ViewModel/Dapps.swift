@@ -34,6 +34,7 @@ enum OriginalDapps {
         Dapp(name: "OpenSea", description: "Peer-to-peer marketplace for scarce digital goods", url: "https://opensea.io", cat: "Marketplace"),
         Dapp(name: "SuperRare", description: "Collect art or submit your art as a creator", url: "https://superrare.co/", cat: "Marketplace"),
         Dapp(name: "Veil", description: "A peer-to-peer trading platform for prediction markets and derivatives", url: "https://app.veil.co/", cat: "Marketplace"),
+        Dapp(name: "1024EX Predict", description: "Trade on-chain event contracts across sports, crypto, and macro events with up to 10x leverage.", url: "https://www.1024ex.com/", cat: "Defi"),
         Dapp(name: "Gravity", description: "Create your gravatar.", url: "https://gravity.cool/", cat: "Property"),
         Dapp(name: "Mokens", description: "Create your own collectibles", url: "https://mokens.io/", cat: "Property"),
         Dapp(name: "TENZ-ID", description: "TENZ-ID is a Decentralized Blockchain naming system", url: "https://tenzorum.org/tenz_id/", cat: "Property"),
